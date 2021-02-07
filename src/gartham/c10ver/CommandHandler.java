@@ -10,7 +10,7 @@ public class CommandHandler implements EventListener {
 	public void onEvent(GenericEvent event) {
 		if (event instanceof MessageReceivedEvent) {
 			var mre = (MessageReceivedEvent) event;
-			System.out.println(mre.getMessage().getContentRaw());
+
 		}
 	}
 
