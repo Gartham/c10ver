@@ -16,7 +16,9 @@ public class EventHandler implements EventListener {
 	public void onEvent(GenericEvent event) {
 		if (event instanceof MessageReceivedEvent) {
 			var mre = (MessageReceivedEvent) event;
-			var commandInvoc = clover.getCommandParser().parse(mre.getMessage().getContentRaw());
+			var commandInvoc = clover.getCommandParser().parse(mre.getMessage().getContentRaw(), mre);
+			if (commandInvoc == null)
+				return;
 			clover.getCommandProcessor().run(commandInvoc);
 		}
 	}

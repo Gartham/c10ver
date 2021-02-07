@@ -3,9 +3,34 @@ package gartham.c10ver;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.alixia.javalibrary.strings.matching.Matching;
+
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
 public class CommandParser {
 
-	public CommandInvocation parse(String text) {
+	public CommandParser(Matching matching) {
+		this.matching = matching;
+	}
+
+	private Matching matching;
+
+	public Matching getMatching() {
+		return matching;
+	}
+
+	public void setMatching(Matching matching) {
+		this.matching = matching;
+	}
+
+	public CommandInvocation parse(String text, MessageReceivedEvent event) {
+		String fullCommand = text;
+		text = matching.match(text);
+		String prefix = fullCommand.substring(0, fullCommand.length() - text.length());
+
+		if (prefix.isEmpty())
+			return null;
+
 		boolean haveParsedCmdName = false;
 		String cmdName = "";
 
@@ -36,6 +61,6 @@ public class CommandParser {
 		else
 			cmdName = currentText.toString();
 
-		return new CommandInvocation(cmdName, args.toArray(new String[args.size()]));
+		return new CommandInvocation(prefix, cmdName, event, args.toArray(new String[args.size()]));
 	}
 }

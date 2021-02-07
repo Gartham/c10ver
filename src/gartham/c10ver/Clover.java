@@ -4,27 +4,28 @@ import java.util.Scanner;
 
 import javax.security.auth.login.LoginException;
 
+import org.alixia.javalibrary.strings.matching.Matching;
+
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 
 public class Clover {
 
 	private final JDA bot;
-	private final CommandParser commandParser = new CommandParser();
+	private final CommandParser commandParser;
 	private final CommandProcessor commandProcessor = new CommandProcessor();
 	private final EventHandler eventHandler = new EventHandler(this);
 
 	{
 		commandProcessor.register(new Command() {
-
 			@Override
 			public boolean match(CommandInvocation inv) {
-				return true;
+				return "pay".equalsIgnoreCase(inv.cmdName) || "transfer".equalsIgnoreCase(inv.cmdName);
 			}
 
 			@Override
 			public void exec(CommandInvocation inv) {
-				System.out.println("ABC");
+				inv.event.getChannel().sendMessage("Sorry, that's not yet supported.").queue();
 			}
 		});
 	}
@@ -45,18 +46,15 @@ public class Clover {
 		return eventHandler;
 	}
 
-	private void prepare() {
-		bot.addEventListener(eventHandler);
-	}
-
 	public Clover(String token) throws LoginException {
-		bot = JDABuilder.createLight(token).build();
-		prepare();
+		this(JDABuilder.createLight(token).build());
 	}
 
 	public Clover(JDA jda) {
 		bot = jda;
-		prepare();
+		commandParser = new CommandParser(Matching.build("~").or(
+				Matching.build("<@").possibly("!").then(bot.getSelfUser().getId() + ">").then(Matching.whitespace())));
+		bot.addEventListener(eventHandler);
 	}
 
 	public static void main(String[] args) throws LoginException {
