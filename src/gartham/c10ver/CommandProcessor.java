@@ -8,7 +8,13 @@ public class CommandProcessor {
 
 	public void run(CommandInvocation inv) {
 		for (Command c : commands)
-			if (c.match(inv))
+			if (c.match(inv)) {
 				c.exec(inv);
+				return;
+			}
+	}
+
+	public void register(Command comm) {
+		commands.add(comm);
 	}
 }
