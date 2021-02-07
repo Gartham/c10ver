@@ -10,7 +10,7 @@ public class Clover {
 	public static void main(String[] args) throws LoginException {
 		try (var s = new Scanner(Clover.class.getResourceAsStream("token.txt"))) {
 			var jda = JDABuilder.createLight(s.nextLine()).build();
-			jda.addEventListener(new CommandHandler());
+			jda.addEventListener(new EventHandler());
 		}
 	}
 }
