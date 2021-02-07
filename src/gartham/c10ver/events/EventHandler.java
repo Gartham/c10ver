@@ -1,5 +1,6 @@
-package gartham.c10ver;
+package gartham.c10ver.events;
 
+import gartham.c10ver.Clover;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;

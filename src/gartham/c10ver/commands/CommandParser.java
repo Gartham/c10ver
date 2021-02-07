@@ -1,4 +1,4 @@
-package gartham.c10ver;
+package gartham.c10ver.commands;
 
 import java.util.ArrayList;
 import java.util.List;

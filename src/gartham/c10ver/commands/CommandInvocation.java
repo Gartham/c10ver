@@ -1,4 +1,4 @@
-package gartham.c10ver;
+package gartham.c10ver.commands;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
