@@ -30,17 +30,30 @@ public class Account implements Saveable {
 		return balance.getValue();
 	}
 
-	public void pay(BigDecimal amount, Account recipient) {
-		// TODO Code.
-
+	public boolean pay(BigDecimal amount, Account recipient) {
+		if (!withdraw(amount))
+			return false;
+		recipient.deposit(amount);
+		return true;
 	}
 
-	public void pay(BigDecimal amount) throws RuntimeException {
-		balance.setValue(balance.getValue().add(amount));
+	public void deposit(BigDecimal amt) {
+		balance.setValue(balance.getValue().add(amt));
 	}
 
-	public void pay(long amount) {
-		pay(BigDecimal.valueOf(amount));
+	public void deposit(long amt) {
+		deposit(BigDecimal.valueOf(amt));
+	}
+
+	public boolean withdraw(BigDecimal amt) {
+		if (balance.getValue().compareTo(amt) < 0)
+			return false;
+		balance.setValue(balance.getValue().subtract(amt));
+		return true;
+	}
+
+	public boolean withdraw(long amt) {
+		return withdraw(BigDecimal.valueOf(amt));
 	}
 
 	public JSONValue toJSON() {

@@ -34,8 +34,8 @@ public class Clover {
 			@Override
 			public void exec(CommandInvocation inv) {
 				String userid = inv.event.getAuthor().getId();
-				
-				economy.getAccount(userid).pay(50);
+
+				economy.getAccount(userid).deposit(50);
 				inv.event.getChannel().sendMessage("Your balance has increased by `" + 50
 						+ "` credits. Your balance is now: " + economy.getAccount(userid).getBalance().toPlainString())
 						.queue();
