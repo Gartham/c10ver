@@ -1,6 +1,8 @@
 package gartham.c10ver;
 
 import java.io.File;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Scanner;
 
 import javax.security.auth.login.LoginException;
@@ -13,6 +15,7 @@ import gartham.c10ver.commands.CommandParser;
 import gartham.c10ver.commands.CommandProcessor;
 import gartham.c10ver.economy.Economy;
 import gartham.c10ver.events.EventHandler;
+import gartham.c10ver.users.User;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 
@@ -28,17 +31,25 @@ public class Clover {
 		commandProcessor.register(new Command() {
 			@Override
 			public boolean match(CommandInvocation inv) {
-				return "get-cash".equalsIgnoreCase(inv.cmdName);
+				return "daily".equalsIgnoreCase(inv.cmdName);
 			}
 
 			@Override
 			public void exec(CommandInvocation inv) {
 				String userid = inv.event.getAuthor().getId();
 
-				economy.getAccount(userid).deposit(50);
-				inv.event.getChannel().sendMessage("Your balance has increased by `" + 50
-						+ "` credits. Your balance is now: " + economy.getAccount(userid).getBalance().toPlainString())
-						.queue();
+				User u = economy.getUser(userid);
+				if (Duration.between(u.getLastDailyInvocation(), Instant.now()).toDays() < 1)
+					inv.event.getChannel().sendMessage("You must wait at least 1 day before re-invoking this command.")
+							.queue();
+				else {
+					u.dailyInvoked();
+					long amt = (long) (Math.random() * 25 + 10);
+					u.getAccount().deposit(amt);
+					inv.event.getChannel().sendMessage("You received `" + amt + "` garthcoins. You now have `"
+							+ u.getAccount().getBalance().toPlainString() + "` garthcoins.").queue();
+				}
+
 			}
 		});
 	}

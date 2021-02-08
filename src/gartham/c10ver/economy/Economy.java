@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.apache.commons.collections4.map.HashedMap;
 
+import gartham.c10ver.users.User;
+
 public class Economy {
 
 	private final File econDir;
@@ -14,22 +16,25 @@ public class Economy {
 		File[] userFolder = dir.listFiles();
 		if (userFolder != null)
 			for (File f : userFolder)
-				if (f.isDirectory()) {
-					userAccounts.put(f.getName(), new Account(f));
-				}
+				if (f.isDirectory())
+					users.put(f.getName(), new User(f));
 	}
 
-	private final Map<String, Account> userAccounts = new HashedMap<>();
+	private final Map<String, User> users = new HashedMap<>();
 
-	public synchronized Account getAccount(String userID) throws RuntimeException {
+	public synchronized User getUser(String userID) throws RuntimeException {
 		// TODO Synch over user instead.
-		if (!userAccounts.containsKey(userID))
-			userAccounts.put(userID, new Account(new File(econDir, userID)));
-		return userAccounts.get(userID);
+		if (!users.containsKey(userID))
+			users.put(userID, new User(new File(econDir, userID)));
+		return users.get(userID);
+	}
+
+	public Account getAccount(String userID) {
+		return getUser(userID).getAccount();
 	}
 
 	public boolean hasAccount(String userID) {
-		return userAccounts.containsKey(userID);
+		return users.containsKey(userID);
 	}
 
 }

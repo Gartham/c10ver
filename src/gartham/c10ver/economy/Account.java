@@ -15,8 +15,8 @@ public class Account implements Saveable {
 
 	private final File mainAccount;
 
-	public Account(File f) {
-		mainAccount = new File(f, "main-account.txt");
+	public Account(File userDirectory) {
+		mainAccount = new File(userDirectory, "main-account.txt");
 		var mainAcc = DataUtils.loadObj(mainAccount);
 		balance = new AutosaveValue<>(mainAcc == null ? BigDecimal.ZERO : new BigDecimal(mainAcc.getString("bal")),
 				this);
