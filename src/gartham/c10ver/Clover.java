@@ -1,8 +1,6 @@
 package gartham.c10ver;
 
 import java.io.File;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.Scanner;
 
 import javax.security.auth.login.LoginException;
