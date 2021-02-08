@@ -84,6 +84,34 @@ public class Clover {
 				}
 			}
 		});
+
+		commandProcessor.register(new Command() {
+
+			@Override
+			public boolean match(CommandInvocation inv) {
+				return "monthly".equalsIgnoreCase(inv.cmdName);
+
+			}
+
+			@Override
+			public void exec(CommandInvocation inv) {
+				String userid = inv.event.getAuthor().getId();
+				User u = economy.getUser(userid);
+				if (u.timeSinceLastWeekly().toDays() < 7) {
+					inv.event.getChannel()
+							.sendMessage(inv.event.getAuthor().getAsMention() + ", you must wait `"
+									+ FormattingUtils.formatLargest(u.timeSinceLastWeekly(), 3)
+									+ "` before running that command.")
+							.queue();
+				} else {
+					u.weeklyInvoked();
+					long amt = (long) (Math.random() * 10000 + 4000);
+					u.getAccount().deposit(amt);
+					inv.event.getChannel().sendMessage("You received `" + amt + "` garthcoins. You now have `"
+							+ u.getAccount().getBalance().toPlainString() + "` garthcoins.").queue();
+				}
+			}
+		});
 	}
 
 	public JDA getBot() {
