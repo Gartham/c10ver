@@ -32,7 +32,7 @@ public class Clover {
 		commandProcessor.register(new Command() {
 			@Override
 			public boolean match(CommandInvocation inv) {
-				return "daily".equalsIgnoreCase(inv.cmdName);
+				return ("daily".equalsIgnoreCase(inv.cmdName));
 			}
 
 			@Override
@@ -41,8 +41,8 @@ public class Clover {
 
 				User u = economy.getUser(userid);
 				if (u.timeSinceLastDaily().toDays() < 1)
-					inv.event.getChannel().sendMessage(
-							"You need to wait `" + FormattingUtils.formatLargest(u.timeSinceLastDaily(), 3) + "`.")
+					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()+
+							", you must wait `" + FormattingUtils.formatLargest(u.timeSinceLastDaily(), 3) + "` before running that command.")
 							.queue();
 				else {
 					u.dailyInvoked();
@@ -53,6 +53,20 @@ public class Clover {
 				}
 
 			}
+		});
+		
+		commandProcessor.register(new  Command(){
+
+			@Override
+			public boolean match(CommandInvocation inv) {
+				return "weekly".equalsIgnoreCase(inv.cmdName);
+			}
+
+			@Override
+			public void exec(CommandInvocation inv) {
+								
+			}
+			
 		});
 	}
 
