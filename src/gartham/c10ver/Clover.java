@@ -41,8 +41,10 @@ public class Clover {
 
 				User u = economy.getUser(userid);
 				if (u.timeSinceLastDaily().toDays() < 1)
-					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()+
-							", you must wait `" + FormattingUtils.formatLargest(u.timeSinceLastDaily(), 3) + "` before running that command.")
+					inv.event.getChannel()
+							.sendMessage(inv.event.getAuthor().getAsMention() + ", you must wait `"
+									+ FormattingUtils.formatLargest(u.timeSinceLastDaily(), 3)
+									+ "` before running that command.")
 							.queue();
 				else {
 					u.dailyInvoked();
@@ -54,36 +56,33 @@ public class Clover {
 
 			}
 		});
-		
-		commandProcessor.register(new  Command(){
+
+		commandProcessor.register(new Command() {
 
 			@Override
 			public boolean match(CommandInvocation inv) {
 				return "weekly".equalsIgnoreCase(inv.cmdName);
-				
+
 			}
 
 			@Override
 			public void exec(CommandInvocation inv) {
 				String userid = inv.event.getAuthor().getId();
 				User u = economy.getUser(userid);
-				if(u.timeSinceLastWeekly().toDays() < 7){
-					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()+
-							", you must wait `" + FormattingUtils.formatLargest(u.timeSinceLastWeekly(), 3) + "` before running that command.")
+				if (u.timeSinceLastWeekly().toDays() < 7) {
+					inv.event.getChannel()
+							.sendMessage(inv.event.getAuthor().getAsMention() + ", you must wait `"
+									+ FormattingUtils.formatLargest(u.timeSinceLastWeekly(), 3)
+									+ "` before running that command.")
 							.queue();
-					
-			
-				}else {
-					
+				} else {
 					u.weeklyInvoked();
-					long amt = (long) (Math.random()*250 + 100);
+					long amt = (long) (Math.random() * 250 + 100);
 					u.getAccount().deposit(amt);
 					inv.event.getChannel().sendMessage("You received `" + amt + "` garthcoins. You now have `"
 							+ u.getAccount().getBalance().toPlainString() + "` garthcoins.").queue();
 				}
-
-				
-			} 			
+			}
 		});
 	}
 
