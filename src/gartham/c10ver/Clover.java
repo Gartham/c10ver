@@ -1,5 +1,6 @@
 package gartham.c10ver;
 
+import java.io.File;
 import java.util.Scanner;
 
 import javax.security.auth.login.LoginException;
@@ -21,7 +22,7 @@ public class Clover {
 	private final CommandParser commandParser;
 	private final CommandProcessor commandProcessor = new CommandProcessor();
 	private final EventHandler eventHandler = new EventHandler(this);
-	private final Economy economy = new Economy();
+	private final Economy economy = new Economy(new File("data/economy"));
 
 	{
 		commandProcessor.register(new Command() {
@@ -33,8 +34,8 @@ public class Clover {
 			@Override
 			public void exec(CommandInvocation inv) {
 				String userid = inv.event.getAuthor().getId();
+				
 				economy.getAccount(userid).pay(50);
-
 				inv.event.getChannel().sendMessage("Your balance has increased by `" + 50
 						+ "` credits. Your balance is now: " + economy.getAccount(userid).getBalance().toPlainString())
 						.queue();
