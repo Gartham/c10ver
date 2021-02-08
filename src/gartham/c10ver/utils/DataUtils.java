@@ -1,4 +1,4 @@
-package gartham.c10ver.data;
+package gartham.c10ver.utils;
 
 import java.io.File;
 import java.io.FileInputStream;

@@ -6,9 +6,9 @@ import java.math.BigDecimal;
 import org.alixia.javalibrary.json.JSONObject;
 import org.alixia.javalibrary.json.JSONValue;
 
-import gartham.c10ver.data.DataUtils;
 import gartham.c10ver.data.autosave.AutosaveValue;
 import gartham.c10ver.data.autosave.Saveable;
+import gartham.c10ver.utils.DataUtils;
 
 public class Account implements Saveable {
 	private AutosaveValue<BigDecimal> balance;
@@ -57,7 +57,7 @@ public class Account implements Saveable {
 	}
 
 	public JSONValue toJSON() {
-		return new JSONObject().put("bal", balance.toString());
+		return new JSONObject().put("bal", balance.getValue().toString());
 	}
 
 	@Override

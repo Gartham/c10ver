@@ -1,15 +1,16 @@
 package gartham.c10ver.users;
 
 import java.io.File;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 
 import org.alixia.javalibrary.json.JSONObject;
 
-import gartham.c10ver.data.DataUtils;
 import gartham.c10ver.data.autosave.AutosaveValue;
 import gartham.c10ver.data.autosave.Saveable;
 import gartham.c10ver.economy.Account;
+import gartham.c10ver.utils.DataUtils;
 
 public class User implements Saveable {
 
@@ -61,6 +62,18 @@ public class User implements Saveable {
 
 	public void monthlyInvoked() {
 		monthlyCommand.setValue(Instant.now());
+	}
+
+	public Duration timeSinceLastDaily() {
+		return Duration.between(getLastDailyInvocation(), Instant.now());
+	}
+
+	public Duration timeSinceLastWeekly() {
+		return Duration.between(getLastWeeklyInvocation(), Instant.now());
+	}
+
+	public Duration timeSinceLastMonthly() {
+		return Duration.between(getLastMonthlyInvocation(), Instant.now());
 	}
 
 	public JSONObject toJSON() {

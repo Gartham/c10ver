@@ -16,6 +16,7 @@ import gartham.c10ver.commands.CommandProcessor;
 import gartham.c10ver.economy.Economy;
 import gartham.c10ver.events.EventHandler;
 import gartham.c10ver.users.User;
+import gartham.c10ver.utils.FormattingUtils;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 
@@ -39,8 +40,9 @@ public class Clover {
 				String userid = inv.event.getAuthor().getId();
 
 				User u = economy.getUser(userid);
-				if (Duration.between(u.getLastDailyInvocation(), Instant.now()).toDays() < 1)
-					inv.event.getChannel().sendMessage("You must wait at least 1 day before re-invoking this command.")
+				if (u.timeSinceLastDaily().toDays() < 1)
+					inv.event.getChannel().sendMessage(
+							"You need to wait `" + FormattingUtils.formatLargest(u.timeSinceLastDaily(), 3) + "`.")
 							.queue();
 				else {
 					u.dailyInvoked();
