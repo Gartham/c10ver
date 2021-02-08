@@ -1,7 +1,6 @@
 package gartham.c10ver.economy;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 
 import org.apache.commons.collections4.map.HashedMap;
@@ -12,18 +11,12 @@ public class Economy {
 
 	public Economy(File dir) {
 		econDir = dir;
-		econDir.mkdirs();
-		if (!dir.isDirectory())
-			throw new IllegalArgumentException("Could not create Economy directory.");
-		for (File f : dir.listFiles())
-			try {
+		File[] userFolder = dir.listFiles();
+		if (userFolder != null)
+			for (File f : userFolder)
 				if (f.isDirectory()) {
-					Account a = new Account(f);
-					userAccounts.put(f.getName(), a);
+					userAccounts.put(f.getName(), new Account(f));
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 	}
 
 	private final Map<String, Account> userAccounts = new HashedMap<>();
@@ -31,11 +24,7 @@ public class Economy {
 	public synchronized Account getAccount(String userID) throws RuntimeException {
 		// TODO Synch over user instead.
 		if (!userAccounts.containsKey(userID))
-			try {
-				userAccounts.put(userID, new Account(new File(econDir, userID)));
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
+			userAccounts.put(userID, new Account(new File(econDir, userID)));
 		return userAccounts.get(userID);
 	}
 
