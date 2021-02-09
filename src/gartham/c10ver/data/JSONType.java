@@ -94,43 +94,43 @@ public class JSONType extends Observable {
 	}
 
 	protected final <V> Property<V> toStringProperty(String key, Gateway<String, V> strGateway) {
-		return new Property<>(key, toStringGateway(strGateway));
+		return toStringProperty(key, null, strGateway);
 	}
 
 	protected final <V> Property<V> toStringProperty(String key, StringGateway<V> strGateway) {
-		return new Property<>(key, toStringGateway(strGateway));
+		return toStringProperty(key, null, strGateway);
 	}
 
 	protected final <N extends Number> Property<N> integralProperty(String key, Function<JSONNumber, N> getter) {
-		return new Property<>(key, integralJsonGateway(getter));
+		return integralProperty(key, null, getter);
 	}
 
 	protected final Property<Integer> intProperty(String key) {
-		return integralProperty(key, JSONNumber::intValue);
+		return intProperty(key, 0);
 	}
 
 	protected final Property<Byte> byteProperty(String key) {
-		return integralProperty(key, JSONNumber::byteValue);
+		return byteProperty(key, (byte) 0);
 	}
 
 	protected final Property<Long> longProperty(String key) {
-		return integralProperty(key, JSONNumber::longValue);
+		return longProperty(key, 0);
 	}
 
 	protected final Property<BigDecimal> bigDecimalProperty(String key) {
-		return toStringProperty(key, BigDecimal::new);
+		return bigDecimalProperty(key, null);
 	}
 
 	protected final Property<BigInteger> bigIntegerProperty(String key) {
-		return toStringProperty(key, BigInteger::new);
+		return bigIntegerProperty(key, null);
 	}
 
 	protected final Property<Instant> instantProperty(String key) {
-		return toStringProperty(key, Instant::parse);
+		return instantProperty(key, null);
 	}
 
 	protected final Property<Duration> durationProperty(String key) {
-		return toStringProperty(key, Duration::parse);
+		return durationProperty(key, null);
 	}
 
 	protected class Property<V> extends Observable {
@@ -212,6 +212,48 @@ public class JSONType extends Observable {
 
 	protected final Property<Duration> durationProperty(String key, Duration def) {
 		return toStringProperty(key, def, Duration::parse);
+	}
+
+	protected final Property<String> stringProperty(String key, String def) {
+		return new Property<>(key, def, new Gateway<String, JSONValue>() {
+
+			@Override
+			public JSONValue to(String value) {
+				return new JSONString(value);
+			}
+
+			@Override
+			public String from(JSONValue value) {
+				return ((JSONString) value).getValue();
+			}
+		});
+	}
+
+	protected final <E extends Enum<E>> Property<E> enumStringProperty(String key, E def, Class<E> enumType) {
+		return toStringProperty(key, def, value -> Enum.valueOf(enumType, key));
+	}
+
+	protected final <E extends Enum<E>> Property<E> enumStringProperty(String key, Class<E> enumType) {
+		return toStringProperty(key, null, value -> Enum.valueOf(enumType, key));
+	}
+
+	protected final <E extends Enum<E>> Property<E> enumProperty(String key, E def, Class<E> enumType) {
+		return new Property<E>(key, def, new Gateway<E, JSONValue>() {
+
+			@Override
+			public JSONValue to(E value) {
+				return new JSONNumber(value.ordinal());
+			}
+
+			@Override
+			public E from(JSONValue value) {
+				return enumType.getEnumConstants()[((JSONNumber) value).intValue()];
+			}
+		});
+	}
+
+	protected final <E extends Enum<E>> Property<E> enumProperty(String key, Class<E> enumType) {
+		return enumProperty(key, null, enumType);
 	}
 
 }
