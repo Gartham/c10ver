@@ -5,7 +5,7 @@ import org.alixia.javalibrary.json.JSONObject;
 import gartham.c10ver.data.PropertyObject;
 
 public abstract class Item extends PropertyObject {
-	private final Property<String> ownerID = stringProperty("owner-id"), itemType = stringProperty("item-type"), icon;
+	protected final Property<String> ownerID = stringProperty("owner-id"), itemType = stringProperty("item-type"), icon;
 
 	public Item() {
 		this((String) null);

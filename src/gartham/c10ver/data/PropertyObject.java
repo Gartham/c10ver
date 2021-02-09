@@ -4,7 +4,10 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 
 import org.alixia.javalibrary.json.JSONNumber;
@@ -138,6 +141,64 @@ public class PropertyObject extends Observable {
 		private V value, def;
 		private final Gateway<V, JSONValue> converter;
 
+		private final Set<Binding<? super V>> bindings = new HashSet<>();
+
+		private Property<? extends V> propertyBinding;
+		private Set<Property<? super V>> propertyBindings = new HashSet<>();
+
+		/**
+		 * <p>
+		 * Registers a {@link Binding} to this {@link Property}. Whenever this
+		 * {@link Property} changes, the specified {@link Binding} will be called with
+		 * the value that this property changed to.
+		 * </p>
+		 * <p>
+		 * {@link Binding}s
+		 * 
+		 * @param binding
+		 */
+		public void register(Binding<? super V> binding) {
+			bindings.add(binding);
+		}
+
+		/**
+		 * <p>
+		 * Binds the specified property to this property. If the provided property has a
+		 * different value from this one, this one is set to the value of the provided
+		 * property.
+		 * </p>
+		 * <p>
+		 * Providing <code>null</code> to this method is equivalent to calling
+		 * {@link #unbind()}.
+		 * </p>
+		 * 
+		 * @param binding The other property to bind this property to.
+		 */
+		public void bind(Property<? extends V> binding) {
+			for (Property<? extends V> b = binding; b.propertyBinding != null; b = b.propertyBinding)
+				if (b == this)
+					throw new IllegalArgumentException("Cyclic binding detected.");
+			binding.propertyBindings.add(this);
+			if (binding != null && !Objects.equals(binding.get(), get()))
+				set(binding.get());
+			propertyBinding = binding;
+		}
+
+		/**
+		 * Unbinds this property from the bound property, if it was already bound.
+		 * Otherwise, does nothing.
+		 */
+		public void unbind() {
+			if (propertyBinding != null) {
+				propertyBinding.propertyBindings.remove(this);
+				propertyBinding = null;
+			}
+		}
+
+		public void unregister(Binding<? super V> binding) {
+			bindings.remove(binding);
+		}
+
 		private void load() {
 			if (properties.containsKey(key))
 				value = converter.from(properties.get(key));
@@ -155,7 +216,13 @@ public class PropertyObject extends Observable {
 		}
 
 		public void set(V value) {
+			if (value == this.value)
+				return;
 			this.value = value;
+			for (Binding<? super V> b : bindings)
+				b.propagateChange(value);
+			for (Property<? super V> p : propertyBindings)
+				p.set(value);
 			change();
 		}
 
