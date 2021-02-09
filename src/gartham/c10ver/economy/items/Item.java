@@ -16,7 +16,7 @@ public abstract class Item extends PropertyObject {
 	}
 
 	public Item(String defaultIcon) {
-		icon = defaultIcon==null? stringProperty("icon"):stringProperty("icon", defaultIcon);
+		icon = defaultIcon == null ? stringProperty("icon") : stringProperty("icon", defaultIcon);
 	}
 
 	public Item(JSONObject properties, String defaultIcon) {
@@ -40,7 +40,7 @@ public abstract class Item extends PropertyObject {
 		return icon.get();
 	}
 
-	public void setIcon(String icon) {
+	protected final void setIcon(String icon) {
 		this.icon.set(icon);
 	}
 
