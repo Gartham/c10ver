@@ -167,4 +167,44 @@ public class JSONType extends Observable {
 
 	}
 
+	protected final <V> Property<V> toStringProperty(String key, V def, Gateway<String, V> strGateway) {
+		return new Property<>(key, def, toStringGateway(strGateway));
+	}
+
+	protected final <V> Property<V> toStringProperty(String key, V def, StringGateway<V> strGateway) {
+		return new Property<>(key, def, toStringGateway(strGateway));
+	}
+
+	protected final <N extends Number> Property<N> integralProperty(String key, N def, Function<JSONNumber, N> getter) {
+		return new Property<>(key, def, integralJsonGateway(getter));
+	}
+
+	protected final Property<Integer> intProperty(String key, int def) {
+		return integralProperty(key, def, JSONNumber::intValue);
+	}
+
+	protected final Property<Byte> byteProperty(String key, byte def) {
+		return integralProperty(key, def, JSONNumber::byteValue);
+	}
+
+	protected final Property<Long> longProperty(String key, long def) {
+		return integralProperty(key, def, JSONNumber::longValue);
+	}
+
+	protected final Property<BigDecimal> bigDecimalProperty(String key, BigDecimal def) {
+		return toStringProperty(key, def, BigDecimal::new);
+	}
+
+	protected final Property<BigInteger> bigIntegerProperty(String key, BigInteger def) {
+		return toStringProperty(key, def, BigInteger::new);
+	}
+
+	protected final Property<Instant> instantProperty(String key, Instant def) {
+		return toStringProperty(key, def, Instant::parse);
+	}
+
+	protected final Property<Duration> durationProperty(String key, Duration def) {
+		return toStringProperty(key, def, Duration::parse);
+	}
+
 }
