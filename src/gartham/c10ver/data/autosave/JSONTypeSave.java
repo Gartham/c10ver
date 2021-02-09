@@ -2,10 +2,10 @@ package gartham.c10ver.data.autosave;
 
 import java.io.File;
 
-import gartham.c10ver.data.JSONType;
+import gartham.c10ver.data.PropertyObject;
 import gartham.c10ver.utils.DataUtils;
 
-public class JSONTypeSave extends JSONType {
+public class JSONTypeSave extends PropertyObject {
 
 	private final File saveLocation;
 

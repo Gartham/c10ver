@@ -16,7 +16,7 @@ import org.alixia.javalibrary.util.StringGateway;
 
 import gartham.c10ver.data.observe.Observable;
 
-public class JSONType extends Observable {
+public class PropertyObject extends Observable {
 
 	private final JSONObject properties;
 
@@ -24,11 +24,11 @@ public class JSONType extends Observable {
 		return properties;
 	}
 
-	public JSONType(JSONObject properties) {
+	public PropertyObject(JSONObject properties) {
 		this.properties = properties == null ? new JSONObject() : properties;
 	}
 
-	public JSONType() {
+	public PropertyObject() {
 		this(new JSONObject());
 	}
 
@@ -169,7 +169,7 @@ public class JSONType extends Observable {
 				properties.remove(key);
 			else
 				properties.put(key, converter.to(value));
-			JSONType.this.change();
+			PropertyObject.this.change();
 		}
 
 	}

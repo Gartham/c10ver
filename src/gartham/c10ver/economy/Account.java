@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import org.alixia.javalibrary.json.JSONObject;
 import org.alixia.javalibrary.json.JSONValue;
 
-import gartham.c10ver.data.JSONType;
+import gartham.c10ver.data.PropertyObject;
 import gartham.c10ver.data.autosave.AutosaveValue;
 import gartham.c10ver.data.autosave.Changeable;
 import gartham.c10ver.data.autosave.JSONTypeSave;

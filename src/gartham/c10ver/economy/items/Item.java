@@ -2,9 +2,9 @@ package gartham.c10ver.economy.items;
 
 import org.alixia.javalibrary.json.JSONObject;
 
-import gartham.c10ver.data.JSONType;
+import gartham.c10ver.data.PropertyObject;
 
-public abstract class Item extends JSONType {
+public abstract class Item extends PropertyObject {
 	private final Property<String> ownerID = stringProperty("owner-id"), itemType = stringProperty("item-type"), icon;
 
 	public Item() {

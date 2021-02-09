@@ -7,7 +7,7 @@ import java.time.format.DateTimeFormatter;
 
 import org.alixia.javalibrary.json.JSONObject;
 
-import gartham.c10ver.data.JSONType;
+import gartham.c10ver.data.PropertyObject;
 import gartham.c10ver.data.autosave.AutosaveValue;
 import gartham.c10ver.data.autosave.Changeable;
 import gartham.c10ver.data.autosave.JSONTypeSave;
