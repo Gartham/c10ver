@@ -4,8 +4,11 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
@@ -18,13 +21,19 @@ import org.alixia.javalibrary.util.Gateway;
 import org.alixia.javalibrary.util.StringGateway;
 
 import gartham.c10ver.data.observe.Observable;
+import gartham.c10ver.economy.items.Item;
 
 public class PropertyObject extends Observable {
 
 	private final JSONObject properties;
+	private final Map<String, Property<?>> propertyMap = new HashMap<>();
 
 	protected final JSONObject getProperties() {
 		return properties;
+	}
+
+	protected final Map<String, Property<?>> getPropertyMap() {
+		return propertyMap;
 	}
 
 	public PropertyObject(JSONObject properties) {
@@ -137,6 +146,7 @@ public class PropertyObject extends Observable {
 	}
 
 	protected class Property<V> extends Observable {
+
 		private final String key;
 		private V value, def;
 		private final Gateway<V, JSONValue> converter;
@@ -145,6 +155,22 @@ public class PropertyObject extends Observable {
 
 		private Property<? extends V> propertyBinding;
 		private Set<Property<? super V>> propertyBindings = new HashSet<>();
+		/**
+		 * Determines whether this property represents an attribute of this
+		 * {@link PropertyObject} or not. In a check for {@link Item#stackable(Item)
+		 * stackability}, properties that are not designated as {@link #attribute
+		 * attributes} are ignored.
+		 */
+		private boolean attribute = true;
+
+		public boolean isAttribute() {
+			return attribute;
+		}
+
+		public Property<V> setAttribute(boolean attribute) {
+			this.attribute = attribute;
+			return this;
+		}
 
 		/**
 		 * <p>
@@ -212,6 +238,7 @@ public class PropertyObject extends Observable {
 			this.key = key;
 			value = this.def = def;
 			this.converter = converter;
+			propertyMap.put(key, this);
 			load();
 		}
 
@@ -232,10 +259,13 @@ public class PropertyObject extends Observable {
 
 		@Override
 		public void change() {
-			if (Objects.equals(def, value))
+			if (Objects.equals(def, value)) {
 				properties.remove(key);
-			else
+				propertyMap.remove(key);
+			} else {
 				properties.put(key, converter.to(value));
+				propertyMap.put(key, this);
+			}
 			PropertyObject.this.change();
 		}
 
