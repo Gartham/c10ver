@@ -10,11 +10,11 @@ import org.alixia.javalibrary.json.JSONObject;
 import gartham.c10ver.data.PropertyObject;
 import gartham.c10ver.data.autosave.AutosaveValue;
 import gartham.c10ver.data.autosave.Changeable;
-import gartham.c10ver.data.autosave.JSONTypeSave;
+import gartham.c10ver.data.autosave.SavablePropertyObject;
 import gartham.c10ver.economy.Account;
 import gartham.c10ver.utils.DataUtils;
 
-public class User extends JSONTypeSave {
+public class User extends SavablePropertyObject {
 
 	private final Property<Instant> dailyCommand = instantProperty("daily", Instant.MIN),
 			weeklyCommand = instantProperty("weekly", Instant.MIN),

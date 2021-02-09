@@ -5,7 +5,7 @@ import java.io.File;
 import gartham.c10ver.data.PropertyObject;
 import gartham.c10ver.utils.DataUtils;
 
-public class JSONTypeSave extends PropertyObject {
+public class SavablePropertyObject extends PropertyObject {
 
 	private final File saveLocation;
 
@@ -13,7 +13,7 @@ public class JSONTypeSave extends PropertyObject {
 		return saveLocation;
 	}
 
-	public JSONTypeSave(File saveLocation) {
+	public SavablePropertyObject(File saveLocation) {
 		super(DataUtils.loadObj(saveLocation));
 		this.saveLocation = saveLocation;
 	}
