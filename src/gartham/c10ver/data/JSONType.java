@@ -156,6 +156,7 @@ public class JSONType extends Observable {
 
 		public void set(V value) {
 			this.value = value;
+			change();
 		}
 
 		public V get() {
@@ -168,6 +169,7 @@ public class JSONType extends Observable {
 				properties.remove(key);
 			else
 				properties.put(key, converter.to(value));
+			JSONType.this.change();
 		}
 
 	}
