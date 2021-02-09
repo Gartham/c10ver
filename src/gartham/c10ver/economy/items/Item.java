@@ -5,13 +5,23 @@ import org.alixia.javalibrary.json.JSONObject;
 import gartham.c10ver.data.JSONType;
 
 public abstract class Item extends JSONType {
-	private final Property<String> ownerID = stringProperty("owner-id"), itemType = stringProperty("item-type");
+	private final Property<String> ownerID = stringProperty("owner-id"), itemType = stringProperty("item-type"), icon;
 
 	public Item() {
+		this((String) null);
 	}
 
 	public Item(JSONObject properties) {
+		this(properties, null);
+	}
+
+	public Item(String defaultIcon) {
+		icon = defaultIcon==null? stringProperty("icon"):stringProperty("icon", defaultIcon);
+	}
+
+	public Item(JSONObject properties, String defaultIcon) {
 		super(properties);
+		icon = stringProperty("icon");
 	}
 
 	public void setOwnerID(String value) {
@@ -24,6 +34,14 @@ public abstract class Item extends JSONType {
 
 	public String getItemType() {
 		return itemType.get();
+	}
+
+	public String getIcon() {
+		return icon.get();
+	}
+
+	public void setIcon(String icon) {
+		this.icon.set(icon);
 	}
 
 }
