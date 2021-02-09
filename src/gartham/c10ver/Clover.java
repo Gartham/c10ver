@@ -1,6 +1,7 @@
 package gartham.c10ver;
 
 import java.io.File;
+import java.time.Duration;
 import java.util.Scanner;
 
 import javax.security.auth.login.LoginException;
@@ -41,7 +42,7 @@ public class Clover {
 				if (u.timeSinceLastDaily().toDays() < 1)
 					inv.event.getChannel()
 							.sendMessage(inv.event.getAuthor().getAsMention() + ", you must wait `"
-									+ FormattingUtils.formatLargest(u.timeSinceLastDaily(), 3)
+									+ FormattingUtils.formatLargest(Duration.ofDays(1).minus(u.timeSinceLastDaily()), 3)
 									+ "` before running that command.")
 							.queue();
 				else {
@@ -69,8 +70,9 @@ public class Clover {
 				User u = economy.getUser(userid);
 				if (u.timeSinceLastWeekly().toDays() < 7) {
 					inv.event.getChannel()
-							.sendMessage(inv.event.getAuthor().getAsMention() + ", you must wait `"
-									+ FormattingUtils.formatLargest(u.timeSinceLastWeekly(), 3)
+							.sendMessage(inv.event.getAuthor().getAsMention()
+									+ ", you must wait `" + FormattingUtils
+											.formatLargest(Duration.ofDays(7).minus(u.timeSinceLastWeekly()), 3)
 									+ "` before running that command.")
 							.queue();
 				} else {
@@ -97,8 +99,9 @@ public class Clover {
 				User u = economy.getUser(userid);
 				if (u.timeSinceLastWeekly().toDays() < 7) {
 					inv.event.getChannel()
-							.sendMessage(inv.event.getAuthor().getAsMention() + ", you must wait `"
-									+ FormattingUtils.formatLargest(u.timeSinceLastWeekly(), 3)
+							.sendMessage(inv.event.getAuthor().getAsMention()
+									+ ", you must wait `" + FormattingUtils
+											.formatLargest(Duration.ofDays(30).minus(u.timeSinceLastWeekly()), 3)
 									+ "` before running that command.")
 							.queue();
 				} else {
