@@ -7,10 +7,10 @@ import org.alixia.javalibrary.json.JSONObject;
 import org.alixia.javalibrary.json.JSONValue;
 
 import gartham.c10ver.data.autosave.AutosaveValue;
-import gartham.c10ver.data.autosave.Saveable;
+import gartham.c10ver.data.autosave.Changeable;
 import gartham.c10ver.utils.DataUtils;
 
-public class Account implements Saveable {
+public class Account implements Changeable {
 	private AutosaveValue<BigDecimal> balance;
 
 	private final File mainAccount;
@@ -61,7 +61,7 @@ public class Account implements Saveable {
 	}
 
 	@Override
-	public void save() {
+	public void change() {
 		DataUtils.save(toJSON(), mainAccount);
 	}
 

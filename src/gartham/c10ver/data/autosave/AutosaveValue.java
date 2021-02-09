@@ -4,9 +4,9 @@ import java.util.List;
 
 public class AutosaveValue<T> {
 	private T value;
-	private final Saveable saveable;
+	private final Changeable saveable;
 
-	public AutosaveValue(T value, Saveable saveable) {
+	public AutosaveValue(T value, Changeable saveable) {
 		this.value = value;
 		this.saveable = saveable;
 	}
@@ -17,7 +17,7 @@ public class AutosaveValue<T> {
 
 	public void setValue(T value) {
 		this.value = value;
-		saveable.save();
+		saveable.change();
 	}
 
 }

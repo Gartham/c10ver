@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.alixia.javalibrary.json.JSONNumber;
@@ -14,17 +13,9 @@ import org.alixia.javalibrary.json.JSONValue;
 import org.alixia.javalibrary.util.Gateway;
 import org.alixia.javalibrary.util.StringGateway;
 
-public class JSONType implements Saveable {
+import gartham.c10ver.data.observe.Observable;
 
-	private Consumer<JSONType> saver;
-
-	public Consumer<JSONType> getSaver() {
-		return saver;
-	}
-
-	public void setSaver(Consumer<JSONType> saver) {
-		this.saver = saver;
-	}
+public class JSONType extends Observable {
 
 	private final JSONObject properties = new JSONObject();
 
@@ -129,7 +120,7 @@ public class JSONType implements Saveable {
 		return toStringProperty(key, Duration::parse);
 	}
 
-	protected class Property<V> implements Saveable {
+	protected class Property<V> implements Changeable {
 		private final String key;
 		private final AutosaveValue<V> value;
 		private final Gateway<V, JSONValue> converter;
@@ -153,18 +144,13 @@ public class JSONType implements Saveable {
 		}
 
 		@Override
-		public void save() {
+		public void change() {
 			if (value.getValue() == null)
 				properties.remove(key);
 			else
 				properties.put(key, converter.to(value.getValue()));
 		}
 
-	}
-
-	@Override
-	public void save() {
-		saver.accept(this);
 	}
 
 }

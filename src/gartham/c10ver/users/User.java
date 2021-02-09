@@ -8,11 +8,11 @@ import java.time.format.DateTimeFormatter;
 import org.alixia.javalibrary.json.JSONObject;
 
 import gartham.c10ver.data.autosave.AutosaveValue;
-import gartham.c10ver.data.autosave.Saveable;
+import gartham.c10ver.data.autosave.Changeable;
 import gartham.c10ver.economy.Account;
 import gartham.c10ver.utils.DataUtils;
 
-public class User implements Saveable {
+public class User implements Changeable {
 
 	private final AutosaveValue<Instant> dailyCommand, weeklyCommand, monthlyCommand;
 	private final Account account;
@@ -84,7 +84,7 @@ public class User implements Saveable {
 	}
 
 	@Override
-	public void save() {
+	public void change() {
 		DataUtils.save(toJSON(), userData);
 	}
 
