@@ -17,7 +17,15 @@ import gartham.c10ver.data.observe.Observable;
 
 public class JSONType extends Observable {
 
-	private final JSONObject properties = new JSONObject();
+	private final JSONObject properties;
+
+	public JSONType(JSONObject properties) {
+		this.properties = properties;
+	}
+
+	public JSONType() {
+		this(new JSONObject());
+	}
 
 	protected final Property<String> stringProperty(String key) {
 		return new Property<>(key, new Gateway<String, JSONValue>() {
@@ -120,35 +128,41 @@ public class JSONType extends Observable {
 		return toStringProperty(key, Duration::parse);
 	}
 
-	protected class Property<V> implements Changeable {
+	protected class Property<V> extends Observable {
 		private final String key;
-		private final AutosaveValue<V> value;
+		private V value, def;
 		private final Gateway<V, JSONValue> converter;
+
+		private void load() {
+			if (properties.containsKey(key))
+				value = converter.from(properties.get(key));
+		}
 
 		public Property(String key, Gateway<V, JSONValue> converter) {
 			this(key, null, converter);
 		}
 
-		public Property(String key, V value, Gateway<V, JSONValue> converter) {
+		public Property(String key, V def, Gateway<V, JSONValue> converter) {
 			this.key = key;
-			this.value = new AutosaveValue<>(value, JSONType.this);
+			value = this.def = def;
 			this.converter = converter;
+			load();
 		}
 
 		public void set(V value) {
-			this.value.setValue(value);
+			this.value = value;
 		}
 
 		public V get() {
-			return value.getValue();
+			return value;
 		}
 
 		@Override
 		public void change() {
-			if (value.getValue() == null)
+			if (value == null)
 				properties.remove(key);
 			else
-				properties.put(key, converter.to(value.getValue()));
+				properties.put(key, converter.to(value));
 		}
 
 	}
