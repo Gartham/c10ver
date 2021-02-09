@@ -7,61 +7,52 @@ import java.time.format.DateTimeFormatter;
 
 import org.alixia.javalibrary.json.JSONObject;
 
+import gartham.c10ver.data.JSONType;
 import gartham.c10ver.data.autosave.AutosaveValue;
 import gartham.c10ver.data.autosave.Changeable;
+import gartham.c10ver.data.autosave.JSONTypeSave;
 import gartham.c10ver.economy.Account;
 import gartham.c10ver.utils.DataUtils;
 
-public class User implements Changeable {
+public class User extends JSONTypeSave {
 
-	private final AutosaveValue<Instant> dailyCommand, weeklyCommand, monthlyCommand;
+	private final Property<Instant> dailyCommand = instantProperty("daily", Instant.MIN),
+			weeklyCommand = instantProperty("weekly", Instant.MIN),
+			monthlyCommand = instantProperty("monthly", Instant.MIN);
+
 	private final Account account;
 
 	public Account getAccount() {
 		return account;
 	}
 
-	private final File userData;
-
 	public User(File userDirectory) {
-		userData = new File(userDirectory, "user-data.txt");
+		super(new File(userDirectory, "user-data.txt"));
 		account = new Account(userDirectory);
-
-		var userDat = DataUtils.loadObj(userData);
-		if (userDat == null) {
-			dailyCommand = new AutosaveValue<>(Instant.MIN, this);
-			weeklyCommand = new AutosaveValue<>(Instant.MIN, this);
-			monthlyCommand = new AutosaveValue<>(Instant.MIN, this);
-		} else {
-			dailyCommand = new AutosaveValue<>(Instant.parse(userDat.getString("daily")), this);
-			weeklyCommand = new AutosaveValue<>(Instant.parse(userDat.getString("weekly")), this);
-			monthlyCommand = new AutosaveValue<>(Instant.parse(userDat.getString("monthly")), this);
-		}
-
 	}
 
 	public Instant getLastDailyInvocation() {
-		return dailyCommand.getValue();
+		return dailyCommand.get();
 	}
 
 	public Instant getLastWeeklyInvocation() {
-		return weeklyCommand.getValue();
+		return weeklyCommand.get();
 	}
 
 	public Instant getLastMonthlyInvocation() {
-		return monthlyCommand.getValue();
+		return monthlyCommand.get();
 	}
 
 	public void dailyInvoked() {
-		dailyCommand.setValue(Instant.now());
+		dailyCommand.set(Instant.now());
 	}
 
 	public void weeklyInvoked() {
-		weeklyCommand.setValue(Instant.now());
+		weeklyCommand.set(Instant.now());
 	}
 
 	public void monthlyInvoked() {
-		monthlyCommand.setValue(Instant.now());
+		monthlyCommand.set(Instant.now());
 	}
 
 	public Duration timeSinceLastDaily() {
@@ -74,18 +65,6 @@ public class User implements Changeable {
 
 	public Duration timeSinceLastMonthly() {
 		return Duration.between(getLastMonthlyInvocation(), Instant.now());
-	}
-
-	public JSONObject toJSON() {
-		var dtf = DateTimeFormatter.ISO_INSTANT;
-		return new JSONObject().put("daily", dtf.format(dailyCommand.getValue()))
-				.put("weekly", dtf.format(weeklyCommand.getValue()))
-				.put("monthly", dtf.format(monthlyCommand.getValue()));
-	}
-
-	@Override
-	public void change() {
-		DataUtils.save(toJSON(), userData);
 	}
 
 }

@@ -1,9 +1,10 @@
-package gartham.c10ver.data.autosave;
+package gartham.c10ver.data;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.function.Function;
 
 import org.alixia.javalibrary.json.JSONNumber;
@@ -19,8 +20,12 @@ public class JSONType extends Observable {
 
 	private final JSONObject properties;
 
+	protected final JSONObject getProperties() {
+		return properties;
+	}
+
 	public JSONType(JSONObject properties) {
-		this.properties = properties;
+		this.properties = properties == null ? new JSONObject() : properties;
 	}
 
 	public JSONType() {
@@ -159,7 +164,7 @@ public class JSONType extends Observable {
 
 		@Override
 		public void change() {
-			if (value == null)
+			if (Objects.equals(def, value))
 				properties.remove(key);
 			else
 				properties.put(key, converter.to(value));
