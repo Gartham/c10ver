@@ -190,7 +190,7 @@ public class Inventory {
 			private boolean alive = true;
 
 			public boolean stackable(Item other) {
-				return item.get().stackable(other);
+				return getItem().stackable(other);
 			}
 
 			public BigInteger count() {
@@ -260,10 +260,26 @@ public class Inventory {
 				save();
 			}
 
+			public String getIcon() {
+				return getItem().getIcon();
+			}
+
+			public String getName() {
+				return getItem().getItemName();
+			}
+
 		}
 
 		public String getType() {
 			return stacks.get(0).getType();
+		}
+
+		public String getIcon() {
+			return stacks.get(0).getIcon();
+		}
+
+		public String getName() {
+			return stacks.get(0).getName();
 		}
 
 		public List<ItemStack> getStacks() {
