@@ -9,8 +9,13 @@ import gartham.c10ver.commands.CommandInvocation;
 import gartham.c10ver.commands.CommandProcessor;
 import gartham.c10ver.commands.MatchBasedCommand;
 import gartham.c10ver.economy.Account;
+import gartham.c10ver.economy.items.Inventory;
+import gartham.c10ver.economy.items.Inventory.Entry;
+import gartham.c10ver.economy.items.LootCrateItem;
+import gartham.c10ver.economy.items.LootCrateItem.CrateType;
 import gartham.c10ver.users.User;
 import gartham.c10ver.utils.FormattingUtils;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 public class CloverCommandProcessor extends CommandProcessor {
 
@@ -145,5 +150,54 @@ public class CloverCommandProcessor extends CommandProcessor {
 						.queue();
 			}
 		});
+
+		register(new MatchBasedCommand("test") {
+
+			@Override
+			public void exec(CommandInvocation inv) {
+				Inventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
+				invent.add(new LootCrateItem(CrateType.DAILY));
+				inv.event.getChannel().sendMessage("Test").queue();
+			}
+		});
+
+		register(new MatchBasedCommand("inventory", "inv") {
+
+			@Override
+			public void exec(CommandInvocation inv) {
+
+//				SHOW_ENTRIES: {
+//					int page;
+//					try {
+//						page = Integer.parseInt(inv.args[0]);
+//					} catch (NumberFormatException e) {
+//						break SHOW_ENTRIES;
+//					}
+//
+//					return;
+//				}
+
+				Inventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
+				EmbedBuilder eb = new EmbedBuilder();
+
+				eb.setAuthor(inv.event.getAuthor().getAsTag() + "'s Inventory", null,
+						inv.event.getAuthor().getEffectiveAvatarUrl());
+				eb.setDescription('*' + inv.event.getAuthor().getAsMention() + " has `" + invent.getEntryCount() + "` "
+						+ (invent.getEntryCount() == 1 ? "type of item" : "different types of items") + " and `"
+						+ invent.getTotalItemCount() + "` total items.*");
+				print(invent.getPage(1, 9), eb);
+				inv.event.getChannel().sendMessage(eb.build()).queue();
+			}
+		});
+
+	}
+
+	private final static EmbedBuilder print(List<Entry<?>> entries, EmbedBuilder builder) {
+		for (Entry<?> e : entries) {
+			BigInteger totalCount = e.getTotalCount();
+			builder.addField(e.getIcon() + ' ' + e.getName(), " *You have [`" + totalCount + "`](https://clover.gartham.com 'Item ID: "
+					+ e.getType() + ". Use the ID to get or interact with the item.') of this.*", true);
+		}
+		return builder;
 	}
 }
