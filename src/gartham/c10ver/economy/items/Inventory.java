@@ -13,7 +13,7 @@ public class Inventory {
 
 	private static class ItemStack<I extends Item> extends PropertyObject {
 
-		private final Property<I> item = toObjectProperty("item", null);// TODO Finish
+		private final Property<I> item = toObjectProperty("item", ItemReifier::reify);
 		private final Property<BigInteger> count = bigIntegerProperty("count", BigInteger.ONE);
 
 		public I getItem() {
