@@ -38,21 +38,24 @@ public abstract class Item extends PropertyObject {
 		return true;
 	}
 
-	public Item() {
-		this((String) null);
+	public Item(String type) {
+		this(type, (String) null);
 	}
 
-	public Item(JSONObject properties) {
-		this(properties, null);
+	public Item(String type, JSONObject properties) {
+		this(type, properties, null);
 	}
 
-	public Item(String defaultIcon) {
+	public Item(String type, String defaultIcon) {
 		icon = defaultIcon == null ? stringProperty("icon") : stringProperty("icon", defaultIcon);
 	}
 
-	public Item(JSONObject properties, String defaultIcon) {
+	public Item(String type, JSONObject properties, String defaultIcon) {
 		super(properties);
 		icon = stringProperty("icon");
+		if (!getItemType().equals(type))
+			throw new IllegalArgumentException("Invalid object to load from. JSONObject represents a(n) "
+					+ getItemType() + ", while construction is for object of type: " + type + '.');
 	}
 
 	public void setOwnerID(String value) {
