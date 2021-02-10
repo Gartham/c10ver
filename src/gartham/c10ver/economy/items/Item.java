@@ -9,7 +9,15 @@ import gartham.c10ver.data.PropertyObject;
 
 public abstract class Item extends PropertyObject {
 	protected final Property<String> ownerID = stringProperty("owner-id").setAttribute(false),
-			itemType = stringProperty("item-type").setAttribute(false), icon;
+			itemType = stringProperty("item-type").setAttribute(false), itemName, icon;
+
+	public String getItemName() {
+		return itemName.get();
+	}
+
+	protected final void setItemName(String name) {
+		itemName.set(name);
+	}
 
 	/**
 	 * Determines whether the other item can be combined with this one. More
@@ -38,26 +46,29 @@ public abstract class Item extends PropertyObject {
 		return true;
 	}
 
-	public Item(String type) {
-		this(type, (String) null);
+	public Item(String type, String itemName) {
+		this(type, itemName, (String) null);
 	}
 
-	public Item(String type, JSONObject properties) {
-		this(type, properties, null);
+	public Item(String type, String itemName, JSONObject properties) {
+		this(type, itemName, properties, null);
 	}
 
-	public Item(String type, String defaultIcon) {
+	public Item(String type, String itemName, String defaultIcon) {
 		icon = defaultIcon == null ? stringProperty("icon") : stringProperty("icon", defaultIcon);
+		icon.setAttribute(false);
 		itemType.load(type);
+		this.itemName = stringProperty("item-name", itemName).setAttribute(false);
 	}
 
-	public Item(String type, JSONObject properties, String defaultIcon) {
+	public Item(String type, String itemName, JSONObject properties, String defaultIcon) {
 		super(properties);
 		icon = stringProperty("icon");
 		if (!getItemType().equals(type))
 			throw new IllegalArgumentException("Invalid object to load from. JSONObject represents a(n) "
 					+ getItemType() + ", while construction is for object of type: " + type + '.');
 		itemType.load(type);
+		this.itemName = stringProperty("item-name", itemName).setAttribute(false);
 	}
 
 	public void setOwnerID(String value) {

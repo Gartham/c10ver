@@ -4,7 +4,7 @@ import org.alixia.javalibrary.json.JSONObject;
 
 public class LootCrateItem extends Item {
 
-	public static final String ITEM_TYPE = "loot-crate";
+	public static final String ITEM_TYPE = "loot-crate", ITEM_NAME = "Loot Crate";
 	private final Property<CrateType> type = enumProperty("type", CrateType.DAILY, CrateType.class);
 	{
 		type.register(a -> icon.set(a.icon));
@@ -27,12 +27,12 @@ public class LootCrateItem extends Item {
 	}
 
 	public LootCrateItem(CrateType type) {
-		super(ITEM_TYPE);
+		super(ITEM_TYPE, ITEM_NAME);
 		this.type.set(type);
 		setIcon(type.icon);
 	}
 
 	public LootCrateItem(JSONObject obj) {
-		super(ITEM_TYPE, obj);
+		super(ITEM_TYPE, ITEM_NAME, obj);
 	}
 }
