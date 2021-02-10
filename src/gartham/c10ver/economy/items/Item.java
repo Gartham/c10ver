@@ -48,6 +48,7 @@ public abstract class Item extends PropertyObject {
 
 	public Item(String type, String defaultIcon) {
 		icon = defaultIcon == null ? stringProperty("icon") : stringProperty("icon", defaultIcon);
+		itemType.load(type);
 	}
 
 	public Item(String type, JSONObject properties, String defaultIcon) {
@@ -56,6 +57,7 @@ public abstract class Item extends PropertyObject {
 		if (!getItemType().equals(type))
 			throw new IllegalArgumentException("Invalid object to load from. JSONObject represents a(n) "
 					+ getItemType() + ", while construction is for object of type: " + type + '.');
+		itemType.load(type);
 	}
 
 	public void setOwnerID(String value) {

@@ -175,6 +175,28 @@ public class PropertyObject extends Observable {
 		private V value, def;
 		private final Gateway<V, JSONValue> converter;
 
+		/**
+		 * Changes the value of this {@link Property}, but does not propagate changes to
+		 * listeners, including the saving listener. This <b>does</b> create a record of
+		 * this property in the {@link PropertyObject#propertyMap} mapping.
+		 * 
+		 * @param value
+		 * @return
+		 */
+		public Property<V> load(V value) {
+			if (value != this.value) {
+				this.value = value;
+				if (Objects.equals(def, value)) {
+					properties.remove(key);
+					propertyMap.remove(key);
+				} else {
+					properties.put(key, converter.to(value));
+					propertyMap.put(key, this);
+				}
+			}
+			return this;
+		}
+
 		private final Set<Binding<? super V>> bindings = new HashSet<>();
 
 		private Property<? extends V> propertyBinding;

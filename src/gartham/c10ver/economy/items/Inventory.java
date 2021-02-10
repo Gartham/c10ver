@@ -82,7 +82,7 @@ public class Inventory {
 
 	public final class Entry<I extends Item> implements Comparable<Entry<?>> {
 		private final List<ItemStack> stacks = new ArrayList<>(1);// The different stacks of this type of item.
-		private boolean alive = true;
+		private boolean alive = false;
 
 		private File getFile() {
 			return new File(invdir, getType() + ".txt");
@@ -127,6 +127,7 @@ public class Inventory {
 			if (stacks.isEmpty()) {
 				entries.remove(item.getItemType());
 				entryList.remove(Collections.binarySearch(entryList, item, COMPARATOR));
+				getFile().delete();
 				alive = false;
 			}
 			return true;
@@ -134,8 +135,10 @@ public class Inventory {
 
 		private Entry(I item, BigInteger amt) {
 			entries.put(item.getItemType(), this);
-			entryList.add(-Collections.binarySearch(entryList, item, COMPARATOR), this);
+			entryList.add(-Collections.binarySearch(entryList, item, COMPARATOR) - 1, this);
 			new ItemStack(item, amt);
+			alive = true;
+			save();
 		}
 
 		private Entry(File f) {
@@ -143,11 +146,14 @@ public class Inventory {
 				new ItemStack((JSONObject) jv);
 			String type = this.stacks.get(0).getType();
 			entries.put(type, this);
-			entryList.add(-Collections.binarySearch(entryList, type, COMPARATOR), this);
+			entryList.add(-Collections.binarySearch(entryList, type, COMPARATOR) - 1, this);
+			alive = true;
+			save();
 		}
 
 		private void save() {
-			DataUtils.save(new JSONArray(JavaTools.mask(stacks, ItemStack::getProperties)), getFile());
+			if (alive)
+				DataUtils.save(new JSONArray(JavaTools.mask(stacks, ItemStack::getProperties)), getFile());
 		}
 
 		public final class ItemStack extends PropertyObject implements Comparable<ItemStack> {
