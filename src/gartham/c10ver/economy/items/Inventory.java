@@ -15,6 +15,7 @@ import org.alixia.javalibrary.json.JSONObject;
 
 import gartham.c10ver.data.PropertyObject;
 import gartham.c10ver.utils.DataUtils;
+import gartham.c10ver.utils.Paginator;
 
 /**
  * A compressed way of storing items.
@@ -37,6 +38,26 @@ public class Inventory {
 
 	private final Map<String, Entry<?>> entries = new HashMap<>();
 	private final List<Entry<?>> entryList = new ArrayList<>();
+
+	/**
+	 * Gets a page of entries in this {@link Inventory}. The number of entries per
+	 * page is specified by the <code>pagesize</code> argument, and the page is
+	 * specified by the <code>page</code> argument. <code>null</code> is returned,
+	 * in leiu of an empty list, if the page number is invalid. The only scenario in
+	 * which the returned list is empty is when the 1st page is requested (the value
+	 * of the <code>page</code> argument is 1) but there are no entries in this
+	 * {@link Inventory}.
+	 * 
+	 * @param page     The page to return.
+	 * @param pagesize The maximum number of elements that can be returned in this
+	 *                 page.
+	 * @return A new, unmodifiable list containing the entries that belong to the
+	 *         specified page.
+	 */
+	public List<Entry<?>> getPage(int page, int pagesize) {
+		List<Entry<?>> res = Paginator.paginate(page, pagesize, entryList);
+		return res == null ? null : Collections.unmodifiableList(res);
+	}
 
 	private static final Comparator<Object> COMPARATOR = (o1, o2) -> (o1 instanceof String ? (String) o1
 			: o1 instanceof Entry<?> ? ((Entry<?>) o1).getType() : ((Entry<?>.ItemStack) o1).getType())
@@ -84,17 +105,20 @@ public class Inventory {
 		private final List<ItemStack> stacks = new ArrayList<>(1);// The different stacks of this type of item.
 		private boolean alive = false;
 
+		public BigInteger getTotalCount() {
+			BigInteger bi = BigInteger.ZERO;
+			for (ItemStack is : stacks)
+				bi = bi.add(is.count());
+			return bi;
+		}
+
+		public List<ItemStack> getPage(int page, int pagesize) {
+			return Paginator.paginate(page, pagesize, stacks);
+		}
+
 		private File getFile() {
 			return new File(invdir, getType() + ".txt");
 		}
-
-//		private ItemStack stack(I item) {
-//			
-//
-//			ItemStack is = new ItemStack(item);
-//			stacks.add(is);
-//			return is;
-//		}
 
 		private boolean conatins(I item) {
 			return get(item) != null;
