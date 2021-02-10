@@ -12,6 +12,7 @@ import gartham.c10ver.data.autosave.AutosaveValue;
 import gartham.c10ver.data.autosave.Changeable;
 import gartham.c10ver.data.autosave.SavablePropertyObject;
 import gartham.c10ver.economy.Account;
+import gartham.c10ver.economy.items.Inventory;
 import gartham.c10ver.utils.DataUtils;
 
 public class User extends SavablePropertyObject {
@@ -21,6 +22,11 @@ public class User extends SavablePropertyObject {
 			monthlyCommand = instantProperty("monthly", Instant.MIN);
 
 	private final Account account;
+	private final Inventory inventory;
+
+	public Inventory getInventory() {
+		return inventory;
+	}
 
 	public Account getAccount() {
 		return account;
@@ -29,6 +35,7 @@ public class User extends SavablePropertyObject {
 	public User(File userDirectory) {
 		super(new File(userDirectory, "user-data.txt"));
 		account = new Account(userDirectory);
+		inventory = new Inventory(userDirectory);
 	}
 
 	public Instant getLastDailyInvocation() {
