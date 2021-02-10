@@ -26,11 +26,11 @@ public class PropertyObject extends Observable {
 	private final JSONObject properties;
 	private final Map<String, Property<?>> propertyMap = new HashMap<>();
 
-	protected final JSONObject getProperties() {
+	protected JSONObject getProperties() {
 		return properties;
 	}
 
-	protected final Map<String, Property<?>> getPropertyMap() {
+	protected Map<String, Property<?>> getPropertyMap() {
 		return propertyMap;
 	}
 

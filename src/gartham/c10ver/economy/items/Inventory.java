@@ -1,5 +1,6 @@
 package gartham.c10ver.economy.items;
 
+import java.io.File;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,7 +9,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.alixia.javalibrary.JavaTools;
+import org.alixia.javalibrary.json.JSONArray;
+import org.alixia.javalibrary.json.JSONObject;
+
 import gartham.c10ver.data.PropertyObject;
+import gartham.c10ver.utils.DataUtils;
 
 /**
  * A compressed way of storing items.
@@ -17,6 +23,17 @@ import gartham.c10ver.data.PropertyObject;
  *
  */
 public class Inventory {
+
+	private final File invdir;
+
+	public Inventory(File userDir) {
+		invdir = new File(userDir, "inventory");
+		File[] files = invdir.listFiles();
+		if (files != null) {
+			for (File type : files)
+				new Entry<>(type);
+		}
+	}
 
 	private final Map<String, Entry<?>> entries = new HashMap<>();
 	private final List<Entry<?>> entryList = new ArrayList<>();
@@ -66,6 +83,10 @@ public class Inventory {
 	public final class Entry<I extends Item> implements Comparable<Entry<?>> {
 		private final List<ItemStack> stacks = new ArrayList<>(1);// The different stacks of this type of item.
 		private boolean alive = true;
+
+		private File getFile() {
+			return new File(invdir, getType() + ".txt");
+		}
 
 //		private ItemStack stack(I item) {
 //			
@@ -117,7 +138,24 @@ public class Inventory {
 			new ItemStack(item, amt);
 		}
 
+		private Entry(File f) {
+			for (var jv : (JSONArray) DataUtils.load(f))
+				new ItemStack((JSONObject) jv);
+			String type = this.stacks.get(0).getType();
+			entries.put(type, this);
+			entryList.add(-Collections.binarySearch(entryList, type, COMPARATOR), this);
+		}
+
+		private void save() {
+			DataUtils.save(new JSONArray(JavaTools.mask(stacks, ItemStack::getProperties)), getFile());
+		}
+
 		public final class ItemStack extends PropertyObject implements Comparable<ItemStack> {
+
+			@Override
+			protected JSONObject getProperties() {
+				return super.getProperties();
+			}
 
 			private boolean alive = true;
 
@@ -165,6 +203,10 @@ public class Inventory {
 				count.set(amount);
 			}
 
+			private ItemStack(JSONObject json) {
+				super(json);
+			}
+
 			public I getItem() {
 				return item.get();
 			}
@@ -180,6 +222,12 @@ public class Inventory {
 			@Override
 			public int compareTo(ItemStack o) {
 				return getType().compareTo(o.getType());
+			}
+
+			@Override
+			public void change() {
+				super.change();
+				save();
 			}
 
 		}
