@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.apache.commons.collections4.map.HashedMap;
 
+import gartham.c10ver.economy.items.Inventory;
 import gartham.c10ver.users.User;
 
 public class Economy {
@@ -31,6 +32,10 @@ public class Economy {
 
 	public Account getAccount(String userID) {
 		return getUser(userID).getAccount();
+	}
+
+	public Inventory getInventory(String userID) {
+		return getUser(userID).getInventory();
 	}
 
 	public boolean hasAccount(String userID) {
