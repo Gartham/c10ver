@@ -4,10 +4,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -103,6 +101,32 @@ public class PropertyObject extends Observable {
 				return strGateway.to(((JSONString) value).getValue());
 			}
 		};
+	}
+
+	protected final <V extends PropertyObject> Gateway<V, JSONValue> toObjectGateway(
+			Function<? super JSONValue, ? extends V> generator) {
+		return new Gateway<V, JSONValue>() {
+
+			@Override
+			public JSONValue to(V value) {
+				return value.getProperties();
+			}
+
+			@Override
+			public V from(JSONValue value) {
+				return generator.apply(value);
+			}
+		};
+	}
+
+	protected final <V extends PropertyObject> Property<V> toObjectProperty(String key, V def,
+			Function<? super JSONValue, ? extends V> generator) {
+		return new Property<V>(key, def, toObjectGateway(generator));
+	}
+
+	protected final <V extends PropertyObject> Property<V> toObjectProperty(String key,
+			Function<? super JSONValue, ? extends V> generator) {
+		return new Property<V>(key, null, toObjectGateway(generator));
 	}
 
 	protected final <V> Property<V> toStringProperty(String key, Gateway<String, V> strGateway) {
