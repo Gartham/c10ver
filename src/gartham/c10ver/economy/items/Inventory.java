@@ -101,6 +101,17 @@ public class Inventory {
 		return entries.get(key);
 	}
 
+	public int getEntryCount() {
+		return entryList.size();
+	}
+
+	public BigInteger getTotalItemCount() {
+		BigInteger bi = BigInteger.ZERO;
+		for (Entry<?> e : entryList)
+			bi = bi.add(e.getTotalCount());
+		return bi;
+	}
+
 	public final class Entry<I extends Item> implements Comparable<Entry<?>> {
 		private final List<ItemStack> stacks = new ArrayList<>(1);// The different stacks of this type of item.
 		private boolean alive = false;
