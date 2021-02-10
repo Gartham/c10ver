@@ -1,16 +1,15 @@
 package gartham.c10ver.economy.items;
 
 import java.math.BigInteger;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.collections4.map.HashedMap;
 
 import gartham.c10ver.data.PropertyObject;
 
 public class Inventory {
 
-	private final Map<String, List<ItemStack<? extends Item>>> entries = new HashedMap<>();
+	private final Map<String, List<ItemStack<? extends Item>>> entries = new HashMap<>();
 
 	private static class ItemStack<I extends Item> extends PropertyObject {
 
