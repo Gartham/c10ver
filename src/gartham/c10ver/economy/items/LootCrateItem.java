@@ -11,16 +11,13 @@ public class LootCrateItem extends Item {
 	}
 
 	public enum CrateType {
-		DAILY, WEEKLY, MONTHLY;
+		DAILY("<:crate:808762616456675338>"), WEEKLY("<:crate:808762616456675338>"),
+		MONTHLY("<:crate:808762616456675338>");
 
 		private final String icon;
 
-		private CrateType() {
-			this.icon = name().toLowerCase() + "crate";
-		}
-
 		private CrateType(String icon) {
-			this.icon = icon + "crate";
+			this.icon = icon;
 		}
 
 	}
