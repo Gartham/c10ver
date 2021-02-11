@@ -1,17 +1,62 @@
 package gartham.c10ver.utils;
 
+import static gartham.c10ver.utils.Utilities.TimeUnit.DAYS;
+import static gartham.c10ver.utils.Utilities.TimeUnit.HOURS;
+import static gartham.c10ver.utils.Utilities.TimeUnit.MICROSECONDS;
+import static gartham.c10ver.utils.Utilities.TimeUnit.MILLISECONDS;
+import static gartham.c10ver.utils.Utilities.TimeUnit.MINUTES;
+import static gartham.c10ver.utils.Utilities.TimeUnit.NANOSECONDS;
+import static gartham.c10ver.utils.Utilities.TimeUnit.SECONDS;
+import static gartham.c10ver.utils.Utilities.TimeUnit.YEARS;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static gartham.c10ver.utils.FormattingUtils.TimeUnit.*;
+import org.alixia.javalibrary.json.JSONObject;
+import org.alixia.javalibrary.json.JSONParser;
+import org.alixia.javalibrary.json.JSONValue;
+import org.alixia.javalibrary.streams.CharacterStream;
 
-public class FormattingUtils {
+public final class Utilities {
+	
+	
 
 	public enum TimeUnit {
 		YEARS, DAYS, HOURS, MINUTES, SECONDS, MILLISECONDS, MICROSECONDS, NANOSECONDS;
+	}
+
+	public static JSONObject loadObj(File file) {
+		return (JSONObject) load(file);
+	}
+
+	public static JSONValue load(File file) {
+		if (!file.isFile())
+			return null;
+		try (var isr = new InputStreamReader(new FileInputStream(file))) {
+			return new JSONParser().parse(CharacterStream.from(isr));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static void save(JSONValue obj, File file) {
+		file.getParentFile().mkdirs();
+		try {
+			file.createNewFile();
+			try (var pw = new PrintWriter(file)) {
+				pw.println(obj.toString());
+			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public static String formatLargest(Duration duration, int amt) {
@@ -21,12 +66,12 @@ public class FormattingUtils {
 			return "";
 		int nanoseconds = duration.getNano();
 		long seconds = duration.getSeconds();
-
+	
 		final StringBuilder b = new StringBuilder();
 		var values = getParts(duration);
-
+	
 		List<TimeUnit> units = new ArrayList<>(amt);
-
+	
 		boolean f = false;
 		for (TimeUnit tu : TimeUnit.values()) {
 			if (amt == 0)
@@ -37,25 +82,25 @@ public class FormattingUtils {
 				amt--;
 			}
 		}
-
+	
 		if (units.isEmpty()) {
 			units.add(SECONDS);
 		}
-
+	
 		return format(values, units.toArray(new TimeUnit[units.size()]));
-
+	
 	}
 
 	public static void main(String[] args) {
 		System.out.println(formatLargest(Duration.ofSeconds(0), 3));
 	}
 
-	private static Map<TimeUnit, Long> getParts(Duration duration) {
+	static Map<TimeUnit, Long> getParts(Duration duration) {
 		int nanoseconds = duration.getNano();
 		long seconds = duration.getSeconds();
-
+	
 		Map<TimeUnit, Long> values = new HashMap<>();
-
+	
 		values.put(NANOSECONDS, (long) (nanoseconds % 1000));
 		values.put(MICROSECONDS, (long) ((nanoseconds /= 1000) % 1000));
 		values.put(MILLISECONDS, (long) (nanoseconds / 1000));
@@ -64,14 +109,14 @@ public class FormattingUtils {
 		values.put(HOURS, (long) (int) ((seconds /= 60) % 24));
 		values.put(DAYS, (long) (int) ((seconds /= 24) % 365));
 		values.put(YEARS, (long) (int) (seconds /= 365));
-
+	
 		return values;
-
+	
 	}
 
-	private static String format(Map<TimeUnit, Long> parts, TimeUnit... units) {
+	static String format(Map<TimeUnit, Long> parts, TimeUnit... units) {
 		final StringBuilder b = new StringBuilder();
-
+	
 		for (TimeUnit tu : units) {
 			b.append(parts.get(tu));
 			switch (tu) {
@@ -101,16 +146,35 @@ public class FormattingUtils {
 				break;
 			}
 		}
-
+	
 		return b.toString().trim();
 	}
 
 	public static String format(Duration duration, TimeUnit... units) {
 		int nanoseconds = duration.getNano();
 		long seconds = duration.getSeconds();
-
+	
 		Map<TimeUnit, Long> parts = getParts(duration);
 		return format(parts, units);
+	}
+
+	public static <E> List<E> paginate(int page, int itemsPerPage, List<E> items) {
+		if (items.size() == 0 && page == 1)
+			return items.subList(0, 0);
+		int item = (page - 1) * itemsPerPage;
+		int maxPage = maxPage(itemsPerPage, items);
+		if (page < 1 || page > maxPage)
+			return null;
+	
+		return items.subList(item, Math.min(item + itemsPerPage, items.size()));
+	}
+
+	public static int maxPage(int itemsPerPage, List<?> items) {
+		return maxPage(itemsPerPage, items.size());
+	}
+
+	public static int maxPage(int itemsPerPage, int listSize) {
+		return (listSize + itemsPerPage - 1) / itemsPerPage;
 	}
 
 }

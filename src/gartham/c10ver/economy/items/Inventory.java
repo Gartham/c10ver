@@ -14,8 +14,7 @@ import org.alixia.javalibrary.json.JSONArray;
 import org.alixia.javalibrary.json.JSONObject;
 
 import gartham.c10ver.data.PropertyObject;
-import gartham.c10ver.utils.DataUtils;
-import gartham.c10ver.utils.Paginator;
+import gartham.c10ver.utils.Utilities;
 
 /**
  * A compressed way of storing items.
@@ -55,12 +54,12 @@ public class Inventory {
 	 *         specified page.
 	 */
 	public List<Entry<?>> getPage(int page, int pagesize) {
-		List<Entry<?>> res = Paginator.paginate(page, pagesize, entryList);
+		List<Entry<?>> res = Utilities.paginate(page, pagesize, entryList);
 		return res == null ? null : Collections.unmodifiableList(res);
 	}
 
 	public int maxPage(int pagesize) {
-		return Paginator.maxPage(pagesize, entryList);
+		return Utilities.maxPage(pagesize, entryList);
 	}
 
 	private static final Comparator<Object> COMPARATOR = (o1, o2) -> (o1 instanceof String ? (String) o1
@@ -128,7 +127,7 @@ public class Inventory {
 		}
 
 		public List<ItemStack> getPage(int page, int pagesize) {
-			return Paginator.paginate(page, pagesize, stacks);
+			return Utilities.paginate(page, pagesize, stacks);
 		}
 
 		private File getFile() {
@@ -181,7 +180,7 @@ public class Inventory {
 		}
 
 		private Entry(File f) {
-			for (var jv : (JSONArray) DataUtils.load(f))
+			for (var jv : (JSONArray) Utilities.load(f))
 				new ItemStack((JSONObject) jv);
 			String type = this.stacks.get(0).getType();
 			entries.put(type, this);
@@ -192,7 +191,7 @@ public class Inventory {
 
 		private void save() {
 			if (alive)
-				DataUtils.save(new JSONArray(JavaTools.mask(stacks, ItemStack::getProperties)), getFile());
+				Utilities.save(new JSONArray(JavaTools.mask(stacks, ItemStack::getProperties)), getFile());
 		}
 
 		public final class ItemStack extends PropertyObject implements Comparable<ItemStack> {

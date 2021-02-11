@@ -3,7 +3,7 @@ package gartham.c10ver.data.autosave;
 import java.io.File;
 
 import gartham.c10ver.data.PropertyObject;
-import gartham.c10ver.utils.DataUtils;
+import gartham.c10ver.utils.Utilities;
 
 public class SavablePropertyObject extends PropertyObject {
 
@@ -14,13 +14,13 @@ public class SavablePropertyObject extends PropertyObject {
 	}
 
 	public SavablePropertyObject(File saveLocation) {
-		super(DataUtils.loadObj(saveLocation));
+		super(Utilities.loadObj(saveLocation));
 		this.saveLocation = saveLocation;
 	}
 
 	@Override
 	public void change() {
 		super.change();
-		DataUtils.save(getProperties(), saveLocation);
+		Utilities.save(getProperties(), saveLocation);
 	}
 }

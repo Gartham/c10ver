@@ -16,8 +16,7 @@ import gartham.c10ver.economy.items.Inventory.Entry;
 import gartham.c10ver.economy.items.LootCrateItem;
 import gartham.c10ver.economy.items.LootCrateItem.CrateType;
 import gartham.c10ver.users.User;
-import gartham.c10ver.utils.FormattingUtils;
-import gartham.c10ver.utils.Paginator;
+import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 public class CloverCommandProcessor extends CommandProcessor {
@@ -38,7 +37,7 @@ public class CloverCommandProcessor extends CommandProcessor {
 				if (u.timeSinceLastDaily().toDays() < 1)
 					inv.event.getChannel()
 							.sendMessage(inv.event.getAuthor().getAsMention() + ", you must wait `"
-									+ FormattingUtils.formatLargest(Duration.ofDays(1).minus(u.timeSinceLastDaily()), 3)
+									+ Utilities.formatLargest(Duration.ofDays(1).minus(u.timeSinceLastDaily()), 3)
 									+ "` before running that command.")
 							.queue();
 				else {
@@ -60,7 +59,7 @@ public class CloverCommandProcessor extends CommandProcessor {
 				if (u.timeSinceLastWeekly().toDays() < 7) {
 					inv.event.getChannel()
 							.sendMessage(inv.event.getAuthor().getAsMention()
-									+ ", you must wait `" + FormattingUtils
+									+ ", you must wait `" + Utilities
 											.formatLargest(Duration.ofDays(7).minus(u.timeSinceLastWeekly()), 3)
 									+ "` before running that command.")
 							.queue();
@@ -82,7 +81,7 @@ public class CloverCommandProcessor extends CommandProcessor {
 				if (u.timeSinceLastMonthly().toDays() < 30) {
 					inv.event.getChannel()
 							.sendMessage(inv.event.getAuthor().getAsMention()
-									+ ", you must wait `" + FormattingUtils
+									+ ", you must wait `" + Utilities
 											.formatLargest(Duration.ofDays(30).minus(u.timeSinceLastMonthly()), 3)
 									+ "` before running that command.")
 							.queue();
@@ -253,7 +252,7 @@ public class CloverCommandProcessor extends CommandProcessor {
 							inv.event.getAuthor().getEffectiveAvatarUrl());
 					eb.setDescription('*' + inv.event.getAuthor().getAsMention() + " has `" + entry.getTotalCount()
 							+ "` of this item.*\n\u200B");
-					int maxPage = Paginator.maxPage(9, entry.getStacks());
+					int maxPage = Utilities.maxPage(9, entry.getStacks());
 					if (page > maxPage) {
 						inv.event.getChannel()
 								.sendMessage(inv.event.getAuthor().getAsMention() + " you only have `" + maxPage
@@ -261,7 +260,7 @@ public class CloverCommandProcessor extends CommandProcessor {
 								.queue();
 						return;
 					}
-					List<? extends Entry<?>.ItemStack> list = Paginator.paginate(page, 9, entry.getStacks());
+					List<? extends Entry<?>.ItemStack> list = Utilities.paginate(page, 9, entry.getStacks());
 					printStacks(list, eb);
 					eb.addField("",
 							"You have **" + maxPage + "** page" + (maxPage == 1 ? "" : "s") + " in your inventory.",
