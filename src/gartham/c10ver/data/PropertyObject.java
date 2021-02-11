@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -32,6 +33,10 @@ public class PropertyObject extends Observable {
 
 	protected Map<String, Property<?>> getPropertyMap() {
 		return propertyMap;
+	}
+
+	public final Map<String, Property<?>> getPropertyMapView() {
+		return Collections.unmodifiableMap(getPropertyMap());
 	}
 
 	public PropertyObject(JSONObject properties) {
@@ -169,7 +174,7 @@ public class PropertyObject extends Observable {
 		return durationProperty(key, null);
 	}
 
-	protected class Property<V> extends Observable {
+	public class Property<V> extends Observable {
 
 		private final String key;
 		private V value, def;
@@ -276,11 +281,11 @@ public class PropertyObject extends Observable {
 				value = converter.from(properties.get(key));
 		}
 
-		public Property(String key, Gateway<V, JSONValue> converter) {
+		private Property(String key, Gateway<V, JSONValue> converter) {
 			this(key, null, converter);
 		}
 
-		public Property(String key, V def, Gateway<V, JSONValue> converter) {
+		private Property(String key, V def, Gateway<V, JSONValue> converter) {
 			this.key = key;
 			value = this.def = def;
 			this.converter = converter;

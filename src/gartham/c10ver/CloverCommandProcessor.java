@@ -8,6 +8,8 @@ import java.util.List;
 import gartham.c10ver.commands.CommandInvocation;
 import gartham.c10ver.commands.CommandProcessor;
 import gartham.c10ver.commands.MatchBasedCommand;
+import gartham.c10ver.data.PropertyObject;
+import gartham.c10ver.data.PropertyObject.Property;
 import gartham.c10ver.economy.Account;
 import gartham.c10ver.economy.items.Inventory;
 import gartham.c10ver.economy.items.Inventory.Entry;
@@ -15,6 +17,7 @@ import gartham.c10ver.economy.items.LootCrateItem;
 import gartham.c10ver.economy.items.LootCrateItem.CrateType;
 import gartham.c10ver.users.User;
 import gartham.c10ver.utils.FormattingUtils;
+import gartham.c10ver.utils.Paginator;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 public class CloverCommandProcessor extends CommandProcessor {
@@ -166,38 +169,119 @@ public class CloverCommandProcessor extends CommandProcessor {
 			@Override
 			public void exec(CommandInvocation inv) {
 
-//				SHOW_ENTRIES: {
-//					int page;
-//					try {
-//						page = Integer.parseInt(inv.args[0]);
-//					} catch (NumberFormatException e) {
-//						break SHOW_ENTRIES;
-//					}
-//
-//					return;
-//				}
+				final Inventory invent;
+				final String type;
+				int page;
+				ENTRIES: {
+					if (inv.args.length == 1) {
+						// The argument should be either an item type or a page.
+						try {
+							page = Integer.parseInt(inv.args[0]);
+						} catch (NumberFormatException e) {
+							invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
+							type = inv.args[0];
+							page = 1;
+							break ENTRIES;
+						}
+						if (page < 1) {
+							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention() + " `" + inv.args[0]
+									+ "` is not a valid page.").queue();
+							return;
+						}
+					} else if (inv.args.length == 0)
+						page = 1;
+					else if (inv.args.length == 2) {
+						PARSE_PAGE: {
+							try {
+								page = Integer.parseInt(inv.args[1]);
+								if (page > 0)
+									break PARSE_PAGE;
+							} catch (NumberFormatException e) {
+							}
+							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention() + " `" + inv.args[1]
+									+ "` is not a valid page.").queue();
+							return;
+						}
 
-				Inventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
-				EmbedBuilder eb = new EmbedBuilder();
+						type = inv.args[0];
+						invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
+						break ENTRIES;
+					} else {
+						inv.event.getChannel()
+								.sendMessage(inv.event.getAuthor().getAsMention() + " that command doesn't accept "
+										+ inv.args.length + " arguments." + (inv.args.length > 10 ? " >:(" : ""))
+								.queue();
+						return;
+					}
 
-				eb.setAuthor(inv.event.getAuthor().getAsTag() + "'s Inventory", null,
-						inv.event.getAuthor().getEffectiveAvatarUrl());
-				eb.setDescription('*' + inv.event.getAuthor().getAsMention() + " has `" + invent.getEntryCount() + "` "
-						+ (invent.getEntryCount() == 1 ? "type of item" : "different types of items") + " and `"
-						+ invent.getTotalItemCount() + "` total items.*");
-				print(invent.getPage(1, 9), eb);
-				inv.event.getChannel().sendMessage(eb.build()).queue();
+					invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
+					List<Entry<?>> pageItems = invent.getPage(page, 9);
+					if (pageItems == null) {
+						int maxPage = invent.maxPage(9);
+						inv.event
+								.getChannel().sendMessage(inv.event.getAuthor().getAsMention() + " you only have `"
+										+ maxPage + (maxPage == 1 ? "` page" : "` pages") + " in your inventory!")
+								.queue();
+					} else {
+						EmbedBuilder eb = new EmbedBuilder();
+
+						eb.setAuthor(inv.event.getAuthor().getAsTag() + "'s Inventory", null,
+								inv.event.getAuthor().getEffectiveAvatarUrl());
+						eb.setDescription('*' + inv.event.getAuthor().getAsMention() + " has `" + invent.getEntryCount()
+								+ "` " + (invent.getEntryCount() == 1 ? "type of item" : "different types of items")
+								+ " and `" + invent.getTotalItemCount() + "` total items.*");
+						printEntries(pageItems, eb);
+						inv.event.getChannel().sendMessage(eb.build()).queue();
+					}
+					return;
+				}
+
+				Entry<?> entry = invent.get(type);
+				if (entry == null)
+					inv.event.getChannel()
+							.sendMessage(
+									inv.event.getAuthor().getAsMention() + " you don't have any items of that type!")
+							.queue();
+				else {
+					EmbedBuilder eb = new EmbedBuilder();
+					eb.setAuthor(inv.event.getAuthor().getAsTag() + "'s Inventory: " + entry.getName(), null,
+							inv.event.getAuthor().getEffectiveAvatarUrl());
+					int maxPage = Paginator.maxPage(9, entry.getStacks());
+					if (page > maxPage) {
+						inv.event
+								.getChannel().sendMessage(inv.event.getAuthor().getAsMention() + " you only have `"
+										+ maxPage + (maxPage == 1 ? "` page" : "` pages") + " of that item in your inventory!")
+								.queue();
+						return;
+					}
+					List<? extends Entry<?>.ItemStack> list = Paginator.paginate(page, 9, entry.getStacks());
+					printStacks(list, eb);
+					inv.event.getChannel().sendMessage(eb.build()).queue();
+				}
 			}
 		});
 
 	}
 
-	private final static EmbedBuilder print(List<Entry<?>> entries, EmbedBuilder builder) {
-		for (Entry<?> e : entries) {
-			BigInteger totalCount = e.getTotalCount();
-			builder.addField(e.getIcon() + ' ' + e.getName(), " *You have [`" + totalCount + "`](https://clover.gartham.com 'Item ID: "
-					+ e.getType() + ". Use the ID to get or interact with the item.') of this.*", true);
+	private final static EmbedBuilder printEntries(List<Entry<?>> entries, EmbedBuilder builder) {
+		for (Entry<?> e : entries)
+			builder.addField(e.getIcon() + ' ' + e.getName(),
+					" *You have [`" + e.getTotalCount() + "`](https://clover.gartham.com 'Item ID: " + e.getType()
+							+ ". Use the ID to get or interact with the item.') of this.*",
+					true);
+		return builder;
+	}
+
+	private final static EmbedBuilder printStacks(List<? extends Entry<?>.ItemStack> list, EmbedBuilder builder) {
+		for (Entry<?>.ItemStack i : list) {
+			StringBuilder sb = new StringBuilder();
+			for (java.util.Map.Entry<String, PropertyObject.Property<?>> e : i.getItem().getPropertyMapView()
+					.entrySet())
+				if (e.getValue().isAttribute())
+					sb.append('*' + e.getKey() + ": `" + e.getValue().get() + "`*\n");
+			builder.addField(i.getIcon() + ' ' + i.getName(), sb.toString(), true);
 		}
 		return builder;
 	}
+
 }

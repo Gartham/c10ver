@@ -59,6 +59,10 @@ public class Inventory {
 		return res == null ? null : Collections.unmodifiableList(res);
 	}
 
+	public int maxPage(int pagesize) {
+		return Paginator.maxPage(pagesize, entryList);
+	}
+
 	private static final Comparator<Object> COMPARATOR = (o1, o2) -> (o1 instanceof String ? (String) o1
 			: o1 instanceof Entry<?> ? ((Entry<?>) o1).getType() : ((Entry<?>.ItemStack) o1).getType())
 					.compareTo(o2 instanceof String ? (String) o2
