@@ -216,8 +216,8 @@ public class CloverCommandProcessor extends CommandProcessor {
 
 					invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
 					List<Entry<?>> pageItems = invent.getPage(page, 9);
+					int maxPage = invent.maxPage(9);
 					if (pageItems == null) {
-						int maxPage = invent.maxPage(9);
 						inv.event
 								.getChannel().sendMessage(inv.event.getAuthor().getAsMention() + " you only have `"
 										+ maxPage + (maxPage == 1 ? "` page" : "` pages") + " in your inventory!")
@@ -229,8 +229,13 @@ public class CloverCommandProcessor extends CommandProcessor {
 								inv.event.getAuthor().getEffectiveAvatarUrl());
 						eb.setDescription('*' + inv.event.getAuthor().getAsMention() + " has `" + invent.getEntryCount()
 								+ "` " + (invent.getEntryCount() == 1 ? "type of item" : "different types of items")
-								+ " and `" + invent.getTotalItemCount() + "` total items.*");
+								+ " and `" + invent.getTotalItemCount() + "` total items.*\n\u200B");
 						printEntries(pageItems, eb);
+						eb.addField("",
+								"You have **" + maxPage + "** page" + (maxPage == 1 ? "" : "s") + " in your inventory.",
+								false);
+//						eb.setFooter(
+//								"You have " + maxPage + " page" + (maxPage == 1 ? "" : "s") + " in your inventory.");
 						inv.event.getChannel().sendMessage(eb.build()).queue();
 					}
 					return;
@@ -246,16 +251,22 @@ public class CloverCommandProcessor extends CommandProcessor {
 					EmbedBuilder eb = new EmbedBuilder();
 					eb.setAuthor(inv.event.getAuthor().getAsTag() + "'s Inventory: " + entry.getName(), null,
 							inv.event.getAuthor().getEffectiveAvatarUrl());
+					eb.setDescription('*' + inv.event.getAuthor().getAsMention() + " has `" + entry.getTotalCount()
+							+ "` of this item.*\n\u200B");
 					int maxPage = Paginator.maxPage(9, entry.getStacks());
 					if (page > maxPage) {
-						inv.event
-								.getChannel().sendMessage(inv.event.getAuthor().getAsMention() + " you only have `"
-										+ maxPage + (maxPage == 1 ? "` page" : "` pages") + " of that item in your inventory!")
+						inv.event.getChannel()
+								.sendMessage(inv.event.getAuthor().getAsMention() + " you only have `" + maxPage
+										+ (maxPage == 1 ? "` page" : "` pages") + " of that item in your inventory!")
 								.queue();
 						return;
 					}
 					List<? extends Entry<?>.ItemStack> list = Paginator.paginate(page, 9, entry.getStacks());
 					printStacks(list, eb);
+					eb.addField("",
+							"You have **" + maxPage + "** page" + (maxPage == 1 ? "" : "s") + " in your inventory.",
+							false);
+//					eb.setFooter("You have " + maxPage + " page" + (maxPage == 1 ? "" : "s") + " in your inventory.");
 					inv.event.getChannel().sendMessage(eb.build()).queue();
 				}
 			}
@@ -275,10 +286,12 @@ public class CloverCommandProcessor extends CommandProcessor {
 	private final static EmbedBuilder printStacks(List<? extends Entry<?>.ItemStack> list, EmbedBuilder builder) {
 		for (Entry<?>.ItemStack i : list) {
 			StringBuilder sb = new StringBuilder();
+			sb.append("*You have [`" + i.getCount() + "`](https://clover.gartham.com 'Item ID: " + i.getType()
+					+ ". Use the ID to get or interact with the item.') of this.*\n");
 			for (java.util.Map.Entry<String, PropertyObject.Property<?>> e : i.getItem().getPropertyMapView()
 					.entrySet())
 				if (e.getValue().isAttribute())
-					sb.append('*' + e.getKey() + ": `" + e.getValue().get() + "`*\n");
+					sb.append(e.getKey() + ": `" + e.getValue().get() + "`\n");
 			builder.addField(i.getIcon() + ' ' + i.getName(), sb.toString(), true);
 		}
 		return builder;
