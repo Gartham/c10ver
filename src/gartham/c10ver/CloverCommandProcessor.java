@@ -79,15 +79,15 @@ public class CloverCommandProcessor extends CommandProcessor {
 			public void exec(CommandInvocation inv) {
 				String userid = inv.event.getAuthor().getId();
 				User u = clover.getEconomy().getUser(userid);
-				if (u.timeSinceLastWeekly().toDays() < 7) {
+				if (u.timeSinceLastMonthly().toDays() < 30) {
 					inv.event.getChannel()
 							.sendMessage(inv.event.getAuthor().getAsMention()
 									+ ", you must wait `" + FormattingUtils
-											.formatLargest(Duration.ofDays(30).minus(u.timeSinceLastWeekly()), 3)
+											.formatLargest(Duration.ofDays(30).minus(u.timeSinceLastMonthly()), 3)
 									+ "` before running that command.")
 							.queue();
 				} else {
-					u.weeklyInvoked();
+					u.monthlyInvoked();
 					long amt = (long) (Math.random() * 10000 + 4000);
 					u.getAccount().deposit(amt);
 					inv.event.getChannel().sendMessage("You received `" + amt + "` garthcoins. You now have `"
