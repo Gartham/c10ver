@@ -55,15 +55,14 @@ public abstract class Item extends PropertyObject {
 	}
 
 	public Item(String type, String itemName, String defaultIcon) {
-		icon = defaultIcon == null ? stringProperty("icon") : stringProperty("icon", defaultIcon);
-		icon.setAttribute(false);
+		icon = (defaultIcon == null ? stringProperty("icon") : stringProperty("icon", defaultIcon)).setAttribute(false);
 		itemType.load(type);
 		this.itemName = stringProperty("item-name", itemName).setAttribute(false);
 	}
 
 	public Item(String type, String itemName, JSONObject properties, String defaultIcon) {
 		super(properties);
-		icon = stringProperty("icon");
+		icon = stringProperty("icon").setAttribute(false);
 		if (!getItemType().equals(type))
 			throw new IllegalArgumentException("Invalid object to load from. JSONObject represents a(n) "
 					+ getItemType() + ", while construction is for object of type: " + type + '.');
