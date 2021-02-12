@@ -6,7 +6,7 @@ import org.alixia.javalibrary.json.JSONValue;
 public class ItemReifier {
 	@SuppressWarnings("unchecked")
 	public static <I extends Item> I reify(JSONObject json) {
-		String type = json.getString("item-type");
+		String type = json.getString("$type");
 		if (type == null)
 			throw new IllegalArgumentException("Invalid item type.");
 		return (I) switch (type) {

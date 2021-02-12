@@ -8,10 +8,10 @@ import org.alixia.javalibrary.json.JSONObject;
 import gartham.c10ver.data.PropertyObject;
 
 public abstract class Item extends PropertyObject {
-	private final Property<String> itemType = stringProperty("type").setAttribute(false),
-			itemName = stringProperty("name").setAttribute(false).setTransient(true),
-			icon = stringProperty("icon").setAttribute(false).setTransient(true),
-			customName = stringProperty("custom-name").setAttribute(false).setTransient(true);
+	private final Property<String> itemType = stringProperty("$type").setAttribute(false),
+			itemName = stringProperty("$name").setAttribute(false).setTransient(true),
+			icon = stringProperty("$icon").setAttribute(false).setTransient(true),
+			customName = stringProperty("$custom-name").setAttribute(false).setTransient(true);
 
 	@Override
 	public void load(JSONObject properties) {
