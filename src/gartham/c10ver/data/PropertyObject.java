@@ -4,12 +4,15 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.alixia.javalibrary.json.JSONNumber;
@@ -19,13 +22,20 @@ import org.alixia.javalibrary.json.JSONValue;
 import org.alixia.javalibrary.util.Gateway;
 import org.alixia.javalibrary.util.StringGateway;
 
-import com.fasterxml.jackson.databind.annotation.JsonAppend.Prop;
-
 import gartham.c10ver.data.observe.Observable;
-import gartham.c10ver.data.observe.Observer;
 import gartham.c10ver.economy.items.Item;
 
 public class PropertyObject {
+
+	private final List<Runnable> changeListeners = new ArrayList<>(1);
+
+	public void register(Runnable r) {
+		changeListeners.add(r);
+	}
+
+	public void unregister(Runnable r) {
+		changeListeners.remove(r);
+	}
 
 	private JSONObject cache;
 
@@ -200,24 +210,53 @@ public class PropertyObject {
 		return durationProperty(key, null);
 	}
 
+	/**
+	 * <p>
+	 * Represents a {@link Property} that belongs to the containing object.
+	 * </p>
+	 * <p>
+	 * {@link PropertyObject}s primarily store their data through the use of
+	 * {@link Property properties}. A {@link Property} is a specialized type of
+	 * attribute to an object that is aware of how to convert itself to and from a
+	 * serializable state. (Without caching), whenever a {@link PropertyObject}
+	 * needs to be saved, all of its characteristic, (non-{@link #isTransient()
+	 * transient}) properties are converted to a serialized form and returned.
+	 * Whenever the {@link PropertyObject} is {@link #load(JSONObject) loaded}, all
+	 * non-{@link #isTransient() transient} {@link Property properties} are loaded
+	 * from the {@link JSONObject} to be loaded from.
+	 * </p>
+	 * <p>
+	 * 
+	 * 
+	 * @author Gartham
+	 *
+	 * @param <V>
+	 */
 	public class Property<V> extends Observable<V> {
 
 		private final String key;
-
 		private V value, def;
 		private final Gateway<V, JSONValue> converter;
 
 		/**
 		 * Sets the "default" value of this {@link Property}. When the actual value of a
 		 * {@link Property} is equal to its default value (as per
-		 * {@link Objects#equals(Object)}), the property is not saved nor cached.
+		 * {@link Objects#equals(Object)}), the property is not saved nor cached. The
+		 * value of this field never affects the value stored by the {@link Property} it
+		 * belongs to, and is only used for efficiency when saving.
 		 * 
 		 * @param def
 		 */
 		public void setDefault(V def) {
+			if (def == this.def)
+				return;
+//			V temp = this.def;
 			this.def = def;
-			if (cache != null && Objects.equals(def, value))
-				cache.remove(key);
+//			if (!Objects.equals(def, value)) {
+//				if (Objects.equals(def, temp))
+//					save();
+//			} else if (cache != null)
+//				cache.remove(key);
 		}
 
 		public V getDefault() {
@@ -225,7 +264,7 @@ public class PropertyObject {
 		}
 
 		private void forceLoad(JSONObject properties) {
-			value = converter.from(properties.get(key));
+			value = !properties.containsKey(key) ? def : converter.from(properties.get(key));
 			if (cache != null && Objects.equals(def, value))
 				cache.remove(key);
 		}
@@ -243,14 +282,34 @@ public class PropertyObject {
 		 * stackability}, properties that are not designated as {@link #attribute
 		 * attributes} are ignored.
 		 */
-		private boolean attribute = true, transient0 = true;
+		private boolean attribute = true, transient0;
+
+		public String getKey() {
+			return key;
+		}
 
 		public boolean isTransient() {
 			return transient0;
 		}
 
-		public void setTransient(boolean transient0) {
+		public Property<V> setTransient(boolean transient0) {
 			this.transient0 = transient0;
+//			if (!this.transient0 && transient0)
+//				save();
+//			else if (this.transient0 && !transient0 && cache != null)
+//				cache.remove(key);
+			return this;
+		}
+
+		private void save() {
+			if (isTransient())
+				return;
+			if (cache != null)
+				if (Objects.equals(value, def))
+					cache.remove(key);
+				else
+					cache.put(key, converter.to(value));
+			PropertyObject.this.save();
 		}
 
 		public boolean isAttribute() {
@@ -296,11 +355,11 @@ public class PropertyObject {
 			}
 		}
 
-		private Property(String key, Gateway<V, JSONValue> converter) {
+		protected Property(String key, Gateway<V, JSONValue> converter) {
 			this(key, null, converter);
 		}
 
-		private Property(String key, V def, Gateway<V, JSONValue> converter) {
+		protected Property(String key, V def, Gateway<V, JSONValue> converter) {
 			this.key = key;
 			if (cache != null && def != null)
 				cache.put(key, converter.to(def));
@@ -310,19 +369,27 @@ public class PropertyObject {
 		}
 
 		public void set(V value) {
-			if (cache != null)
-				if (Objects.equals(value, def))
-					cache.remove(key);
-				else
-					cache.put(key, converter.to(value));
 			if (value == this.value)
 				return;
+
 			V temp = this.value;
 			this.value = value;
 
 			change(temp, value);
 			for (Property<? super V> p : propertyBindings)
 				p.set(value);
+
+			save();
+		}
+
+		/**
+		 * Sets the value of this {@link Property} without triggering any saving or
+		 * listeners.
+		 * 
+		 * @param value The new value of the property.
+		 */
+		public void setSilent(V value) {
+			this.value = value;
 		}
 
 		public V get() {
@@ -339,6 +406,16 @@ public class PropertyObject {
 			return Objects.equals(value, def) ? null : converter.to(value);
 		}
 
+	}
+
+	/**
+	 * Called by {@link Property properties} when changes have been made to this
+	 * {@link PropertyObject} such that this {@link PropertyObject} needs to be
+	 * saved.
+	 */
+	private void save() {
+		for (Runnable r : changeListeners)
+			r.run();
 	}
 
 	public JSONObject toJSON() {

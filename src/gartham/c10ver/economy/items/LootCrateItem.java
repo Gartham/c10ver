@@ -7,7 +7,7 @@ public class LootCrateItem extends Item {
 	public static final String ITEM_TYPE = "loot-crate", ITEM_NAME = "Loot Crate";
 	private final Property<CrateType> type = enumProperty("type", CrateType.DAILY, CrateType.class);
 	{
-		type.register(a -> icon.set(a.icon));
+		type.register((a, b) -> icon.set(b.icon));
 	}
 
 	public CrateType getType() {
@@ -33,6 +33,6 @@ public class LootCrateItem extends Item {
 	}
 
 	public LootCrateItem(JSONObject obj) {
-		super(ITEM_TYPE, ITEM_NAME, obj);
+		super(ITEM_TYPE, ITEM_NAME);
 	}
 }

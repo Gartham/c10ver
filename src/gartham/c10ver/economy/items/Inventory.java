@@ -200,15 +200,10 @@ public class Inventory {
 
 		private void save() {
 			if (alive)
-				Utilities.save(new JSONArray(JavaTools.mask(stacks, ItemStack::getProperties)), getFile());
+				Utilities.save(new JSONArray(JavaTools.mask(stacks, ItemStack::toJSON)), getFile());
 		}
 
 		public final class ItemStack extends PropertyObject implements Comparable<ItemStack> {
-
-			@Override
-			protected JSONObject getProperties() {
-				return super.getProperties();
-			}
 
 			private boolean alive = true;
 
@@ -257,7 +252,7 @@ public class Inventory {
 			}
 
 			private ItemStack(JSONObject json) {
-				super(json);
+				load(json);
 			}
 
 			public I getItem() {
@@ -277,10 +272,8 @@ public class Inventory {
 				return getType().compareTo(o.getType());
 			}
 
-			@Override
-			public void change() {
-				super.change();
-				save();
+			{
+				register(Entry.this::save);
 			}
 
 			public String getIcon() {

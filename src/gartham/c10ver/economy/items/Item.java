@@ -4,12 +4,32 @@ import java.util.Map.Entry;
 import java.util.Objects;
 
 import org.alixia.javalibrary.json.JSONObject;
+import org.alixia.javalibrary.json.JSONString;
+import org.alixia.javalibrary.json.JSONValue;
+import org.alixia.javalibrary.util.Gateway;
 
 import gartham.c10ver.data.PropertyObject;
 
 public abstract class Item extends PropertyObject {
-	protected final Property<String> ownerID = stringProperty("owner-id").setAttribute(false),
-			itemType = stringProperty("item-type").setAttribute(false), itemName, icon;
+	protected final Property<String> itemType = stringProperty("item-type").setAttribute(false),
+			itemName = stringProperty("item-name").setAttribute(false).setTransient(true), icon;
+
+	@Override
+	public void load(JSONObject properties) {
+		String s = properties.getString("item-type");
+		if (!getItemType().equals(s))
+			throw new IllegalArgumentException("Invalid object being loaded. According to object, object is a: " + s
+					+ ". This class represents: " + getItemType());
+		super.load(properties);
+	}
+
+	protected final Property<String> getItemTypeProperty() {
+		return itemType;
+	}
+
+	protected final Property<String> getIconProperty() {
+		return icon;
+	}
 
 	public String getItemName() {
 		return itemName.get();
@@ -50,32 +70,10 @@ public abstract class Item extends PropertyObject {
 		this(type, itemName, (String) null);
 	}
 
-	public Item(String type, String itemName, JSONObject properties) {
-		this(type, itemName, properties, null);
-	}
-
 	public Item(String type, String itemName, String defaultIcon) {
-		icon = (defaultIcon == null ? stringProperty("icon") : stringProperty("icon", defaultIcon)).setAttribute(false);
-		itemType.load(type);
-		this.itemName = stringProperty("item-name", itemName).setAttribute(false);
-	}
-
-	public Item(String type, String itemName, JSONObject properties, String defaultIcon) {
-		super(properties);
-		icon = stringProperty("icon").setAttribute(false);
-		if (!getItemType().equals(type))
-			throw new IllegalArgumentException("Invalid object to load from. JSONObject represents a(n) "
-					+ getItemType() + ", while construction is for object of type: " + type + '.');
-		itemType.load(type);
-		this.itemName = stringProperty("item-name", itemName).setAttribute(false);
-	}
-
-	public void setOwnerID(String value) {
-		ownerID.set(value);
-	}
-
-	public String getOwnerID() {
-		return ownerID.get();
+		itemType.set(type);// We don't set a default because we always want this written to file.
+		this.itemName.set(itemName);// Default property means nothing because this is never written to file.
+		icon = stringProperty("icon", defaultIcon).setAttribute(false);
 	}
 
 	public String getItemType() {

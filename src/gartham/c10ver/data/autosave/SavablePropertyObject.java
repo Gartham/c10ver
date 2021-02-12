@@ -14,13 +14,9 @@ public class SavablePropertyObject extends PropertyObject {
 	}
 
 	public SavablePropertyObject(File saveLocation) {
-		super(Utilities.loadObj(saveLocation));
+		load(Utilities.loadObj(saveLocation));
 		this.saveLocation = saveLocation;
+		register(() -> Utilities.save(toJSON(), saveLocation));
 	}
 
-	@Override
-	public void change() {
-		super.change();
-		Utilities.save(getProperties(), saveLocation);
-	}
 }
