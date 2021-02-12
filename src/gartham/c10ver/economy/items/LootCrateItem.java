@@ -26,8 +26,10 @@ public class LootCrateItem extends Item {
 	}
 
 	public LootCrateItem(JSONObject props) {
-		super(ITEM_TYPE, props);
+		super(ITEM_TYPE, props);// Item class does a check on item property with JSON input.
 		load(type, props);
+		getIconProperty().set(getType().icon);
+		getItemNameProperty().set(getType().name + ITEM_NAME_SUFFIX);
 	}
 
 	public LootCrateItem(CrateType type) {

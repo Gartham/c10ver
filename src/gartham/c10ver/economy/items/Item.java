@@ -9,8 +9,8 @@ import gartham.c10ver.data.PropertyObject;
 
 public abstract class Item extends PropertyObject {
 	private final Property<String> itemType = stringProperty("item-type").setAttribute(false),
-			itemName = stringProperty("item-name").setAttribute(false),
-			icon = stringProperty("icon").setAttribute(false);
+			itemName = stringProperty("item-name").setAttribute(false).setTransient(true),
+			icon = stringProperty("icon").setAttribute(false).setTransient(true);
 
 	@Override
 	public void load(JSONObject properties) {
@@ -21,10 +21,30 @@ public abstract class Item extends PropertyObject {
 		super.load(properties);
 	}
 
+	/**
+	 * The name of this item. This is typically expected to be set up on loading or
+	 * instantiation by subclasses, possibly based off of properties specific to the
+	 * subclass of this item, so this
+	 * {@link gartham.c10ver.data.PropertyObject.Property} is
+	 * <code>transient</code>.
+	 * 
+	 * @return The {@link gartham.c10ver.data.PropertyObject.Property} that stores
+	 *         the name of this {@link Item}.
+	 */
 	protected final Property<String> getItemNameProperty() {
 		return itemName;
 	}
 
+	/**
+	 * The icon of this item. This is typically expected to be set up on loading or
+	 * instantiation by subclasses, possibly based off of properties specific to the
+	 * subclass of this item, so this
+	 * {@link gartham.c10ver.data.PropertyObject.Property} is
+	 * <code>transient</code>.
+	 * 
+	 * @return The {@link gartham.c10ver.data.PropertyObject.Property} that stores
+	 *         the icon of this item.
+	 */
 	protected final Property<String> getIconProperty() {
 		return icon;
 	}
@@ -72,8 +92,6 @@ public abstract class Item extends PropertyObject {
 		load(itemType, properties);
 		if (!Objects.equals(type, getItemType()))
 			throw new IllegalArgumentException("Invalid item type: " + getItemType());
-		load(itemName, properties);
-		load(icon, properties);
 	}
 
 	public Item(String type, String name, String icon) {
