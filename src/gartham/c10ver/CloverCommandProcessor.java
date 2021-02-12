@@ -287,9 +287,8 @@ public class CloverCommandProcessor extends CommandProcessor {
 					}
 					List<? extends Entry<?>.ItemStack> list = Utilities.paginate(page, 9, entry.getStacks());
 					printStacks(list, eb);
-					eb.addField("",
-							"You have **" + maxPage + "** page" + (maxPage == 1 ? "" : "s") + " in your inventory.",
-							false);
+					eb.addField("", "You have **" + maxPage + "** page" + (maxPage == 1 ? "" : "s")
+							+ " of this item in your inventory.", false);
 //					eb.setFooter("You have " + maxPage + " page" + (maxPage == 1 ? "" : "s") + " in your inventory.");
 					inv.event.getChannel().sendMessage(eb.build()).queue();
 				}
