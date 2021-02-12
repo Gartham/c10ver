@@ -5,8 +5,6 @@ import java.util.List;
 
 public class Observable<V> {
 	private final List<Observer<? super V>> observers = new ArrayList<>(2);
-	
-	private V value;
 
 	public void register(Observer<? super V> observer) {
 		observers.add(observer);
@@ -14,6 +12,11 @@ public class Observable<V> {
 
 	public void unregister(Observer<? super V> observer) {
 		observers.remove(observer);
+	}
+
+	protected final void change(V oldVal, V newVal) {
+		for (Observer<? super V> o : observers)
+			o.observe(oldVal, newVal);
 	}
 
 }
