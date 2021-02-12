@@ -61,6 +61,10 @@ public class PropertyObject {
 	 * Calling this method with <code>null</code> as an argument is effectively
 	 * equivalent to calling {@link #disableCache()}.
 	 * </p>
+	 * <p>
+	 * Calling this method automatically enables caching with the provided map as
+	 * the cache.
+	 * </p>
 	 * 
 	 * @param properties The {@link JSONObject} to load from.
 	 */
@@ -160,14 +164,9 @@ public class PropertyObject {
 		};
 	}
 
-	protected final <V extends PropertyObject> Property<V> toObjectProperty(String key, V def,
-			Function<? super JSONValue, ? extends V> generator) {
-		return new Property<V>(key, def, toObjectGateway(generator));
-	}
-
 	protected final <V extends PropertyObject> Property<V> toObjectProperty(String key,
 			Function<? super JSONValue, ? extends V> generator) {
-		return new Property<V>(key, null, toObjectGateway(generator));
+		return new Property<V>(key, toObjectGateway(generator));
 	}
 
 	protected final <V> Property<V> toStringProperty(String key, Gateway<String, V> strGateway) {
@@ -235,160 +234,29 @@ public class PropertyObject {
 	public class Property<V> extends Observable<V> {
 
 		private final String key;
-		private V value, def;
+		private V value;
 		private final Gateway<V, JSONValue> converter;
 
-		/**
-		 * Sets the "default" value of this {@link Property}. When the actual value of a
-		 * {@link Property} is equal to its default value (as per
-		 * {@link Objects#equals(Object)}), the property is not saved nor cached. The
-		 * value of this field never affects the value stored by the {@link Property} it
-		 * belongs to, and is only used for efficiency when saving.
-		 * 
-		 * @param def
-		 */
-		public void setDefault(V def) {
-			if (def == this.def)
-				return;
-//			V temp = this.def;
-			this.def = def;
-//			if (!Objects.equals(def, value)) {
-//				if (Objects.equals(def, temp))
-//					save();
-//			} else if (cache != null)
-//				cache.remove(key);
-		}
-
-		public V getDefault() {
-			return def;
-		}
-
-		private void forceLoad(JSONObject properties) {
-			value = !properties.containsKey(key) ? def : converter.from(properties.get(key));
-			if (cache != null && Objects.equals(def, value))
-				cache.remove(key);
-		}
-
-		public void load(JSONObject properties) {
-			if (!isTransient())
-				forceLoad(properties);
-		}
-
-		private Property<? extends V> propertyBinding;
-		private Set<Property<? super V>> propertyBindings = new HashSet<>();
-		/**
-		 * Determines whether this property represents an attribute of this
-		 * {@link PropertyObject} or not. In a check for {@link Item#stackable(Item)
-		 * stackability}, properties that are not designated as {@link #attribute
-		 * attributes} are ignored.
-		 */
-		private boolean attribute = true, transient0;
-
-		public String getKey() {
-			return key;
-		}
-
-		public boolean isTransient() {
-			return transient0;
-		}
-
-		public Property<V> setTransient(boolean transient0) {
-			this.transient0 = transient0;
-//			if (!this.transient0 && transient0)
-//				save();
-//			else if (this.transient0 && !transient0 && cache != null)
-//				cache.remove(key);
-			return this;
-		}
-
-		private void save() {
-			if (isTransient())
-				return;
-			if (cache != null)
-				if (Objects.equals(value, def))
-					cache.remove(key);
-				else
-					cache.put(key, converter.to(value));
-			PropertyObject.this.save();
-		}
+		private boolean attribute;
 
 		public boolean isAttribute() {
 			return attribute;
 		}
 
-		public Property<V> setAttribute(boolean attribute) {
+		public void setAttribute(boolean attribute) {
 			this.attribute = attribute;
-			return this;
 		}
 
-		/**
-		 * <p>
-		 * Binds the specified property to this property. If the provided property has a
-		 * different value from this one, this one is set to the value of the provided
-		 * property.
-		 * </p>
-		 * <p>
-		 * Providing <code>null</code> to this method is equivalent to calling
-		 * {@link #unbind()}.
-		 * </p>
-		 * 
-		 * @param binding The other property to bind this property to.
-		 */
-		public void bind(Property<? extends V> binding) {
-			for (Property<? extends V> b = binding; b.propertyBinding != null; b = b.propertyBinding)
-				if (b == this)
-					throw new IllegalArgumentException("Cyclic binding detected.");
-			binding.propertyBindings.add(this);
-			if (binding != null && !Objects.equals(binding.get(), get()))
-				set(binding.get());
-			propertyBinding = binding;
-		}
-
-		/**
-		 * Unbinds this property from the bound property, if it was already bound.
-		 * Otherwise, does nothing.
-		 */
-		public void unbind() {
-			if (propertyBinding != null) {
-				propertyBinding.propertyBindings.remove(this);
-				propertyBinding = null;
-			}
+		public String getKey() {
+			return key;
 		}
 
 		protected Property(String key, Gateway<V, JSONValue> converter) {
-			this(key, null, converter);
-		}
-
-		protected Property(String key, V def, Gateway<V, JSONValue> converter) {
 			this.key = key;
-			if (cache != null && def != null)
-				cache.put(key, converter.to(def));
-			value = this.def = def;
 			this.converter = converter;
-			propertyMap.put(key, this);
 		}
 
 		public void set(V value) {
-			if (value == this.value)
-				return;
-
-			V temp = this.value;
-			this.value = value;
-
-			change(temp, value);
-			for (Property<? super V> p : propertyBindings)
-				p.set(value);
-
-			save();
-		}
-
-		/**
-		 * Sets the value of this {@link Property} without triggering any saving or
-		 * listeners.
-		 * 
-		 * @param value The new value of the property.
-		 */
-		public void setSilent(V value) {
 			this.value = value;
 		}
 
@@ -403,7 +271,7 @@ public class PropertyObject {
 		 * @return
 		 */
 		public JSONValue toJSON() {
-			return Objects.equals(value, def) ? null : converter.to(value);
+			return value != null ? converter.to(value) : null;
 		}
 
 	}
@@ -420,12 +288,11 @@ public class PropertyObject {
 
 	public JSONObject toJSON() {
 		JSONObject o = new JSONObject();
-		for (Property<?> p : propertyMap.values())
-			if (!p.isTransient()) {
-				JSONValue value = p.toJSON();
-				if (value != null)
-					o.put(p.key, value);
-			}
+		for (Property<?> p : propertyMap.values()) {
+			JSONValue value = p.toJSON();
+			if (value != null)
+				o.put(p.key, value);
+		}
 		return o;
 	}
 
