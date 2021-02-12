@@ -50,9 +50,11 @@ public class CloverCommandProcessor extends CommandProcessor {
 					u.dailyInvoked();
 					long amt = (long) (Math.random() * 25 + 10);
 					u.getAccount().deposit(amt);
+					u.getAccount().save();
 					Inventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
 					var rewards = of(new LootCrateItem(CrateType.DAILY));
-					invent.add(rewards);
+					invent.add(rewards).save();
+					u.save();
 
 					inv.event.getChannel()
 							.sendMessage(inv.event.getAuthor().getAsMention()
@@ -79,10 +81,12 @@ public class CloverCommandProcessor extends CommandProcessor {
 					u.weeklyInvoked();
 					long amt = (long) (Math.random() * 250 + 100);
 					u.getAccount().deposit(amt);
+					u.getAccount().save();
 
 					Inventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
 					var rewards = of(new LootCrateItem(CrateType.WEEKLY));
-					invent.add(rewards);
+					invent.add(rewards).save();
+					u.save();
 
 					inv.event.getChannel()
 							.sendMessage(inv.event.getAuthor().getAsMention()
@@ -109,11 +113,13 @@ public class CloverCommandProcessor extends CommandProcessor {
 
 					long amt = (long) (Math.random() * 10000 + 4000);
 					u.getAccount().deposit(amt);
+					u.getAccount().save();
 
 					Inventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
 					var rewards = of(new LootCrateItem(CrateType.MONTHLY));
 
-					invent.add(rewards);
+					invent.add(rewards).save();
+					u.save();
 
 					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
 							+ " is getting their monthly rewards!!!\n\n**Rewards:**\n" + listRewards(amt, rewards)
@@ -165,6 +171,8 @@ public class CloverCommandProcessor extends CommandProcessor {
 										inv.event.getAuthor().getAsMention() + ", you do not have enough money to pay `"
 												+ bi + "` to " + mentionedUsers.get(0).getAsMention() + '.')
 								.queue();
+					payer.save();
+					recip.save();
 				}
 			}
 		});

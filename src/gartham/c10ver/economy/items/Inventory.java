@@ -6,8 +6,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.alixia.javalibrary.JavaTools;
 import org.alixia.javalibrary.json.JSONArray;
@@ -67,24 +69,29 @@ public class Inventory {
 							: o2 instanceof Entry<?> ? ((Entry<?>) o2).getType() : ((Entry<?>.ItemStack) o2).getType());
 
 	@SuppressWarnings("unchecked")
-	public <I extends Item> void add(I item, BigInteger amt) {
-		if (entries.containsKey(item.getItemType()))
-			((Entry<I>) entries.get(item.getItemType())).add(item, amt);
-		else
-			entries.put(item.getItemType(), new Entry<>(item, amt));
+	public <I extends Item> Entry<I> add(I item, BigInteger amt) {
+		Entry<I> entry;
+		if (entries.containsKey(item.getItemType())) {
+			entry = (Entry<I>) entries.get(item.getItemType());
+			entry.add(item, amt);
+		} else
+			entries.put(item.getItemType(), entry = new Entry<>(item, amt));
+		return entry;
 	}
 
-	public void add(Item item) {
-		add(item, BigInteger.ONE);
+	public <I extends Item> Entry<I> add(I item) {
+		return add(item, BigInteger.ONE);
 	}
 
-	public void add(ItemBunch<?>... items) {
+	public Set<Entry<?>> add(ItemBunch<?>... items) {
+		Set<Entry<?>> res = new HashSet<>();
 		for (ItemBunch<?> ib : items)
-			add(ib);
+			res.add(add(ib));
+		return res;
 	}
 
-	public void add(ItemBunch<?> items) {
-		add(items.getItem(), items.getCount());
+	public <I extends Item> Entry<I> add(ItemBunch<? extends I> items) {
+		return add(items.getItem(), items.getCount());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -201,7 +208,6 @@ public class Inventory {
 			entries.put(type, this);
 			entryList.add(-Collections.binarySearch(entryList, type, COMPARATOR) - 1, this);
 			alive = true;
-			save();
 		}
 
 		public void save() {

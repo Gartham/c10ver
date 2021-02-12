@@ -28,6 +28,7 @@ public class LootCrateItem extends Item {
 
 	public LootCrateItem(JSONObject props) {
 		super(ITEM_TYPE, props);
+		load(type, props);
 	}
 
 	public LootCrateItem(CrateType type) {
