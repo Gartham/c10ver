@@ -251,6 +251,8 @@ public class PropertyObject {
 
 		protected Property(String key, V defaultValue, Gateway<V, JSONValue> converter) {
 			this.key = key;
+			if (propertyMap.containsKey(key))
+				throw new IllegalArgumentException("Key taken: " + key + " in class " + getClass().getSimpleName());
 			propertyMap.put(key, this);
 			def = defaultValue;
 			this.converter = converter;
