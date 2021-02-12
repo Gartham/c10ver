@@ -216,7 +216,7 @@ public class PropertyObject {
 		private V value, def;
 		private final Gateway<V, JSONValue> converter;
 
-		private boolean attribute, trans;
+		private boolean attribute = true, trans;
 
 		public boolean isTransient() {
 			return trans;
