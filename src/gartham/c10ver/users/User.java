@@ -26,9 +26,15 @@ public class User extends SavablePropertyObject {
 	}
 
 	public User(File userDirectory) {
+		this(userDirectory, true);
+	}
+
+	protected User(File userDirectory, boolean load) {
 		super(new File(userDirectory, "user-data.txt"));
 		account = new Account(userDirectory);
 		inventory = new Inventory(userDirectory);
+		if (load)
+			load();
 	}
 
 	public Instant getLastDailyInvocation() {

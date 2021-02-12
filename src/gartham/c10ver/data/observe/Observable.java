@@ -3,23 +3,20 @@ package gartham.c10ver.data.observe;
 import java.util.ArrayList;
 import java.util.List;
 
-import gartham.c10ver.data.autosave.Changeable;
+public class Observable<V> {
+	private final List<Observer<? super V>> observers = new ArrayList<>(2);
 
-public class Observable implements Changeable {
-	private List<Observer> observers = new ArrayList<>();
-
-	public void register(Observer o) {
-		observers.add(o);
+	public void register(Observer<? super V> observer) {
+		observers.add(observer);
 	}
 
-	public void unregister(Observer o) {
-		observers.remove(o);
+	public void unregister(Observer<? super V> observer) {
+		observers.remove(observer);
 	}
 
-	@Override
-	public void change() {
-		for (Observer o : observers)
-			o.observe();
+	protected final void change(V oldVal, V newVal) {
+		for (Observer<? super V> o : observers)
+			o.observe(oldVal, newVal);
 	}
 
 }

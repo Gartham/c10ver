@@ -6,8 +6,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.alixia.javalibrary.JavaTools;
 import org.alixia.javalibrary.json.JSONArray;
@@ -29,10 +31,9 @@ public class Inventory {
 	public Inventory(File userDir) {
 		invdir = new File(userDir, "inventory");
 		File[] files = invdir.listFiles();
-		if (files != null) {
+		if (files != null)
 			for (File type : files)
 				new Entry<>(type);
-		}
 	}
 
 	private final Map<String, Entry<?>> entries = new HashMap<>();
@@ -68,30 +69,40 @@ public class Inventory {
 							: o2 instanceof Entry<?> ? ((Entry<?>) o2).getType() : ((Entry<?>.ItemStack) o2).getType());
 
 	@SuppressWarnings("unchecked")
-	public <I extends Item> void add(I item, BigInteger amt) {
-		if (entries.containsKey(item.getItemType()))
-			((Entry<I>) entries.get(item.getItemType())).add(item, amt);
-		else
-			entries.put(item.getItemType(), new Entry<>(item, amt));
+	public <I extends Item> Entry<I> add(I item, BigInteger amt) {
+		Entry<I> entry;
+		if (entries.containsKey(item.getItemType())) {
+			entry = (Entry<I>) entries.get(item.getItemType());
+			entry.add(item, amt);
+		} else
+			entries.put(item.getItemType(), entry = new Entry<>(item, amt));
+		return entry;
 	}
 
-	public void add(Item item) {
-		add(item, BigInteger.ONE);
+	public <I extends Item> Entry<I> add(I item) {
+		return add(item, BigInteger.ONE);
 	}
 
-	public void add(ItemBunch<?>... items) {
+	public Set<Entry<?>> add(ItemBunch<?>... items) {
+		Set<Entry<?>> res = new HashSet<>();
 		for (ItemBunch<?> ib : items)
-			add(ib);
+			res.add(add(ib));
+		return res;
 	}
 
-	public void add(ItemBunch<?> items) {
-		add(items.getItem(), items.getCount());
+	public <I extends Item> Entry<I> add(ItemBunch<? extends I> items) {
+		return add(items.getItem(), items.getCount());
 	}
 
 	@SuppressWarnings("unchecked")
 	public <I extends Item> boolean remove(I item, BigInteger amt) {
 		return entries.containsKey(item.getItemType()) ? ((Entry<I>) entries.get(item.getItemType())).remove(item, amt)
 				: false;
+	}
+
+	public void saveAll() {
+		for (Entry<?> e : entryList)
+			e.save();
 	}
 
 	/**
@@ -191,26 +202,26 @@ public class Inventory {
 		private Entry(File f) {
 			for (var jv : (JSONArray) Utilities.load(f))
 				new ItemStack((JSONObject) jv);
+			if (stacks.isEmpty())
+				throw new IllegalArgumentException("Invalid file. No stacks found in an entry. File: " + f);
 			String type = this.stacks.get(0).getType();
 			entries.put(type, this);
 			entryList.add(-Collections.binarySearch(entryList, type, COMPARATOR) - 1, this);
 			alive = true;
-			save();
 		}
 
-		private void save() {
+		public void save() {
 			if (alive)
-				Utilities.save(new JSONArray(JavaTools.mask(stacks, ItemStack::getProperties)), getFile());
+				Utilities.save(new JSONArray(JavaTools.mask(stacks, ItemStack::toJSON)), getFile());
 		}
 
 		public final class ItemStack extends PropertyObject implements Comparable<ItemStack> {
 
-			@Override
-			protected JSONObject getProperties() {
-				return super.getProperties();
-			}
-
 			private boolean alive = true;
+
+			public void save() {
+				Entry.this.save();
+			}
 
 			public boolean stackable(Item other) {
 				return getItem().stackable(other);
@@ -218,6 +229,10 @@ public class Inventory {
 
 			public BigInteger count() {
 				return count.get();
+			}
+
+			public String getCustomName() {
+				return item.get().getCustomName();
 			}
 
 			public void remove(BigInteger amt) {
@@ -257,7 +272,8 @@ public class Inventory {
 			}
 
 			private ItemStack(JSONObject json) {
-				super(json);
+				load(item, json);
+				load(count, json);
 			}
 
 			public I getItem() {
@@ -275,12 +291,6 @@ public class Inventory {
 			@Override
 			public int compareTo(ItemStack o) {
 				return getType().compareTo(o.getType());
-			}
-
-			@Override
-			public void change() {
-				super.change();
-				save();
 			}
 
 			public String getIcon() {

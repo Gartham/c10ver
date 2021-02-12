@@ -8,8 +8,59 @@ import org.alixia.javalibrary.json.JSONObject;
 import gartham.c10ver.data.PropertyObject;
 
 public abstract class Item extends PropertyObject {
-	protected final Property<String> ownerID = stringProperty("owner-id").setAttribute(false),
-			itemType = stringProperty("item-type").setAttribute(false), itemName, icon;
+	private final Property<String> itemType = stringProperty("$type").setAttribute(false),
+			itemName = stringProperty("$name").setAttribute(false).setTransient(true),
+			icon = stringProperty("$icon").setAttribute(false).setTransient(true),
+			customName = stringProperty("$custom-name").setAttribute(false).setTransient(true);
+
+	@Override
+	public void load(JSONObject properties) {
+		String s = properties.getString("item-type");
+		if (!getItemType().equals(s))
+			throw new IllegalArgumentException("Invalid object being loaded. According to object, object is a: " + s
+					+ ". This class represents: " + getItemType());
+		super.load(properties);
+	}
+
+	protected void setCustomName(String name) {
+		customName.set(name);
+	}
+
+	protected final Property<String> getCustomNameProperty() {
+		return customName;
+	}
+
+	public String getCustomName() {
+		return customName.get();
+	}
+
+	/**
+	 * The name of this item. This is typically expected to be set up on loading or
+	 * instantiation by subclasses, possibly based off of properties specific to the
+	 * subclass of this item, so this
+	 * {@link gartham.c10ver.data.PropertyObject.Property} is
+	 * <code>transient</code>.
+	 * 
+	 * @return The {@link gartham.c10ver.data.PropertyObject.Property} that stores
+	 *         the name of this {@link Item}.
+	 */
+	protected final Property<String> getItemNameProperty() {
+		return itemName;
+	}
+
+	/**
+	 * The icon of this item. This is typically expected to be set up on loading or
+	 * instantiation by subclasses, possibly based off of properties specific to the
+	 * subclass of this item, so this
+	 * {@link gartham.c10ver.data.PropertyObject.Property} is
+	 * <code>transient</code>.
+	 * 
+	 * @return The {@link gartham.c10ver.data.PropertyObject.Property} that stores
+	 *         the icon of this item.
+	 */
+	protected final Property<String> getIconProperty() {
+		return icon;
+	}
 
 	public String getItemName() {
 		return itemName.get();
@@ -46,36 +97,20 @@ public abstract class Item extends PropertyObject {
 		return true;
 	}
 
-	public Item(String type, String itemName) {
-		this(type, itemName, (String) null);
+	public Item(String type) {
+		itemType.set(type);
 	}
 
-	public Item(String type, String itemName, JSONObject properties) {
-		this(type, itemName, properties, null);
+	public Item(String type, JSONObject properties) {
+		load(itemType, properties);
+		if (!Objects.equals(type, getItemType()))
+			throw new IllegalArgumentException("Invalid item type: " + getItemType());
 	}
 
-	public Item(String type, String itemName, String defaultIcon) {
-		icon = (defaultIcon == null ? stringProperty("icon") : stringProperty("icon", defaultIcon)).setAttribute(false);
-		itemType.load(type);
-		this.itemName = stringProperty("item-name", itemName).setAttribute(false);
-	}
-
-	public Item(String type, String itemName, JSONObject properties, String defaultIcon) {
-		super(properties);
-		icon = stringProperty("icon").setAttribute(false);
-		if (!getItemType().equals(type))
-			throw new IllegalArgumentException("Invalid object to load from. JSONObject represents a(n) "
-					+ getItemType() + ", while construction is for object of type: " + type + '.');
-		itemType.load(type);
-		this.itemName = stringProperty("item-name", itemName).setAttribute(false);
-	}
-
-	public void setOwnerID(String value) {
-		ownerID.set(value);
-	}
-
-	public String getOwnerID() {
-		return ownerID.get();
+	public Item(String type, String name, String icon) {
+		itemType.set(type);
+		itemName.set(name);
+		this.icon.set(icon);
 	}
 
 	public String getItemType() {
