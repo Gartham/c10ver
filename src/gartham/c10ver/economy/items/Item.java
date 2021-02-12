@@ -8,8 +8,9 @@ import org.alixia.javalibrary.json.JSONObject;
 import gartham.c10ver.data.PropertyObject;
 
 public abstract class Item extends PropertyObject {
-	protected final Property<String> itemType = stringProperty("item-type").setAttribute(false),
-			itemName = stringProperty("item-name").setAttribute(false), icon;
+	private final Property<String> itemType = stringProperty("item-type").setAttribute(false),
+			itemName = stringProperty("item-name").setAttribute(false),
+			icon = stringProperty("icon").setAttribute(false);
 
 	@Override
 	public void load(JSONObject properties) {
@@ -20,8 +21,8 @@ public abstract class Item extends PropertyObject {
 		super.load(properties);
 	}
 
-	protected final Property<String> getItemTypeProperty() {
-		return itemType;
+	protected final Property<String> getItemNameProperty() {
+		return itemName;
 	}
 
 	protected final Property<String> getIconProperty() {
@@ -63,14 +64,22 @@ public abstract class Item extends PropertyObject {
 		return true;
 	}
 
-	public Item(String type, String itemName) {
-		this(type, itemName, (String) null);
+	public Item(String type) {
+		itemType.set(type);
 	}
 
-	public Item(String type, String itemName, String defaultIcon) {
-		itemType.set(type);// We don't set a default because we always want this written to file.
-		this.itemName.set(itemName);// Default property means nothing because this is never written to file.
-		icon = stringProperty("icon", defaultIcon).setAttribute(false);
+	public Item(String type, JSONObject properties) {
+		load(itemType, properties);
+		if (!Objects.equals(type, getItemType()))
+			throw new IllegalArgumentException("Invalid item type: " + getItemType());
+		load(itemName, properties);
+		load(icon, properties);
+	}
+
+	public Item(String type, String name, String icon) {
+		itemType.set(type);
+		itemName.set(name);
+		this.icon.set(icon);
 	}
 
 	public String getItemType() {

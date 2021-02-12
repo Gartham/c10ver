@@ -29,10 +29,9 @@ public class Inventory {
 	public Inventory(File userDir) {
 		invdir = new File(userDir, "inventory");
 		File[] files = invdir.listFiles();
-		if (files != null) {
+		if (files != null)
 			for (File type : files)
 				new Entry<>(type);
-		}
 	}
 
 	private final Map<String, Entry<?>> entries = new HashMap<>();
@@ -92,6 +91,11 @@ public class Inventory {
 	public <I extends Item> boolean remove(I item, BigInteger amt) {
 		return entries.containsKey(item.getItemType()) ? ((Entry<I>) entries.get(item.getItemType())).remove(item, amt)
 				: false;
+	}
+
+	public void saveAll() {
+		for (Entry<?> e : entryList)
+			e.save();
 	}
 
 	/**
@@ -191,6 +195,8 @@ public class Inventory {
 		private Entry(File f) {
 			for (var jv : (JSONArray) Utilities.load(f))
 				new ItemStack((JSONObject) jv);
+			if (stacks.isEmpty())
+				throw new IllegalArgumentException("Invalid file. No stacks found in an entry. File: " + f);
 			String type = this.stacks.get(0).getType();
 			entries.put(type, this);
 			entryList.add(-Collections.binarySearch(entryList, type, COMPARATOR) - 1, this);
@@ -198,7 +204,7 @@ public class Inventory {
 			save();
 		}
 
-		private void save() {
+		public void save() {
 			if (alive)
 				Utilities.save(new JSONArray(JavaTools.mask(stacks, ItemStack::toJSON)), getFile());
 		}
@@ -206,6 +212,10 @@ public class Inventory {
 		public final class ItemStack extends PropertyObject implements Comparable<ItemStack> {
 
 			private boolean alive = true;
+
+			public void save() {
+				Entry.this.save();
+			}
 
 			public boolean stackable(Item other) {
 				return getItem().stackable(other);
@@ -252,7 +262,8 @@ public class Inventory {
 			}
 
 			private ItemStack(JSONObject json) {
-				load(json);
+				load(item, json);
+				load(count, json);
 			}
 
 			public I getItem() {
@@ -270,10 +281,6 @@ public class Inventory {
 			@Override
 			public int compareTo(ItemStack o) {
 				return getType().compareTo(o.getType());
-			}
-
-			{
-				register(Entry.this::save);
 			}
 
 			public String getIcon() {

@@ -7,12 +7,9 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.alixia.javalibrary.json.JSONNumber;
@@ -22,22 +19,7 @@ import org.alixia.javalibrary.json.JSONValue;
 import org.alixia.javalibrary.util.Gateway;
 import org.alixia.javalibrary.util.StringGateway;
 
-import gartham.c10ver.data.observe.Observable;
-import gartham.c10ver.economy.items.Item;
-
 public class PropertyObject {
-
-	private final List<Runnable> changeListeners = new ArrayList<>(1);
-
-	public void register(Runnable r) {
-		changeListeners.add(r);
-	}
-
-	public void unregister(Runnable r) {
-		changeListeners.remove(r);
-	}
-
-	private JSONObject properties;
 
 	private final Map<String, Property<?>> propertyMap = new HashMap<>();
 
@@ -61,10 +43,8 @@ public class PropertyObject {
 	 * @param properties The {@link JSONObject} to load from.
 	 */
 	public void load(JSONObject properties) {
-		if (properties != null)
-			for (Property<?> p : propertyMap.values())
-				p.load(properties.get(p.key));
-		this.properties = properties;
+		for (Property<?> p : propertyMap.values())
+			p.load(properties);
 	}
 
 	protected Map<String, Property<?>> getPropertyMap() {
@@ -200,6 +180,10 @@ public class PropertyObject {
 		return durationProperty(key, null);
 	}
 
+	protected final void load(Property<?> property, JSONObject properties) {
+		property.load(properties);
+	}
+
 	/**
 	 * <p>
 	 * Represents a {@link Property} that belongs to the containing object.
@@ -222,17 +206,26 @@ public class PropertyObject {
 	 *
 	 * @param <V>
 	 */
-	public class Property<V> extends Observable<V> {
+	public class Property<V> {
 
-		private void load(JSONValue value) {
-			this.value = converter.from(value);
+		protected final void load(JSONObject properties) {
+			set(properties != null && properties.containsKey(key) ? converter.from(properties.get(key)) : def);
 		}
 
 		private final String key;
 		private V value, def;
 		private final Gateway<V, JSONValue> converter;
 
-		private boolean attribute;
+		private boolean attribute, trans;
+
+		public boolean isTransient() {
+			return trans;
+		}
+
+		public Property<V> setTransient(boolean trans) {
+			this.trans = trans;
+			return this;
+		}
 
 		public boolean isAttribute() {
 			return attribute;
@@ -243,19 +236,32 @@ public class PropertyObject {
 			return this;
 		}
 
+		public V getDef() {
+			return def;
+		}
+
+		public Property<V> setDef(V def) {
+			this.def = def;
+			return this;
+		}
+
 		public String getKey() {
 			return key;
 		}
 
-		protected Property(String key, Gateway<V, JSONValue> converter) {
+		protected Property(String key, V defaultValue, Gateway<V, JSONValue> converter) {
 			this.key = key;
+			propertyMap.put(key, this);
+			def = defaultValue;
 			this.converter = converter;
 		}
 
+		protected Property(String key, Gateway<V, JSONValue> converter) {
+			this(key, null, converter);
+		}
+
 		public Property<V> set(V value) {
-			V temp = this.value;
 			this.value = value;
-			change(temp, value);
 			return this;
 		}
 
@@ -270,19 +276,9 @@ public class PropertyObject {
 		 * @return
 		 */
 		public JSONValue toJSON() {
-			return value != null ? converter.to(value) : null;
+			return trans || Objects.equals(value, def) ? null : converter.to(value);
 		}
 
-	}
-
-	/**
-	 * Called by {@link Property properties} when changes have been made to this
-	 * {@link PropertyObject} such that this {@link PropertyObject} needs to be
-	 * saved.
-	 */
-	private void save() {
-		for (Runnable r : changeListeners)
-			r.run();
 	}
 
 	public JSONObject toJSON() {

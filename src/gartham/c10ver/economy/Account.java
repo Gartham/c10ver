@@ -4,12 +4,19 @@ import java.io.File;
 import java.math.BigDecimal;
 
 import gartham.c10ver.data.autosave.SavablePropertyObject;
+import gartham.c10ver.users.User;
 
 public class Account extends SavablePropertyObject {
 	private final Property<BigDecimal> balance = bigDecimalProperty("bal", BigDecimal.ZERO);
 
 	public Account(File userDirectory) {
+		this(userDirectory, true);
+	}
+
+	protected Account(File userDirectory, boolean load) {
 		super(new File(userDirectory, "main-account.txt"));
+		if (load)
+			load();
 	}
 
 	public void setBalance(BigDecimal balance) {
@@ -28,7 +35,7 @@ public class Account extends SavablePropertyObject {
 	}
 
 	public void deposit(BigDecimal amt) {
-		balance.set(balance.get().add(amt));
+		setBalance(getBalance().add(amt));
 	}
 
 	public void deposit(long amt) {
@@ -36,9 +43,9 @@ public class Account extends SavablePropertyObject {
 	}
 
 	public boolean withdraw(BigDecimal amt) {
-		if (balance.get().compareTo(amt) < 0)
+		if (getBalance().compareTo(amt) < 0)
 			return false;
-		balance.set(balance.get().subtract(amt));
+		setBalance(getBalance().subtract(amt));
 		return true;
 	}
 
