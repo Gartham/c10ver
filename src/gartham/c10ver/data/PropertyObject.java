@@ -19,16 +19,47 @@ import org.alixia.javalibrary.json.JSONValue;
 import org.alixia.javalibrary.util.Gateway;
 import org.alixia.javalibrary.util.StringGateway;
 
+import com.fasterxml.jackson.databind.annotation.JsonAppend.Prop;
+
 import gartham.c10ver.data.observe.Observable;
+import gartham.c10ver.data.observe.Observer;
 import gartham.c10ver.economy.items.Item;
 
-public class PropertyObject extends Observable {
+public class PropertyObject {
 
-	private final JSONObject properties;
+	private JSONObject cache;
+
+	public void enableCache() {
+		cache = toJSON();
+	}
+
+	public void disableCache() {
+		cache = null;
+	}
+
 	private final Map<String, Property<?>> propertyMap = new HashMap<>();
 
-	protected JSONObject getProperties() {
-		return properties;
+	/**
+	 * <p>
+	 * Loads the values of all non-transient {@link Property properties} in this
+	 * {@link PropertyObject} based off of the specified {@link JSONObject}.
+	 * <b>NOTE: The provided {@link JSONObject} is then used as the cache!</b>. It
+	 * should not be modified after being provided to this method, either until the
+	 * cache is disabled or until this method is called once more.
+	 * </p>
+	 * <p>
+	 * Calling this method with <code>null</code> as an argument is effectively
+	 * equivalent to calling {@link #disableCache()}.
+	 * </p>
+	 * 
+	 * @param properties The {@link JSONObject} to load from.
+	 */
+	public void load(JSONObject properties) {
+		if (properties != null)
+			for (Property<?> p : propertyMap.values())
+				if (!p.isTransient())
+					p.forceLoad(properties);
+		cache = properties;
 	}
 
 	protected Map<String, Property<?>> getPropertyMap() {
@@ -39,12 +70,7 @@ public class PropertyObject extends Observable {
 		return Collections.unmodifiableMap(getPropertyMap());
 	}
 
-	public PropertyObject(JSONObject properties) {
-		this.properties = properties == null ? new JSONObject() : properties;
-	}
-
 	public PropertyObject() {
-		this(new JSONObject());
 	}
 
 	protected final Property<String> stringProperty(String key) {
@@ -114,7 +140,7 @@ public class PropertyObject extends Observable {
 
 			@Override
 			public JSONValue to(V value) {
-				return value.getProperties();
+				return value.toJSON();
 			}
 
 			@Override
@@ -174,35 +200,40 @@ public class PropertyObject extends Observable {
 		return durationProperty(key, null);
 	}
 
-	public class Property<V> extends Observable {
+	public class Property<V> extends Observable<V> {
 
 		private final String key;
+
 		private V value, def;
 		private final Gateway<V, JSONValue> converter;
 
 		/**
-		 * Changes the value of this {@link Property}, but does not propagate changes to
-		 * listeners, including the saving listener. This <b>does</b> create a record of
-		 * this property in the {@link PropertyObject#propertyMap} mapping.
+		 * Sets the "default" value of this {@link Property}. When the actual value of a
+		 * {@link Property} is equal to its default value (as per
+		 * {@link Objects#equals(Object)}), the property is not saved nor cached.
 		 * 
-		 * @param value
-		 * @return
+		 * @param def
 		 */
-		public Property<V> load(V value) {
-			if (value != this.value) {
-				this.value = value;
-				if (Objects.equals(def, value)) {
-					properties.remove(key);
-					propertyMap.remove(key);
-				} else {
-					properties.put(key, converter.to(value));
-					propertyMap.put(key, this);
-				}
-			}
-			return this;
+		public void setDefault(V def) {
+			this.def = def;
+			if (cache != null && Objects.equals(def, value))
+				cache.remove(key);
 		}
 
-		private final Set<Binding<? super V>> bindings = new HashSet<>();
+		public V getDefault() {
+			return def;
+		}
+
+		private void forceLoad(JSONObject properties) {
+			value = converter.from(properties.get(key));
+			if (cache != null && Objects.equals(def, value))
+				cache.remove(key);
+		}
+
+		public void load(JSONObject properties) {
+			if (!isTransient())
+				forceLoad(properties);
+		}
 
 		private Property<? extends V> propertyBinding;
 		private Set<Property<? super V>> propertyBindings = new HashSet<>();
@@ -212,7 +243,15 @@ public class PropertyObject extends Observable {
 		 * stackability}, properties that are not designated as {@link #attribute
 		 * attributes} are ignored.
 		 */
-		private boolean attribute = true;
+		private boolean attribute = true, transient0 = true;
+
+		public boolean isTransient() {
+			return transient0;
+		}
+
+		public void setTransient(boolean transient0) {
+			this.transient0 = transient0;
+		}
 
 		public boolean isAttribute() {
 			return attribute;
@@ -221,21 +260,6 @@ public class PropertyObject extends Observable {
 		public Property<V> setAttribute(boolean attribute) {
 			this.attribute = attribute;
 			return this;
-		}
-
-		/**
-		 * <p>
-		 * Registers a {@link Binding} to this {@link Property}. Whenever this
-		 * {@link Property} changes, the specified {@link Binding} will be called with
-		 * the value that this property changed to.
-		 * </p>
-		 * <p>
-		 * {@link Binding}s
-		 * 
-		 * @param binding
-		 */
-		public void register(Binding<? super V> binding) {
-			bindings.add(binding);
 		}
 
 		/**
@@ -272,54 +296,60 @@ public class PropertyObject extends Observable {
 			}
 		}
 
-		public void unregister(Binding<? super V> binding) {
-			bindings.remove(binding);
-		}
-
-		private void load() {
-			if (properties.containsKey(key))
-				value = converter.from(properties.get(key));
-		}
-
 		private Property(String key, Gateway<V, JSONValue> converter) {
 			this(key, null, converter);
 		}
 
 		private Property(String key, V def, Gateway<V, JSONValue> converter) {
 			this.key = key;
+			if (cache != null && def != null)
+				cache.put(key, converter.to(def));
 			value = this.def = def;
 			this.converter = converter;
 			propertyMap.put(key, this);
-			load();
 		}
 
 		public void set(V value) {
+			if (cache != null)
+				if (Objects.equals(value, def))
+					cache.remove(key);
+				else
+					cache.put(key, converter.to(value));
 			if (value == this.value)
 				return;
+			V temp = this.value;
 			this.value = value;
-			for (Binding<? super V> b : bindings)
-				b.propagateChange(value);
+
+			change(temp, value);
 			for (Property<? super V> p : propertyBindings)
 				p.set(value);
-			change();
 		}
 
 		public V get() {
 			return value;
 		}
 
-		@Override
-		public void change() {
-			if (Objects.equals(def, value)) {
-				properties.remove(key);
-				propertyMap.remove(key);
-			} else {
-				properties.put(key, converter.to(value));
-				propertyMap.put(key, this);
-			}
-			PropertyObject.this.change();
+		/**
+		 * Returns <code>null</code> if this {@link Property} holds its default value,
+		 * or the converted value otherwise.
+		 * 
+		 * @return
+		 */
+		public JSONValue toJSON() {
+			return Objects.equals(value, def) ? null : converter.to(value);
 		}
 
+	}
+
+	public JSONObject toJSON() {
+		JSONObject o = new JSONObject();
+		for (Property<?> p : propertyMap.values())
+			if (!p.isTransient()) {
+				JSONValue value = p.toJSON();
+				if (value != null)
+					o.put(p.key, value);
+			}
+		return o;
 	}
 
 	protected final <V> Property<V> toStringProperty(String key, V def, Gateway<String, V> strGateway) {
