@@ -231,6 +231,10 @@ public class Inventory {
 				return count.get();
 			}
 
+			public String getCustomName() {
+				return item.get().getCustomName();
+			}
+
 			public void remove(BigInteger amt) {
 				if (!alive)
 					throw new IllegalArgumentException("Cannot perform operation while stack is discarded.");

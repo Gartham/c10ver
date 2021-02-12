@@ -189,7 +189,7 @@ public final class Utilities {
 			sb.append("`" + credits + "` Credits\n");
 		for (ItemBunch<?> ib : items)
 			sb.append(
-					"`" + ib.getCount() + "`x" + ib.getItem().getIcon() + ' ' + ib.getItem().getItemName() + '\n');
+					"`" + ib.getCount() + "`x" + ib.getItem().getIcon() + ' ' + ib.getItem().getCustomName() + '\n');
 		return sb.toString();
 	}
 
@@ -199,7 +199,7 @@ public final class Utilities {
 			sb.append("`" + credits + "` Credits\n");
 		for (ItemBunch<?> ib : items)
 			sb.append(
-					"`" + ib.getCount() + "`x" + ib.getItem().getIcon() + ' ' + ib.getItem().getItemName() + '\n');
+					"`" + ib.getCount() + "`x" + ib.getItem().getIcon() + ' ' + ib.getItem().getCustomName() + '\n');
 		return sb.toString();
 	}
 
