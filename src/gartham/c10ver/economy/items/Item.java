@@ -4,15 +4,12 @@ import java.util.Map.Entry;
 import java.util.Objects;
 
 import org.alixia.javalibrary.json.JSONObject;
-import org.alixia.javalibrary.json.JSONString;
-import org.alixia.javalibrary.json.JSONValue;
-import org.alixia.javalibrary.util.Gateway;
 
 import gartham.c10ver.data.PropertyObject;
 
 public abstract class Item extends PropertyObject {
 	protected final Property<String> itemType = stringProperty("item-type").setAttribute(false),
-			itemName = stringProperty("item-name").setAttribute(false).setTransient(true), icon;
+			itemName = stringProperty("item-name").setAttribute(false), icon;
 
 	@Override
 	public void load(JSONObject properties) {

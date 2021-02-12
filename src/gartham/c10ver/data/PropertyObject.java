@@ -37,15 +37,7 @@ public class PropertyObject {
 		changeListeners.remove(r);
 	}
 
-	private JSONObject cache;
-
-	public void enableCache() {
-		cache = toJSON();
-	}
-
-	public void disableCache() {
-		cache = null;
-	}
+	private JSONObject properties;
 
 	private final Map<String, Property<?>> propertyMap = new HashMap<>();
 
@@ -71,9 +63,8 @@ public class PropertyObject {
 	public void load(JSONObject properties) {
 		if (properties != null)
 			for (Property<?> p : propertyMap.values())
-				if (!p.isTransient())
-					p.forceLoad(properties);
-		cache = properties;
+				p.load(properties.get(p.key));
+		this.properties = properties;
 	}
 
 	protected Map<String, Property<?>> getPropertyMap() {
@@ -233,8 +224,12 @@ public class PropertyObject {
 	 */
 	public class Property<V> extends Observable<V> {
 
+		private void load(JSONValue value) {
+			this.value = converter.from(value);
+		}
+
 		private final String key;
-		private V value;
+		private V value, def;
 		private final Gateway<V, JSONValue> converter;
 
 		private boolean attribute;
@@ -243,8 +238,9 @@ public class PropertyObject {
 			return attribute;
 		}
 
-		public void setAttribute(boolean attribute) {
+		public Property<V> setAttribute(boolean attribute) {
 			this.attribute = attribute;
+			return this;
 		}
 
 		public String getKey() {
@@ -256,8 +252,11 @@ public class PropertyObject {
 			this.converter = converter;
 		}
 
-		public void set(V value) {
+		public Property<V> set(V value) {
+			V temp = this.value;
 			this.value = value;
+			change(temp, value);
+			return this;
 		}
 
 		public V get() {
