@@ -14,6 +14,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.math.BigInteger;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,9 +26,10 @@ import org.alixia.javalibrary.json.JSONParser;
 import org.alixia.javalibrary.json.JSONValue;
 import org.alixia.javalibrary.streams.CharacterStream;
 
+import gartham.c10ver.economy.items.ItemBunch;
+import net.dv8tion.jda.api.entities.MessageEmbed.Field;
+
 public final class Utilities {
-	
-	
 
 	public enum TimeUnit {
 		YEARS, DAYS, HOURS, MINUTES, SECONDS, MILLISECONDS, MICROSECONDS, NANOSECONDS;
@@ -66,12 +68,12 @@ public final class Utilities {
 			return "";
 		int nanoseconds = duration.getNano();
 		long seconds = duration.getSeconds();
-	
+
 		final StringBuilder b = new StringBuilder();
 		var values = getParts(duration);
-	
+
 		List<TimeUnit> units = new ArrayList<>(amt);
-	
+
 		boolean f = false;
 		for (TimeUnit tu : TimeUnit.values()) {
 			if (amt == 0)
@@ -82,25 +84,21 @@ public final class Utilities {
 				amt--;
 			}
 		}
-	
+
 		if (units.isEmpty()) {
 			units.add(SECONDS);
 		}
-	
-		return format(values, units.toArray(new TimeUnit[units.size()]));
-	
-	}
 
-	public static void main(String[] args) {
-		System.out.println(formatLargest(Duration.ofSeconds(0), 3));
+		return format(values, units.toArray(new TimeUnit[units.size()]));
+
 	}
 
 	static Map<TimeUnit, Long> getParts(Duration duration) {
 		int nanoseconds = duration.getNano();
 		long seconds = duration.getSeconds();
-	
+
 		Map<TimeUnit, Long> values = new HashMap<>();
-	
+
 		values.put(NANOSECONDS, (long) (nanoseconds % 1000));
 		values.put(MICROSECONDS, (long) ((nanoseconds /= 1000) % 1000));
 		values.put(MILLISECONDS, (long) (nanoseconds / 1000));
@@ -109,14 +107,14 @@ public final class Utilities {
 		values.put(HOURS, (long) (int) ((seconds /= 60) % 24));
 		values.put(DAYS, (long) (int) ((seconds /= 24) % 365));
 		values.put(YEARS, (long) (int) (seconds /= 365));
-	
+
 		return values;
-	
+
 	}
 
 	static String format(Map<TimeUnit, Long> parts, TimeUnit... units) {
 		final StringBuilder b = new StringBuilder();
-	
+
 		for (TimeUnit tu : units) {
 			b.append(parts.get(tu));
 			switch (tu) {
@@ -146,14 +144,14 @@ public final class Utilities {
 				break;
 			}
 		}
-	
+
 		return b.toString().trim();
 	}
 
 	public static String format(Duration duration, TimeUnit... units) {
 		int nanoseconds = duration.getNano();
 		long seconds = duration.getSeconds();
-	
+
 		Map<TimeUnit, Long> parts = getParts(duration);
 		return format(parts, units);
 	}
@@ -165,7 +163,7 @@ public final class Utilities {
 		int maxPage = maxPage(itemsPerPage, items);
 		if (page < 1 || page > maxPage)
 			return null;
-	
+
 		return items.subList(item, Math.min(item + itemsPerPage, items.size()));
 	}
 
@@ -175,6 +173,34 @@ public final class Utilities {
 
 	public static int maxPage(int itemsPerPage, int listSize) {
 		return (listSize + itemsPerPage - 1) / itemsPerPage;
+	}
+
+	public static String listRewards(long credits, ItemBunch<?>... items) {
+		return listRewards(BigInteger.valueOf(credits), items);
+	}
+
+	public static String listRewards(long credits, Iterable<ItemBunch<?>> items) {
+		return listRewards(BigInteger.valueOf(credits), items);
+	}
+
+	public static String listRewards(BigInteger credits, ItemBunch<?>... items) {
+		StringBuilder sb = new StringBuilder();
+		if (!credits.equals(BigInteger.ZERO))
+			sb.append("`" + credits + "` Credits\n");
+		for (ItemBunch<?> ib : items)
+			sb.append(
+					"`" + ib.getCount() + "`x" + ib.getItem().getIcon() + ' ' + ib.getItem().getItemName() + '\n');
+		return sb.toString();
+	}
+
+	public static String listRewards(BigInteger credits, Iterable<ItemBunch<?>> items) {
+		StringBuilder sb = new StringBuilder();
+		if (!credits.equals(BigInteger.ZERO))
+			sb.append("`" + credits + "` Credits\n");
+		for (ItemBunch<?> ib : items)
+			sb.append(
+					"`" + ib.getCount() + "`x" + ib.getItem().getIcon() + ' ' + ib.getItem().getItemName() + '\n');
+		return sb.toString();
 	}
 
 }

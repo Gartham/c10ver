@@ -79,6 +79,15 @@ public class Inventory {
 		add(item, BigInteger.ONE);
 	}
 
+	public void add(ItemBunch<?>... items) {
+		for (ItemBunch<?> ib : items)
+			add(ib);
+	}
+
+	public void add(ItemBunch<?> items) {
+		add(items.getItem(), items.getCount());
+	}
+
 	@SuppressWarnings("unchecked")
 	public <I extends Item> boolean remove(I item, BigInteger amt) {
 		return entries.containsKey(item.getItemType()) ? ((Entry<I>) entries.get(item.getItemType())).remove(item, amt)

@@ -13,11 +13,17 @@ import gartham.c10ver.data.PropertyObject.Property;
 import gartham.c10ver.economy.Account;
 import gartham.c10ver.economy.items.Inventory;
 import gartham.c10ver.economy.items.Inventory.Entry;
+import gartham.c10ver.economy.items.ItemBunch;
 import gartham.c10ver.economy.items.LootCrateItem;
 import gartham.c10ver.economy.items.LootCrateItem.CrateType;
 import gartham.c10ver.users.User;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
+
+import static org.alixia.javalibrary.JavaTools.*;
+
+import static gartham.c10ver.utils.Utilities.*;
+import static gartham.c10ver.economy.items.ItemBunch.*;
 
 public class CloverCommandProcessor extends CommandProcessor {
 
@@ -44,8 +50,15 @@ public class CloverCommandProcessor extends CommandProcessor {
 					u.dailyInvoked();
 					long amt = (long) (Math.random() * 25 + 10);
 					u.getAccount().deposit(amt);
-					inv.event.getChannel().sendMessage("You received `" + amt + "` garthcoins. You now have `"
-							+ u.getAccount().getBalance().toPlainString() + "` garthcoins.").queue();
+					Inventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
+					var rewards = of(new LootCrateItem(CrateType.DAILY));
+					invent.add(rewards);
+
+					inv.event.getChannel()
+							.sendMessage(inv.event.getAuthor().getAsMention()
+									+ " is getting their weekly rewards!\n\n**Rewards:**\n" + listRewards(amt, rewards)
+									+ "\n**Total Credits:** `" + u.getAccount().getBalance() + '`')
+							.queue();
 				}
 
 			}
@@ -58,17 +71,24 @@ public class CloverCommandProcessor extends CommandProcessor {
 				User u = clover.getEconomy().getUser(userid);
 				if (u.timeSinceLastWeekly().toDays() < 7) {
 					inv.event.getChannel()
-							.sendMessage(inv.event.getAuthor().getAsMention()
-									+ ", you must wait `" + Utilities
-											.formatLargest(Duration.ofDays(7).minus(u.timeSinceLastWeekly()), 3)
+							.sendMessage(inv.event.getAuthor().getAsMention() + ", you must wait `"
+									+ Utilities.formatLargest(Duration.ofDays(7).minus(u.timeSinceLastWeekly()), 3)
 									+ "` before running that command.")
 							.queue();
 				} else {
 					u.weeklyInvoked();
 					long amt = (long) (Math.random() * 250 + 100);
 					u.getAccount().deposit(amt);
-					inv.event.getChannel().sendMessage("You received `" + amt + "` garthcoins. You now have `"
-							+ u.getAccount().getBalance().toPlainString() + "` garthcoins.").queue();
+
+					Inventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
+					var rewards = of(new LootCrateItem(CrateType.WEEKLY));
+					invent.add(rewards);
+
+					inv.event.getChannel()
+							.sendMessage(inv.event.getAuthor().getAsMention()
+									+ " is getting their weekly rewards!\n\n**Rewards:**\n" + listRewards(amt, rewards)
+									+ "\n**Total Credits:** `" + u.getAccount().getBalance() + '`')
+							.queue();
 				}
 			}
 		});
@@ -80,17 +100,24 @@ public class CloverCommandProcessor extends CommandProcessor {
 				User u = clover.getEconomy().getUser(userid);
 				if (u.timeSinceLastMonthly().toDays() < 30) {
 					inv.event.getChannel()
-							.sendMessage(inv.event.getAuthor().getAsMention()
-									+ ", you must wait `" + Utilities
-											.formatLargest(Duration.ofDays(30).minus(u.timeSinceLastMonthly()), 3)
+							.sendMessage(inv.event.getAuthor().getAsMention() + ", you must wait `"
+									+ Utilities.formatLargest(Duration.ofDays(30).minus(u.timeSinceLastMonthly()), 3)
 									+ "` before running that command.")
 							.queue();
 				} else {
 					u.monthlyInvoked();
+
 					long amt = (long) (Math.random() * 10000 + 4000);
 					u.getAccount().deposit(amt);
-					inv.event.getChannel().sendMessage("You received `" + amt + "` garthcoins. You now have `"
-							+ u.getAccount().getBalance().toPlainString() + "` garthcoins.").queue();
+
+					Inventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
+					var rewards = of(new LootCrateItem(CrateType.MONTHLY));
+
+					invent.add(rewards);
+
+					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+							+ " is getting their monthly rewards!!!\n\n**Rewards:**\n" + listRewards(amt, rewards)
+							+ "\n**Total Credits:** `" + u.getAccount().getBalance() + '`').queue();
 				}
 			}
 		});
@@ -150,16 +177,6 @@ public class CloverCommandProcessor extends CommandProcessor {
 						.sendMessage(inv.event.getAuthor().getAsMention() + ", you have `"
 								+ clover.getEconomy().getAccount(inv.event.getAuthor().getId()).getBalance() + "`.")
 						.queue();
-			}
-		});
-
-		register(new MatchBasedCommand("test") {
-
-			@Override
-			public void exec(CommandInvocation inv) {
-				Inventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
-				invent.add(new LootCrateItem(CrateType.DAILY));
-				inv.event.getChannel().sendMessage("Test").queue();
 			}
 		});
 
