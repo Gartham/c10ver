@@ -5,13 +5,16 @@ import java.math.BigInteger;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
+import org.alixia.javalibrary.JavaTools;
+import org.alixia.javalibrary.json.JSONArray;
 import org.alixia.javalibrary.json.JSONNumber;
 import org.alixia.javalibrary.json.JSONObject;
 import org.alixia.javalibrary.json.JSONString;
@@ -133,6 +136,81 @@ public class PropertyObject {
 				return generator.apply(value);
 			}
 		};
+	}
+
+	protected final <V, C extends Collection<? extends V>> Property<C> listProperty(String key,
+			Function<? super V, ? extends JSONValue> valueToJSON, Function<JSONArray, C> listCreator) {
+		return new Property<>(key, new Gateway<>() {
+
+			@Override
+			public JSONValue to(C value) {
+				return new JSONArray(JavaTools.mask(value, valueToJSON));
+			}
+
+			@Override
+			public C from(JSONValue value) {
+				return listCreator.apply((JSONArray) value);
+			}
+
+		});
+	}
+
+	protected final <V, C extends Collection<? extends V>> Property<C> listProperty(String key,
+			Function<? super V, ? extends JSONValue> valueToJSON,
+			Function<? super Iterable<? extends V>, ? extends C> listCreator,
+			Function<? super JSONValue, ? extends V> valueConverter) {
+		return new Property<>(key, new Gateway<>() {
+
+			@Override
+			public JSONValue to(C value) {
+				return new JSONArray(JavaTools.mask(value, valueToJSON));
+			}
+
+			@Override
+			public C from(JSONValue value) {
+				return listCreator.apply(JavaTools.mask((JSONArray) value, valueConverter));
+			}
+
+		});
+	}
+
+	protected final <V, C extends Collection<V>> Property<C> listProperty(String key,
+			Function<? super V, ? extends JSONValue> valueToJSON, Supplier<? extends C> listGenerator,
+			Function<? super JSONValue, ? extends V> valueConverter) {
+		return new Property<>(key, new Gateway<>() {
+
+			@Override
+			public JSONValue to(C value) {
+				return new JSONArray(JavaTools.mask(value, valueToJSON));
+			}
+
+			@Override
+			public C from(JSONValue value) {
+				var l = listGenerator.get();
+				for (V v : JavaTools.mask((JSONArray) value, valueConverter))
+					l.add(v);
+				return l;
+			}
+
+		});
+	}
+
+	protected final <V> Property<ArrayList<V>> listProperty(String key, Gateway<V, JSONValue> gateway) {
+		return new Property<>(key, new Gateway<>() {
+
+			@Override
+			public JSONValue to(ArrayList<V> value) {
+				return new JSONArray(JavaTools.mask(value, gateway.from()));
+			}
+
+			@Override
+			public ArrayList<V> from(JSONValue value) {
+				var arr = new ArrayList<V>();
+				for (var v : JavaTools.mask((JSONArray) value, gateway.to()))
+					arr.add(v);
+				return arr;
+			}
+		});
 	}
 
 	protected final <V extends PropertyObject> Property<V> toObjectProperty(String key,
@@ -356,8 +434,8 @@ public class PropertyObject {
 		return toStringProperty(key, null, value -> Enum.valueOf(enumType, key));
 	}
 
-	protected final <E extends Enum<E>> Property<E> enumProperty(String key, E def, Class<E> enumType) {
-		return new Property<E>(key, def, new Gateway<E, JSONValue>() {
+	protected static <E extends Enum<E>> Gateway<E, JSONValue> enumGateway(Class<E> enumType) {
+		return new Gateway<E, JSONValue>() {
 
 			@Override
 			public JSONValue to(E value) {
@@ -368,7 +446,11 @@ public class PropertyObject {
 			public E from(JSONValue value) {
 				return enumType.getEnumConstants()[((JSONNumber) value).intValue()];
 			}
-		});
+		};
+	}
+
+	protected final <E extends Enum<E>> Property<E> enumProperty(String key, E def, Class<E> enumType) {
+		return new Property<E>(key, def, enumGateway(enumType));
 	}
 
 	protected final <E extends Enum<E>> Property<E> enumProperty(String key, Class<E> enumType) {
