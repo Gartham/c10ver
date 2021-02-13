@@ -33,6 +33,8 @@ import net.dv8tion.jda.api.entities.MessageEmbed.Field;
 
 public final class Utilities {
 
+	private final static String CURRENCY_SYMBOL = "\u058D";
+
 	private static final MoneyUnit[] MONEY_UNITS = MoneyUnit.values();
 
 	public enum TimeUnit {
@@ -236,7 +238,7 @@ public final class Utilities {
 			return String.valueOf(money);
 
 		var b = bd.divide(new BigDecimal(m.amt)).setScale(2, RoundingMode.HALF_UP);
-		return b.stripTrailingZeros().toPlainString() + m.symbol;
+		return CURRENCY_SYMBOL + ' ' + b.stripTrailingZeros().toPlainString() + m.symbol;
 	}
 
 }
