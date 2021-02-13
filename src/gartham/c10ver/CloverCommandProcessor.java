@@ -114,7 +114,7 @@ public class CloverCommandProcessor extends CommandProcessor {
 					inv.event.getChannel()
 							.sendMessage(inv.event.getAuthor().getAsMention()
 									+ " is getting their daily rewards!\n\n**Rewards:**\n" + listRewards(amt, rewards)
-									+ "\n**Total Credits:** `" + format(u.getAccount().getBalance()) + '`')
+									+ "\n**Total Credits:** " + format(u.getAccount().getBalance()))
 							.queue();
 				}
 
@@ -147,7 +147,7 @@ public class CloverCommandProcessor extends CommandProcessor {
 					inv.event.getChannel()
 							.sendMessage(inv.event.getAuthor().getAsMention()
 									+ " is getting their weekly rewards!\n\n**Rewards:**\n" + listRewards(amt, rewards)
-									+ "\n**Total Credits:** `" + format(u.getAccount().getBalance()) + '`')
+									+ "\n**Total Credits:** " + format(u.getAccount().getBalance()))
 							.queue();
 				}
 			}
@@ -180,7 +180,7 @@ public class CloverCommandProcessor extends CommandProcessor {
 
 					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
 							+ " is getting their monthly rewards!!!\n\n**Rewards:**\n" + listRewards(amt, rewards)
-							+ "\n**Total Credits:** `" + format(u.getAccount().getBalance()) + '`').queue();
+							+ "\n**Total Credits:** " + format(u.getAccount().getBalance())).queue();
 				}
 			}
 		});
@@ -240,8 +240,9 @@ public class CloverCommandProcessor extends CommandProcessor {
 
 			@Override
 			public void exec(CommandInvocation inv) {
-				inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention() + ", you have `"
-						+ format(clover.getEconomy().getAccount(inv.event.getAuthor().getId()).getBalance()) + "`.")
+				inv.event.getChannel()
+						.sendMessage(inv.event.getAuthor().getAsMention() + ", you have "
+								+ format(clover.getEconomy().getAccount(inv.event.getAuthor().getId()).getBalance()))
 						.queue();
 			}
 		});
@@ -301,7 +302,7 @@ public class CloverCommandProcessor extends CommandProcessor {
 					for (int i = 0; i < paginate.size(); i++) {
 						var u = paginate.get(i);
 						sb.append("`#" + (i + 1) + "` " + u.getUser().getName() + "#" + u.getUser().getDiscriminator()
-								+ ": `" + format(clover.getEconomy().getAccount(u.getId()).getBalance()) + "`\n");
+								+ ": " + format(clover.getEconomy().getAccount(u.getId()).getBalance()) + "\n");
 					}
 					eb.addField("Page " + page + " Ranking", sb.toString(), false);
 					eb.setFooter("Showing page " + page + " in the server leaderboard.");
