@@ -235,7 +235,7 @@ public final class Utilities {
 			else
 				break;
 		if (m == null)
-			return String.valueOf(money);
+			return CURRENCY_SYMBOL + ' ' + String.valueOf(money);
 
 		var b = bd.divide(new BigDecimal(m.amt)).setScale(2, RoundingMode.HALF_UP);
 		return CURRENCY_SYMBOL + ' ' + b.stripTrailingZeros().toPlainString() + m.symbol;
