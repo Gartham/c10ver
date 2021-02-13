@@ -190,7 +190,7 @@ public final class Utilities {
 	public static String listRewards(BigInteger credits, ItemBunch<?>... items) {
 		StringBuilder sb = new StringBuilder();
 		if (!credits.equals(BigInteger.ZERO))
-			sb.append("`" + credits + "` Credits\n");
+			sb.append("`" + format(credits) + "` Credits\n");
 		for (ItemBunch<?> ib : items)
 			sb.append("`" + ib.getCount() + "`x" + ib.getItem().getIcon() + ' ' + ib.getItem().getCustomName() + '\n');
 		return sb.toString();
@@ -199,7 +199,7 @@ public final class Utilities {
 	public static String listRewards(BigInteger credits, Iterable<ItemBunch<?>> items) {
 		StringBuilder sb = new StringBuilder();
 		if (!credits.equals(BigInteger.ZERO))
-			sb.append("`" + credits + "` Credits\n");
+			sb.append("`" + format(credits) + "` Credits\n");
 		for (ItemBunch<?> ib : items)
 			sb.append("`" + ib.getCount() + "`x" + ib.getItem().getIcon() + ' ' + ib.getItem().getCustomName() + '\n');
 		return sb.toString();

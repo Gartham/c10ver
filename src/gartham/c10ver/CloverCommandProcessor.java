@@ -1,9 +1,7 @@
 package gartham.c10ver;
 
 import static gartham.c10ver.economy.items.ItemBunch.of;
-import static gartham.c10ver.utils.Utilities.listRewards;
-import static gartham.c10ver.utils.Utilities.maxPage;
-import static gartham.c10ver.utils.Utilities.paginate;
+import static gartham.c10ver.utils.Utilities.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -115,8 +113,8 @@ public class CloverCommandProcessor extends CommandProcessor {
 
 					inv.event.getChannel()
 							.sendMessage(inv.event.getAuthor().getAsMention()
-									+ " is getting their weekly rewards!\n\n**Rewards:**\n" + listRewards(amt, rewards)
-									+ "\n**Total Credits:** `" + u.getAccount().getBalance() + '`')
+									+ " is getting their daily rewards!\n\n**Rewards:**\n" + listRewards(amt, rewards)
+									+ "\n**Total Credits:** `" + format(u.getAccount().getBalance()) + '`')
 							.queue();
 				}
 
@@ -149,7 +147,7 @@ public class CloverCommandProcessor extends CommandProcessor {
 					inv.event.getChannel()
 							.sendMessage(inv.event.getAuthor().getAsMention()
 									+ " is getting their weekly rewards!\n\n**Rewards:**\n" + listRewards(amt, rewards)
-									+ "\n**Total Credits:** `" + u.getAccount().getBalance() + '`')
+									+ "\n**Total Credits:** `" + format(u.getAccount().getBalance()) + '`')
 							.queue();
 				}
 			}
@@ -182,7 +180,7 @@ public class CloverCommandProcessor extends CommandProcessor {
 
 					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
 							+ " is getting their monthly rewards!!!\n\n**Rewards:**\n" + listRewards(amt, rewards)
-							+ "\n**Total Credits:** `" + u.getAccount().getBalance() + '`').queue();
+							+ "\n**Total Credits:** `" + format(u.getAccount().getBalance()) + '`').queue();
 				}
 			}
 		});
@@ -242,9 +240,8 @@ public class CloverCommandProcessor extends CommandProcessor {
 
 			@Override
 			public void exec(CommandInvocation inv) {
-				inv.event.getChannel()
-						.sendMessage(inv.event.getAuthor().getAsMention() + ", you have `"
-								+ clover.getEconomy().getAccount(inv.event.getAuthor().getId()).getBalance() + "`.")
+				inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention() + ", you have `"
+						+ format(clover.getEconomy().getAccount(inv.event.getAuthor().getId()).getBalance()) + "`.")
 						.queue();
 			}
 		});
@@ -300,9 +297,12 @@ public class CloverCommandProcessor extends CommandProcessor {
 					eb.setAuthor("Server Leaderboard", null, inv.event.getGuild().getIconUrl());
 					StringBuilder sb = new StringBuilder();
 
-					for (var u : paginate(page, 10, users))
-						sb.append("" + u.getUser().getName() + "#" + u.getUser().getDiscriminator() + ": `"
-								+ clover.getEconomy().getAccount(u.getId()).getBalance() + "`\n");
+					List<Member> paginate = paginate(page, 10, users);
+					for (int i = 0; i < paginate.size(); i++) {
+						var u = paginate.get(i);
+						sb.append("`#" + (i + 1) + "` " + u.getUser().getName() + "#" + u.getUser().getDiscriminator()
+								+ ": `" + format(clover.getEconomy().getAccount(u.getId()).getBalance()) + "`\n");
+					}
 					eb.addField("Page " + page + " Ranking", sb.toString(), false);
 					eb.setFooter("Showing page " + page + " in the server leaderboard.");
 
