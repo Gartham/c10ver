@@ -2,12 +2,13 @@ package gartham.c10ver.economy;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import gartham.c10ver.data.autosave.SavablePropertyObject;
 import gartham.c10ver.users.User;
 
 public class Account extends SavablePropertyObject {
-	private final Property<BigDecimal> balance = bigDecimalProperty("bal", BigDecimal.ZERO);
+	private final Property<BigInteger> balance = bigIntegerProperty("bal", BigInteger.ZERO);
 
 	public Account(File userDirectory) {
 		this(userDirectory, true);
@@ -19,30 +20,30 @@ public class Account extends SavablePropertyObject {
 			load();
 	}
 
-	public void setBalance(BigDecimal balance) {
+	public void setBalance(BigInteger balance) {
 		this.balance.set(balance);
 	}
 
-	public BigDecimal getBalance() {
+	public BigInteger getBalance() {
 		return balance.get();
 	}
 
-	public boolean pay(BigDecimal amount, Account recipient) {
+	public boolean pay(BigInteger amount, Account recipient) {
 		if (!withdraw(amount))
 			return false;
 		recipient.deposit(amount);
 		return true;
 	}
 
-	public void deposit(BigDecimal amt) {
+	public void deposit(BigInteger amt) {
 		setBalance(getBalance().add(amt));
 	}
 
 	public void deposit(long amt) {
-		deposit(BigDecimal.valueOf(amt));
+		deposit(BigInteger.valueOf(amt));
 	}
 
-	public boolean withdraw(BigDecimal amt) {
+	public boolean withdraw(BigInteger amt) {
 		if (getBalance().compareTo(amt) < 0)
 			return false;
 		setBalance(getBalance().subtract(amt));
@@ -50,7 +51,7 @@ public class Account extends SavablePropertyObject {
 	}
 
 	public boolean withdraw(long amt) {
-		return withdraw(BigDecimal.valueOf(amt));
+		return withdraw(BigInteger.valueOf(amt));
 	}
 
 }
