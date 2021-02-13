@@ -30,6 +30,7 @@ import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateBoostTimeEvent;
 
 public class CloverCommandProcessor extends CommandProcessor {
 
@@ -57,7 +58,6 @@ public class CloverCommandProcessor extends CommandProcessor {
 	}
 
 	{
-
 		final CommandHelp helpCommandHelp = help.addCommand("help", "Shows help for commands.",
 				"help [page-number|command-name]", "?");
 		register(new MatchBasedCommand("help", "?") {
@@ -219,7 +219,7 @@ public class CloverCommandProcessor extends CommandProcessor {
 					Account payer = clover.getEconomy().getAccount(inv.event.getAuthor().getId()),
 							recip = clover.getEconomy().getAccount(mentionedUsers.get(0).getId());
 
-					if (payer.pay(new BigDecimal(bi), recip))
+					if (payer.pay(bi, recip))
 						inv.event.getChannel()
 								.sendMessage(inv.event.getAuthor().getAsMention() + ", you paid `" + bi + "` to "
 										+ mentionedUsers.get(0).getAsMention() + ". You now have `" + payer.getBalance()
