@@ -1,9 +1,11 @@
 package gartham.c10ver;
 
 import static gartham.c10ver.economy.items.ItemBunch.of;
-import static gartham.c10ver.utils.Utilities.*;
+import static gartham.c10ver.utils.Utilities.format;
+import static gartham.c10ver.utils.Utilities.listRewards;
+import static gartham.c10ver.utils.Utilities.maxPage;
+import static gartham.c10ver.utils.Utilities.paginate;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -28,7 +30,6 @@ import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateBoostTimeEvent;
 
 public class CloverCommandProcessor extends CommandProcessor {
 
@@ -219,8 +220,8 @@ public class CloverCommandProcessor extends CommandProcessor {
 
 					if (payer.pay(bi, recip))
 						inv.event.getChannel()
-								.sendMessage(inv.event.getAuthor().getAsMention() + ", you paid `" + bi + "` to "
-										+ mentionedUsers.get(0).getAsMention() + ". You now have `" + payer.getBalance()
+								.sendMessage(inv.event.getAuthor().getAsMention() + ", you paid `" + format(bi) + "` to "
+										+ mentionedUsers.get(0).getAsMention() + ". You now have `" + format(payer.getBalance())
 										+ "`.")
 								.queue();
 					else
