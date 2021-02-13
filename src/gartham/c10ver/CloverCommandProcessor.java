@@ -1,5 +1,10 @@
 package gartham.c10ver;
 
+import static gartham.c10ver.economy.items.ItemBunch.of;
+import static gartham.c10ver.utils.Utilities.listRewards;
+import static gartham.c10ver.utils.Utilities.maxPage;
+import static gartham.c10ver.utils.Utilities.paginate;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Duration;
@@ -9,36 +14,83 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
 
+import gartham.c10ver.commands.CommandHelpBook;
+import gartham.c10ver.commands.CommandHelpBook.CommandHelp;
 import gartham.c10ver.commands.CommandInvocation;
 import gartham.c10ver.commands.CommandProcessor;
 import gartham.c10ver.commands.MatchBasedCommand;
 import gartham.c10ver.data.PropertyObject;
-import gartham.c10ver.data.PropertyObject.Property;
 import gartham.c10ver.economy.Account;
 import gartham.c10ver.economy.items.Inventory;
 import gartham.c10ver.economy.items.Inventory.Entry;
-import gartham.c10ver.economy.items.ItemBunch;
 import gartham.c10ver.economy.items.LootCrateItem;
 import gartham.c10ver.economy.items.LootCrateItem.CrateType;
 import gartham.c10ver.users.User;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
-
-import static org.alixia.javalibrary.JavaTools.*;
-
-import static gartham.c10ver.utils.Utilities.*;
-import static gartham.c10ver.economy.items.ItemBunch.*;
+import net.dv8tion.jda.api.entities.MessageChannel;
 
 public class CloverCommandProcessor extends CommandProcessor {
 
 	private final Clover clover;
+	private final CommandHelpBook help = new CommandHelpBook(3);
 
 	public CloverCommandProcessor(Clover clover) {
 		this.clover = clover;
 	}
 
+	public void printHelp(EmbedBuilder builder, CommandHelp help) {
+		this.help.print(builder, help);
+	}
+
+	public void printHelp(MessageChannel channel, CommandHelp help) {
+		this.help.print(channel, help);
+	}
+
+	public void printHelp(MessageChannel channel, int page) {
+		help.print(channel, page);
+	}
+
+	public boolean printHelp(MessageChannel channel, String command, boolean allowAliases, boolean ignoreCase) {
+		return help.print(channel, command, allowAliases, ignoreCase);
+	}
+
 	{
+
+		final CommandHelp helpCommandHelp = help.addCommand("help", "Shows help for commands.",
+				"help [page-number|command-name]", "?");
+		register(new MatchBasedCommand("help", "?") {
+			@Override
+			public void exec(CommandInvocation inv) {
+				int page = 1;
+				FIRST_ARG: if (inv.args.length == 1) {
+					String arg;
+					if (!inv.args[0].startsWith("\\"))
+						try {
+							page = Integer.parseInt(inv.args[0]);
+							break FIRST_ARG;
+						} catch (final NumberFormatException e) {
+							arg = inv.args[0];
+						}
+					else
+						arg = inv.args[0].substring(1);
+					if (!printHelp(inv.event.getChannel(), arg, true, true))
+						inv.event.getChannel()
+								.sendMessage("No command with the name or alias: \"" + arg + "\" was found.").queue();
+					return;
+				} else if (inv.args.length > 1) {
+					inv.event.getChannel().sendMessage("Illegal number of arguments for command: " + inv.cmdName)
+							.queue();
+					printHelp(inv.event.getChannel(), helpCommandHelp);
+					return;
+				}
+				printHelp(inv.event.getChannel(), page);
+
+			}
+		});
+
+		help.addCommand("daily", "Receive daily rewards! You can only run this once a day.", "daily");
 		register(new MatchBasedCommand("daily") {
 			@Override
 			public void exec(CommandInvocation inv) {
@@ -71,6 +123,7 @@ public class CloverCommandProcessor extends CommandProcessor {
 			}
 		});
 
+		help.addCommand("weekly", "Receive weekly rewards! You can only run this once a day.", "weekly");
 		register(new MatchBasedCommand("weekly") {
 			@Override
 			public void exec(CommandInvocation inv) {
@@ -102,6 +155,7 @@ public class CloverCommandProcessor extends CommandProcessor {
 			}
 		});
 
+		help.addCommand("monthly", "Receive monthly rewards! You can only run this once a day.", "monthly");
 		register(new MatchBasedCommand("monthly") {
 			@Override
 			public void exec(CommandInvocation inv) {
@@ -134,6 +188,7 @@ public class CloverCommandProcessor extends CommandProcessor {
 		});
 
 		// TODO pay askdjflaskjhfd@Bob12987u1kmfdlskjflds 500
+		help.addCommand("pay", "Use this command to pay other people.", "pay (user) (amount)");
 		register(new MatchBasedCommand("pay") {
 
 			@Override
@@ -182,6 +237,7 @@ public class CloverCommandProcessor extends CommandProcessor {
 			}
 		});
 
+		help.addCommand("balance", "Tells you how rich you are.", "balance", "bal");
 		register(new MatchBasedCommand("bal", "balance") {
 
 			@Override
@@ -193,6 +249,8 @@ public class CloverCommandProcessor extends CommandProcessor {
 			}
 		});
 
+		help.addCommand("leaderboard", "Check out who the richest people in this server are!", "leaderboard [page]",
+				"baltop");
 		register(new MatchBasedCommand("baltop", "leaderboard") {
 
 			@Override
@@ -254,6 +312,7 @@ public class CloverCommandProcessor extends CommandProcessor {
 			}
 		});
 
+		help.addCommand("inventory", "Shows your inventory.", "inventory [item-id] [page]", "inv");
 		register(new MatchBasedCommand("inventory", "inv") {
 
 			@Override
