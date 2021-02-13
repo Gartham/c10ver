@@ -14,7 +14,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,6 +32,8 @@ import gartham.c10ver.economy.items.ItemBunch;
 import net.dv8tion.jda.api.entities.MessageEmbed.Field;
 
 public final class Utilities {
+
+	private static final MoneyUnit[] MONEY_UNITS = MoneyUnit.values();
 
 	public enum TimeUnit {
 		YEARS, DAYS, HOURS, MINUTES, SECONDS, MILLISECONDS, MICROSECONDS, NANOSECONDS;
@@ -188,8 +192,7 @@ public final class Utilities {
 		if (!credits.equals(BigInteger.ZERO))
 			sb.append("`" + credits + "` Credits\n");
 		for (ItemBunch<?> ib : items)
-			sb.append(
-					"`" + ib.getCount() + "`x" + ib.getItem().getIcon() + ' ' + ib.getItem().getCustomName() + '\n');
+			sb.append("`" + ib.getCount() + "`x" + ib.getItem().getIcon() + ' ' + ib.getItem().getCustomName() + '\n');
 		return sb.toString();
 	}
 
@@ -198,9 +201,42 @@ public final class Utilities {
 		if (!credits.equals(BigInteger.ZERO))
 			sb.append("`" + credits + "` Credits\n");
 		for (ItemBunch<?> ib : items)
-			sb.append(
-					"`" + ib.getCount() + "`x" + ib.getItem().getIcon() + ' ' + ib.getItem().getCustomName() + '\n');
+			sb.append("`" + ib.getCount() + "`x" + ib.getItem().getIcon() + ' ' + ib.getItem().getCustomName() + '\n');
 		return sb.toString();
+	}
+
+	public enum MoneyUnit {
+		GRAND("K"), MILLION("M"), BILLION("B"), TRILLION("T");
+
+		private final String symbol;
+		private final BigInteger amt = BigInteger.valueOf(1000).pow(ordinal() + 1);
+
+		public BigInteger getAmt() {
+			return amt;
+		}
+
+		private MoneyUnit(String symbol) {
+			this.symbol = symbol;
+		}
+
+		public String getSymbol() {
+			return symbol;
+		}
+	}
+
+	public static String format(BigInteger money) {
+		MoneyUnit m = null;
+		var bd = new BigDecimal(money);
+		for (int i = 0; i < MONEY_UNITS.length; i++)
+			if (money.compareTo(MONEY_UNITS[i].amt) >= 0)
+				m = MONEY_UNITS[i];
+			else
+				break;
+		if (m == null)
+			return String.valueOf(money);
+
+		var b = bd.divide(new BigDecimal(m.amt)).setScale(2, RoundingMode.HALF_UP);
+		return b.stripTrailingZeros().toPlainString() + m.symbol;
 	}
 
 }
