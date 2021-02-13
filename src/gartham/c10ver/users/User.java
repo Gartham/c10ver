@@ -17,6 +17,10 @@ public class User extends SavablePropertyObject {
 	private final Account account;
 	private final Inventory inventory;
 
+	public String getUserID() {
+		return getSaveLocation().getParentFile().getName();
+	}
+
 	public Inventory getInventory() {
 		return inventory;
 	}

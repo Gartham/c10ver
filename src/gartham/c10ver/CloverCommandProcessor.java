@@ -3,7 +3,11 @@ package gartham.c10ver;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.function.Consumer;
 
 import gartham.c10ver.commands.CommandInvocation;
 import gartham.c10ver.commands.CommandProcessor;
@@ -19,6 +23,7 @@ import gartham.c10ver.economy.items.LootCrateItem.CrateType;
 import gartham.c10ver.users.User;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Member;
 
 import static org.alixia.javalibrary.JavaTools.*;
 
@@ -185,6 +190,67 @@ public class CloverCommandProcessor extends CommandProcessor {
 						.sendMessage(inv.event.getAuthor().getAsMention() + ", you have `"
 								+ clover.getEconomy().getAccount(inv.event.getAuthor().getId()).getBalance() + "`.")
 						.queue();
+			}
+		});
+
+		register(new MatchBasedCommand("baltop", "leaderboard") {
+
+			@Override
+			public void exec(CommandInvocation inv) {
+				if (inv.event.isFromGuild()) {
+					if (inv.args.length > 1) {
+						inv.event.getChannel().sendMessage("Too many arguments.").queue();
+						return;
+					}
+					List<Member> users = new ArrayList<>();
+					inv.event.getGuild().loadMembers(new Consumer<Member>() {
+						@Override
+						public void accept(Member t) {
+							int search = Collections
+									.binarySearch(users, t,
+											((Comparator<Member>) (o1, o2) -> clover.getEconomy().getUser(o1.getId())
+													.getAccount().getBalance().compareTo(clover.getEconomy()
+															.getUser(o2.getId()).getAccount().getBalance()))
+																	.reversed());
+							users.add(search < 0 ? -search - 1 : search, t);
+						}
+					});
+					int page;
+					PAGE_PARSER: if (inv.args.length == 1) {
+						try {
+							if ((page = Integer.parseInt(inv.args[0])) > 0)
+								break PAGE_PARSER;
+						} catch (NumberFormatException e) {
+						}
+						inv.event.getChannel()
+								.sendMessage(inv.event.getAuthor().getAsMention() + ", that's not a valid page!")
+								.queue();
+						return;
+					} else
+						page = 1;
+
+					int maxpage = maxPage(10, users);
+					if (page > maxpage) {
+						inv.event.getChannel()
+								.sendMessage(inv.event.getAuthor().getAsMention() + " there are only `" + maxpage
+										+ (maxpage == 1 ? "` page" : "` pages") + " of people in the leaderboard!")
+								.queue();
+						return;
+					}
+
+					EmbedBuilder eb = new EmbedBuilder();
+					eb.setAuthor("Server Leaderboard", null, inv.event.getGuild().getIconUrl());
+					StringBuilder sb = new StringBuilder();
+
+					for (var u : paginate(page, 10, users))
+						sb.append("" + u.getUser().getName() + "#" + u.getUser().getDiscriminator() + ": `"
+								+ clover.getEconomy().getAccount(u.getId()).getBalance() + "`\n");
+					eb.addField("Page " + page + " Ranking", sb.toString(), false);
+					eb.setFooter("Showing page " + page + " in the server leaderboard.");
+
+					inv.event.getChannel().sendMessage(eb.build()).queue();
+				} else
+					inv.event.getChannel().sendMessage("Please run this command in a server.").queue();
 			}
 		});
 

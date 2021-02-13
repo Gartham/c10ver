@@ -1,6 +1,7 @@
 package gartham.c10ver;
 
 import java.io.File;
+import java.util.EnumSet;
 import java.util.Scanner;
 
 import javax.security.auth.login.LoginException;
@@ -13,6 +14,7 @@ import gartham.c10ver.economy.Economy;
 import gartham.c10ver.events.EventHandler;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 
 public class Clover {
 
@@ -43,7 +45,7 @@ public class Clover {
 	}
 
 	public Clover(String token) throws LoginException {
-		this(JDABuilder.createLight(token).build());
+		this(JDABuilder.create(token, EnumSet.allOf(GatewayIntent.class)).build());
 	}
 
 	public Clover(JDA jda) {
