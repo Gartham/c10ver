@@ -20,12 +20,15 @@ import gartham.c10ver.commands.CommandHelpBook.CommandHelp;
 import gartham.c10ver.commands.CommandInvocation;
 import gartham.c10ver.commands.CommandProcessor;
 import gartham.c10ver.commands.MatchBasedCommand;
+import gartham.c10ver.commands.consumers.InputConsumer;
 import gartham.c10ver.data.PropertyObject;
 import gartham.c10ver.economy.Account;
 import gartham.c10ver.economy.items.Inventory;
 import gartham.c10ver.economy.items.Inventory.Entry;
 import gartham.c10ver.economy.items.LootCrateItem;
 import gartham.c10ver.economy.items.LootCrateItem.CrateType;
+import gartham.c10ver.economy.questions.Question;
+import gartham.c10ver.economy.questions.Question.Difficulty;
 import gartham.c10ver.users.User;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -416,6 +419,55 @@ public class CloverCommandProcessor extends CommandProcessor {
 							+ " of this item in your inventory.", false);
 //					eb.setFooter("You have " + maxPage + " page" + (maxPage == 1 ? "" : "s") + " in your inventory.");
 					inv.event.getChannel().sendMessage(eb.build()).queue();
+				}
+			}
+		});
+
+		// No help yet until there are administrator perms set up.
+		register(new MatchBasedCommand("make-question") {
+
+			@Override
+			public void exec(CommandInvocation inv) {
+				if (inv.args.length != 2)
+					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+							+ ", you need to provide a *value* and a *difficulty* in that command. After you do that, you'll get prompted for the question.")
+							.queue();
+				else {
+
+					BigInteger value;
+					try {
+						value = new BigInteger(inv.args[0]);
+					} catch (NumberFormatException e) {
+						inv.event.getChannel()
+								.sendMessage(inv.event.getAuthor().getAsMention()
+										+ " your first argument should be a number! (It's the value of the question.)")
+								.queue();
+						return;
+					}
+
+					Difficulty difficulty;
+					try {
+						difficulty = Difficulty.valueOf(inv.args[1].toUpperCase());
+					} catch (IllegalArgumentException e) {
+						inv.event.getChannel().sendMessage(
+								inv.event.getAuthor().getAsMention() + " your second argument should be a difficulty.")
+								.queue();
+						return;
+					}
+
+					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+							+ " looks good so far! Please send your question as a message: ").queue();
+					InputConsumer inp = (event, eventHandler, ic) -> {
+						event.getChannel()
+								.sendMessage(event.getAuthor().getAsMention() + " your question has been registered!")
+								.queue();
+						Question q = new Question(event.getMessage().getContentRaw(), value, difficulty);
+						clover.getEconomy().getUser(event.getAuthor().getId()).getQuestions().add(q);
+						eventHandler.scheduleForRemoval(ic);
+						return true;
+					};
+					clover.getEventHandler()
+							.registerInputConsumer(inp.filter(inv.event.getAuthor(), inv.event.getChannel()));
 				}
 			}
 		});
