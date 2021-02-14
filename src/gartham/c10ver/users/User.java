@@ -19,6 +19,11 @@ public class User extends SavablePropertyObject {
 	private final Account account;
 	private final Inventory inventory;
 	private final Economy economy;
+	private final String userID;
+
+	public net.dv8tion.jda.api.entities.User getUser() {
+		return economy.getClover().getBot().getUserById(userID);
+	}
 
 	public Economy getEconomy() {
 		return economy;
@@ -43,6 +48,7 @@ public class User extends SavablePropertyObject {
 	protected User(File userDirectory, boolean load, Economy economy) {
 		super(new File(userDirectory, "user-data.txt"));
 		this.economy = economy;
+		userID = userDirectory.getName();
 		account = new Account(userDirectory, this);
 		inventory = new Inventory(userDirectory, this);
 		if (load)
