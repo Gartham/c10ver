@@ -21,6 +21,7 @@ import gartham.c10ver.commands.CommandInvocation;
 import gartham.c10ver.commands.CommandProcessor;
 import gartham.c10ver.commands.MatchBasedCommand;
 import gartham.c10ver.commands.consumers.InputConsumer;
+import gartham.c10ver.commands.consumers.MessageInputConsumer;
 import gartham.c10ver.data.PropertyObject;
 import gartham.c10ver.economy.Account;
 import gartham.c10ver.economy.items.Inventory;
@@ -457,7 +458,7 @@ public class CloverCommandProcessor extends CommandProcessor {
 
 					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
 							+ " looks good so far! Please send your question as a message: ").queue();
-					InputConsumer inp = (event, eventHandler, ic) -> {
+					MessageInputConsumer inp = (event, eventHandler, ic) -> {
 						event.getChannel()
 								.sendMessage(event.getAuthor().getAsMention() + " your question has been registered!")
 								.queue();
