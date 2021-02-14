@@ -26,6 +26,6 @@ public interface InputConsumer<E extends GenericEvent> {
 	 * @return <code>true</code> if the event should be consumed, <code>false</code>
 	 *         otherwise.
 	 */
-	boolean consume(E event, EventHandler eventHandler, InputConsumer<? super E> consumer);
+	boolean consume(E event, EventHandler eventHandler, InputConsumer<E> consumer);
 
 }
