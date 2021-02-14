@@ -464,10 +464,10 @@ public class CloverCommandProcessor extends CommandProcessor {
 								.queue();
 						Question q = new Question(event.getMessage().getContentRaw(), value, difficulty);
 						clover.getEconomy().getUser(event.getAuthor().getId()).getQuestions().add(q);
-						eventHandler.scheduleForRemoval(ic);
+						eventHandler.getMessageProcessor().scheduleForRemoval(ic);
 						return true;
 					};
-					clover.getEventHandler()
+					clover.getEventHandler().getMessageProcessor()
 							.registerInputConsumer(inp.filter(inv.event.getAuthor(), inv.event.getChannel()));
 				}
 			}
