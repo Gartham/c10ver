@@ -108,6 +108,8 @@ public class User extends SavablePropertyObject {
 		inventory = new Inventory(userDirectory, this);
 		if (load)
 			load();
+		if (questions.get() == null)
+			questions.set(new ArrayList<>());
 	}
 
 	public Instant getLastDailyInvocation() {
