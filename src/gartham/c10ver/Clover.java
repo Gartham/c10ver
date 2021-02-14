@@ -22,7 +22,7 @@ public class Clover {
 	private final CommandParser commandParser;
 	private final CommandProcessor commandProcessor = new CloverCommandProcessor(this);
 	private final EventHandler eventHandler = new EventHandler(this);
-	private final Economy economy = new Economy(new File("data/economy"));
+	private final Economy economy = new Economy(new File("data/economy"), this);
 
 	public JDA getBot() {
 		return bot;

@@ -1,11 +1,13 @@
 package gartham.c10ver.users;
 
 import java.io.File;
+import java.math.BigInteger;
 import java.time.Duration;
 import java.time.Instant;
 
 import gartham.c10ver.data.autosave.SavablePropertyObject;
 import gartham.c10ver.economy.Account;
+import gartham.c10ver.economy.Economy;
 import gartham.c10ver.economy.items.Inventory;
 
 public class User extends SavablePropertyObject {
@@ -16,6 +18,11 @@ public class User extends SavablePropertyObject {
 
 	private final Account account;
 	private final Inventory inventory;
+	private final Economy economy;
+
+	public Economy getEconomy() {
+		return economy;
+	}
 
 	public String getUserID() {
 		return getSaveLocation().getParentFile().getName();
@@ -29,14 +36,15 @@ public class User extends SavablePropertyObject {
 		return account;
 	}
 
-	public User(File userDirectory) {
-		this(userDirectory, true);
+	public User(File userDirectory, Economy economy) {
+		this(userDirectory, true, economy);
 	}
 
-	protected User(File userDirectory, boolean load) {
+	protected User(File userDirectory, boolean load, Economy economy) {
 		super(new File(userDirectory, "user-data.txt"));
-		account = new Account(userDirectory);
-		inventory = new Inventory(userDirectory);
+		this.economy = economy;
+		account = new Account(userDirectory, this);
+		inventory = new Inventory(userDirectory, this);
 		if (load)
 			load();
 	}

@@ -16,6 +16,8 @@ import org.alixia.javalibrary.json.JSONArray;
 import org.alixia.javalibrary.json.JSONObject;
 
 import gartham.c10ver.data.PropertyObject;
+import gartham.c10ver.economy.Economy;
+import gartham.c10ver.users.User;
 import gartham.c10ver.utils.Utilities;
 
 /**
@@ -27,8 +29,14 @@ import gartham.c10ver.utils.Utilities;
 public class Inventory {
 
 	private final File invdir;
+	private final User user;
 
-	public Inventory(File userDir) {
+	public User getUser() {
+		return user;
+	}
+
+	public Inventory(File userDir, User user) {
+		this.user = user;
 		invdir = new File(userDir, "inventory");
 		File[] files = invdir.listFiles();
 		if (files != null)

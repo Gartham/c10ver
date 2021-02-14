@@ -9,13 +9,19 @@ import gartham.c10ver.users.User;
 
 public class Account extends SavablePropertyObject {
 	private final Property<BigInteger> balance = bigIntegerProperty("bal", BigInteger.ZERO);
+	private final User user;
 
-	public Account(File userDirectory) {
-		this(userDirectory, true);
+	public User getUser() {
+		return user;
 	}
 
-	protected Account(File userDirectory, boolean load) {
+	public Account(File userDirectory, User user) {
+		this(userDirectory, true, user);
+	}
+
+	protected Account(File userDirectory, boolean load, User user) {
 		super(new File(userDirectory, "main-account.txt"));
+		this.user = user;
 		if (load)
 			load();
 	}
