@@ -6,6 +6,7 @@ import static gartham.c10ver.utils.Utilities.listRewards;
 import static gartham.c10ver.utils.Utilities.maxPage;
 import static gartham.c10ver.utils.Utilities.paginate;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -104,19 +105,18 @@ public class CloverCommandProcessor extends CommandProcessor {
 							.queue();
 				else {
 					u.dailyInvoked();
-					long amt = (long) (Math.random() * 25 + 10);
-					u.getAccount().deposit(amt);
+					var mult = u.calcMultiplier(inv.event.getGuild());
+					var reward = u.reward((long) (Math.random() * 25 + 10), mult);
 					u.getAccount().save();
+
 					Inventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
 					var rewards = of(new LootCrateItem(CrateType.DAILY));
 					invent.add(rewards).save();
 					u.save();
 
-					inv.event.getChannel()
-							.sendMessage(inv.event.getAuthor().getAsMention()
-									+ " is getting their daily rewards!\n\n**Rewards:**\n" + listRewards(amt, rewards)
-									+ "\n**Total Credits:** " + format(u.getAccount().getBalance()))
-							.queue();
+					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+							+ " is getting their daily rewards!\n\n**Rewards:**\n" + listRewards(reward, mult, rewards)
+							+ "\nTotal Credits: " + format(u.getAccount().getBalance())).queue();
 				}
 
 			}
@@ -136,8 +136,8 @@ public class CloverCommandProcessor extends CommandProcessor {
 							.queue();
 				} else {
 					u.weeklyInvoked();
-					long amt = (long) (Math.random() * 250 + 100);
-					u.getAccount().deposit(amt);
+					var mult = u.calcMultiplier(inv.event.getGuild());
+					var amt = u.reward((long) (Math.random() * 250 + 100), mult);
 					u.getAccount().save();
 
 					Inventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
@@ -145,11 +145,9 @@ public class CloverCommandProcessor extends CommandProcessor {
 					invent.add(rewards).save();
 					u.save();
 
-					inv.event.getChannel()
-							.sendMessage(inv.event.getAuthor().getAsMention()
-									+ " is getting their weekly rewards!\n\n**Rewards:**\n" + listRewards(amt, rewards)
-									+ "\n**Total Credits:** " + format(u.getAccount().getBalance()))
-							.queue();
+					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+							+ " is getting their weekly rewards!\n\n**Rewards:**\n" + listRewards(amt, mult, rewards)
+							+ "\nTotal Credits: " + format(u.getAccount().getBalance())).queue();
 				}
 			}
 		});
@@ -169,8 +167,8 @@ public class CloverCommandProcessor extends CommandProcessor {
 				} else {
 					u.monthlyInvoked();
 
-					long amt = (long) (Math.random() * 10000 + 4000);
-					u.getAccount().deposit(amt);
+					var mult = u.calcMultiplier(inv.event.getGuild());
+					var amt = u.reward((long) (Math.random() * 10000 + 4000), mult);
 					u.getAccount().save();
 
 					Inventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
@@ -180,8 +178,8 @@ public class CloverCommandProcessor extends CommandProcessor {
 					u.save();
 
 					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
-							+ " is getting their monthly rewards!!!\n\n**Rewards:**\n" + listRewards(amt, rewards)
-							+ "\n**Total Credits:** " + format(u.getAccount().getBalance())).queue();
+							+ " is getting their monthly rewards!!!\n\n**Rewards:**\n" + listRewards(amt, mult, rewards)
+							+ "\nTotal Credits: " + format(u.getAccount().getBalance())).queue();
 				}
 			}
 		});
