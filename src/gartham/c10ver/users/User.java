@@ -5,11 +5,16 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.alixia.javalibrary.json.JSONObject;
 
 import gartham.c10ver.data.autosave.SavablePropertyObject;
 import gartham.c10ver.economy.Account;
 import gartham.c10ver.economy.Economy;
 import gartham.c10ver.economy.items.Inventory;
+import gartham.c10ver.economy.questions.Question;
 import net.dv8tion.jda.api.entities.Guild;
 
 public class User extends SavablePropertyObject {
@@ -17,6 +22,16 @@ public class User extends SavablePropertyObject {
 	private final Property<Instant> dailyCommand = instantProperty("daily", Instant.MIN),
 			weeklyCommand = instantProperty("weekly", Instant.MIN),
 			monthlyCommand = instantProperty("monthly", Instant.MIN);
+
+	private final Property<ArrayList<Question>> questions = listProperty("questions",
+			toObjectGateway(t -> new Question((JSONObject) t)));
+	{
+		questions.set(new ArrayList<>());
+	}
+
+	public List<Question> getQuestions() {
+		return questions.get();
+	}
 
 	private final Account account;
 	private final Inventory inventory;
