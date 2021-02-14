@@ -1,6 +1,7 @@
 package gartham.c10ver.commands;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.alixia.javalibrary.strings.matching.Matching;
@@ -25,10 +26,10 @@ public class CommandParser {
 
 	public CommandInvocation parse(Matching matching, String text, MessageReceivedEvent event) {
 		String fullCommand = text;
-		text = matching.match(text);
+		text = matching == null ? text : matching.match(text);
 		String prefix = fullCommand.substring(0, fullCommand.length() - text.length());
 
-		if (prefix.isEmpty())
+		if (matching != null && prefix.isEmpty())
 			return null;
 
 		boolean haveParsedCmdName = false;
