@@ -23,7 +23,7 @@ public class CommandParser {
 		this.matching = matching;
 	}
 
-	public CommandInvocation parse(String text, MessageReceivedEvent event) {
+	public CommandInvocation parse(Matching matching, String text, MessageReceivedEvent event) {
 		String fullCommand = text;
 		text = matching.match(text);
 		String prefix = fullCommand.substring(0, fullCommand.length() - text.length());
@@ -62,5 +62,9 @@ public class CommandParser {
 			cmdName = currentText.toString();
 
 		return new CommandInvocation(prefix, cmdName, event, args.toArray(new String[args.size()]));
+	}
+
+	public CommandInvocation parse(String text, MessageReceivedEvent event) {
+		return parse(matching, text, event);
 	}
 }
