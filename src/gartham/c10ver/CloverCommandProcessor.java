@@ -116,7 +116,7 @@ public class CloverCommandProcessor extends CommandProcessor {
 
 					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
 							+ " is getting their daily rewards!\n\n**Rewards:**\n" + listRewards(reward, mult, rewards)
-							+ "\nTotal Credits: " + format(u.getAccount().getBalance())).queue();
+							+ "\nTotal Cloves: " + format(u.getAccount().getBalance())).queue();
 				}
 
 			}
@@ -147,7 +147,7 @@ public class CloverCommandProcessor extends CommandProcessor {
 
 					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
 							+ " is getting their weekly rewards!\n\n**Rewards:**\n" + listRewards(amt, mult, rewards)
-							+ "\nTotal Credits: " + format(u.getAccount().getBalance())).queue();
+							+ "\nTotal Cloves: " + format(u.getAccount().getBalance())).queue();
 				}
 			}
 		});
@@ -179,7 +179,7 @@ public class CloverCommandProcessor extends CommandProcessor {
 
 					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
 							+ " is getting their monthly rewards!!!\n\n**Rewards:**\n" + listRewards(amt, mult, rewards)
-							+ "\nTotal Credits: " + format(u.getAccount().getBalance())).queue();
+							+ "\nTotal Cloves: " + format(u.getAccount().getBalance())).queue();
 				}
 			}
 		});

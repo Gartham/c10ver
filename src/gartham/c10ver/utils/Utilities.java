@@ -181,26 +181,26 @@ public final class Utilities {
 		return (listSize + itemsPerPage - 1) / itemsPerPage;
 	}
 
-	public static String listRewards(long credits, ItemBunch<?>... items) {
-		return listRewards(BigInteger.valueOf(credits), items);
+	public static String listRewards(long cloves, ItemBunch<?>... items) {
+		return listRewards(BigInteger.valueOf(cloves), items);
 	}
 
-	public static String listRewards(long credits, Iterable<ItemBunch<?>> items) {
-		return listRewards(BigInteger.valueOf(credits), items);
+	public static String listRewards(long cloves, Iterable<ItemBunch<?>> items) {
+		return listRewards(BigInteger.valueOf(cloves), items);
 	}
 
-	public static String listRewards(BigInteger credits, ItemBunch<?>... items) {
-		return listRewards(credits, null, items);
+	public static String listRewards(BigInteger cloves, ItemBunch<?>... items) {
+		return listRewards(cloves, null, items);
 	}
 
-	public static String listRewards(BigInteger credits, Iterable<ItemBunch<?>> items) {
-		return listRewards(credits, null, items);
+	public static String listRewards(BigInteger cloves, Iterable<ItemBunch<?>> items) {
+		return listRewards(cloves, null, items);
 	}
 
-	public static String listRewards(BigInteger credits, BigDecimal mult, ItemBunch<?>... items) {
+	public static String listRewards(BigInteger cloves, BigDecimal mult, ItemBunch<?>... items) {
 		StringBuilder sb = new StringBuilder();
-		if (!credits.equals(BigInteger.ZERO))
-			sb.append(format(credits) + " Credits\n");
+		if (!cloves.equals(BigInteger.ZERO))
+			sb.append(format(cloves) + "\n");
 		for (ItemBunch<?> ib : items)
 			sb.append("`" + ib.getCount() + "`x" + ib.getItem().getIcon() + ' ' + ib.getItem().getCustomName() + '\n');
 		if (mult != null) {
@@ -211,10 +211,10 @@ public final class Utilities {
 		return sb.toString();
 	}
 
-	public static String listRewards(BigInteger credits, BigDecimal mult, Iterable<ItemBunch<?>> items) {
+	public static String listRewards(BigInteger cloves, BigDecimal mult, Iterable<ItemBunch<?>> items) {
 		StringBuilder sb = new StringBuilder();
-		if (!credits.equals(BigInteger.ZERO))
-			sb.append(format(credits) + " Credits\n");
+		if (!cloves.equals(BigInteger.ZERO))
+			sb.append(format(cloves) + "\n");
 		for (ItemBunch<?> ib : items)
 			sb.append("`" + ib.getCount() + "`x" + ib.getItem().getIcon() + ' ' + ib.getItem().getCustomName() + '\n');
 		if (mult != null) {
