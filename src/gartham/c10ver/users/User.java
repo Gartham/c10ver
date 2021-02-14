@@ -1,6 +1,7 @@
 package gartham.c10ver.users;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Duration;
 import java.time.Instant;
@@ -9,6 +10,7 @@ import gartham.c10ver.data.autosave.SavablePropertyObject;
 import gartham.c10ver.economy.Account;
 import gartham.c10ver.economy.Economy;
 import gartham.c10ver.economy.items.Inventory;
+import net.dv8tion.jda.api.entities.Guild;
 
 public class User extends SavablePropertyObject {
 
@@ -39,6 +41,44 @@ public class User extends SavablePropertyObject {
 
 	public Account getAccount() {
 		return account;
+	}
+
+	public BigDecimal calcMultiplier(Guild guild) {
+		var v = guild == null ? null : guild.getMember(getUser()).getTimeBoosted();
+		var x = v == null ? BigDecimal.ONE
+				: BigDecimal.valueOf(5, -1).add(BigDecimal.valueOf(Duration.between(v, Instant.now()).toDays() + 1)
+						.multiply(BigDecimal.valueOf(1, -2)));
+		return x;
+	}
+
+	/**
+	 * Rewards the user the specified amount. The actual amount deposited into the
+	 * user's account is a product of the specified amount and this user's
+	 * multipliers and possible "effects" which can increase (or decrease) the
+	 * amount of money earned. This method handles a <code>null</code> value for the
+	 * {@link Guild} argument as if the command was not invoked in a server.
+	 * 
+	 * @param amount The amount to reward the user.
+	 * @param guild  The {@link Guild} that the reward is to be given in. Nitro
+	 *               boosts will multiply the reward of this user.
+	 * @return The amount rewarded to the user.
+	 */
+	public BigInteger reward(BigInteger amount, Guild guild) {
+		return reward(amount, calcMultiplier(guild));
+	}
+
+	public BigInteger reward(BigInteger amount, BigDecimal multiplier) {
+		var x = new BigDecimal(amount).multiply(multiplier).toBigInteger();
+		getAccount().deposit(x);
+		return x;
+	}
+
+	public BigInteger reward(long amount, BigDecimal multiplier) {
+		return reward(BigInteger.valueOf(amount), multiplier);
+	}
+
+	public BigInteger reward(long amount, Guild guild) {
+		return reward(BigInteger.valueOf(amount), guild);
 	}
 
 	public User(File userDirectory, Economy economy) {
