@@ -220,9 +220,9 @@ public class CloverCommandProcessor extends CommandProcessor {
 
 					if (payer.pay(bi, recip))
 						inv.event.getChannel()
-								.sendMessage(inv.event.getAuthor().getAsMention() + ", you paid `" + format(bi) + "` to "
-										+ mentionedUsers.get(0).getAsMention() + ". You now have `" + format(payer.getBalance())
-										+ "`.")
+								.sendMessage(inv.event.getAuthor().getAsMention() + ", you paid `" + format(bi)
+										+ "` to " + mentionedUsers.get(0).getAsMention() + ". You now have `"
+										+ format(payer.getBalance()) + "`.")
 								.queue();
 					else
 						inv.event.getChannel()
@@ -428,7 +428,8 @@ public class CloverCommandProcessor extends CommandProcessor {
 		for (Entry<?> e : entries)
 			builder.addField(e.getIcon() + ' ' + e.getName(),
 					" *You have [`" + e.getTotalCount() + "`](https://clover.gartham.com 'Item ID: " + e.getType()
-							+ ". Use the ID to get or interact with the item.') of this.*",
+							+ ". Use the ID to get or interact with the item.') of this.*\nUse `inv " + e.getType()
+							+ "` to see more.",
 					true);
 		return builder;
 	}
