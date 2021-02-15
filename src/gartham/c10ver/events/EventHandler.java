@@ -17,6 +17,10 @@ public class EventHandler implements EventListener {
 		return messageProcessor;
 	}
 
+	public InputProcessor<MessageReactionAddEvent> getReactionAdditionProcessor() {
+		return reactionAdditionProcessor;
+	}
+
 	public EventHandler(Clover clover) {
 		this.clover = clover;
 	}
