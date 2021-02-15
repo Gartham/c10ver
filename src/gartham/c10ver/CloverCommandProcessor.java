@@ -13,7 +13,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
+
+import org.alixia.javalibrary.strings.matching.Matching;
+import org.alixia.javalibrary.util.Box;
+import org.alixia.javalibrary.util.MultidimensionalMap;
 
 import gartham.c10ver.commands.CommandHelpBook;
 import gartham.c10ver.commands.CommandHelpBook.CommandHelp;
@@ -35,6 +40,8 @@ import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
 public class CloverCommandProcessor extends CommandProcessor {
 
@@ -473,6 +480,8 @@ public class CloverCommandProcessor extends CommandProcessor {
 			}
 		});
 
+		MultidimensionalMap<Question> questions = new MultidimensionalMap<>(2);
+
 		register(new MatchBasedCommand("quiz") {
 
 			@Override
@@ -499,10 +508,89 @@ public class CloverCommandProcessor extends CommandProcessor {
 									+ questions.size() + "` questions!").queue();
 						else {
 							var q = questions.get(numb);
-							inv.event.getChannel().sendMessage(new EmbedBuilder().build()).queue();
+							Box<InputConsumer<MessageReactionAddEvent>> reactionHandler = new Box<>();
+							Box<InputConsumer<MessageReceivedEvent>> messageHandler = new Box<>();
+							reactionHandler.value = (event, eventHandler, consumer) -> {
+								if (event.getChannel().getId().equals(inv.event.getChannel().getId())
+										&& event.getUserId().equals(inv.event.getAuthor().getId())
+										&& event.getReactionEmote().isEmoji()
+										&& event.getReactionEmote().getEmoji().equals(":white_check_mark:")) {
+
+									var user = event.getChannel().retrieveMessageById(event.getMessageId()).complete()
+											.getAuthor();
+									var u1 = clover.getEconomy().getUser(user.getId());
+									var mult = u1.calcMultiplier(event.getGuild());
+									var rewards = u1.reward(q.getValue(), mult);
+
+									String m = Utilities.multiplier(mult);
+
+									String msg = user.getAsMention() + ", you got the question right and earned "
+											+ rewards + " for answering it!";
+									if (m != null)
+										msg += "\n\nMultiplier: **" + m + "**.";
+
+									clover.getEventHandler().getReactionAdditionProcessor()
+											.removeInputConsumer(consumer);
+									clover.getEventHandler().getMessageProcessor()
+											.removeInputConsumer(messageHandler.value);
+
+									event.getChannel().sendMessage(msg).queue();
+									return true;
+								}
+								return false;
+							};
+							messageHandler.value = (event, eventHandler, consumer) -> {
+								if (event.getChannel().getId().equals(inv.event.getChannel().getId())
+										&& event.getAuthor().getId().equals(inv.event.getAuthor().getId())) {
+									CommandInvocation ci = clover.getCommandParser()
+											.parse(event.getMessage().getContentRaw(), event);
+									if (ci.cmdName.equalsIgnoreCase("accept")) {
+										var fid = Utilities.parseMention(ci.args[0]);
+										if (fid == null)
+											event.getChannel().sendMessage(event.getAuthor().getAsMention()
+													+ " ping whoever got the right answer in the `accept` command.")
+													.queue();
+										else {
+											var user = event.getJDA().retrieveUserById(fid).complete();
+											if (user == null) {
+												event.getChannel().sendMessage(event.getAuthor().getAsMention()
+														+ " that person couldn't be found.").queue();
+												return true;
+											}
+											var u1 = clover.getEconomy().getUser(fid);
+
+											var mult = u1.calcMultiplier(event.getGuild());
+											var rewards = u1.reward(q.getValue(), mult);
+
+											String m = Utilities.multiplier(mult);
+
+											String msg = user.getAsMention()
+													+ ", you got the question right and earned " + rewards
+													+ " for answering it!";
+											if (m != null)
+												msg += "\n\nMultiplier: **" + m + "**.";
+
+											clover.getEventHandler().getReactionAdditionProcessor()
+													.removeInputConsumer(reactionHandler.value);
+											clover.getEventHandler().getMessageProcessor()
+													.removeInputConsumer(consumer);
+
+											event.getChannel().sendMessage(msg).queue();
+
+										}
+										return true;
+									}
+								}
+								return false;
+							};
+							clover.getEventHandler().getReactionAdditionProcessor()
+									.registerInputConsumer(reactionHandler.value);
+							clover.getEventHandler().getMessageProcessor().registerInputConsumer(messageHandler.value);
+							inv.event.getChannel().sendMessage(new EmbedBuilder()
+									.setAuthor("Question #" + numb + " [" + Utilities.format(q.getValue()) + ']')
+									.addField("\u200B", q.getQuestion(), false).build()).queue();
 						}
 					}
-
 				}
 			}
 		});
