@@ -13,7 +13,7 @@ public interface MessageInputConsumer extends InputConsumer<MessageReceivedEvent
 	 * @param userID
 	 * @return
 	 */
-	default InputConsumer<MessageReceivedEvent> filterUser(String userID) {
+	default MessageInputConsumer filterUser(String userID) {
 		return (event, eventHandler, consumer) -> {
 			if (event.getAuthor().getId().equals(userID))
 				return consume(event, eventHandler, consumer);
@@ -22,7 +22,7 @@ public interface MessageInputConsumer extends InputConsumer<MessageReceivedEvent
 		};
 	}
 
-	default InputConsumer<MessageReceivedEvent> filterChannel(String channelID) {
+	default MessageInputConsumer filterChannel(String channelID) {
 		return (event, eventHandler, consumer) -> {
 			if (event.getChannel().getId().equals(channelID))
 				return consume(event, eventHandler, consumer);
@@ -31,7 +31,7 @@ public interface MessageInputConsumer extends InputConsumer<MessageReceivedEvent
 		};
 	}
 
-	default InputConsumer<MessageReceivedEvent> filter(String userID, String channelID) {
+	default MessageInputConsumer filter(String userID, String channelID) {
 		return (event, eventHandler, consumer) -> {
 			if (event.getChannel().getId().equals(channelID) && event.getAuthor().getId().equals(userID))
 				return consume(event, eventHandler, consumer);
@@ -40,7 +40,7 @@ public interface MessageInputConsumer extends InputConsumer<MessageReceivedEvent
 		};
 	}
 
-	default InputConsumer<MessageReceivedEvent> filter(User user, MessageChannel channel) {
+	default MessageInputConsumer filter(User user, MessageChannel channel) {
 		return (event, eventHandler, consumer) -> {
 			if (event.getChannel().getId().equals(channel.getId()) && event.getAuthor().getId().equals(user.getId()))
 				return consume(event, eventHandler, consumer);
