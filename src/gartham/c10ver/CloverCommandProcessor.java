@@ -653,6 +653,51 @@ public class CloverCommandProcessor extends CommandProcessor {
 			}
 		});
 
+		register(new MatchBasedCommand("list-questions") {
+
+			@Override
+			public void exec(CommandInvocation inv) {
+				var u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
+				if (u.getQuestions().isEmpty()) {
+					inv.event.getChannel()
+							.sendMessage(inv.event.getAuthor().getAsMention() + " you don't have any questions stored.")
+							.queue();
+				} else {
+					int page;
+					if (inv.args.length == 0)
+						page = 1;
+					else {
+						try {
+							page = Integer.parseInt(inv.args[0]);
+						} catch (NumberFormatException e) {
+							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+									+ " this is not a valid question number: `" + inv.args[0] + '`').queue();
+							return;
+						}
+						if (page < 0) {
+							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+									+ " this is not a valid question number: `" + inv.args[0] + '`').queue();
+							return;
+						}
+					}
+					List<Question> questions = paginate(page, 5, u.getQuestions());
+					if (questions == null)
+						inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention() + " there are only `"
+								+ maxPage(5, u.getQuestions()) + "` pages!").queue();
+					else {
+						EmbedBuilder eb = new EmbedBuilder();
+						eb.setAuthor("Page " + page + " of questions:");
+						page--;
+						page *= 5;
+						page++;
+						for (var q : questions)
+							eb.addField("Q" + page++, q.getDifficulty() + " - " + format(q.getValue()), false);
+						inv.event.getChannel().sendMessage(eb.build()).queue();
+					}
+				}
+			}
+		});
+
 		register(new MatchBasedCommand("delete-question", "del-question") {
 
 			@Override
