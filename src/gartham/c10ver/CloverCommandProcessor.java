@@ -721,9 +721,8 @@ public class CloverCommandProcessor extends CommandProcessor {
 							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention() + " you only have `"
 									+ questions.size() + "` questions!").queue();
 						else {
-							inv.event.getChannel()
-									.sendMessage(
-											inv.event.getAuthor().getAsMention() + " removed question " + numb + '.')
+							inv.event.getChannel().sendMessage(
+									inv.event.getAuthor().getAsMention() + " removed question " + (numb + 1) + '.')
 									.queue();
 							questions.remove(numb);
 							u.save();
