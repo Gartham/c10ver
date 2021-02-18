@@ -27,13 +27,15 @@ import org.alixia.javalibrary.json.JSONObject;
 import org.alixia.javalibrary.json.JSONParser;
 import org.alixia.javalibrary.json.JSONValue;
 import org.alixia.javalibrary.streams.CharacterStream;
+import org.alixia.javalibrary.strings.matching.Matching;
 
 import gartham.c10ver.economy.items.ItemBunch;
+import gartham.c10ver.users.User;
 import net.dv8tion.jda.api.entities.MessageEmbed.Field;
 
 public final class Utilities {
 
-	private final static String CURRENCY_SYMBOL = "\u058D";
+	public final static String CURRENCY_SYMBOL = "\u058D";
 
 	private static final MoneyUnit[] MONEY_UNITS = MoneyUnit.values();
 
@@ -55,6 +57,19 @@ public final class Utilities {
 		}
 	}
 
+	public static String parseMention(String mention) {
+		var m = Matching.build("<@").possibly("!").match(mention);
+		if (m.length() == mention.length())
+			return null;
+		var nmo = Matching.numbers().match(m);
+		if (nmo.length() == m.length())
+			return null;
+		var res = Matching.build(">").match(nmo);
+		if (res.length() == nmo.length())
+			return null;
+		return m.substring(0, m.length() - nmo.length());
+	}
+
 	public static void save(JSONValue obj, File file) {
 		file.getParentFile().mkdirs();
 		try {
@@ -72,10 +87,6 @@ public final class Utilities {
 			throw new IllegalArgumentException("Illegal amt: " + amt);
 		else if (amt == 0)
 			return "";
-		int nanoseconds = duration.getNano();
-		long seconds = duration.getSeconds();
-
-		final StringBuilder b = new StringBuilder();
 		var values = getParts(duration);
 
 		List<TimeUnit> units = new ArrayList<>(amt);
@@ -91,9 +102,8 @@ public final class Utilities {
 			}
 		}
 
-		if (units.isEmpty()) {
+		if (units.isEmpty())
 			units.add(SECONDS);
-		}
 
 		return format(values, units.toArray(new TimeUnit[units.size()]));
 
@@ -203,11 +213,10 @@ public final class Utilities {
 			sb.append(format(cloves) + "\n");
 		for (ItemBunch<?> ib : items)
 			sb.append("`" + ib.getCount() + "`x" + ib.getItem().getIcon() + ' ' + ib.getItem().getCustomName() + '\n');
-		if (mult != null) {
-			var scaled = mult.setScale(2, RoundingMode.HALF_UP);
-			if (scaled.compareTo(BigDecimal.TEN) != 0)
-				sb.append("\nMultiplier: [**x" + scaled.toPlainString() + "**]");
-		}
+
+		var mul = multiplier(mult);
+		if (mul != null)
+			sb.append("\nMultiplier: [**x" + mul + "**]");
 		return sb.toString();
 	}
 
@@ -217,12 +226,19 @@ public final class Utilities {
 			sb.append(format(cloves) + "\n");
 		for (ItemBunch<?> ib : items)
 			sb.append("`" + ib.getCount() + "`x" + ib.getItem().getIcon() + ' ' + ib.getItem().getCustomName() + '\n');
+
+		var mul = multiplier(mult);
+		if (mul != null)
+			sb.append("\nMultiplier: [**x" + mul + "**]");
+		return sb.toString();
+	}
+
+	public static String multiplier(BigDecimal mult) {
 		if (mult != null) {
 			var scaled = mult.setScale(2, RoundingMode.HALF_UP);
-			if (scaled.compareTo(BigDecimal.TEN) != 0)
-				sb.append("\nMultiplier: [**x" + scaled.toPlainString() + "**]");
+			return scaled.compareTo(BigDecimal.TEN) != 0 ? scaled.toPlainString() : null;
 		}
-		return sb.toString();
+		return null;
 	}
 
 	public enum MoneyUnit {
