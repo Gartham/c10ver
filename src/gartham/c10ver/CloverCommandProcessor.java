@@ -653,6 +653,47 @@ public class CloverCommandProcessor extends CommandProcessor {
 			}
 		});
 
+		register(new MatchBasedCommand("delete-question", "del-question") {
+
+			@Override
+			public void exec(CommandInvocation inv) {
+				if (inv.args.length == 1) {
+					int numb;
+					try {
+						numb = Integer.parseInt(inv.args[0]) - 1;
+					} catch (NumberFormatException e) {
+						inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+								+ " this is not a valid question number: `" + inv.args[0] + '`').queue();
+						return;
+					}
+					if (numb < 0)
+						inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+								+ " this is not a valid question number: `" + inv.args[0] + '`').queue();
+					else {
+						var u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
+						var questions = u.getQuestions();
+						if (numb >= questions.size())
+							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention() + " you only have `"
+									+ questions.size() + "` questions!").queue();
+						else {
+							inv.event.getChannel()
+									.sendMessage(
+											inv.event.getAuthor().getAsMention() + " removed question " + numb + '.')
+									.queue();
+							questions.remove(numb);
+							u.save();
+						}
+					}
+				} else if (inv.args.length == 0)
+					inv.event.getChannel()
+							.sendMessage(inv.event.getAuthor().getAsMention() + " tell me which question to delete.")
+							.queue();
+				else
+					inv.event.getChannel()
+							.sendMessage(inv.event.getAuthor().getAsMention() + " too many arguments! >:(").queue();
+			}
+		});
+
 	}
 
 	private final static EmbedBuilder printEntries(List<Entry<?>> entries, EmbedBuilder builder) {
