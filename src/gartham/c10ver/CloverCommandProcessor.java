@@ -6,17 +6,15 @@ import static gartham.c10ver.utils.Utilities.listRewards;
 import static gartham.c10ver.utils.Utilities.maxPage;
 import static gartham.c10ver.utils.Utilities.paginate;
 
-import java.math.BigDecimal;
+import java.awt.Color;
 import java.math.BigInteger;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
-import org.alixia.javalibrary.strings.matching.Matching;
 import org.alixia.javalibrary.util.Box;
 import org.alixia.javalibrary.util.MultidimensionalMap;
 
@@ -470,7 +468,9 @@ public class CloverCommandProcessor extends CommandProcessor {
 								.sendMessage(event.getAuthor().getAsMention() + " your question has been registered!")
 								.queue();
 						Question q = new Question(event.getMessage().getContentRaw(), value, difficulty);
-						clover.getEconomy().getUser(event.getAuthor().getId()).getQuestions().add(q);
+						User user = clover.getEconomy().getUser(event.getAuthor().getId());
+						user.getQuestions().add(q);
+						user.save();
 						eventHandler.getMessageProcessor().scheduleForRemoval(ic);
 						return true;
 					};
@@ -480,15 +480,15 @@ public class CloverCommandProcessor extends CommandProcessor {
 			}
 		});
 
-		MultidimensionalMap<Question> questions = new MultidimensionalMap<>(2);
+		MultidimensionalMap<Question> questionMap = new MultidimensionalMap<>(2);
 
 		register(new MatchBasedCommand("quiz") {
 
 			@Override
 			public void exec(CommandInvocation inv) {
-				if (inv.args.length != 1) {
+				if (inv.args.length != 1)
 					inv.event.getChannel().sendMessage("You need to tell me which question you want to use.").queue();
-				} else {
+				else {
 					int numb;
 					try {
 						numb = Integer.parseInt(inv.args[0]) - 1;
@@ -497,7 +497,32 @@ public class CloverCommandProcessor extends CommandProcessor {
 								+ " this is not a valid question number: `" + inv.args[0] + '`').queue();
 						return;
 					}
-					if (numb < 0)
+					if (questionMap.contains(inv.event.getAuthor().getId(), inv.event.getChannel().getId())) {
+						inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+								+ " this will close your previous question. Continue? (yes/N)").queue();
+						clover.getEventHandler().getMessageProcessor()
+								.registerInputConsumer(((MessageInputConsumer) (event, eventHandler, consumer) -> {
+									switch (event.getMessage().getContentRaw().toLowerCase()) {
+									case "y":
+									case "yes":
+										questionMap.remove(inv.event.getAuthor().getId(),
+												inv.event.getChannel().getId());
+										inv.event.getChannel()
+												.sendMessage(
+														inv.event.getAuthor().getAsMention() + " question rescinded.")
+												.queue();
+										clover.getEventHandler().getMessageProcessor().removeInputConsumer(consumer);
+										return true;
+									case "n":
+									case "no":
+										inv.event.getChannel().sendMessage("Alright.").queue();
+										clover.getEventHandler().getMessageProcessor().removeInputConsumer(consumer);
+										return true;
+									default:
+										return false;
+									}
+								}).filter(inv.event.getAuthor().getId(), inv.event.getChannel().getId()));
+					} else if (numb < 0)
 						inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
 								+ " this is not a valid question number: `" + inv.args[0] + '`').queue();
 					else {
@@ -514,13 +539,13 @@ public class CloverCommandProcessor extends CommandProcessor {
 								if (event.getChannel().getId().equals(inv.event.getChannel().getId())
 										&& event.getUserId().equals(inv.event.getAuthor().getId())
 										&& event.getReactionEmote().isEmoji()
-										&& event.getReactionEmote().getEmoji().equals(":white_check_mark:")) {
-
+										&& event.getReactionEmote().getEmoji().equals("\u2705")) {
 									var user = event.getChannel().retrieveMessageById(event.getMessageId()).complete()
 											.getAuthor();
 									var u1 = clover.getEconomy().getUser(user.getId());
 									var mult = u1.calcMultiplier(event.getGuild());
 									var rewards = u1.reward(q.getValue(), mult);
+									u1.getAccount().save();
 
 									String m = Utilities.multiplier(mult);
 
@@ -528,6 +553,8 @@ public class CloverCommandProcessor extends CommandProcessor {
 											+ rewards + " for answering it!";
 									if (m != null)
 										msg += "\n\nMultiplier: **" + m + "**.";
+
+									questionMap.remove(inv.event.getAuthor().getId(), inv.event.getChannel().getId());
 
 									clover.getEventHandler().getReactionAdditionProcessor()
 											.removeInputConsumer(consumer);
@@ -544,7 +571,14 @@ public class CloverCommandProcessor extends CommandProcessor {
 										&& event.getAuthor().getId().equals(inv.event.getAuthor().getId())) {
 									CommandInvocation ci = clover.getCommandParser()
 											.parse(event.getMessage().getContentRaw(), event);
+									if (ci == null)
+										return false;
 									if (ci.cmdName.equalsIgnoreCase("accept")) {
+										if (ci.args.length == 0) {
+											event.getChannel().sendMessage(event.getAuthor().getAsMention()
+													+ " whose answer do you want to accept?").queue();
+											return true;
+										}
 										var fid = Utilities.parseMention(ci.args[0]);
 										if (fid == null)
 											event.getChannel().sendMessage(event.getAuthor().getAsMention()
@@ -570,6 +604,9 @@ public class CloverCommandProcessor extends CommandProcessor {
 											if (m != null)
 												msg += "\n\nMultiplier: **" + m + "**.";
 
+											questionMap.remove(inv.event.getAuthor().getId(),
+													inv.event.getChannel().getId());
+
 											clover.getEventHandler().getReactionAdditionProcessor()
 													.removeInputConsumer(reactionHandler.value);
 											clover.getEventHandler().getMessageProcessor()
@@ -579,6 +616,16 @@ public class CloverCommandProcessor extends CommandProcessor {
 
 										}
 										return true;
+									} else if (ci.cmdName.equalsIgnoreCase("cancel")) {
+										event.getChannel()
+												.sendMessage(event.getAuthor().getAsMention() + " question cancelled.")
+												.queue();
+										questionMap.remove(inv.event.getAuthor().getId(),
+												inv.event.getChannel().getId());
+										clover.getEventHandler().getReactionAdditionProcessor()
+												.removeInputConsumer(reactionHandler.value);
+										clover.getEventHandler().getMessageProcessor().removeInputConsumer(consumer);
+										return true;
 									}
 								}
 								return false;
@@ -586,8 +633,19 @@ public class CloverCommandProcessor extends CommandProcessor {
 							clover.getEventHandler().getReactionAdditionProcessor()
 									.registerInputConsumer(reactionHandler.value);
 							clover.getEventHandler().getMessageProcessor().registerInputConsumer(messageHandler.value);
-							inv.event.getChannel().sendMessage(new EmbedBuilder()
-									.setAuthor("Question #" + numb + " [" + Utilities.format(q.getValue()) + ']')
+							questionMap.put(q, inv.event.getAuthor().getId(), inv.event.getChannel().getId());
+							Color color = switch (q.getDifficulty()) {
+							case EASY:
+								yield Color.green;
+							case MEDIUM:
+								yield Color.yellow;
+							case HARD:
+								yield Color.red;
+							default:
+								yield Color.black;
+							};
+							inv.event.getChannel().sendMessage(new EmbedBuilder().setColor(color)
+									.setAuthor("Question #" + (numb + 1) + " [" + Utilities.format(q.getValue()) + ']')
 									.addField("\u200B", q.getQuestion(), false).build()).queue();
 						}
 					}
