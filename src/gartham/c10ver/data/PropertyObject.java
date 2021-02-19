@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -122,6 +123,10 @@ public class PropertyObject {
 		};
 	}
 
+	protected final <V> Gateway<V, JSONValue> toStringGateway(StringGateway<V> gateway) {
+		return toStringGateway((Gateway<String, V>) gateway);
+	}
+
 	protected final <V extends PropertyObject> Gateway<V, JSONValue> toObjectGateway(
 			Function<? super JSONValue, ? extends V> generator) {
 		return new Gateway<V, JSONValue>() {
@@ -211,6 +216,79 @@ public class PropertyObject {
 				return arr;
 			}
 		});
+	}
+
+	protected final <K, V, M extends Map<K, V>> Property<M> mapProperty(String key, Gateway<K, String> keyconv,
+			Gateway<V, JSONValue> valconv, Supplier<? extends M> mapmaker) {
+		return new Property<>(key, new Gateway<>() {
+
+			@Override
+			public JSONObject to(M value) {
+				var obj = new JSONObject();
+				for (Entry<K, V> e : value.entrySet())
+					obj.put(keyconv.to(e.getKey()), valconv.to(e.getValue()));
+				return obj;
+			}
+
+			@Override
+			public M from(JSONValue value) {
+				M map = mapmaker.get();
+				for (var e : ((JSONObject) value).entrySet())
+					map.put(keyconv.from(e.getKey()), valconv.from(e.getValue()));
+				return map;
+			}
+		});
+	}
+
+	protected final <K, V> Property<HashMap<K, V>> mapProperty(String key, Gateway<K, String> keyconv,
+			Gateway<V, JSONValue> valconv) {
+		return mapProperty(key, keyconv, valconv, HashMap::new);
+	}
+
+	protected final <V, M extends Map<String, V>> Property<M> mapProperty(String key, Gateway<V, JSONValue> valconv,
+			Supplier<? extends M> mapmaker) {
+		return mapProperty(key, StringGateway.string(), valconv, mapmaker);
+	}
+
+	protected final <V> Property<HashMap<String, V>> mapProperty(String key, Gateway<V, JSONValue> valconv) {
+		return mapProperty(key, valconv, HashMap::new);
+	}
+
+	protected final <K, V, M extends Map<K, V>> Property<M> mapProperty(String key, M def, Gateway<K, String> keyconv,
+			Gateway<V, JSONValue> valconv, Supplier<? extends M> mapmaker) {
+		return new Property<>(key, def, new Gateway<>() {
+
+			@Override
+			public JSONObject to(M value) {
+				var obj = new JSONObject();
+				for (Entry<K, V> e : value.entrySet())
+					obj.put(keyconv.to(e.getKey()), valconv.to(e.getValue()));
+				return obj;
+			}
+
+			@Override
+			public M from(JSONValue value) {
+				M map = mapmaker.get();
+				for (var e : ((JSONObject) value).entrySet())
+					map.put(keyconv.from(e.getKey()), valconv.from(e.getValue()));
+				return map;
+			}
+		});
+	}
+
+	protected final <K, V> Property<HashMap<K, V>> mapProperty(String key, HashMap<K, V> def,
+			Gateway<K, String> keyconv, Gateway<V, JSONValue> valconv) {
+		return mapProperty(key, def, keyconv, valconv, HashMap::new);
+	}
+
+	protected final <V, M extends Map<String, V>> Property<M> mapProperty(String key, M def,
+			Gateway<V, JSONValue> valconv, Supplier<? extends M> mapmaker) {
+		return mapProperty(key, def, StringGateway.string(), valconv, mapmaker);
+	}
+
+	protected final <V> Property<HashMap<String, V>> mapProperty(String key, HashMap<String, V> def,
+			Gateway<V, JSONValue> valconv) {
+		return mapProperty(key, def, valconv, HashMap::new);
 	}
 
 	protected final <V extends PropertyObject> Property<V> toObjectProperty(String key,
