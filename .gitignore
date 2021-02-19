@@ -25,3 +25,4 @@ hs_err_pid*
 src/gartham/c10ver/token.txt
 /data/
 .classpath
+src/gartham/c10ver/devlist.txt
