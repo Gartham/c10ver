@@ -7,7 +7,6 @@ import org.apache.commons.collections4.map.HashedMap;
 
 import gartham.c10ver.Clover;
 import gartham.c10ver.economy.items.Inventory;
-import gartham.c10ver.users.User;
 
 public class Economy {
 

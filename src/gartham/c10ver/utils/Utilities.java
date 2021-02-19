@@ -29,8 +29,8 @@ import org.alixia.javalibrary.json.JSONValue;
 import org.alixia.javalibrary.streams.CharacterStream;
 import org.alixia.javalibrary.strings.matching.Matching;
 
+import gartham.c10ver.economy.User;
 import gartham.c10ver.economy.items.ItemBunch;
-import gartham.c10ver.users.User;
 import net.dv8tion.jda.api.entities.MessageEmbed.Field;
 
 public final class Utilities {

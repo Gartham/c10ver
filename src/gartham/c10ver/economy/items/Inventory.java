@@ -17,7 +17,7 @@ import org.alixia.javalibrary.json.JSONObject;
 
 import gartham.c10ver.data.PropertyObject;
 import gartham.c10ver.economy.Economy;
-import gartham.c10ver.users.User;
+import gartham.c10ver.economy.User;
 import gartham.c10ver.utils.Utilities;
 
 /**
