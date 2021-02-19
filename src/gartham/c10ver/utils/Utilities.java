@@ -57,6 +57,15 @@ public final class Utilities {
 		}
 	}
 
+	/**
+	 * Parses the ID out of the mention stored in the given text, or returns
+	 * <code>null</code> if the text is not a mention. The provided text must be
+	 * exactly a mention.
+	 * 
+	 * @param mention The discord mention to parse. Maybe contain a <code>!</code>
+	 *                character.
+	 * @return The ID in the mention, as a {@link String}.
+	 */
 	public static String parseMention(String mention) {
 		var m = Matching.build("<@").possibly("!").match(mention);
 		if (m.length() == mention.length())

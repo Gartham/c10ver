@@ -8,6 +8,7 @@ import static gartham.c10ver.utils.Utilities.paginate;
 
 import java.awt.Color;
 import java.math.BigInteger;
+import java.text.NumberFormat;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -248,10 +249,44 @@ public class CloverCommandProcessor extends CommandProcessor {
 
 			@Override
 			public void exec(CommandInvocation inv) {
-				inv.event.getChannel()
-						.sendMessage(inv.event.getAuthor().getAsMention() + ", you have "
-								+ format(clover.getEconomy().getAccount(inv.event.getAuthor().getId()).getBalance()))
-						.queue();
+				if (inv.args.length > 0) {
+					String id = Utilities.parseMention(inv.args[0]);
+					if (id == null) {
+						inv.event.getChannel().sendMessage(
+								inv.event.getAuthor().getAsMention() + " ping who you want to check the balance of.")
+								.queue();
+					} else {
+						net.dv8tion.jda.api.entities.User u;
+						try {
+							u = clover.getBot().retrieveUserById(id).complete();
+						} catch (NumberFormatException e) {
+							inv.event.getChannel()
+									.sendMessage(inv.event.getAuthor().getAsMention() + " that's not a valid mention.")
+									.queue();
+							return;
+						}
+						if (u == null) {
+							inv.event.getChannel()
+									.sendMessage(inv.event.getAuthor().getAsMention() + " that user couldn't be found.")
+									.queue();
+						} else {
+							if (clover.getEconomy().hasAccount(u.getId())) {
+								var bal = clover.getEconomy().getAccount(u.getId()).getBalance();
+								inv.event.getChannel().sendMessage(u.getAsMention() + " has **" + format(bal) + "** (`"
+										+ NumberFormat.getNumberInstance().format(bal) + "`)").queue();
+							} else {
+								inv.event.getChannel().sendMessage(u.getAsMention() + " doesn't have an account.")
+										.queue();
+							}
+						}
+					}
+				} else {
+					BigInteger bal = clover.getEconomy().getAccount(inv.event.getAuthor().getId()).getBalance();
+					inv.event
+							.getChannel().sendMessage(inv.event.getAuthor().getAsMention() + ", you have **"
+									+ format(bal) + "** (`" + NumberFormat.getNumberInstance().format(bal) + "`)")
+							.queue();
+				}
 			}
 		});
 
