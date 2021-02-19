@@ -251,11 +251,11 @@ public class CloverCommandProcessor extends CommandProcessor {
 			public void exec(CommandInvocation inv) {
 				if (inv.args.length > 0) {
 					String id = Utilities.parseMention(inv.args[0]);
-					if (id == null) {
+					if (id == null)
 						inv.event.getChannel().sendMessage(
 								inv.event.getAuthor().getAsMention() + " ping who you want to check the balance of.")
 								.queue();
-					} else {
+					else {
 						net.dv8tion.jda.api.entities.User u;
 						try {
 							u = clover.getBot().retrieveUserById(id).complete();
@@ -331,8 +331,9 @@ public class CloverCommandProcessor extends CommandProcessor {
 					int maxpage = maxPage(10, users);
 					if (page > maxpage) {
 						inv.event.getChannel()
-								.sendMessage(inv.event.getAuthor().getAsMention() + " there are only `" + maxpage
-										+ (maxpage == 1 ? "` page" : "` pages") + " of people in the leaderboard!")
+								.sendMessage(inv.event.getAuthor().getAsMention() + " there "
+										+ (maxpage == 1 ? "is only `1` page" : "are only `" + maxpage + "` pages")
+										+ " of people in the leaderboard!")
 								.queue();
 						return;
 					}
@@ -516,7 +517,6 @@ public class CloverCommandProcessor extends CommandProcessor {
 		});
 
 		MultidimensionalMap<Question> questionMap = new MultidimensionalMap<>(2);
-
 		register(new MatchBasedCommand("quiz") {
 
 			@Override
@@ -716,10 +716,11 @@ public class CloverCommandProcessor extends CommandProcessor {
 						}
 					}
 					List<Question> questions = paginate(page, 5, u.getQuestions());
-					if (questions == null)
-						inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention() + " there are only `"
-								+ maxPage(5, u.getQuestions()) + "` pages!").queue();
-					else {
+					if (questions == null) {
+						int mp = maxPage(5, u.getQuestions());
+						inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention() + " there "
+								+ (mp == 1 ? "is only `1` page!" : "are only `" + mp + "` pages!")).queue();
+					} else {
 						EmbedBuilder eb = new EmbedBuilder();
 						eb.setAuthor("Page " + page + " of questions:");
 						page--;
