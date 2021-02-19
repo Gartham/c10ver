@@ -716,19 +716,25 @@ public class CloverCommandProcessor extends CommandProcessor {
 						}
 					}
 					List<Question> questions = paginate(page, 5, u.getQuestions());
+					int mp = maxPage(5, u.getQuestions());
 					if (questions == null) {
-						int mp = maxPage(5, u.getQuestions());
 						inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention() + " there "
 								+ (mp == 1 ? "is only `1` page!" : "are only `" + mp + "` pages!")).queue();
 					} else {
-						EmbedBuilder eb = new EmbedBuilder();
-						eb.setAuthor("Page " + page + " of questions:");
-						page--;
-						page *= 5;
-						page++;
+						StringBuilder sb = new StringBuilder();
+						sb.append("**Page ").append(page).append(" of questions**\n");
+						int temp = page;
+						temp--;
+						temp *= 5;
+						temp++;
 						for (var q : questions)
-							eb.addField("Q" + page++, q.getDifficulty() + " - " + format(q.getValue()), false);
-						inv.event.getChannel().sendMessage(eb.build()).queue();
+							sb.append("\n`Q").append(temp++).append("` ").append(q.getDifficulty()).append(" - ")
+									.append(format(q.getValue()));
+						if (page == mp)
+							sb.append("\n\nEnd of question list.");
+						else
+							sb.append("\n\nUse `list-questions ").append(page + 1).append("` to see the next page.");
+						inv.event.getChannel().sendMessage(sb).queue();
 					}
 				}
 			}
