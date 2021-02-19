@@ -2,11 +2,11 @@ package gartham.c10ver;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Scanner;
+import java.util.Set;
 
 import javax.security.auth.login.LoginException;
 
@@ -18,6 +18,7 @@ import gartham.c10ver.economy.Economy;
 import gartham.c10ver.events.EventHandler;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 public class Clover {
@@ -27,9 +28,9 @@ public class Clover {
 	private final CommandProcessor commandProcessor = new CloverCommandProcessor(this);
 	private final EventHandler eventHandler = new EventHandler(this);
 	private final Economy economy = new Economy(new File("data/economy"), this);
-	private final List<String> devlist;
+	private final Set<String> devlist;
 	{
-		List<String> devlist = new ArrayList<>();
+		Set<String> devlist = new HashSet<>();
 		InputStream dl = Clover.class.getResourceAsStream("devlist.txt");
 		if (dl == null)
 			System.err.println("Couldn't find the devlist...");
@@ -38,11 +39,23 @@ public class Clover {
 				while (s.hasNextLine())
 					devlist.add(s.nextLine());
 			}
-		this.devlist = Collections.unmodifiableList(devlist);
+		this.devlist = Collections.unmodifiableSet(devlist);
 	}
 
-	public List<String> getDevlist() {
+	public Set<String> getDevlist() {
 		return devlist;
+	}
+
+	public boolean isDev(String id) {
+		return devlist.contains(id);
+	}
+
+	public boolean isDev(long id) {
+		return devlist.contains(Long.toString(id));
+	}
+
+	public boolean isDev(User user) {
+		return devlist.contains(user.getId());
 	}
 
 	public JDA getBot() {

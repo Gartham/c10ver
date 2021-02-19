@@ -470,6 +470,11 @@ public class CloverCommandProcessor extends CommandProcessor {
 
 			@Override
 			public void exec(CommandInvocation inv) {
+				if (!clover.isDev(inv.event.getAuthor())) {
+					inv.event.getChannel()
+							.sendMessage(inv.event.getAuthor().getAsMention() + " you can't use that command.").queue();
+					return;
+				}
 				if (inv.args.length != 2)
 					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
 							+ ", you need to provide a *value* and a *difficulty* in that command. After you do that, you'll get prompted for the question.")
@@ -521,6 +526,11 @@ public class CloverCommandProcessor extends CommandProcessor {
 
 			@Override
 			public void exec(CommandInvocation inv) {
+				if (!clover.isDev(inv.event.getAuthor())) {
+					inv.event.getChannel()
+							.sendMessage(inv.event.getAuthor().getAsMention() + " you can't use that command.").queue();
+					return;
+				}
 				if (inv.args.length != 1)
 					inv.event.getChannel().sendMessage("You need to tell me which question you want to use.").queue();
 				else {
@@ -692,6 +702,11 @@ public class CloverCommandProcessor extends CommandProcessor {
 
 			@Override
 			public void exec(CommandInvocation inv) {
+				if (!clover.isDev(inv.event.getAuthor())) {
+					inv.event.getChannel()
+							.sendMessage(inv.event.getAuthor().getAsMention() + " you can't use that command.").queue();
+					return;
+				}
 				var u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
 				if (u.getQuestions().isEmpty()) {
 					inv.event.getChannel()
