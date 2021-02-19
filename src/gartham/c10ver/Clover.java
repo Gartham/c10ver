@@ -1,7 +1,11 @@
 package gartham.c10ver;
 
 import java.io.File;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Scanner;
 
 import javax.security.auth.login.LoginException;
@@ -23,6 +27,23 @@ public class Clover {
 	private final CommandProcessor commandProcessor = new CloverCommandProcessor(this);
 	private final EventHandler eventHandler = new EventHandler(this);
 	private final Economy economy = new Economy(new File("data/economy"), this);
+	private final List<String> devlist;
+	{
+		List<String> devlist = new ArrayList<>();
+		InputStream dl = Clover.class.getResourceAsStream("devlist.txt");
+		if (dl == null)
+			System.err.println("Couldn't find the devlist...");
+		else
+			try (var s = new Scanner(dl)) {
+				while (s.hasNextLine())
+					devlist.add(s.nextLine());
+			}
+		this.devlist = Collections.unmodifiableList(devlist);
+	}
+
+	public List<String> getDevlist() {
+		return devlist;
+	}
 
 	public JDA getBot() {
 		return bot;
