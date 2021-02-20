@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import org.alixia.javalibrary.util.Box;
@@ -417,7 +418,22 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 		});
 
 		register(new ParentCommand("quiz") {
-			MultidimensionalMap<Question> questionMap = new MultidimensionalMap<>(2);
+
+			class AskedQuiz {
+				Question question;
+				InputConsumer<MessageReceivedEvent> msgcons;
+				InputConsumer<MessageReactionAddEvent> reaccons;
+
+				public AskedQuiz(Question question, InputConsumer<MessageReceivedEvent> msgcons,
+						InputConsumer<MessageReactionAddEvent> reaccons) {
+					this.question = question;
+					this.msgcons = msgcons;
+					this.reaccons = reaccons;
+				}
+
+			}
+
+			MultidimensionalMap<AskedQuiz> questionMap = new MultidimensionalMap<>(2);
 			{
 				new Subcommand("list", "view") {
 
@@ -563,7 +579,21 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 								else {
 									inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
 											+ " removed question " + (numb + 1) + '.').queue();
-									questions.remove(numb);
+									var q = questions.remove(numb);
+									@SuppressWarnings("unchecked")
+									Map<String, AskedQuiz> dim = (Map<String, AskedQuiz>) questionMap
+											.readDim(inv.event.getAuthor().getId());
+									System.out.println(dim);
+									System.out.println(q);
+									if (dim != null)
+										for (var e : dim.entrySet())
+											if (e.getValue().question == q) {
+												questionMap.remove(inv.event.getAuthor().getId(), e.getKey());
+												clover.getEventHandler().getMessageProcessor()
+														.removeInputConsumer(e.getValue().msgcons);
+												clover.getEventHandler().getReactionAdditionProcessor()
+														.removeInputConsumer(e.getValue().reaccons);
+											}
 									u.save();
 								}
 							}
@@ -734,7 +764,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 							clover.getEventHandler().getReactionAdditionProcessor()
 									.registerInputConsumer(reactionHandler.value);
 							clover.getEventHandler().getMessageProcessor().registerInputConsumer(messageHandler.value);
-							questionMap.put(q, inv.event.getAuthor().getId(), inv.event.getChannel().getId());
+							questionMap.put(new AskedQuiz(q, messageHandler.value, reactionHandler.value),
+									inv.event.getAuthor().getId(), inv.event.getChannel().getId());
 							Color color = switch (q.getDifficulty()) {
 							case EASY:
 								yield Color.green;
