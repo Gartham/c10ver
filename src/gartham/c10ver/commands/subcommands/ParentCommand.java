@@ -43,7 +43,7 @@ public abstract class ParentCommand extends MatchBasedCommand {
 			tailed((SubcommandInvocation) inv);
 		}
 
-		protected abstract void tailed(SubcommandInvocation si);
+		protected abstract void tailed(SubcommandInvocation inv);
 
 	}
 

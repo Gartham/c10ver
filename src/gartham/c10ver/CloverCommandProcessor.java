@@ -11,6 +11,7 @@ import java.math.BigInteger;
 import java.text.NumberFormat;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -19,14 +20,13 @@ import java.util.function.Consumer;
 import org.alixia.javalibrary.util.Box;
 import org.alixia.javalibrary.util.MultidimensionalMap;
 
-import gartham.c10ver.commands.CommandHelpBook;
-import gartham.c10ver.commands.CommandHelpBook.CommandHelp;
 import gartham.c10ver.commands.CommandInvocation;
-import gartham.c10ver.commands.CommandProcessor;
 import gartham.c10ver.commands.MatchBasedCommand;
 import gartham.c10ver.commands.SimpleCommandProcessor;
 import gartham.c10ver.commands.consumers.InputConsumer;
 import gartham.c10ver.commands.consumers.MessageInputConsumer;
+import gartham.c10ver.commands.subcommands.ParentCommand;
+import gartham.c10ver.commands.subcommands.SubcommandInvocation;
 import gartham.c10ver.data.PropertyObject;
 import gartham.c10ver.economy.Account;
 import gartham.c10ver.economy.User;
@@ -39,7 +39,6 @@ import gartham.c10ver.economy.questions.Question.Difficulty;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
@@ -418,66 +417,173 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 		});
 
 		// No help yet until there are administrator perms set up.
-		register(new MatchBasedCommand("make-question") {
-
-			@Override
-			public void exec(CommandInvocation inv) {
-				if (!clover.isDev(inv.event.getAuthor())) {
-					inv.event.getChannel()
-							.sendMessage(inv.event.getAuthor().getAsMention() + " you can't use that command.").queue();
-					return;
-				}
-				if (inv.args.length != 2)
-					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
-							+ ", you need to provide a *value* and a *difficulty* in that command. After you do that, you'll get prompted for the question.")
-							.queue();
-				else {
-
-					BigInteger value;
-					try {
-						value = new BigInteger(inv.args[0]);
-					} catch (NumberFormatException e) {
-						inv.event.getChannel()
-								.sendMessage(inv.event.getAuthor().getAsMention()
-										+ " your first argument should be a number! (It's the value of the question.)")
-								.queue();
-						return;
-					}
-
-					Difficulty difficulty;
-					try {
-						difficulty = Difficulty.valueOf(inv.args[1].toUpperCase());
-					} catch (IllegalArgumentException e) {
-						inv.event.getChannel().sendMessage(
-								inv.event.getAuthor().getAsMention() + " your second argument should be a difficulty.")
-								.queue();
-						return;
-					}
-
-					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
-							+ " looks good so far! Please send your question as a message: ").queue();
-					MessageInputConsumer inp = (event, eventHandler, ic) -> {
-						event.getChannel()
-								.sendMessage(event.getAuthor().getAsMention() + " your question has been registered!")
-								.queue();
-						Question q = new Question(event.getMessage().getContentRaw(), value, difficulty);
-						User user = clover.getEconomy().getUser(event.getAuthor().getId());
-						user.getQuestions().add(q);
-						user.save();
-						eventHandler.getMessageProcessor().scheduleForRemoval(ic);
-						return true;
-					};
-					clover.getEventHandler().getMessageProcessor()
-							.registerInputConsumer(inp.filter(inv.event.getAuthor(), inv.event.getChannel()));
-				}
-			}
-		});
-
 		MultidimensionalMap<Question> questionMap = new MultidimensionalMap<>(2);
-		register(new MatchBasedCommand("quiz") {
+		register(new ParentCommand("quiz") {
+			{
+				new Subcommand("list", "view") {
+
+					@Override
+					protected void tailed(SubcommandInvocation inv) {
+						if (!clover.isDev(inv.event.getAuthor())) {
+							inv.event.getChannel()
+									.sendMessage(inv.event.getAuthor().getAsMention() + " you can't use that command.")
+									.queue();
+							return;
+						}
+						var u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
+						if (u.getQuestions().isEmpty()) {
+							inv.event.getChannel().sendMessage(
+									inv.event.getAuthor().getAsMention() + " you don't have any questions stored.")
+									.queue();
+						} else {
+							int page;
+							if (inv.args.length == 0)
+								page = 1;
+							else {
+								try {
+									page = Integer.parseInt(inv.args[0]);
+								} catch (NumberFormatException e) {
+									inv.event.getChannel()
+											.sendMessage(inv.event.getAuthor().getAsMention()
+													+ " this is not a valid question number: `" + inv.args[0] + '`')
+											.queue();
+									return;
+								}
+								if (page < 0) {
+									inv.event.getChannel()
+											.sendMessage(inv.event.getAuthor().getAsMention()
+													+ " this is not a valid question number: `" + inv.args[0] + '`')
+											.queue();
+									return;
+								}
+							}
+							List<Question> questions = paginate(page, 5, u.getQuestions());
+							int mp = maxPage(5, u.getQuestions());
+							if (questions == null) {
+								inv.event.getChannel()
+										.sendMessage(inv.event.getAuthor().getAsMention() + " there "
+												+ (mp == 1 ? "is only `1` page!" : "are only `" + mp + "` pages!"))
+										.queue();
+							} else {
+								StringBuilder sb = new StringBuilder();
+								sb.append("**Page ").append(page).append(" of questions**\n");
+								int temp = page;
+								temp--;
+								temp *= 5;
+								temp++;
+								for (var q : questions)
+									sb.append("\n`Q").append(temp++).append("` ").append(q.getDifficulty())
+											.append(" - ").append(format(q.getValue()));
+								if (page == mp)
+									sb.append("\n\nEnd of question list.");
+								else
+									sb.append("\n\nUse `quiz list ").append(page + 1)
+											.append("` to see the next page.");
+								inv.event.getChannel().sendMessage(sb).queue();
+							}
+						}
+					}
+				};
+				new Subcommand("new", "make", "create") {
+					@Override
+					protected void tailed(SubcommandInvocation inv) {
+						if (!clover.isDev(inv.event.getAuthor())) {
+							inv.event.getChannel()
+									.sendMessage(inv.event.getAuthor().getAsMention() + " you can't use that command.")
+									.queue();
+							return;
+						}
+						if (inv.args.length != 2)
+							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+									+ ", you need to provide a *value* and a *difficulty* in that command. After you do that, you'll get prompted for the question.")
+									.queue();
+						else {
+
+							BigInteger value;
+							try {
+								value = new BigInteger(inv.args[0]);
+							} catch (NumberFormatException e) {
+								inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+										+ " your first argument should be a number! (It's the value of the question.)")
+										.queue();
+								return;
+							}
+
+							Difficulty difficulty;
+							try {
+								difficulty = Difficulty.valueOf(inv.args[1].toUpperCase());
+							} catch (IllegalArgumentException e) {
+								inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+										+ " your second argument should be a difficulty.").queue();
+								return;
+							}
+
+							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+									+ " looks good so far! Please send your question as a message: ").queue();
+							MessageInputConsumer inp = (event, eventHandler, ic) -> {
+								event.getChannel().sendMessage(
+										event.getAuthor().getAsMention() + " your question has been registered!")
+										.queue();
+								Question q = new Question(event.getMessage().getContentRaw(), value, difficulty);
+								User user = clover.getEconomy().getUser(event.getAuthor().getId());
+								user.getQuestions().add(q);
+								user.save();
+								eventHandler.getMessageProcessor().scheduleForRemoval(ic);
+								return true;
+							};
+							clover.getEventHandler().getMessageProcessor()
+									.registerInputConsumer(inp.filter(inv.event.getAuthor(), inv.event.getChannel()));
+						}
+					}
+				};
+				new Subcommand("delete", "remove", "del", "rem") {
+
+					@Override
+					protected void tailed(SubcommandInvocation inv) {
+						if (inv.args.length == 1) {
+							int numb;
+							try {
+								numb = Integer.parseInt(inv.args[0]) - 1;
+							} catch (NumberFormatException e) {
+								inv.event.getChannel()
+										.sendMessage(inv.event.getAuthor().getAsMention()
+												+ " this is not a valid question number: `" + inv.args[0] + '`')
+										.queue();
+								return;
+							}
+							if (numb < 0)
+								inv.event.getChannel()
+										.sendMessage(inv.event.getAuthor().getAsMention()
+												+ " this is not a valid question number: `" + inv.args[0] + '`')
+										.queue();
+							else {
+								var u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
+								var questions = u.getQuestions();
+								if (numb >= questions.size())
+									inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+											+ " you only have `" + questions.size() + "` questions!").queue();
+								else {
+									inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+											+ " removed question " + (numb + 1) + '.').queue();
+									questions.remove(numb);
+									u.save();
+								}
+							}
+						} else if (inv.args.length == 0)
+							inv.event.getChannel()
+									.sendMessage(
+											inv.event.getAuthor().getAsMention() + " tell me which question to delete.")
+									.queue();
+						else
+							inv.event.getChannel()
+									.sendMessage(inv.event.getAuthor().getAsMention() + " too many arguments! >:(")
+									.queue();
+					}
+				};
+			}
 
 			@Override
-			public void exec(CommandInvocation inv) {
+			protected void tailed(CommandInvocation inv) {
 				if (!clover.isDev(inv.event.getAuthor())) {
 					inv.event.getChannel()
 							.sendMessage(inv.event.getAuthor().getAsMention() + " you can't use that command.").queue();
@@ -647,103 +753,6 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						}
 					}
 				}
-			}
-		});
-
-		register(new MatchBasedCommand("list-questions") {
-
-			@Override
-			public void exec(CommandInvocation inv) {
-				if (!clover.isDev(inv.event.getAuthor())) {
-					inv.event.getChannel()
-							.sendMessage(inv.event.getAuthor().getAsMention() + " you can't use that command.").queue();
-					return;
-				}
-				var u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
-				if (u.getQuestions().isEmpty()) {
-					inv.event.getChannel()
-							.sendMessage(inv.event.getAuthor().getAsMention() + " you don't have any questions stored.")
-							.queue();
-				} else {
-					int page;
-					if (inv.args.length == 0)
-						page = 1;
-					else {
-						try {
-							page = Integer.parseInt(inv.args[0]);
-						} catch (NumberFormatException e) {
-							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
-									+ " this is not a valid question number: `" + inv.args[0] + '`').queue();
-							return;
-						}
-						if (page < 0) {
-							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
-									+ " this is not a valid question number: `" + inv.args[0] + '`').queue();
-							return;
-						}
-					}
-					List<Question> questions = paginate(page, 5, u.getQuestions());
-					int mp = maxPage(5, u.getQuestions());
-					if (questions == null) {
-						inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention() + " there "
-								+ (mp == 1 ? "is only `1` page!" : "are only `" + mp + "` pages!")).queue();
-					} else {
-						StringBuilder sb = new StringBuilder();
-						sb.append("**Page ").append(page).append(" of questions**\n");
-						int temp = page;
-						temp--;
-						temp *= 5;
-						temp++;
-						for (var q : questions)
-							sb.append("\n`Q").append(temp++).append("` ").append(q.getDifficulty()).append(" - ")
-									.append(format(q.getValue()));
-						if (page == mp)
-							sb.append("\n\nEnd of question list.");
-						else
-							sb.append("\n\nUse `list-questions ").append(page + 1).append("` to see the next page.");
-						inv.event.getChannel().sendMessage(sb).queue();
-					}
-				}
-			}
-		});
-
-		register(new MatchBasedCommand("delete-question", "del-question") {
-
-			@Override
-			public void exec(CommandInvocation inv) {
-				if (inv.args.length == 1) {
-					int numb;
-					try {
-						numb = Integer.parseInt(inv.args[0]) - 1;
-					} catch (NumberFormatException e) {
-						inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
-								+ " this is not a valid question number: `" + inv.args[0] + '`').queue();
-						return;
-					}
-					if (numb < 0)
-						inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
-								+ " this is not a valid question number: `" + inv.args[0] + '`').queue();
-					else {
-						var u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
-						var questions = u.getQuestions();
-						if (numb >= questions.size())
-							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention() + " you only have `"
-									+ questions.size() + "` questions!").queue();
-						else {
-							inv.event.getChannel().sendMessage(
-									inv.event.getAuthor().getAsMention() + " removed question " + (numb + 1) + '.')
-									.queue();
-							questions.remove(numb);
-							u.save();
-						}
-					}
-				} else if (inv.args.length == 0)
-					inv.event.getChannel()
-							.sendMessage(inv.event.getAuthor().getAsMention() + " tell me which question to delete.")
-							.queue();
-				else
-					inv.event.getChannel()
-							.sendMessage(inv.event.getAuthor().getAsMention() + " too many arguments! >:(").queue();
 			}
 		});
 
