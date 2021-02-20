@@ -1,7 +1,8 @@
 package gartham.c10ver.commands.subcommands;
 
 import gartham.c10ver.commands.SimpleCommandProcessor;
+import gartham.c10ver.utils.Unimplemented;
 
-public class SubcommandProcessor extends SimpleCommandProcessor {
-	
+public @Unimplemented class SubcommandProcessor extends SimpleCommandProcessor {
+
 }
