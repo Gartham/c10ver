@@ -50,7 +50,7 @@ public class Server extends SavablePropertyObject {
 	}
 
 	public Server(File saveLocation, boolean load) {
-		super(saveLocation);
+		super(new File(saveLocation, "server-data.txt"));
 		if (load)
 			load();
 	}
