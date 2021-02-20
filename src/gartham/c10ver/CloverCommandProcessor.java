@@ -416,9 +416,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 			}
 		});
 
-		// No help yet until there are administrator perms set up.
-		MultidimensionalMap<Question> questionMap = new MultidimensionalMap<>(2);
 		register(new ParentCommand("quiz") {
+			MultidimensionalMap<Question> questionMap = new MultidimensionalMap<>(2);
 			{
 				new Subcommand("list", "view") {
 
@@ -477,8 +476,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 								if (page == mp)
 									sb.append("\n\nEnd of question list.");
 								else
-									sb.append("\n\nUse `quiz list ").append(page + 1)
-											.append("` to see the next page.");
+									sb.append("\n\nUse `quiz list ").append(page + 1).append("` to see the next page.");
 								inv.event.getChannel().sendMessage(sb).queue();
 							}
 						}
