@@ -62,8 +62,8 @@ public abstract class ParentCommand extends MatchBasedCommand {
 					s.exec(si);
 					return;
 				}
+			tailed(inv);
 		}
-		tailed(inv);
 	}
 
 }
