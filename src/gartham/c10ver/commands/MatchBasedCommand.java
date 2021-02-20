@@ -4,7 +4,7 @@ import org.alixia.javalibrary.strings.matching.Matching;
 
 public abstract class MatchBasedCommand implements Command {
 
-	private final Matching matching;
+	protected final Matching matching;
 
 	public MatchBasedCommand(Matching matching) {
 		this.matching = matching;

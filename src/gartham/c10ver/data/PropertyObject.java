@@ -291,6 +291,11 @@ public class PropertyObject {
 		return mapProperty(key, def, valconv, HashMap::new);
 	}
 
+	protected final <V> Property<Map<String, V>> mapProperty(String key, Map<String, V> def,
+			Gateway<V, JSONValue> valconv) {
+		return mapProperty(key, def, valconv, HashMap::new);
+	}
+
 	protected final <V extends PropertyObject> Property<V> toObjectProperty(String key,
 			Function<? super JSONValue, ? extends V> generator) {
 		return new Property<V>(key, toObjectGateway(generator));
