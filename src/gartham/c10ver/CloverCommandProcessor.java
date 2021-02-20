@@ -435,7 +435,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 			MultidimensionalMap<AskedQuiz> questionMap = new MultidimensionalMap<>(2);
 			{
-				new Subcommand("list", "view") {
+				new Subcommand("list") {
 
 					@Override
 					protected void tailed(SubcommandInvocation inv) {
@@ -550,6 +550,61 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						}
 					}
 				};
+				new Subcommand("view") {
+
+					@Override
+					protected void tailed(SubcommandInvocation inv) {
+						if (inv.args.length == 1) {
+							int numb;
+							try {
+								numb = Integer.parseInt(inv.args[0]) - 1;
+							} catch (NumberFormatException e) {
+								inv.event.getChannel()
+										.sendMessage(inv.event.getAuthor().getAsMention()
+												+ " this is not a valid question number: `" + inv.args[0] + '`')
+										.queue();
+								return;
+							}
+							if (numb < 0)
+								inv.event.getChannel()
+										.sendMessage(inv.event.getAuthor().getAsMention()
+												+ " this is not a valid question number: `" + inv.args[0] + '`')
+										.queue();
+							else {
+								var u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
+								var questions = u.getQuestions();
+								if (numb >= questions.size())
+									inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+											+ " you only have `" + questions.size() + "` questions!").queue();
+								else {
+									var q = questions.get(numb);
+									inv.event.getChannel()
+											.sendMessage(new EmbedBuilder().setColor(switch (q.getDifficulty()) {
+									case EASY:
+										yield Color.green;
+									case MEDIUM:
+										yield Color.yellow;
+									case HARD:
+										yield Color.red;
+									default:
+										yield Color.black;
+									}).setAuthor(
+											"Question #" + (numb + 1) + " [" + Utilities.format(q.getValue()) + ']')
+													.addField("\u200B", q.getQuestion(), false).build())
+											.queue();
+								}
+							}
+						} else if (inv.args.length == 0)
+							inv.event.getChannel()
+									.sendMessage(
+											inv.event.getAuthor().getAsMention() + " tell me which question to show.")
+									.queue();
+						else
+							inv.event.getChannel()
+									.sendMessage(inv.event.getAuthor().getAsMention() + " too many arguments! >:(")
+									.queue();
+					}
+				};
 				new Subcommand("delete", "remove", "del", "rem") {
 
 					@Override
@@ -583,8 +638,6 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 									@SuppressWarnings("unchecked")
 									Map<String, AskedQuiz> dim = (Map<String, AskedQuiz>) questionMap
 											.readDim(inv.event.getAuthor().getId());
-									System.out.println(dim);
-									System.out.println(q);
 									if (dim != null)
 										for (var e : dim.entrySet())
 											if (e.getValue().question == q) {
@@ -766,7 +819,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 							clover.getEventHandler().getMessageProcessor().registerInputConsumer(messageHandler.value);
 							questionMap.put(new AskedQuiz(q, messageHandler.value, reactionHandler.value),
 									inv.event.getAuthor().getId(), inv.event.getChannel().getId());
-							Color color = switch (q.getDifficulty()) {
+							inv.event.getChannel().sendMessage(new EmbedBuilder().setColor(switch (q.getDifficulty()) {
 							case EASY:
 								yield Color.green;
 							case MEDIUM:
@@ -775,9 +828,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 								yield Color.red;
 							default:
 								yield Color.black;
-							};
-							inv.event.getChannel().sendMessage(new EmbedBuilder().setColor(color)
-									.setAuthor("Question #" + (numb + 1) + " [" + Utilities.format(q.getValue()) + ']')
+							}).setAuthor("Question #" + (numb + 1) + " [" + Utilities.format(q.getValue()) + ']')
 									.addField("\u200B", q.getQuestion(), false).build()).queue();
 						}
 					}
