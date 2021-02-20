@@ -228,9 +228,9 @@ public class CloverCommandProcessor extends CommandProcessor {
 
 					if (payer.pay(bi, recip))
 						inv.event.getChannel()
-								.sendMessage(inv.event.getAuthor().getAsMention() + ", you paid `" + format(bi)
-										+ "` to " + mentionedUsers.get(0).getAsMention() + ". You now have `"
-										+ format(payer.getBalance()) + "`.")
+								.sendMessage(inv.event.getAuthor().getAsMention() + ", you paid " + format(bi)
+										+ " to " + mentionedUsers.get(0).getAsMention() + ". You now have "
+										+ format(payer.getBalance()) + ".")
 								.queue();
 					else
 						inv.event.getChannel()
