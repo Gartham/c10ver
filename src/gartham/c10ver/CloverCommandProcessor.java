@@ -24,6 +24,7 @@ import gartham.c10ver.commands.CommandHelpBook.CommandHelp;
 import gartham.c10ver.commands.CommandInvocation;
 import gartham.c10ver.commands.CommandProcessor;
 import gartham.c10ver.commands.MatchBasedCommand;
+import gartham.c10ver.commands.SimpleCommandProcessor;
 import gartham.c10ver.commands.consumers.InputConsumer;
 import gartham.c10ver.commands.consumers.MessageInputConsumer;
 import gartham.c10ver.data.PropertyObject;
@@ -42,64 +43,15 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
-public class CloverCommandProcessor extends CommandProcessor {
+public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 	private final Clover clover;
-	private final CommandHelpBook help = new CommandHelpBook(3);
 
 	public CloverCommandProcessor(Clover clover) {
 		this.clover = clover;
 	}
 
-	public void printHelp(EmbedBuilder builder, CommandHelp help) {
-		this.help.print(builder, help);
-	}
-
-	public void printHelp(MessageChannel channel, CommandHelp help) {
-		this.help.print(channel, help);
-	}
-
-	public void printHelp(MessageChannel channel, int page) {
-		help.print(channel, page);
-	}
-
-	public boolean printHelp(MessageChannel channel, String command, boolean allowAliases, boolean ignoreCase) {
-		return help.print(channel, command, allowAliases, ignoreCase);
-	}
-
 	{
-		final CommandHelp helpCommandHelp = help.addCommand("help", "Shows help for commands.",
-				"help [page-number|command-name]", "?");
-		register(new MatchBasedCommand("help", "?") {
-			@Override
-			public void exec(CommandInvocation inv) {
-				int page = 1;
-				FIRST_ARG: if (inv.args.length == 1) {
-					String arg;
-					if (!inv.args[0].startsWith("\\"))
-						try {
-							page = Integer.parseInt(inv.args[0]);
-							break FIRST_ARG;
-						} catch (final NumberFormatException e) {
-							arg = inv.args[0];
-						}
-					else
-						arg = inv.args[0].substring(1);
-					if (!printHelp(inv.event.getChannel(), arg, true, true))
-						inv.event.getChannel()
-								.sendMessage("No command with the name or alias: \"" + arg + "\" was found.").queue();
-					return;
-				} else if (inv.args.length > 1) {
-					inv.event.getChannel().sendMessage("Illegal number of arguments for command: " + inv.cmdName)
-							.queue();
-					printHelp(inv.event.getChannel(), helpCommandHelp);
-					return;
-				}
-				printHelp(inv.event.getChannel(), page);
-
-			}
-		});
-
 		help.addCommand("daily", "Receive daily rewards! You can only run this once a day.", "daily");
 		register(new MatchBasedCommand("daily") {
 			@Override
@@ -228,8 +180,8 @@ public class CloverCommandProcessor extends CommandProcessor {
 
 					if (payer.pay(bi, recip))
 						inv.event.getChannel()
-								.sendMessage(inv.event.getAuthor().getAsMention() + ", you paid " + format(bi)
-										+ " to " + mentionedUsers.get(0).getAsMention() + ". You now have "
+								.sendMessage(inv.event.getAuthor().getAsMention() + ", you paid " + format(bi) + " to "
+										+ mentionedUsers.get(0).getAsMention() + ". You now have "
 										+ format(payer.getBalance()) + ".")
 								.queue();
 					else
