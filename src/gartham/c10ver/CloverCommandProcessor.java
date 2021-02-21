@@ -22,10 +22,10 @@ import java.util.function.Consumer;
 import org.alixia.javalibrary.util.Box;
 import org.alixia.javalibrary.util.MultidimensionalMap;
 
+import gartham.c10ver.commands.CommandHelpBook.CommandHelp;
 import gartham.c10ver.commands.CommandInvocation;
 import gartham.c10ver.commands.MatchBasedCommand;
 import gartham.c10ver.commands.SimpleCommandProcessor;
-import gartham.c10ver.commands.CommandHelpBook.CommandHelp;
 import gartham.c10ver.commands.consumers.InputConsumer;
 import gartham.c10ver.commands.consumers.MessageInputConsumer;
 import gartham.c10ver.commands.subcommands.ParentCommand;
@@ -48,7 +48,6 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
-import zeale.apps.stuff_modules.discord.bots.taige.api.bots.DiscordBot;
 
 public class CloverCommandProcessor extends SimpleCommandProcessor {
 
@@ -1127,6 +1126,11 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 												inv.event.getAuthor().getAsMention() + " that's not a valid channel.")
 												.queue();
 										return;
+									default:
+										inv.event.getChannel().sendMessage(
+												inv.event.getAuthor().getAsMention() + " that isn't a valid property.")
+												.queue();
+										return;
 									}
 									s.save();
 								} else {
@@ -1142,9 +1146,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 							@Override
 							protected void tailed(SubcommandInvocation inv) {
 								if (inv.args.length == 0)
-									inv.event.getChannel()
-											.sendMessage(
-													inv.event.getAuthor().getAsMention() + " what do you want to set?")
+									inv.event.getChannel().sendMessage(
+											inv.event.getAuthor().getAsMention() + " what do you want to clear?")
 											.queue();
 								else if (inv.args.length == 1) {
 									Server s = clover.getEconomy().getServer(inv.event.getGuild().getId());
@@ -1166,8 +1169,16 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 										inv.event.getChannel().sendMessage("Unregistered the spam channel.").queue();
 										break;
 									case "color-roles":
+									case "color-role":
+									case "colorrole":
 										s.setColorRoles(new HashMap<>());
 										inv.event.getChannel().sendMessage("Cleared the color role list.").queue();
+										break;
+									default:
+										inv.event.getChannel().sendMessage(
+												inv.event.getAuthor().getAsMention() + " that isn't a valid property.")
+												.queue();
+										return;
 									}
 									s.save();
 								} else
@@ -1243,6 +1254,11 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 													.queue();
 											return;
 										}
+									default:
+										inv.event.getChannel().sendMessage(
+												inv.event.getAuthor().getAsMention() + " that isn't a valid property.")
+												.queue();
+										return;
 									}
 									s.save();
 								}
@@ -1293,6 +1309,11 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 										}
 										inv.event.getChannel().sendMessage(
 												inv.event.getAuthor().getAsMention() + " that's not a valid role.")
+												.queue();
+										return;
+									default:
+										inv.event.getChannel().sendMessage(
+												inv.event.getAuthor().getAsMention() + " that isn't a valid property.")
 												.queue();
 										return;
 									}
