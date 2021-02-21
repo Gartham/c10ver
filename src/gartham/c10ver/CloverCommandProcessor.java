@@ -930,6 +930,51 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 									.queue();
 					}
 				};
+
+				new Subcommand("configure") {
+
+					{
+						new Subcommand("set") {
+
+							@Override
+							protected void tailed(SubcommandInvocation inv) {
+								// TODO Auto-generated method stub
+							}
+						};
+
+						new Subcommand("clear") {
+
+							@Override
+							protected void tailed(SubcommandInvocation inv) {
+								// TODO Auto-generated method stub
+
+							}
+						};
+
+						new Subcommand("add") {
+
+							@Override
+							protected void tailed(SubcommandInvocation inv) {
+								// TODO Auto-generated method stub
+
+							}
+						};
+
+						new Subcommand("remove") {
+
+							@Override
+							protected void tailed(SubcommandInvocation inv) {
+								// TODO Auto-generated method stub
+
+							}
+						};
+					}
+
+					@Override
+					protected void tailed(SubcommandInvocation inv) {
+						// TODO Auto-generated method stub
+					}
+				};
 			}
 
 			public boolean match(CommandInvocation inv) {
