@@ -68,8 +68,10 @@ public class CommandHelpBook {
 	}
 
 	public void print(EmbedBuilder builder, CommandHelp help) {
-		builder.addField(help.name, "Description: " + help.description + "\n__Usage__: `" + help.usage + "`\nAliases: "
-				+ aliasesToString(true, help.aliases) + "\n\u200B", false);
+		String dsc = "Description: " + help.description + "\n__Usage__: `" + help.usage + '`';
+		if (help.aliases.length != 0)
+			dsc += "\nAliases: " + aliasesToString(true, help.aliases) + "\n\u200B";
+		builder.addField(help.name, dsc, false);
 	}
 
 	public void print(MessageChannel channel, CommandHelp help) {
