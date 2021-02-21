@@ -153,7 +153,44 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 			@Override
 			protected void tailed(CommandInvocation inv) {
-				
+				// TODO
+			}
+		});
+
+		register(new ParentCommand("color", "color-role") {
+
+			@Override
+			protected void tailed(CommandInvocation inv) {
+				if (inv.args.length == 0) {
+					var m = inv.event.getChannel()
+							.sendMessage(inv.event.getAuthor().getAsMention() + " what color do you want?");
+					if (clover.getEconomy().hasServer(inv.event.getGuild().getId())) {
+						Server s = clover.getEconomy().getServer(inv.event.getGuild().getId());
+						if (!s.getColorRoles().isEmpty()) {
+							EmbedBuilder eb = new EmbedBuilder();
+							StringBuilder sb = new StringBuilder();
+							sb.append("Color Roles:");
+							for (var e : s.getColorRoles().entrySet())
+								sb.append("\n\u2022 <@&").append(e.getKey()).append('>');
+
+							m.embed(eb.build()).queue();
+							return;
+						}
+					}
+					inv.event.getChannel().sendMessage("There are no color roles set up for this server yet.").queue();
+				} else if (inv.args.length == 1) {
+					if (clover.getEconomy().hasServer(inv.event.getGuild().getId())) {
+						Server s = clover.getEconomy().getServer(inv.event.getGuild().getId());
+						if (!s.getColorRoles().isEmpty()) {
+							// TODO
+							return;
+						}
+					}
+					inv.event.getChannel().sendMessage("There are no color roles set up for this server yet.").queue();
+				} else {
+					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+							+ " there are no color roles set up for this server yet.").queue();
+				}
 			}
 		});
 
