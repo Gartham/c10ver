@@ -284,4 +284,16 @@ public final class Utilities {
 		return CURRENCY_SYMBOL + ' ' + b.stripTrailingZeros().toPlainString() + m.symbol;
 	}
 
+	public static String strip(String msg) {
+		return stripEveryonePings(stripHerePings(msg));
+	}
+
+	public static String stripEveryonePings(String msg) {
+		return msg.replace("@everyone", "@\u200Beveryone");
+	}
+
+	public static String stripHerePings(String msg) {
+		return msg.replace("@here", "@\u200Bhere");
+	}
+
 }
