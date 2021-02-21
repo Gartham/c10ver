@@ -13,6 +13,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -931,7 +932,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					}
 				};
 
-				new Subcommand("configure") {
+				new Subcommand("configure", "config") {
 
 					{
 						new Subcommand("set") {
@@ -1029,8 +1030,39 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 							@Override
 							protected void tailed(SubcommandInvocation inv) {
-								// TODO Auto-generated method stub
-
+								if (inv.args.length == 0)
+									inv.event.getChannel()
+											.sendMessage(
+													inv.event.getAuthor().getAsMention() + " what do you want to set?")
+											.queue();
+								else if (inv.args.length == 1) {
+									Server s = clover.getEconomy().getServer(inv.event.getGuild().getId());
+									switch (inv.args[0]) {
+									case "general-channel":
+									case "general":
+										s.setGeneralChannel(null);
+										inv.event.getChannel().sendMessage("Unregistered the general channel.").queue();
+										break;
+									case "gambling-channel":
+									case "gambling":
+										s.setGamblingChannel(null);
+										inv.event.getChannel().sendMessage("Unregistered the gambling channel.")
+												.queue();
+										break;
+									case "spam-channel":
+									case "spam":
+										s.setSpamChannel(null);
+										inv.event.getChannel().sendMessage("Unregistered the spam channel.").queue();
+										break;
+									case "color-roles":
+										s.setColorRoles(new HashMap<>());
+										inv.event.getChannel().sendMessage("Cleared the color role list.").queue();
+									}
+									s.save();
+								} else
+									inv.event.getChannel().sendMessage(
+											inv.event.getAuthor().getAsMention() + " what do you want to clear?")
+											.queue();
 							}
 						};
 
@@ -1056,7 +1088,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					@Override
 					protected void tailed(SubcommandInvocation inv) {
 						inv.event.getChannel()
-								.sendMessage(inv.event.getAuthor().getAsMention() + " sepcify a subcommand.").queue();
+								.sendMessage(inv.event.getAuthor().getAsMention() + " sepcify a valid subcommand.")
+								.queue();
 					}
 				};
 			}
