@@ -182,11 +182,12 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						if (!s.getColorRoles().isEmpty()) {
 							EmbedBuilder eb = new EmbedBuilder();
 							StringBuilder sb = new StringBuilder();
-							sb.append("Color Roles:");
+							sb.append("Available Color Roles:");
 							for (var e : s.getColorRoles().entrySet())
-								sb.append("\n\u2022 <@&").append(e.getKey()).append('>');
-							sb.append("\n**NOTE:** You currently must pay **each** time you change your role.");
-
+								sb.append("\n<@&").append(e.getKey()).append("> ").append(e.getValue().getName())
+										.append(" **").append(format(e.getValue().getCost())).append("**");
+							sb.append("\n\n**NOTE:** You currently must pay **each** time you change your role.");
+							eb.setDescription(sb);
 							m.embed(eb.build()).queue();
 							return;
 						}
