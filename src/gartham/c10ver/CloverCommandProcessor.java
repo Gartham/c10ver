@@ -938,7 +938,90 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 							@Override
 							protected void tailed(SubcommandInvocation inv) {
-								// TODO Auto-generated method stub
+								if (inv.args.length == 0) {
+									inv.event.getChannel()
+											.sendMessage(
+													inv.event.getAuthor().getAsMention() + " what do you want to set?")
+											.queue();
+								} else if (inv.args.length == 1) {
+									inv.event.getChannel()
+											.sendMessage(inv.event.getAuthor().getAsMention() + " provide a value.")
+											.queue();
+								} else if (inv.args.length == 2) {
+									Server s = clover.getEconomy().getServer(inv.event.getGuild().getId());
+									switch (inv.args[0]) {
+									case "general-channel":
+									case "general":
+										CHANP: {
+											String cm = Utilities.parseChannelMention(inv.args[1]);
+											if (cm == null)
+												break CHANP;
+											Object o;
+											try {
+												o = inv.event.getGuild().getTextChannelById(cm);
+											} catch (NumberFormatException e) {
+												break CHANP;
+											}
+											if (o == null)
+												break CHANP;
+											s.setGeneralChannel(cm);
+											inv.event.getChannel().sendMessage("General channel set to <#" + cm + ">.")
+													.queue();
+											break;
+										}
+										inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+												+ " that's not a valid channel ID.").queue();
+										return;
+									case "gambling-channel":
+									case "gambling":
+										CHANP: {
+											String cm = Utilities.parseChannelMention(inv.args[1]);
+											if (cm == null)
+												break CHANP;
+											Object o;
+											try {
+												o = inv.event.getGuild().getTextChannelById(cm);
+											} catch (NumberFormatException e) {
+												break CHANP;
+											}
+											if (o == null)
+												break CHANP;
+											s.setGamblingChannel(cm);
+											inv.event.getChannel().sendMessage("Gambling channel set to <#" + cm + ">.")
+													.queue();
+										}
+										inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+												+ " that's not a valid channel ID.").queue();
+										return;
+									case "spam-channel":
+									case "spam":
+										CHANP: {
+											String cm = Utilities.parseChannelMention(inv.args[1]);
+											if (cm == null)
+												break CHANP;
+											Object o;
+											try {
+												o = inv.event.getGuild().getTextChannelById(cm);
+											} catch (NumberFormatException e) {
+												break CHANP;
+											}
+											if (o == null)
+												break CHANP;
+											s.setSpamChannel(cm);
+											inv.event.getChannel().sendMessage("Spam channel set to <#" + cm + ">.")
+													.queue();
+											break;
+										}
+										inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+												+ " that's not a valid channel ID.").queue();
+										return;
+									}
+									s.save();
+								} else {
+									inv.event.getChannel()
+											.sendMessage(inv.event.getAuthor().getAsMention() + " too many arguments.")
+											.queue();
+								}
 							}
 						};
 
@@ -972,7 +1055,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 					@Override
 					protected void tailed(SubcommandInvocation inv) {
-						// TODO Auto-generated method stub
+						inv.event.getChannel()
+								.sendMessage(inv.event.getAuthor().getAsMention() + " sepcify a subcommand.").queue();
 					}
 				};
 			}
