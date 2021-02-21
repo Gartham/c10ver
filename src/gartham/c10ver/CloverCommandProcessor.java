@@ -219,7 +219,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 										inv.event.getChannel().sendMessage("You already have that role.").queue();
 										return;
 									}
-									if (u.withdraw(cr.getCost())) {
+									if (inv.event.getMember().getTimeBoosted() != null || u.withdraw(cr.getCost())) {
 										u.save();
 										List<Role> roles = new ArrayList<>(inv.event.getMember().getRoles());
 										for (Iterator<Role> iterator = roles.iterator(); iterator.hasNext();)
