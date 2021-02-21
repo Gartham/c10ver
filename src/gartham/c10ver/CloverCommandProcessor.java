@@ -960,10 +960,9 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 								if (!s.getColorRoles().isEmpty()) {
 									sb.append("\nColor Roles:");
 									for (var e : s.getColorRoles().entrySet())
-										sb.append("\n\u2022 <@&").append(e.getKey()).append('>');// This will ping lots
-																									// of people if not
-																									// in
-																									// an embed!
+										sb.append("\n<@&").append(e.getKey()).append("> ")
+												.append(e.getValue().getName()).append(" **")
+												.append(format(e.getValue().getCost())).append("**");
 								} else if (s.getGeneralChannel() == null && s.getSpamChannel() == null
 										&& s.getGamblingChannel() == null)
 									sb.append("\nNothing has been configured for this server yet.");
