@@ -24,6 +24,7 @@ import org.alixia.javalibrary.util.MultidimensionalMap;
 import gartham.c10ver.commands.CommandInvocation;
 import gartham.c10ver.commands.MatchBasedCommand;
 import gartham.c10ver.commands.SimpleCommandProcessor;
+import gartham.c10ver.commands.CommandHelpBook.CommandHelp;
 import gartham.c10ver.commands.consumers.InputConsumer;
 import gartham.c10ver.commands.consumers.MessageInputConsumer;
 import gartham.c10ver.commands.subcommands.ParentCommand;
@@ -833,6 +834,21 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						}
 					}
 				}
+			}
+		});
+
+		register(new ParentCommand("setup") {
+
+			private final CommandHelp ch = help.addCommand("setup", "Server configuration and setup.",
+					"setup (subcommand >>>)");
+
+			public boolean match(CommandInvocation inv) {
+				return super.match(inv) && clover.isDev(inv.event.getAuthor());
+			}
+
+			@Override
+			protected void tailed(CommandInvocation inv) {
+				help.print(inv.event.getChannel(), ch);
 			}
 		});
 
