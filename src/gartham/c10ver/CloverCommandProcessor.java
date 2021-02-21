@@ -1139,8 +1139,55 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 							@Override
 							protected void tailed(SubcommandInvocation inv) {
-								// TODO Auto-generated method stub
-
+								if (inv.args.length == 0)
+									inv.event.getChannel().sendMessage(
+											inv.event.getAuthor().getAsMention() + " what do you want to remove from?")
+											.queue();
+								else if (inv.args.length == 1)
+									inv.event.getChannel()
+											.sendMessage(
+													inv.event.getAuthor().getAsMention() + " provide a value to remove.")
+											.queue();
+								else if (inv.args.length == 2) {
+									Server s = clover.getEconomy().getServer(inv.event.getGuild().getId());
+									switch (inv.args[0]) {
+									case "color-roles":
+									case "color-role":
+									case "colorrole":
+										ROLEP: {
+											String cm = Utilities.parseChannelMention(inv.args[1]);
+											if (cm == null)
+												cm = inv.args[1];
+											Object o;
+											try {
+												o = inv.event.getGuild().getRoleById(cm);
+											} catch (NumberFormatException e) {
+												break ROLEP;
+											}
+											if (o == null)
+												break ROLEP;
+											if (s.getColorRoles().containsKey(cm)) {
+												s.getColorRoles().remove(cm);
+												inv.event.getChannel().sendMessage("Removed the role successfully.")
+														.queue();
+											} else {
+												inv.event.getChannel()
+														.sendMessage("That role is not in the color roles list.")
+														.queue();
+												return;
+											}
+											break;
+										}
+										inv.event.getChannel().sendMessage(
+												inv.event.getAuthor().getAsMention() + " that's not a valid role.")
+												.queue();
+										return;
+									}
+									s.save();
+								} else
+									inv.event.getChannel()
+											.sendMessage(inv.event.getAuthor().getAsMention() + " too many arguments.")
+											.queue();
 							}
 						};
 					}
