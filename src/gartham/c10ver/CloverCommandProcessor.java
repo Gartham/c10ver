@@ -39,6 +39,7 @@ import gartham.c10ver.economy.items.LootCrateItem;
 import gartham.c10ver.economy.items.LootCrateItem.CrateType;
 import gartham.c10ver.economy.questions.Question;
 import gartham.c10ver.economy.questions.Question.Difficulty;
+import gartham.c10ver.economy.server.ColorRole;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
@@ -959,10 +960,9 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 								if (!s.getColorRoles().isEmpty()) {
 									sb.append("\nColor Roles:");
 									for (var e : s.getColorRoles().entrySet())
-										sb.append("\n\u2022 <@&").append(e.getKey()).append('>');// This will ping lots
-																									// of people if not
-																									// in
-																									// an embed!
+										sb.append("\n<@&").append(e.getKey()).append("> ")
+												.append(e.getValue().getName()).append(" **")
+												.append(format(e.getValue().getCost())).append("**");
 								} else if (s.getGeneralChannel() == null && s.getSpamChannel() == null
 										&& s.getGamblingChannel() == null)
 									sb.append("\nNothing has been configured for this server yet.");
@@ -1128,7 +1128,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 											.sendMessage(
 													inv.event.getAuthor().getAsMention() + " provide a value to add.")
 											.queue();
-								} else if (inv.args.length >= 2) {
+								} else {
 									Server s = clover.getEconomy().getServer(inv.event.getGuild().getId());
 									switch (inv.args[0]) {
 									case "color-roles":
@@ -1136,45 +1136,51 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 									case "colorrole":
 										if (inv.args.length == 2) {
 											inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+													+ " provide a name and cost for the role.").queue();
+											return;
+										} else if (inv.args.length == 3) {
+											inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
 													+ " provide a cost to for the role.").queue();
 											return;
-										} else if (inv.args.length != 3) {
+										} else if (inv.args.length == 4) {
+											ROLEP: {
+												String cm = Utilities.parseChannelMention(inv.args[1]);
+												if (cm == null)
+													cm = inv.args[1];
+												Object o;
+												try {
+													o = inv.event.getGuild().getRoleById(cm);
+												} catch (NumberFormatException e) {
+													break ROLEP;
+												}
+												if (o == null)
+													break ROLEP;
+												BigInteger cost;
+												try {
+													cost = new BigInteger(inv.args[3]);
+												} catch (NumberFormatException e) {
+													inv.event.getChannel().sendMessage(
+															"Your last argument when adding a color role must be a cost.")
+															.queue();
+													return;
+												}
+												if (s.getColorRoles().isEmpty())
+													s.setColorRoles(new HashMap<>());
+												s.getColorRoles().put(cm, new ColorRole(inv.args[2], cm, cost));
+												inv.event.getChannel().sendMessage("Added the role successfully.")
+														.queue();
+												break;
+											}
+											inv.event.getChannel().sendMessage(
+													inv.event.getAuthor().getAsMention() + " that's not a valid role.")
+													.queue();
+											return;
+										} else {
 											inv.event.getChannel().sendMessage(
 													inv.event.getAuthor().getAsMention() + " too many arguments.")
 													.queue();
 											return;
 										}
-										ROLEP: {
-											String cm = Utilities.parseChannelMention(inv.args[1]);
-											if (cm == null)
-												cm = inv.args[1];
-											Object o;
-											try {
-												o = inv.event.getGuild().getRoleById(cm);
-											} catch (NumberFormatException e) {
-												break ROLEP;
-											}
-											if (o == null)
-												break ROLEP;
-											BigInteger cost;
-											try {
-												cost = new BigInteger(inv.args[2]);
-											} catch (NumberFormatException e) {
-												inv.event.getChannel().sendMessage(
-														"Your last argument when adding a color role must be a cost.")
-														.queue();
-												return;
-											}
-											if (s.getColorRoles().isEmpty())
-												s.setColorRoles(new HashMap<>());
-											s.getColorRoles().put(cm, cost);
-											inv.event.getChannel().sendMessage("Added the role successfully.").queue();
-											break;
-										}
-										inv.event.getChannel().sendMessage(
-												inv.event.getAuthor().getAsMention() + " that's not a valid role.")
-												.queue();
-										return;
 									}
 									s.save();
 								}

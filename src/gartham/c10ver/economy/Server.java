@@ -1,16 +1,16 @@
 package gartham.c10ver.economy;
 
 import java.io.File;
-import java.math.BigInteger;
 import java.util.Map;
 
 import gartham.c10ver.data.autosave.SavablePropertyObject;
+import gartham.c10ver.economy.server.ColorRole;
 import net.dv8tion.jda.api.entities.MessageChannel;
 
 public class Server extends SavablePropertyObject {
 	// TODO Specify mapProperty's partial immutability.
-	private final Property<Map<String, BigInteger>> colorRoles = mapProperty("color-roles", Map.of(),
-			toStringGateway(BigInteger::new));
+	private final Property<Map<String, ColorRole>> colorRoles = mapProperty("color-roles", Map.of(),
+			toObjectGateway(ColorRole::new));
 	private final Property<String> generalChannel = stringProperty("general-channel"),
 			spamChannel = stringProperty("spam-channel"), gamblingChannel = stringProperty("gambling-channel");
 	private final String serverID;
@@ -19,11 +19,11 @@ public class Server extends SavablePropertyObject {
 		return serverID;
 	}
 
-	public Map<String, BigInteger> getColorRoles() {
+	public Map<String, ColorRole> getColorRoles() {
 		return colorRoles.get();
 	}
 
-	public void setColorRoles(Map<String, BigInteger> colorRoles) {
+	public void setColorRoles(Map<String, ColorRole> colorRoles) {
 		this.colorRoles.set(colorRoles);
 	}
 
