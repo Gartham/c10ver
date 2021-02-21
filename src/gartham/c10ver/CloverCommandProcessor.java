@@ -861,8 +861,14 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 								var serv = clover.getEconomy().getServer(inv.event.getGuild().getId());
 								if (inv.args.length == 1) {
 									Object o;
+									String cm = Utilities.parseChannelMention(inv.args[0]);
+									if (cm == null) {
+										inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+												+ " that's not a valid channel ID.").queue();
+										return;
+									}
 									try {
-										o = inv.event.getGuild().getTextChannelById(inv.args[0]);
+										o = inv.event.getGuild().getTextChannelById(cm);
 									} catch (NumberFormatException e) {
 										inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
 												+ " that's not a valid channel ID.").queue();
@@ -873,7 +879,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 												+ " that's not a valid channel ID.").queue();
 										return;
 									}
-									serv.setGeneralChannel(inv.args[0]);
+									serv.setGeneralChannel(cm);
 								} else if (inv.args.length != 0) {
 									inv.event.getChannel().sendMessage(
 											inv.event.getAuthor().getAsMention() + " too many arguments provided.")
@@ -910,7 +916,9 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 										sb.append("\n\t<@&").append(e.getKey()).append('>');// This will ping lots
 																							// of people if not in
 																							// an embed!
-								}
+								} else if (s.getGeneralChannel() == null && s.getSpamChannel() == null
+										&& s.getGamblingChannel() == null)
+									sb.append("\nNothing has been configured for this server yet.");
 								EmbedBuilder eb = new EmbedBuilder().setDescription(sb.toString());
 								inv.event.getChannel().sendMessage(eb.build()).queue();
 							} else
