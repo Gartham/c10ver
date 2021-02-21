@@ -12,6 +12,11 @@ public class Server extends SavablePropertyObject {
 			(Map<String, BigInteger>) new HashMap<String, BigInteger>(), toStringGateway(BigInteger::new));
 	private final Property<String> generalChannel = stringProperty("general-channel"),
 			spamChannel = stringProperty("spam-channel"), gamblingChannel = stringProperty("gambling-channel");
+	private final String serverID;
+
+	public String getServerID() {
+		return serverID;
+	}
 
 	public Map<String, BigInteger> getColorRoles() {
 		return colorRoles.get();
@@ -51,6 +56,7 @@ public class Server extends SavablePropertyObject {
 
 	public Server(File saveLocation, boolean load) {
 		super(new File(saveLocation, "server-data.txt"));
+		serverID = saveLocation.getName();
 		if (load)
 			load();
 	}
