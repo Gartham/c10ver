@@ -1119,6 +1119,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 														.queue();
 												return;
 											}
+											if (s.getColorRoles().isEmpty())
+												s.setColorRoles(new HashMap<>());
 											s.getColorRoles().put(cm, cost);
 											inv.event.getChannel().sendMessage("Added the role successfully.").queue();
 											break;

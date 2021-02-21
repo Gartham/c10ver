@@ -2,14 +2,14 @@ package gartham.c10ver.economy;
 
 import java.io.File;
 import java.math.BigInteger;
-import java.util.HashMap;
 import java.util.Map;
 
 import gartham.c10ver.data.autosave.SavablePropertyObject;
 
 public class Server extends SavablePropertyObject {
-	private final Property<Map<String, BigInteger>> colorRoles = mapProperty("color-roles",
-			(Map<String, BigInteger>) new HashMap<String, BigInteger>(), toStringGateway(BigInteger::new));
+	// TODO Specify mapProperty's partial immutability.
+	private final Property<Map<String, BigInteger>> colorRoles = mapProperty("color-roles", Map.of(),
+			toStringGateway(BigInteger::new));
 	private final Property<String> generalChannel = stringProperty("general-channel"),
 			spamChannel = stringProperty("spam-channel"), gamblingChannel = stringProperty("gambling-channel");
 	private final String serverID;
