@@ -30,6 +30,7 @@ import gartham.c10ver.commands.subcommands.ParentCommand;
 import gartham.c10ver.commands.subcommands.SubcommandInvocation;
 import gartham.c10ver.data.PropertyObject;
 import gartham.c10ver.economy.Account;
+import gartham.c10ver.economy.Server;
 import gartham.c10ver.economy.User;
 import gartham.c10ver.economy.items.Inventory;
 import gartham.c10ver.economy.items.Inventory.Entry;
@@ -873,11 +874,52 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 										return;
 									}
 									serv.setGeneralChannel(inv.args[0]);
+								} else if (inv.args.length != 0) {
+									inv.event.getChannel().sendMessage(
+											inv.event.getAuthor().getAsMention() + " too many arguments provided.")
+											.queue();
 								}
 								inv.event.getChannel().sendMessage("Registered this server.").queue();
 								serv.save();
 							}
 						}
+					}
+				};
+
+				new Subcommand("view") {
+
+					@Override
+					protected void tailed(SubcommandInvocation inv) {
+						if (inv.event.isFromGuild())
+							if (inv.args.length != 0)
+								inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+										+ " that subcommand doesn't take arguments.").queue();
+							else if (clover.getEconomy().hasServer(inv.event.getGuild().getId())) {
+								StringBuilder sb = new StringBuilder();
+								Server s = clover.getEconomy().getServer(inv.event.getGuild().getId());
+								sb.append("**Server Info:**");
+								if (s.getGeneralChannel() != null)
+									sb.append("\nGeneral Channel: <#").append(s.getGeneralChannel()).append('>');
+								if (s.getSpamChannel() != null)
+									sb.append("\nSpam Channel: <#").append(s.getSpamChannel()).append('>');
+								if (s.getGamblingChannel() != null)
+									sb.append("\nGambling Channel: <#").append(s.getGamblingChannel()).append('>');
+								if (!s.getColorRoles().isEmpty()) {
+									sb.append("\nColor Roles:");
+									for (var e : s.getColorRoles().entrySet())
+										sb.append("\n\t<@&").append(e.getKey()).append('>');// This will ping lots
+																							// of people if not in
+																							// an embed!
+								}
+								EmbedBuilder eb = new EmbedBuilder().setDescription(sb.toString());
+								inv.event.getChannel().sendMessage(eb.build()).queue();
+							} else
+								inv.event.getChannel().sendMessage("This server is not yet registered with me.")
+										.queue();
+						else
+							inv.event.getChannel().sendMessage(
+									inv.event.getAuthor().getAsMention() + " you can only run that in a server.")
+									.queue();
 					}
 				};
 			}
