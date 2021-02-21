@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.util.Map;
 
 import gartham.c10ver.data.autosave.SavablePropertyObject;
+import net.dv8tion.jda.api.entities.MessageChannel;
 
 public class Server extends SavablePropertyObject {
 	// TODO Specify mapProperty's partial immutability.
@@ -48,6 +49,18 @@ public class Server extends SavablePropertyObject {
 
 	public void setGamblingChannel(String channelID) {
 		gamblingChannel.set(channelID);
+	}
+
+	public boolean isGeneral(MessageChannel mc) {
+		return mc != null && mc.getId().equals(getGeneralChannel());
+	}
+
+	public boolean isGambling(MessageChannel mc) {
+		return mc != null && mc.getId().equals(getGamblingChannel());
+	}
+
+	public boolean isSpam(MessageChannel mc) {
+		return mc != null && mc.getId().equals(getSpamChannel());
 	}
 
 	public Server(File saveLocation) {
