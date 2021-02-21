@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -43,8 +44,10 @@ import gartham.c10ver.economy.server.ColorRole;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.exceptions.PermissionException;
 import zeale.apps.stuff_modules.discord.bots.taige.api.bots.DiscordBot;
 
 public class CloverCommandProcessor extends SimpleCommandProcessor {
@@ -154,10 +157,19 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 			@Override
 			protected void tailed(CommandInvocation inv) {
-				// TODO
+				if (inv.event.isFromGuild()) {
+					if (!clover.getEconomy().hasServer(inv.event.getGuild().getId())) {
+						inv.event.getChannel().sendMessage("There is nothing in the shop yet...").queue();
+					} else {
+						EmbedBuilder eb = new EmbedBuilder();
+					}
+				} else {
+					inv.event.getChannel().sendMessage("You must be in a guild to use that command.").queue();
+				}
 			}
 		});
 
+		help.addCommand("color", "Lets you purchase a color role.", "color ", "color-role");
 		register(new ParentCommand("color", "color-role") {
 
 			@Override
@@ -173,6 +185,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 							sb.append("Color Roles:");
 							for (var e : s.getColorRoles().entrySet())
 								sb.append("\n\u2022 <@&").append(e.getKey()).append('>');
+							sb.append("\n**NOTE:** You currently must pay **each** time you change your role.");
 
 							m.embed(eb.build()).queue();
 							return;
@@ -183,7 +196,55 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					if (clover.getEconomy().hasServer(inv.event.getGuild().getId())) {
 						Server s = clover.getEconomy().getServer(inv.event.getGuild().getId());
 						if (!s.getColorRoles().isEmpty()) {
-							// TODO
+							var u = clover.getEconomy().getAccount(inv.event.getAuthor().getId());
+							for (ColorRole cr : s.getColorRoles().values())
+								if (cr.getName().equalsIgnoreCase(inv.args[0])) {
+									Role role;
+									try {
+										role = inv.event.getGuild().getRoleById(cr.getID());
+									} catch (NumberFormatException e) {
+										e.printStackTrace();
+										inv.event.getChannel().sendMessage(
+												"There is something wrong with that role. Please contact staff.")
+												.queue();
+										return;
+									}
+									if (role == null) {
+										inv.event.getChannel().sendMessage(
+												"There is something wrong with that role. Please contact staff.")
+												.queue();
+										return;
+									}
+									if (inv.event.getMember().getRoles().contains(role)) {
+										inv.event.getChannel().sendMessage("You already have that role.").queue();
+										return;
+									}
+									if (u.withdraw(cr.getCost())) {
+										u.save();
+										List<Role> roles = new ArrayList<>(inv.event.getMember().getRoles());
+										for (Iterator<Role> iterator = roles.iterator(); iterator.hasNext();)
+											if (s.getColorRoles().containsKey(iterator.next().getId()))
+												iterator.remove();
+										roles.add(role);
+										try {
+											inv.event.getGuild().modifyMemberRoles(inv.event.getMember(), roles)
+													.queue();
+										} catch (PermissionException e) {
+											inv.event.getChannel().sendMessage(
+													"I'm missing permissions to do that. Please tell staff! (**Don't run the command again,** you might lose cloves.)")
+													.queue();
+											return;
+										}
+										inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+												+ " your color is now " + cr.getName() + "!").queue();
+									} else
+										inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+												+ " you don't have enough money to apply that role!").queue();
+									return;
+								}
+							inv.event.getChannel().sendMessage(
+									inv.event.getAuthor().getAsMention() + " couldn't find a role for that color.")
+									.queue();
 							return;
 						}
 					}
