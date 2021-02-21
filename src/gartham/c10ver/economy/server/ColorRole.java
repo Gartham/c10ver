@@ -2,6 +2,9 @@ package gartham.c10ver.economy.server;
 
 import java.math.BigInteger;
 
+import org.alixia.javalibrary.json.JSONObject;
+import org.alixia.javalibrary.json.JSONValue;
+
 import gartham.c10ver.data.PropertyObject;
 
 public class ColorRole extends PropertyObject {
@@ -30,5 +33,15 @@ public class ColorRole extends PropertyObject {
 
 	public void setCost(BigInteger cost) {
 		this.cost.set(cost);
+	}
+
+	public ColorRole(String name, String id, BigInteger cost) {
+		setName(name);
+		setID(id);
+		setCost(cost);
+	}
+
+	public ColorRole(JSONValue json) {
+		load((JSONObject) json);
 	}
 }
