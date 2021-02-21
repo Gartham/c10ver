@@ -79,6 +79,32 @@ public final class Utilities {
 		return m.substring(0, m.length() - nmo.length());
 	}
 
+	public static String parseChannelMention(String mention) {
+		var m = Matching.build("<#").match(mention);
+		if (m.length() == mention.length())
+			return null;
+		var nmo = Matching.numbers().match(m);
+		if (nmo.length() == m.length())
+			return null;
+		var res = Matching.build(">").match(nmo);
+		if (res.length() == nmo.length())
+			return null;
+		return m.substring(0, m.length() - nmo.length());
+	}
+
+	public static String parseRoleMention(String mention) {
+		var m = Matching.build("<@&").match(mention);
+		if (m.length() == mention.length())
+			return null;
+		var nmo = Matching.numbers().match(m);
+		if (nmo.length() == m.length())
+			return null;
+		var res = Matching.build(">").match(nmo);
+		if (res.length() == nmo.length())
+			return null;
+		return m.substring(0, m.length() - nmo.length());
+	}
+
 	public static void save(JSONValue obj, File file) {
 		file.getParentFile().mkdirs();
 		try {

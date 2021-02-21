@@ -11,9 +11,9 @@ import java.math.BigInteger;
 import java.text.NumberFormat;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -24,12 +24,14 @@ import org.alixia.javalibrary.util.MultidimensionalMap;
 import gartham.c10ver.commands.CommandInvocation;
 import gartham.c10ver.commands.MatchBasedCommand;
 import gartham.c10ver.commands.SimpleCommandProcessor;
+import gartham.c10ver.commands.CommandHelpBook.CommandHelp;
 import gartham.c10ver.commands.consumers.InputConsumer;
 import gartham.c10ver.commands.consumers.MessageInputConsumer;
 import gartham.c10ver.commands.subcommands.ParentCommand;
 import gartham.c10ver.commands.subcommands.SubcommandInvocation;
 import gartham.c10ver.data.PropertyObject;
 import gartham.c10ver.economy.Account;
+import gartham.c10ver.economy.Server;
 import gartham.c10ver.economy.User;
 import gartham.c10ver.economy.items.Inventory;
 import gartham.c10ver.economy.items.Inventory.Entry;
@@ -42,6 +44,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import zeale.apps.stuff_modules.discord.bots.taige.api.bots.DiscordBot;
 
 public class CloverCommandProcessor extends SimpleCommandProcessor {
 
@@ -143,6 +146,14 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 							+ " is getting their monthly rewards!!!\n\n**Rewards:**\n" + listRewards(amt, mult, rewards)
 							+ "\nTotal Cloves: " + format(u.getAccount().getBalance())).queue();
 				}
+			}
+		});
+
+		register(new ParentCommand("shop", "market") {
+
+			@Override
+			protected void tailed(CommandInvocation inv) {
+				
 			}
 		});
 
@@ -833,6 +844,378 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						}
 					}
 				}
+			}
+		});
+
+		register(new ParentCommand("setup") {
+
+			private final CommandHelp ch = help.addCommand("setup", "Server configuration and setup.",
+					"setup (subcommand >>>)");
+
+			{
+				new Subcommand("register", "create", "new") {
+					// Syntax:
+					// setup register [general-channel]
+					@Override
+					protected void tailed(SubcommandInvocation inv) {
+						if (!inv.event.isFromGuild()) {
+							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+									+ " you can only use that command in a server.").queue();
+						} else {
+							if (clover.getEconomy().hasServer(inv.event.getGuild().getId())) {
+								inv.event.getChannel().sendMessage(
+										inv.event.getAuthor().getAsMention() + " this server is already registered.")
+										.queue();
+							} else {
+								var serv = clover.getEconomy().getServer(inv.event.getGuild().getId());
+								if (inv.args.length == 1) {
+									Object o;
+									String cm = Utilities.parseChannelMention(inv.args[0]);
+									if (cm == null) {
+										inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+												+ " that's not a valid channel ID.").queue();
+										return;
+									}
+									try {
+										o = inv.event.getGuild().getTextChannelById(cm);
+									} catch (NumberFormatException e) {
+										inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+												+ " that's not a valid channel ID.").queue();
+										return;
+									}
+									if (o == null) {
+										inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+												+ " that's not a valid channel ID.").queue();
+										return;
+									}
+									serv.setGeneralChannel(cm);
+								} else if (inv.args.length != 0) {
+									inv.event.getChannel().sendMessage(
+											inv.event.getAuthor().getAsMention() + " too many arguments provided.")
+											.queue();
+								}
+								inv.event.getChannel().sendMessage("Registered this server.").queue();
+								serv.save();
+							}
+						}
+					}
+				};
+
+				new Subcommand("view") {
+
+					@Override
+					protected void tailed(SubcommandInvocation inv) {
+						if (inv.event.isFromGuild())
+							if (inv.args.length != 0)
+								inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+										+ " that subcommand doesn't take arguments.").queue();
+							else if (clover.getEconomy().hasServer(inv.event.getGuild().getId())) {
+								StringBuilder sb = new StringBuilder();
+								Server s = clover.getEconomy().getServer(inv.event.getGuild().getId());
+								sb.append("**Server Info:**");
+								if (s.getGeneralChannel() != null)
+									sb.append("\nGeneral Channel: <#").append(s.getGeneralChannel()).append('>');
+								if (s.getSpamChannel() != null)
+									sb.append("\nSpam Channel: <#").append(s.getSpamChannel()).append('>');
+								if (s.getGamblingChannel() != null)
+									sb.append("\nGambling Channel: <#").append(s.getGamblingChannel()).append('>');
+								if (!s.getColorRoles().isEmpty()) {
+									sb.append("\nColor Roles:");
+									for (var e : s.getColorRoles().entrySet())
+										sb.append("\n\u2022 <@&").append(e.getKey()).append('>');// This will ping lots
+																									// of people if not
+																									// in
+																									// an embed!
+								} else if (s.getGeneralChannel() == null && s.getSpamChannel() == null
+										&& s.getGamblingChannel() == null)
+									sb.append("\nNothing has been configured for this server yet.");
+								EmbedBuilder eb = new EmbedBuilder().setDescription(sb.toString());
+								inv.event.getChannel().sendMessage(eb.build()).queue();
+							} else
+								inv.event.getChannel().sendMessage("This server is not yet registered with me.")
+										.queue();
+						else
+							inv.event.getChannel().sendMessage(
+									inv.event.getAuthor().getAsMention() + " you can only run that in a server.")
+									.queue();
+					}
+				};
+
+				new Subcommand("configure", "config") {
+
+					{
+						new Subcommand("set") {
+
+							@Override
+							protected void tailed(SubcommandInvocation inv) {
+								if (inv.args.length == 0) {
+									inv.event.getChannel()
+											.sendMessage(
+													inv.event.getAuthor().getAsMention() + " what do you want to set?")
+											.queue();
+								} else if (inv.args.length == 1) {
+									inv.event.getChannel()
+											.sendMessage(inv.event.getAuthor().getAsMention() + " provide a value.")
+											.queue();
+								} else if (inv.args.length == 2) {
+									Server s = clover.getEconomy().getServer(inv.event.getGuild().getId());
+									switch (inv.args[0]) {
+									case "general-channel":
+									case "general":
+										CHANP: {
+											String cm = Utilities.parseChannelMention(inv.args[1]);
+											if (cm == null)
+												break CHANP;
+											Object o;
+											try {
+												o = inv.event.getGuild().getTextChannelById(cm);
+											} catch (NumberFormatException e) {
+												break CHANP;
+											}
+											if (o == null)
+												break CHANP;
+											s.setGeneralChannel(cm);
+											inv.event.getChannel().sendMessage("General channel set to <#" + cm + ">.")
+													.queue();
+											break;
+										}
+										inv.event.getChannel().sendMessage(
+												inv.event.getAuthor().getAsMention() + " that's not a valid channel.")
+												.queue();
+										return;
+									case "gambling-channel":
+									case "gambling":
+										CHANP: {
+											String cm = Utilities.parseChannelMention(inv.args[1]);
+											if (cm == null)
+												break CHANP;
+											Object o;
+											try {
+												o = inv.event.getGuild().getTextChannelById(cm);
+											} catch (NumberFormatException e) {
+												break CHANP;
+											}
+											if (o == null)
+												break CHANP;
+											s.setGamblingChannel(cm);
+											inv.event.getChannel().sendMessage("Gambling channel set to <#" + cm + ">.")
+													.queue();
+										}
+										inv.event.getChannel().sendMessage(
+												inv.event.getAuthor().getAsMention() + " that's not a valid channel.")
+												.queue();
+										return;
+									case "spam-channel":
+									case "spam":
+										CHANP: {
+											String cm = Utilities.parseChannelMention(inv.args[1]);
+											if (cm == null)
+												break CHANP;
+											Object o;
+											try {
+												o = inv.event.getGuild().getTextChannelById(cm);
+											} catch (NumberFormatException e) {
+												break CHANP;
+											}
+											if (o == null)
+												break CHANP;
+											s.setSpamChannel(cm);
+											inv.event.getChannel().sendMessage("Spam channel set to <#" + cm + ">.")
+													.queue();
+											break;
+										}
+										inv.event.getChannel().sendMessage(
+												inv.event.getAuthor().getAsMention() + " that's not a valid channel.")
+												.queue();
+										return;
+									}
+									s.save();
+								} else {
+									inv.event.getChannel()
+											.sendMessage(inv.event.getAuthor().getAsMention() + " too many arguments.")
+											.queue();
+								}
+							}
+						};
+
+						new Subcommand("clear") {
+
+							@Override
+							protected void tailed(SubcommandInvocation inv) {
+								if (inv.args.length == 0)
+									inv.event.getChannel()
+											.sendMessage(
+													inv.event.getAuthor().getAsMention() + " what do you want to set?")
+											.queue();
+								else if (inv.args.length == 1) {
+									Server s = clover.getEconomy().getServer(inv.event.getGuild().getId());
+									switch (inv.args[0]) {
+									case "general-channel":
+									case "general":
+										s.setGeneralChannel(null);
+										inv.event.getChannel().sendMessage("Unregistered the general channel.").queue();
+										break;
+									case "gambling-channel":
+									case "gambling":
+										s.setGamblingChannel(null);
+										inv.event.getChannel().sendMessage("Unregistered the gambling channel.")
+												.queue();
+										break;
+									case "spam-channel":
+									case "spam":
+										s.setSpamChannel(null);
+										inv.event.getChannel().sendMessage("Unregistered the spam channel.").queue();
+										break;
+									case "color-roles":
+										s.setColorRoles(new HashMap<>());
+										inv.event.getChannel().sendMessage("Cleared the color role list.").queue();
+									}
+									s.save();
+								} else
+									inv.event.getChannel().sendMessage(
+											inv.event.getAuthor().getAsMention() + " what do you want to clear?")
+											.queue();
+							}
+						};
+
+						new Subcommand("add") {
+
+							@Override
+							protected void tailed(SubcommandInvocation inv) {
+								if (inv.args.length == 0) {
+									inv.event.getChannel().sendMessage(
+											inv.event.getAuthor().getAsMention() + " what do you want to add to?")
+											.queue();
+								} else if (inv.args.length == 1) {
+									inv.event.getChannel()
+											.sendMessage(
+													inv.event.getAuthor().getAsMention() + " provide a value to add.")
+											.queue();
+								} else if (inv.args.length >= 2) {
+									Server s = clover.getEconomy().getServer(inv.event.getGuild().getId());
+									switch (inv.args[0]) {
+									case "color-roles":
+									case "color-role":
+									case "colorrole":
+										if (inv.args.length == 2) {
+											inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+													+ " provide a cost to for the role.").queue();
+											return;
+										} else if (inv.args.length != 3) {
+											inv.event.getChannel().sendMessage(
+													inv.event.getAuthor().getAsMention() + " too many arguments.")
+													.queue();
+											return;
+										}
+										ROLEP: {
+											String cm = Utilities.parseChannelMention(inv.args[1]);
+											if (cm == null)
+												cm = inv.args[1];
+											Object o;
+											try {
+												o = inv.event.getGuild().getRoleById(cm);
+											} catch (NumberFormatException e) {
+												break ROLEP;
+											}
+											if (o == null)
+												break ROLEP;
+											BigInteger cost;
+											try {
+												cost = new BigInteger(inv.args[2]);
+											} catch (NumberFormatException e) {
+												inv.event.getChannel().sendMessage(
+														"Your last argument when adding a color role must be a cost.")
+														.queue();
+												return;
+											}
+											if (s.getColorRoles().isEmpty())
+												s.setColorRoles(new HashMap<>());
+											s.getColorRoles().put(cm, cost);
+											inv.event.getChannel().sendMessage("Added the role successfully.").queue();
+											break;
+										}
+										inv.event.getChannel().sendMessage(
+												inv.event.getAuthor().getAsMention() + " that's not a valid role.")
+												.queue();
+										return;
+									}
+									s.save();
+								}
+							}
+						};
+
+						new Subcommand("remove") {
+
+							@Override
+							protected void tailed(SubcommandInvocation inv) {
+								if (inv.args.length == 0)
+									inv.event.getChannel().sendMessage(
+											inv.event.getAuthor().getAsMention() + " what do you want to remove from?")
+											.queue();
+								else if (inv.args.length == 1)
+									inv.event.getChannel().sendMessage(
+											inv.event.getAuthor().getAsMention() + " provide a value to remove.")
+											.queue();
+								else if (inv.args.length == 2) {
+									Server s = clover.getEconomy().getServer(inv.event.getGuild().getId());
+									switch (inv.args[0]) {
+									case "color-roles":
+									case "color-role":
+									case "colorrole":
+										ROLEP: {
+											String cm = Utilities.parseChannelMention(inv.args[1]);
+											if (cm == null)
+												cm = inv.args[1];
+											Object o;
+											try {
+												o = inv.event.getGuild().getRoleById(cm);
+											} catch (NumberFormatException e) {
+												break ROLEP;
+											}
+											if (o == null)
+												break ROLEP;
+											if (s.getColorRoles().containsKey(cm)) {
+												s.getColorRoles().remove(cm);
+												inv.event.getChannel().sendMessage("Removed the role successfully.")
+														.queue();
+											} else {
+												inv.event.getChannel()
+														.sendMessage("That role is not in the color roles list.")
+														.queue();
+												return;
+											}
+											break;
+										}
+										inv.event.getChannel().sendMessage(
+												inv.event.getAuthor().getAsMention() + " that's not a valid role.")
+												.queue();
+										return;
+									}
+									s.save();
+								} else
+									inv.event.getChannel()
+											.sendMessage(inv.event.getAuthor().getAsMention() + " too many arguments.")
+											.queue();
+							}
+						};
+					}
+
+					@Override
+					protected void tailed(SubcommandInvocation inv) {
+						inv.event.getChannel()
+								.sendMessage(inv.event.getAuthor().getAsMention() + " sepcify a valid subcommand.")
+								.queue();
+					}
+				};
+			}
+
+			public boolean match(CommandInvocation inv) {
+				return super.match(inv) && clover.isDev(inv.event.getAuthor());
+			}
+
+			@Override
+			protected void tailed(CommandInvocation inv) {
+				help.print(inv.event.getChannel(), ch);
 			}
 		});
 

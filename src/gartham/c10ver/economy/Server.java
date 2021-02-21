@@ -2,16 +2,22 @@ package gartham.c10ver.economy;
 
 import java.io.File;
 import java.math.BigInteger;
-import java.util.HashMap;
 import java.util.Map;
 
 import gartham.c10ver.data.autosave.SavablePropertyObject;
+import net.dv8tion.jda.api.entities.MessageChannel;
 
 public class Server extends SavablePropertyObject {
-	private final Property<Map<String, BigInteger>> colorRoles = mapProperty("color-roles",
-			(Map<String, BigInteger>) new HashMap<String, BigInteger>(), toStringGateway(BigInteger::new));
+	// TODO Specify mapProperty's partial immutability.
+	private final Property<Map<String, BigInteger>> colorRoles = mapProperty("color-roles", Map.of(),
+			toStringGateway(BigInteger::new));
 	private final Property<String> generalChannel = stringProperty("general-channel"),
 			spamChannel = stringProperty("spam-channel"), gamblingChannel = stringProperty("gambling-channel");
+	private final String serverID;
+
+	public String getServerID() {
+		return serverID;
+	}
 
 	public Map<String, BigInteger> getColorRoles() {
 		return colorRoles.get();
@@ -45,12 +51,25 @@ public class Server extends SavablePropertyObject {
 		gamblingChannel.set(channelID);
 	}
 
+	public boolean isGeneral(MessageChannel mc) {
+		return mc != null && mc.getId().equals(getGeneralChannel());
+	}
+
+	public boolean isGambling(MessageChannel mc) {
+		return mc != null && mc.getId().equals(getGamblingChannel());
+	}
+
+	public boolean isSpam(MessageChannel mc) {
+		return mc != null && mc.getId().equals(getSpamChannel());
+	}
+
 	public Server(File saveLocation) {
 		this(saveLocation, true);
 	}
 
 	public Server(File saveLocation, boolean load) {
-		super(saveLocation);
+		super(new File(saveLocation, "server-data.txt"));
+		serverID = saveLocation.getName();
 		if (load)
 			load();
 	}

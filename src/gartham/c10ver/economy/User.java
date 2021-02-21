@@ -20,6 +20,19 @@ public class User extends SavablePropertyObject {
 	private final Property<Instant> dailyCommand = instantProperty("daily", Instant.MIN),
 			weeklyCommand = instantProperty("weekly", Instant.MIN),
 			monthlyCommand = instantProperty("monthly", Instant.MIN);
+	private final Property<BigInteger> messageCount = bigIntegerProperty("message-count", BigInteger.ZERO);
+
+	public BigInteger getMessageCount() {
+		return messageCount.get();
+	}
+
+	public void setMessageCount(BigInteger count) {
+		messageCount.set(count);
+	}
+
+	public void incrementMessageCount() {
+		setMessageCount(getMessageCount().add(BigInteger.ONE));
+	}
 
 	private final Property<ArrayList<Question>> questions = listProperty("questions",
 			toObjectGateway(t -> new Question((JSONObject) t)));
@@ -106,6 +119,8 @@ public class User extends SavablePropertyObject {
 		inventory = new Inventory(userDirectory, this);
 		if (load)
 			load();
+		if (getMessageCount() == null)
+			setMessageCount(BigInteger.ZERO);
 		if (questions.get() == null)
 			questions.set(new ArrayList<>());
 	}

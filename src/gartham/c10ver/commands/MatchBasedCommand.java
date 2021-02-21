@@ -15,7 +15,7 @@ public abstract class MatchBasedCommand implements Command {
 	}
 
 	@Override
-	public final boolean match(CommandInvocation inv) {
+	public boolean match(CommandInvocation inv) {
 		return matching.fullyMatches(inv.cmdName);
 	}
 
