@@ -149,6 +149,14 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 			}
 		});
 
+		register(new ParentCommand("shop", "market") {
+
+			@Override
+			protected void tailed(CommandInvocation inv) {
+				
+			}
+		});
+
 		// TODO pay askdjflaskjhfd@Bob12987u1kmfdlskjflds 500
 		help.addCommand("pay", "Use this command to pay other people.", "pay (user) (amount)");
 		register(new MatchBasedCommand("pay") {
@@ -915,8 +923,9 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 									sb.append("\nColor Roles:");
 									for (var e : s.getColorRoles().entrySet())
 										sb.append("\n\u2022 <@&").append(e.getKey()).append('>');// This will ping lots
-																								// of people if not in
-																								// an embed!
+																									// of people if not
+																									// in
+																									// an embed!
 								} else if (s.getGeneralChannel() == null && s.getSpamChannel() == null
 										&& s.getGamblingChannel() == null)
 									sb.append("\nNothing has been configured for this server yet.");
@@ -1144,9 +1153,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 											inv.event.getAuthor().getAsMention() + " what do you want to remove from?")
 											.queue();
 								else if (inv.args.length == 1)
-									inv.event.getChannel()
-											.sendMessage(
-													inv.event.getAuthor().getAsMention() + " provide a value to remove.")
+									inv.event.getChannel().sendMessage(
+											inv.event.getAuthor().getAsMention() + " provide a value to remove.")
 											.queue();
 								else if (inv.args.length == 2) {
 									Server s = clover.getEconomy().getServer(inv.event.getGuild().getId());
