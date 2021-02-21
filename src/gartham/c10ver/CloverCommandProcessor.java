@@ -11,7 +11,6 @@ import java.math.BigInteger;
 import java.text.NumberFormat;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -43,6 +42,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import zeale.apps.stuff_modules.discord.bots.taige.api.bots.DiscordBot;
 
 public class CloverCommandProcessor extends SimpleCommandProcessor {
 
@@ -841,6 +841,46 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 			private final CommandHelp ch = help.addCommand("setup", "Server configuration and setup.",
 					"setup (subcommand >>>)");
+
+			{
+				new Subcommand("register", "create", "new") {
+					// Syntax:
+					// setup register [general-channel]
+					@Override
+					protected void tailed(SubcommandInvocation inv) {
+						if (!inv.event.isFromGuild()) {
+							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+									+ " you can only use that command in a server.").queue();
+						} else {
+							if (clover.getEconomy().hasServer(inv.event.getGuild().getId())) {
+								inv.event.getChannel().sendMessage(
+										inv.event.getAuthor().getAsMention() + " this server is already registered.")
+										.queue();
+							} else {
+								var serv = clover.getEconomy().getServer(inv.event.getGuild().getId());
+								if (inv.args.length == 1) {
+									Object o;
+									try {
+										o = inv.event.getGuild().getTextChannelById(inv.args[0]);
+									} catch (NumberFormatException e) {
+										inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+												+ " that's not a valid channel ID.").queue();
+										return;
+									}
+									if (o == null) {
+										inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+												+ " that's not a valid channel ID.").queue();
+										return;
+									}
+									serv.setGeneralChannel(inv.args[0]);
+								}
+								inv.event.getChannel().sendMessage("Registered this server.").queue();
+								serv.save();
+							}
+						}
+					}
+				};
+			}
 
 			public boolean match(CommandInvocation inv) {
 				return super.match(inv) && clover.isDev(inv.event.getAuthor());
