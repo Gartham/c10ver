@@ -970,8 +970,9 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 													.queue();
 											break;
 										}
-										inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
-												+ " that's not a valid channel ID.").queue();
+										inv.event.getChannel().sendMessage(
+												inv.event.getAuthor().getAsMention() + " that's not a valid channel.")
+												.queue();
 										return;
 									case "gambling-channel":
 									case "gambling":
@@ -991,8 +992,9 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 											inv.event.getChannel().sendMessage("Gambling channel set to <#" + cm + ">.")
 													.queue();
 										}
-										inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
-												+ " that's not a valid channel ID.").queue();
+										inv.event.getChannel().sendMessage(
+												inv.event.getAuthor().getAsMention() + " that's not a valid channel.")
+												.queue();
 										return;
 									case "spam-channel":
 									case "spam":
@@ -1013,8 +1015,9 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 													.queue();
 											break;
 										}
-										inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
-												+ " that's not a valid channel ID.").queue();
+										inv.event.getChannel().sendMessage(
+												inv.event.getAuthor().getAsMention() + " that's not a valid channel.")
+												.queue();
 										return;
 									}
 									s.save();
@@ -1070,8 +1073,63 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 							@Override
 							protected void tailed(SubcommandInvocation inv) {
-								// TODO Auto-generated method stub
-
+								if (inv.args.length == 0) {
+									inv.event.getChannel().sendMessage(
+											inv.event.getAuthor().getAsMention() + " what do you want to add to?")
+											.queue();
+								} else if (inv.args.length == 1) {
+									inv.event.getChannel()
+											.sendMessage(
+													inv.event.getAuthor().getAsMention() + " provide a value to add.")
+											.queue();
+								} else if (inv.args.length >= 2) {
+									Server s = clover.getEconomy().getServer(inv.event.getGuild().getId());
+									switch (inv.args[0]) {
+									case "color-roles":
+									case "color-role":
+									case "colorrole":
+										if (inv.args.length == 2) {
+											inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+													+ " provide a cost to for the role.").queue();
+											return;
+										} else if (inv.args.length != 3) {
+											inv.event.getChannel().sendMessage(
+													inv.event.getAuthor().getAsMention() + " too many arguments.")
+													.queue();
+											return;
+										}
+										ROLEP: {
+											String cm = Utilities.parseChannelMention(inv.args[1]);
+											if (cm == null)
+												cm = inv.args[1];
+											Object o;
+											try {
+												o = inv.event.getGuild().getRoleById(cm);
+											} catch (NumberFormatException e) {
+												break ROLEP;
+											}
+											if (o == null)
+												break ROLEP;
+											BigInteger cost;
+											try {
+												cost = new BigInteger(inv.args[2]);
+											} catch (NumberFormatException e) {
+												inv.event.getChannel().sendMessage(
+														"Your last argument when adding a color role must be a cost.")
+														.queue();
+												return;
+											}
+											s.getColorRoles().put(cm, cost);
+											inv.event.getChannel().sendMessage("Added the role successfully.").queue();
+											break;
+										}
+										inv.event.getChannel().sendMessage(
+												inv.event.getAuthor().getAsMention() + " that's not a valid role.")
+												.queue();
+										return;
+									}
+									s.save();
+								}
 							}
 						};
 
