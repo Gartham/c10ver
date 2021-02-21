@@ -61,6 +61,10 @@ public class Economy {
 		return users.containsKey(userID);
 	}
 
+	public boolean hasServer(String serverID) {
+		return servers.containsKey(serverID);
+	}
+
 	public File getUserDir() {
 		return new File(root, "users");
 	}
