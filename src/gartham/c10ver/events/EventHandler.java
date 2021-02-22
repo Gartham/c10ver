@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import zeale.applicationss.notesss.utilities.generators.Generator;
 import static gartham.c10ver.events.InfoPopup.*;
+import static java.math.BigInteger.*;
 
 public class EventHandler implements EventListener {
 
@@ -57,20 +58,57 @@ public class EventHandler implements EventListener {
 				if (user.getMessageCount().getLowestSetBit() >= 4)// Save every 16 messages.
 					user.save();
 				if (!mre.getAuthor().isBot()) {
-					var serv = clover.getEconomy().getServer(mre.getGuild().getId());
-					if (serv.isGeneral(mre.getChannel())) {
-						if (Math.random() < 0.02) {
-							var mult = user.calcMultiplier(mre.getGuild());
-							BigInteger rawrew = BigInteger.valueOf((long) (Math.random() * 20 + 40));
-							user.rewardAndSave(rawrew, mult);
-							mre.getChannel()
-									.sendMessage(mre.getAuthor().getAsMention()
-											+ ", you found some coins sitting on the ground.\n"
-											+ Utilities.listRewards(rawrew, mult) + "\nTotal Cloves: "
-											+ format(user.getAccount().getBalance()))
-									.queue();
-						} else if (cmd && Math.random() < 0.08)
-							infoPopupGenerator.next().show(mre);
+					BigInteger rewards = switch (user.getMessageCount().toString()) {
+					case "10" -> valueOf(50);
+					case "50" -> valueOf(100);
+					case "100" -> valueOf(250);// TODO Handle spam channel.
+					case "200" -> valueOf(300);
+					case "250" -> valueOf(400);
+					case "300" -> valueOf(450);
+					case "400" -> valueOf(500);
+					case "500" -> valueOf(750);
+					case "750" -> valueOf(1000);
+					case "1000" -> valueOf(1_500);
+					case "2000" -> valueOf(2_500);
+					case "2500" -> valueOf(3_000);
+					case "3000" -> valueOf(3_000);
+					case "4000" -> valueOf(5_000);
+					case "5000" -> valueOf(10_000);
+					case "10000" -> valueOf(25_000);
+					case "15000" -> valueOf(40_000);
+					case "25000" -> valueOf(50_000);
+					case "50000" -> valueOf(100_000);
+					case "75000" -> valueOf(100_000);
+					case "100000" -> valueOf(100_000);
+					case "250000" -> valueOf(500_000);
+					case "500000" -> valueOf(1_000_000);
+					case "1000000" -> valueOf(25_000_000);
+					default -> null;
+					};
+					if (rewards != null) {
+						var mult = user.calcMultiplier(mre.getGuild());
+						var amt = user.rewardAndSave(rewards, mult);
+						mre.getChannel()
+								.sendMessage(mre.getAuthor().getAsMention() + " congratulations, you just reached "
+										+ user.getMessageCount() + " messages! You've earned: "
+										+ Utilities.listRewards(amt, mult))
+								.queue();
+					} else {
+						var serv = clover.getEconomy().getServer(mre.getGuild().getId());
+						if (serv.isGeneral(mre.getChannel())) {
+							if (Math.random() < 0.02) {
+								var mult = user.calcMultiplier(mre.getGuild());
+								BigInteger rawrew = BigInteger.valueOf((long) (Math.random() * 20 + 40));
+								user.rewardAndSave(rawrew, mult);
+								mre.getChannel()
+										.sendMessage(mre.getAuthor().getAsMention()
+												+ ", you found some coins sitting on the ground.\n"
+												+ Utilities.listRewards(rawrew, mult) + "\nTotal Cloves: "
+												+ format(user.getAccount().getBalance()))
+										.queue();
+							} else if (cmd && Math.random() < 0.08)
+								infoPopupGenerator.next().show(mre);
+						}
 					}
 				}
 			}
