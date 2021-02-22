@@ -20,7 +20,8 @@ public class User extends SavablePropertyObject {
 	private final Property<Instant> dailyCommand = instantProperty("daily", Instant.MIN),
 			weeklyCommand = instantProperty("weekly", Instant.MIN),
 			monthlyCommand = instantProperty("monthly", Instant.MIN);
-	private final Property<BigInteger> messageCount = bigIntegerProperty("message-count", BigInteger.ZERO);
+	private final Property<BigInteger> messageCount = bigIntegerProperty("message-count", BigInteger.ZERO),
+			totalEarnings = bigIntegerProperty("total-earnings", BigInteger.ZERO);
 
 	public BigInteger getMessageCount() {
 		return messageCount.get();
@@ -96,7 +97,19 @@ public class User extends SavablePropertyObject {
 	public BigInteger reward(BigInteger amount, BigDecimal multiplier) {
 		var x = new BigDecimal(amount).multiply(multiplier).toBigInteger();
 		getAccount().deposit(x);
+		totalEarnings.set(totalEarnings.get().add(x));
 		return x;
+	}
+
+	public BigInteger rewardAndSave(BigInteger amount, BigDecimal multiplier) {
+		var x = reward(amount, multiplier);
+		save();
+		account.save();
+		return x;
+	}
+
+	public BigInteger rewardAndSave(long amount, BigDecimal multiplier) {
+		return rewardAndSave(BigInteger.valueOf(amount), multiplier);
 	}
 
 	public BigInteger reward(long amount, BigDecimal multiplier) {

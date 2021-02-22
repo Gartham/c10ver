@@ -52,6 +52,7 @@ public class EventHandler implements EventListener {
 						var mult = user.calcMultiplier(mre.getGuild());
 						BigInteger rawrew = BigInteger.valueOf((long) (Math.random() * 20 + 40));
 						user.reward(rawrew, mult);
+						user.getAccount().save();
 						user.save();
 						mre.getChannel()
 								.sendMessage(mre.getAuthor().getAsMention()

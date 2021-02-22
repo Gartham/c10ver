@@ -74,8 +74,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				else {
 					u.dailyInvoked();
 					var mult = u.calcMultiplier(inv.event.getGuild());
-					var reward = u.reward((long) (Math.random() * 25 + 10), mult);
-					u.getAccount().save();
+					var reward = u.rewardAndSave((long) (Math.random() * 25 + 10), mult);
 
 					Inventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
 					var rewards = of(new LootCrateItem(CrateType.DAILY));
@@ -105,8 +104,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				} else {
 					u.weeklyInvoked();
 					var mult = u.calcMultiplier(inv.event.getGuild());
-					var amt = u.reward((long) (Math.random() * 250 + 100), mult);
-					u.getAccount().save();
+					var amt = u.rewardAndSave((long) (Math.random() * 250 + 100), mult);
 
 					Inventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
 					var rewards = of(new LootCrateItem(CrateType.WEEKLY));
@@ -136,8 +134,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					u.monthlyInvoked();
 
 					var mult = u.calcMultiplier(inv.event.getGuild());
-					var amt = u.reward((long) (Math.random() * 10000 + 4000), mult);
-					u.getAccount().save();
+					var amt = u.rewardAndSave((long) (Math.random() * 10000 + 4000), mult);
 
 					Inventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
 					var rewards = of(new LootCrateItem(CrateType.MONTHLY));
@@ -161,7 +158,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 //						inv.event.getChannel().sendMessage("There is nothing in the shop yet...").queue();
 //					} else {
 //						EmbedBuilder eb = new EmbedBuilder();
-						inv.event.getChannel().sendMessage("There is nothing in the shop yet...").queue();
+					inv.event.getChannel().sendMessage("There is nothing in the shop yet...").queue();
 //					}
 				} else {
 					inv.event.getChannel().sendMessage("You must be in a guild to use that command.").queue();
@@ -839,8 +836,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 											.getAuthor();
 									var u1 = clover.getEconomy().getUser(user.getId());
 									var mult = u1.calcMultiplier(event.getGuild());
-									var rewards = u1.reward(q.getValue(), mult);
-									u1.getAccount().save();
+									var rewards = u1.rewardAndSave(q.getValue(), mult);
 
 									String m = Utilities.multiplier(mult);
 
