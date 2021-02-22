@@ -58,7 +58,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 	}
 
 	{
-		help.addCommand("daily", "Receive daily rewards! You can only run this once a day.", "daily");
+		
 		register(new MatchBasedCommand("daily") {
 			@Override
 			public void exec(CommandInvocation inv) {
@@ -88,8 +88,6 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 			}
 		});
-
-		help.addCommand("weekly", "Receive weekly rewards! You can only run this once a day.", "weekly");
 		register(new MatchBasedCommand("weekly") {
 			@Override
 			public void exec(CommandInvocation inv) {
@@ -117,8 +115,6 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				}
 			}
 		});
-
-		help.addCommand("monthly", "Receive monthly rewards! You can only run this once a day.", "monthly");
 		register(new MatchBasedCommand("monthly") {
 			@Override
 			public void exec(CommandInvocation inv) {
@@ -148,7 +144,6 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				}
 			}
 		});
-
 		register(new ParentCommand("shop", "market") {
 
 			@Override
@@ -165,8 +160,6 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				}
 			}
 		});
-
-		help.addCommand("color", "Lets you purchase a color role.", "color ", "color-role");
 		register(new ParentCommand("color", "color-role") {
 
 			@Override
@@ -253,9 +246,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				}
 			}
 		});
-
 		// TODO pay askdjflaskjhfd@Bob12987u1kmfdlskjflds 500
-		help.addCommand("pay", "Use this command to pay other people.", "pay (user) (amount)");
 		register(new MatchBasedCommand("pay") {
 
 			@Override
@@ -303,8 +294,6 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				}
 			}
 		});
-
-		help.addCommand("balance", "Tells you how rich you are.", "balance", "bal");
 		register(new MatchBasedCommand("bal", "balance") {
 
 			@Override
@@ -349,9 +338,6 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				}
 			}
 		});
-
-		help.addCommand("leaderboard", "Check out who the richest people in this server are!", "leaderboard [page]",
-				"baltop");
 		register(new MatchBasedCommand("baltop", "leaderboard") {
 
 			@Override
@@ -416,8 +402,6 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					inv.event.getChannel().sendMessage("Please run this command in a server.").queue();
 			}
 		});
-
-		help.addCommand("inventory", "Shows your inventory.", "inventory [item-id] [page]", "inv");
 		register(new MatchBasedCommand("inventory", "inv") {
 
 			@Override
@@ -524,7 +508,6 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				}
 			}
 		});
-
 		register(new ParentCommand("quiz") {
 
 			class AskedQuiz {
@@ -948,7 +931,6 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				}
 			}
 		});
-
 		register(new ParentCommand("setup") {
 
 			private final CommandHelp ch = help.addCommand("setup", "Server configuration and setup.",
@@ -1348,6 +1330,16 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 			}
 		});
 
+		
+		help.addCommand("daily", "Receive daily rewards! You can only run this once a day.", "daily");
+		help.addCommand("weekly", "Receive weekly rewards! You can only run this once a day.", "weekly");
+		help.addCommand("monthly", "Receive monthly rewards! You can only run this once a day.", "monthly");
+		help.addCommand("color", "Lets you purchase a color role.", "color ", "color-role");
+		help.addCommand("pay", "Use this command to pay other people.", "pay (user) (amount)");
+		help.addCommand("balance", "Tells you how rich you are.", "balance", "bal");
+		help.addCommand("leaderboard", "Check out who the richest people in this server are!", "leaderboard [page]",
+				"baltop");
+		help.addCommand("inventory", "Shows your inventory.", "inventory [item-id] [page]", "inv");
 	}
 
 	private final static EmbedBuilder printEntries(List<Entry<?>> entries, EmbedBuilder builder) {
