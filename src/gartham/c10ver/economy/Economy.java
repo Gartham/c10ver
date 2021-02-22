@@ -58,6 +58,10 @@ public class Economy {
 	}
 
 	public boolean hasAccount(String userID) {
+		return hasUser(userID);
+	}
+
+	public boolean hasUser(String userID) {
 		return users.containsKey(userID);
 	}
 
