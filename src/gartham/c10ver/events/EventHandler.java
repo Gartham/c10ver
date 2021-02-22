@@ -51,9 +51,7 @@ public class EventHandler implements EventListener {
 					if (serv.isGeneral(mre.getChannel()) && Math.random() < 0.02) {
 						var mult = user.calcMultiplier(mre.getGuild());
 						BigInteger rawrew = BigInteger.valueOf((long) (Math.random() * 20 + 40));
-						user.reward(rawrew, mult);
-						user.getAccount().save();
-						user.save();
+						user.rewardAndSave(rawrew, mult);
 						mre.getChannel()
 								.sendMessage(mre.getAuthor().getAsMention()
 										+ ", you found some coins sitting on the ground.\n"
