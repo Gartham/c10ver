@@ -245,7 +245,7 @@ public final class Utilities {
 	public static String listRewards(BigInteger cloves, BigDecimal mult, ItemBunch<?>... items) {
 		StringBuilder sb = new StringBuilder();
 		if (!cloves.equals(BigInteger.ZERO))
-			sb.append(format(cloves) + "\n");
+			sb.append(format(cloves)).append('\n');
 		for (ItemBunch<?> ib : items)
 			sb.append("`" + ib.getCount() + "`x" + ib.getItem().getIcon() + ' ' + ib.getItem().getCustomName() + '\n');
 
@@ -258,7 +258,7 @@ public final class Utilities {
 	public static String listRewards(BigInteger cloves, BigDecimal mult, Iterable<ItemBunch<?>> items) {
 		StringBuilder sb = new StringBuilder();
 		if (!cloves.equals(BigInteger.ZERO))
-			sb.append(format(cloves) + "\n");
+			sb.append(format(cloves)).append('\n');
 		for (ItemBunch<?> ib : items)
 			sb.append("`" + ib.getCount() + "`x" + ib.getItem().getIcon() + ' ' + ib.getItem().getCustomName() + '\n');
 
