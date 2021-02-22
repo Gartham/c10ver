@@ -438,8 +438,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 							break ENTRIES;
 						}
 						if (page < 1) {
-							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention() + " `" + inv.args[0]
-									+ "` is not a valid page.").queue();
+							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention() + " `"
+									+ Utilities.strip(inv.args[0]) + "` is not a valid page.").queue();
 							return;
 						}
 					} else if (inv.args.length == 0)
@@ -452,8 +452,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 									break PARSE_PAGE;
 							} catch (NumberFormatException e) {
 							}
-							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention() + " `" + inv.args[1]
-									+ "` is not a valid page.").queue();
+							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention() + " `"
+									+ Utilities.strip(inv.args[1]) + "` is not a valid page.").queue();
 							return;
 						}
 
@@ -568,14 +568,16 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 								} catch (NumberFormatException e) {
 									inv.event.getChannel()
 											.sendMessage(inv.event.getAuthor().getAsMention()
-													+ " this is not a valid question number: `" + inv.args[0] + '`')
+													+ " this is not a valid question number: `"
+													+ Utilities.strip(inv.args[0]) + '`')
 											.queue();
 									return;
 								}
 								if (page < 0) {
 									inv.event.getChannel()
 											.sendMessage(inv.event.getAuthor().getAsMention()
-													+ " this is not a valid question number: `" + inv.args[0] + '`')
+													+ " this is not a valid question number: `"
+													+ Utilities.strip(inv.args[0]) + '`')
 											.queue();
 									return;
 								}
@@ -669,14 +671,16 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 							} catch (NumberFormatException e) {
 								inv.event.getChannel()
 										.sendMessage(inv.event.getAuthor().getAsMention()
-												+ " this is not a valid question number: `" + inv.args[0] + '`')
+												+ " this is not a valid question number: `"
+												+ Utilities.strip(inv.args[0]) + '`')
 										.queue();
 								return;
 							}
 							if (numb < 0)
 								inv.event.getChannel()
 										.sendMessage(inv.event.getAuthor().getAsMention()
-												+ " this is not a valid question number: `" + inv.args[0] + '`')
+												+ " this is not a valid question number: `"
+												+ Utilities.strip(inv.args[0]) + '`')
 										.queue();
 							else {
 								var u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
@@ -724,14 +728,16 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 							} catch (NumberFormatException e) {
 								inv.event.getChannel()
 										.sendMessage(inv.event.getAuthor().getAsMention()
-												+ " this is not a valid question number: `" + inv.args[0] + '`')
+												+ " this is not a valid question number: `"
+												+ Utilities.strip(inv.args[0]) + '`')
 										.queue();
 								return;
 							}
 							if (numb < 0)
 								inv.event.getChannel()
 										.sendMessage(inv.event.getAuthor().getAsMention()
-												+ " this is not a valid question number: `" + inv.args[0] + '`')
+												+ " this is not a valid question number: `"
+												+ Utilities.strip(inv.args[0]) + '`')
 										.queue();
 							else {
 								var u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
@@ -786,7 +792,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						numb = Integer.parseInt(inv.args[0]) - 1;
 					} catch (NumberFormatException e) {
 						inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
-								+ " this is not a valid question number: `" + inv.args[0] + '`').queue();
+								+ " this is not a valid question number: `" + Utilities.strip(inv.args[0]) + '`').queue();
 						return;
 					}
 					if (questionMap.contains(inv.event.getAuthor().getId(), inv.event.getChannel().getId())) {
@@ -816,7 +822,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 								}).filter(inv.event.getAuthor().getId(), inv.event.getChannel().getId()));
 					} else if (numb < 0)
 						inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
-								+ " this is not a valid question number: `" + inv.args[0] + '`').queue();
+								+ " this is not a valid question number: `" + Utilities.strip(inv.args[0]) + '`').queue();
 					else {
 						var u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
 						var questions = u.getQuestions();
@@ -1216,7 +1222,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 											ROLEP: {
 												String cm = Utilities.parseChannelMention(inv.args[1]);
 												if (cm == null)
-													cm = inv.args[1];
+													cm = Utilities.strip(inv.args[1]);
 												Object o;
 												try {
 													o = inv.event.getGuild().getRoleById(cm);
@@ -1236,7 +1242,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 												}
 												if (s.getColorRoles().isEmpty())
 													s.setColorRoles(new HashMap<>());
-												s.getColorRoles().put(cm, new ColorRole(inv.args[2], cm, cost));
+												s.getColorRoles().put(cm, new ColorRole(Utilities.strip(inv.args[2]), cm, cost));
 												inv.event.getChannel().sendMessage("Added the role successfully.")
 														.queue();
 												break;
