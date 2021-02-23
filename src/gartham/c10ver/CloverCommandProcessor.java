@@ -186,6 +186,14 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				}
 			}
 		});
+
+			@Override
+			public void exec(CommandInvocation inv) {
+				// TODO Auto-generated method stub
+
+			}
+		});
+
 		register(new ParentCommand("shop", "market") {
 
 			@Override
