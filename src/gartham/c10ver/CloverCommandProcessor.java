@@ -187,10 +187,11 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 			}
 		});
 
+		register(new MatchBasedCommand("open", "use") {
+
 			@Override
 			public void exec(CommandInvocation inv) {
-				// TODO Auto-generated method stub
-
+				
 			}
 		});
 
@@ -198,16 +199,15 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 			@Override
 			protected void tailed(CommandInvocation inv) {
-				if (inv.event.isFromGuild()) {
-//					if (!clover.getEconomy().hasServer(inv.event.getGuild().getId())) {
+				if (inv.event.isFromGuild())
+					//					if (!clover.getEconomy().hasServer(inv.event.getGuild().getId())) {
 //						inv.event.getChannel().sendMessage("There is nothing in the shop yet...").queue();
 //					} else {
 //						EmbedBuilder eb = new EmbedBuilder();
 					inv.event.getChannel().sendMessage("There is nothing in the shop yet...").queue();
 //					}
-				} else {
+				else
 					inv.event.getChannel().sendMessage("You must be in a guild to use that command.").queue();
-				}
 			}
 		});
 		register(new ParentCommand("color", "color-role") {
