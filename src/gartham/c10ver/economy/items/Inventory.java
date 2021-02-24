@@ -239,6 +239,10 @@ public class Inventory {
 				return count.get();
 			}
 
+			public String getEffectiveName() {
+				return getCustomName() == null ? getName() : getCustomName();
+			}
+
 			public String getCustomName() {
 				return item.get().getCustomName();
 			}
