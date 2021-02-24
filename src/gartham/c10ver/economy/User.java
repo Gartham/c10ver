@@ -6,6 +6,7 @@ import java.math.BigInteger;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.alixia.javalibrary.json.JSONObject;
@@ -22,6 +23,29 @@ public class User extends SavablePropertyObject {
 			monthlyCommand = instantProperty("monthly", Instant.MIN);
 	private final Property<BigInteger> messageCount = bigIntegerProperty("message-count", BigInteger.ZERO),
 			totalEarnings = bigIntegerProperty("total-earnings", BigInteger.ZERO);
+	private final Property<ArrayList<Multiplier>> multipliers = listProperty("multipliers",
+			toObjectGateway(Multiplier::new));
+
+	private BigDecimal checkMultipliers() {
+		if (multipliers.get().isEmpty())
+			return BigDecimal.ZERO;
+		BigDecimal res = BigDecimal.ZERO;
+		Instant now = Instant.now();
+		for (Iterator<Multiplier> iterator = multipliers.get().iterator(); iterator.hasNext();) {
+			Multiplier m = iterator.next();
+			if (now.isAfter(m.getExpiration()))
+				iterator.remove();
+			else
+				res = res.add(m.getAmount());
+		}
+
+		return res;
+	}
+
+	public Property<ArrayList<Multiplier>> getMultipliers() {
+		checkMultipliers();
+		return multipliers;
+	}
 
 	public BigInteger getMessageCount() {
 		return messageCount.get();
@@ -75,6 +99,7 @@ public class User extends SavablePropertyObject {
 		var x = v == null ? BigDecimal.ONE
 				: BigDecimal.valueOf(5, -1).add(BigDecimal.valueOf(Duration.between(v, Instant.now()).toDays() + 1)
 						.multiply(BigDecimal.valueOf(1, -2)));
+		x = x.add(checkMultipliers());
 		return x;
 	}
 
@@ -94,7 +119,14 @@ public class User extends SavablePropertyObject {
 		return reward(amount, calcMultiplier(guild));
 	}
 
+	@Override
+	public void save() {
+		checkMultipliers();
+		super.save();
+	}
+
 	public BigInteger reward(BigInteger amount, BigDecimal multiplier) {
+
 		var x = new BigDecimal(amount).multiply(multiplier).toBigInteger();
 		getAccount().deposit(x);
 		totalEarnings.set(totalEarnings.get().add(x));
@@ -136,6 +168,8 @@ public class User extends SavablePropertyObject {
 			setMessageCount(BigInteger.ZERO);
 		if (questions.get() == null)
 			questions.set(new ArrayList<>());
+		if (multipliers.get() == null)
+			multipliers.set(new ArrayList<>());
 	}
 
 	public Instant getLastDailyInvocation() {
