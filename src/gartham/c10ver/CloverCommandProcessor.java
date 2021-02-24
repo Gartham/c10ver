@@ -59,7 +59,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 	{
 
-		register(new MatchBasedCommand("stats", "inv") {
+		register(new MatchBasedCommand("stats", "info") {
 
 			@Override
 			public void exec(CommandInvocation inv) {
@@ -1414,7 +1414,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					.entrySet())
 				if (e.getValue().isAttribute())
 					sb.append(e.getKey() + ": `" + e.getValue().get() + "`\n");
-			builder.addField(i.getIcon() + ' ' + i.getCustomName(), sb.toString(), true);
+			builder.addField(i.getIcon() + ' ' + i.getEffectiveName(), sb.toString(), true);
 		}
 		return builder;
 	}

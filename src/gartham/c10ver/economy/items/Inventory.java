@@ -18,6 +18,7 @@ import org.alixia.javalibrary.json.JSONObject;
 import gartham.c10ver.data.PropertyObject;
 import gartham.c10ver.economy.Economy;
 import gartham.c10ver.economy.User;
+import gartham.c10ver.economy.items.Inventory.Entry.ItemStack;
 import gartham.c10ver.utils.Utilities;
 
 /**
@@ -71,10 +72,20 @@ public class Inventory {
 		return Utilities.maxPage(pagesize, entryList);
 	}
 
-	private static final Comparator<Object> COMPARATOR = (o1, o2) -> (o1 instanceof String ? (String) o1
-			: o1 instanceof Entry<?> ? ((Entry<?>) o1).getType() : ((Entry<?>.ItemStack) o1).getType())
-					.compareTo(o2 instanceof String ? (String) o2
-							: o2 instanceof Entry<?> ? ((Entry<?>) o2).getType() : ((Entry<?>.ItemStack) o2).getType());
+	private static String res(Object o) {
+		if (o instanceof String)
+			return (String) o;
+		else if (o instanceof Entry<?>)
+			return ((Entry<?>) o).getType();
+		else if (o instanceof ItemStack)
+			return ((Entry<?>.ItemStack) o).getType();
+		else if (o instanceof Item)
+			return ((Item) o).getItemType();
+		else
+			throw new IllegalArgumentException();
+	}
+
+	private static final Comparator<Object> COMPARATOR = (o1, o2) -> res(o1).compareTo(res(o2));
 
 	@SuppressWarnings("unchecked")
 	public <I extends Item> Entry<I> add(I item, BigInteger amt) {
@@ -237,6 +248,10 @@ public class Inventory {
 
 			public BigInteger count() {
 				return count.get();
+			}
+
+			public String getEffectiveName() {
+				return getCustomName() == null ? getName() : getCustomName();
 			}
 
 			public String getCustomName() {
