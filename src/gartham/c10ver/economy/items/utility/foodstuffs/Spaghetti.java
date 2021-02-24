@@ -16,6 +16,8 @@ public class Spaghetti extends Foodstuff {
 
 	public Spaghetti(JSONObject properties) {
 		super(ITEM_TYPE, properties);
+		setItemName(ITEM_NAME);
+		setIcon(ITEM_ICON);
 	}
 
 }
