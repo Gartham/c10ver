@@ -5,7 +5,7 @@ import org.alixia.javalibrary.json.JSONObject;
 public class Sandwhich extends Foodstuff{
 
 	
-	public static final String ITEM_TYPE ="sandwhich", ITEM_NAME = "Sandwhich", ITEM_ICON = ":sandwhich:";
+	public static final String ITEM_TYPE ="sandwich", ITEM_NAME = "Sandwich", ITEM_ICON = ":sandwich:";
 	
 	public Sandwhich(JSONObject properties) {
 		super(ITEM_TYPE, properties);
