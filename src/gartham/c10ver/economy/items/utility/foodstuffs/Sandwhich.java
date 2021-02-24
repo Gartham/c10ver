@@ -9,7 +9,8 @@ public class Sandwhich extends Foodstuff{
 	
 	public Sandwhich(JSONObject properties) {
 		super(ITEM_TYPE, properties);
-		
+		setItemName(ITEM_NAME);
+		setIcon(ITEM_ICON);
 	}
 
 	public Sandwhich() {
