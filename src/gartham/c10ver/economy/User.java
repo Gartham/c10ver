@@ -26,6 +26,10 @@ public class User extends SavablePropertyObject {
 	private final Property<ArrayList<Multiplier>> multipliers = listProperty("multipliers",
 			toObjectGateway(Multiplier::new));
 
+	private static boolean expired(Multiplier m) {
+		return Instant.now().isAfter(m.getExpiration());
+	}
+
 	private BigDecimal checkMultipliers() {
 		if (multipliers.get().isEmpty())
 			return BigDecimal.ZERO;
@@ -42,9 +46,14 @@ public class User extends SavablePropertyObject {
 		return res;
 	}
 
-	public Property<ArrayList<Multiplier>> getMultipliers() {
+	public ArrayList<Multiplier> getMultipliers() {
 		checkMultipliers();
-		return multipliers;
+		return multipliers.get();
+	}
+
+	public void addMultiplier(Multiplier m) {
+		if (!expired(m))
+			multipliers.get().add(m);
 	}
 
 	public BigInteger getMessageCount() {
