@@ -59,7 +59,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 	{
 
-		register(new MatchBasedCommand("stats", "inv") {
+		register(new MatchBasedCommand("stats", "info") {
 
 			@Override
 			public void exec(CommandInvocation inv) {
