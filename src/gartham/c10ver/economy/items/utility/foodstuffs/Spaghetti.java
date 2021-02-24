@@ -21,6 +21,7 @@ public class Spaghetti extends Foodstuff {
 		setIcon(ITEM_ICON);
 		setItemName(ITEM_NAME);
 		setMultiplier(ITEM_MULT);
+		setTTL(ITEM_TTL);
 	}
 
 	public Spaghetti() {// Normal constructor that we use in our commands.
