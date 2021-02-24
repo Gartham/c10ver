@@ -8,7 +8,7 @@ import gartham.c10ver.economy.items.Item;
 import gartham.c10ver.economy.items.utility.Usable;
 import gartham.c10ver.economy.items.utils.ItemList;
 
-public class Foodstuff extends Item {
+public abstract class Foodstuff extends Item {
 
 	private final Property<BigDecimal> multiplierValue = bigDecimalProperty("mult-val");
 
@@ -16,12 +16,13 @@ public class Foodstuff extends Item {
 		return multiplierValue.get();
 	}
 
-	public void setMultiplierValue(BigDecimal multiplierValue) {
+	protected void setMultiplierValue(BigDecimal multiplierValue) {
 		this.multiplierValue.set(multiplierValue);
 	}
 
 	public Foodstuff(String type, JSONObject properties) {
 		super(type, properties);
+		load(multiplierValue, properties);
 	}
 
 	public Foodstuff(String type, String name, String icon) {
