@@ -94,7 +94,7 @@ public class Foodstuff extends Item implements Consumable {
 	 * multipliers are added.
 	 * </p>
 	 */
-	private final Property<BigDecimal> multiplier = bigDecimalProperty("mult").setTransient(true).setAttribute(false);;
+	private final Property<BigDecimal> multiplier = bigDecimalProperty("mult").setTransient(true).setAttribute(false);
 	/**
 	 * This is how long the multiplier effect of this food will last, in
 	 * milliseconds.
