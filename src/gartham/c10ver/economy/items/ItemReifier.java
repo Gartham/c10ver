@@ -16,18 +16,12 @@ public class ItemReifier {
 		if (type == null)
 			throw new IllegalArgumentException("Invalid item type.");
 		return (I) switch (type) {
-		case LootCrateItem.ITEM_TYPE:
-			yield new LootCrateItem(json);
-		case Spaghetti.ITEM_TYPE:
-			yield new Spaghetti(json);
-		case Sandwich.ITEM_TYPE:
-			yield new Sandwich(json);
-		case Hamburger.ITEM_TYPE:
-			yield new Hamburger(json);
-		case Pizza.ITEM_TYPE:
-			yield new Pizza(json);
-		default:
-			throw new IllegalArgumentException("Unexpected value: " + type);
+		case LootCrateItem.ITEM_TYPE -> LootCrateItem.decipher(json);
+		case Spaghetti.ITEM_TYPE -> new Spaghetti(json);
+		case Sandwich.ITEM_TYPE -> new Sandwich(json);
+		case Hamburger.ITEM_TYPE -> new Hamburger(json);
+		case Pizza.ITEM_TYPE -> new Pizza(json);
+		default -> throw new IllegalArgumentException("Unexpected value: " + type);
 		};
 	}
 
