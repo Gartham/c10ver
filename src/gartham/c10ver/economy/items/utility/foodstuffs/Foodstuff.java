@@ -2,12 +2,16 @@ package gartham.c10ver.economy.items.utility.foodstuffs;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.Instant;
 
 import org.alixia.javalibrary.json.JSONObject;
 
+import gartham.c10ver.economy.Multiplier;
+import gartham.c10ver.economy.User;
 import gartham.c10ver.economy.items.Item;
+import gartham.c10ver.economy.items.utility.Consumable;
 
-public abstract class Foodstuff extends Item {
+public class Foodstuff extends Item implements Consumable {
 
 	/**
 	 * <p>
@@ -25,8 +29,8 @@ public abstract class Foodstuff extends Item {
 	 * @return A {@link BigInteger} representing the requested number of seconds, in
 	 *         milliseconds.
 	 */
-	protected static final BigInteger sec(long seconds) {
-		return BigInteger.valueOf(seconds).multiply(BigInteger.valueOf(1000));
+	protected static final long sec(long seconds) {
+		return seconds * 1000;
 	}
 
 	/**
@@ -41,8 +45,8 @@ public abstract class Foodstuff extends Item {
 	 *         milliseconds.
 	 * @see #sec(long)
 	 */
-	protected static final BigInteger min(long minutes) {
-		return sec(minutes).multiply(BigInteger.valueOf(60));
+	protected static final long min(long minutes) {
+		return sec(minutes) * 60;
 	}
 
 	/**
@@ -57,8 +61,8 @@ public abstract class Foodstuff extends Item {
 	 *         milliseconds.
 	 * @see #sec(long)
 	 */
-	protected static final BigInteger hr(long hours) {
-		return min(hours).multiply(BigInteger.valueOf(60));
+	protected static final long hr(long hours) {
+		return min(hours) * 60;
 	}
 
 	/**
@@ -73,8 +77,8 @@ public abstract class Foodstuff extends Item {
 	 *         milliseconds.
 	 * @see #sec(long)
 	 */
-	protected static final BigInteger day(long days) {
-		return hr(days).multiply(BigInteger.valueOf(24));
+	protected static final long day(long days) {
+		return hr(days) * 24;
 	}
 
 	/**
@@ -95,7 +99,7 @@ public abstract class Foodstuff extends Item {
 	 * This is how long the multiplier effect of this food will last, in
 	 * milliseconds.
 	 */
-	private final Property<BigInteger> ttl = bigIntegerProperty("ttl");
+	private final Property<Long> ttl = longProperty("ttl");
 
 	public BigDecimal getMultiplier() {
 		return multiplier.get();
@@ -105,11 +109,11 @@ public abstract class Foodstuff extends Item {
 		this.multiplier.set(multiplierValue);
 	}
 
-	protected void setTTL(BigInteger ttl) {
+	protected void setTTL(long ttl) {
 		this.ttl.set(ttl);
 	}
 
-	public BigInteger getTTL() {
+	public long getTTL() {
 		return ttl.get();
 	}
 
@@ -120,6 +124,11 @@ public abstract class Foodstuff extends Item {
 
 	public Foodstuff(String type) {
 		super(type);
+	}
+
+	@Override
+	public final void consume(User user) {
+		user.addMultiplier(new Multiplier(Instant.now().plusMillis(ttl.get()), getMultiplier()));
 	}
 
 }

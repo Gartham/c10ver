@@ -12,7 +12,7 @@ public class Spaghetti extends Foodstuff {
 
 	public static final BigDecimal ITEM_MULT = BigDecimal.valueOf(5, 1);// A value of 5, shifted to the right 1 time.
 
-	public static final BigInteger ITEM_TTL = min(5);// 5 minutes long. See the `min` convenience function
+	public static final long ITEM_TTL = min(5);// 5 minutes long. See the `min` convenience function
 														// documentation.
 
 	{
