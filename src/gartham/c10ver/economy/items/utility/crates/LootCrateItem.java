@@ -1,6 +1,8 @@
-package gartham.c10ver.economy.items;
+package gartham.c10ver.economy.items.utility.crates;
 
 import org.alixia.javalibrary.json.JSONObject;
+
+import gartham.c10ver.economy.items.Item;
 
 public class LootCrateItem extends Item {
 
