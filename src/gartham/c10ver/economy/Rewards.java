@@ -33,6 +33,28 @@ public class Rewards {
 		this.cloves = cloves;
 	}
 
+	public Rewards(Iterable<ItemBunch<?>> items, BigInteger cloves) {
+		this.items = items instanceof Collection<?> ? new HashMap<>(((Collection<?>) items).size()) : new HashMap<>();
+		for (ItemBunch<?> ib : items)
+			this.items.put(ib.getItem().getItemType(), ib);
+		this.multipliers = Collections.emptyList();
+		this.cloves = cloves;
+	}
+
+	public Rewards(Map<String, ItemBunch<?>> items, BigInteger cloves) {
+		this.items = items;
+		this.multipliers = Collections.emptyList();
+		this.cloves = cloves;
+	}
+
+	public Rewards(ItemBunch<?>[] items, BigInteger cloves) {
+		this.items = new HashMap<>(items.length);
+		for (ItemBunch<?> ib : items)
+			this.items.put(ib.getItem().getItemType(), ib);
+		this.multipliers = Collections.emptyList();
+		this.cloves = cloves;
+	}
+
 	public Rewards(ItemBunch<?>[] items, BigInteger cloves, List<Multiplier> multipliers) {
 		this.items = new HashMap<>(items.length);
 		for (ItemBunch<?> ib : items)
