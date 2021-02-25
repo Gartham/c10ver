@@ -13,11 +13,12 @@ import gartham.c10ver.economy.items.ItemBunch;
 import gartham.c10ver.economy.items.utility.foodstuffs.Sandwich;
 
 public class DailyCrate extends LootCrateItem {
-	public static final String ITEM_NAME = "Daily Crate", ITEM_ICON = "<:crate:808762616456675338>";
+	public static final String ITEM_NAME = "Daily Crate", ITEM_ICON = "<:crate:808762616456675338>", CRATE_TYPE = "daily";
 
 	{
 		setItemName(ITEM_NAME);
 		setIcon(ITEM_ICON);
+		setCrateType(CRATE_TYPE);
 	}
 
 	public DailyCrate() {
