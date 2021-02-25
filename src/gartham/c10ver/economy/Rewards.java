@@ -33,6 +33,24 @@ public class Rewards {
 		this.cloves = cloves;
 	}
 
+	public Rewards(ItemBunch<?>[] items, BigInteger cloves, List<Multiplier> multipliers) {
+		this.items = new HashMap<>(items.length);
+		for (ItemBunch<?> ib : items)
+			this.items.put(ib.getItem().getItemType(), ib);
+		this.multipliers = multipliers;
+		this.cloves = cloves;
+	}
+
+	public Rewards(ItemBunch<?>[] items, BigInteger cloves, Multiplier... multipliers) {
+		this.items = new HashMap<>(items.length);
+		for (ItemBunch<?> ib : items)
+			this.items.put(ib.getItem().getItemType(), ib);
+		this.multipliers = new ArrayList<>(multipliers.length);
+		for (Multiplier m : multipliers)
+			this.multipliers.add(m);
+		this.cloves = cloves;
+	}
+
 	public Rewards(Map<String, ItemBunch<?>> items, BigInteger cloves, List<Multiplier> multipliers) {
 		this.items = items;
 		this.multipliers = multipliers;
@@ -50,8 +68,8 @@ public class Rewards {
 	public Map<String, ItemBunch<?>> getItems() {
 		return Collections.unmodifiableMap(items);
 	}
-	
-	public List<ItemBunch<?>> getItemList(){
+
+	public List<ItemBunch<?>> getItemList() {
 		return new ArrayList<>(items.values());
 	}
 
