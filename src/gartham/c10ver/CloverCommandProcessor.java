@@ -36,8 +36,10 @@ import gartham.c10ver.economy.Server;
 import gartham.c10ver.economy.User;
 import gartham.c10ver.economy.items.Inventory;
 import gartham.c10ver.economy.items.Inventory.Entry;
-import gartham.c10ver.economy.items.utility.crates.LootCrateItem;
-import gartham.c10ver.economy.items.utility.crates.LootCrateItem.CrateType;
+import gartham.c10ver.economy.items.utility.crates.DailyCrate;
+import gartham.c10ver.economy.items.utility.crates.MonthlyCrate;
+import gartham.c10ver.economy.items.utility.crates.WeeklyCrate;
+import gartham.c10ver.economy.items.utility.foodstuffs.Sandwich;
 import gartham.c10ver.economy.questions.Question;
 import gartham.c10ver.economy.questions.Question.Difficulty;
 import gartham.c10ver.economy.server.ColorRole;
@@ -119,7 +121,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					var reward = u.rewardAndSave((long) (Math.random() * 25 + 10), mult);
 
 					Inventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
-					var rewards = of(new LootCrateItem(CrateType.DAILY));
+					var rewards = of(new DailyCrate());
 					invent.add(rewards).save();
 					u.save();
 
@@ -147,7 +149,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					var amt = u.rewardAndSave((long) (Math.random() * 250 + 100), mult);
 
 					Inventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
-					var rewards = of(new LootCrateItem(CrateType.WEEKLY));
+					var rewards = of(new WeeklyCrate());
 					invent.add(rewards).save();
 					u.save();
 
@@ -175,7 +177,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					var amt = u.rewardAndSave((long) (Math.random() * 10000 + 4000), mult);
 
 					Inventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
-					var rewards = of(new LootCrateItem(CrateType.MONTHLY));
+					var rewards = of(new MonthlyCrate());
 
 					invent.add(rewards).save();
 					u.save();
@@ -191,7 +193,10 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 			@Override
 			public void exec(CommandInvocation inv) {
-				
+				var u = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
+				u.add(new Sandwich()).save();
+				inv.event.getChannel().sendMessage("Success!").queue();
+
 			}
 		});
 
@@ -200,7 +205,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 			@Override
 			protected void tailed(CommandInvocation inv) {
 				if (inv.event.isFromGuild())
-					//					if (!clover.getEconomy().hasServer(inv.event.getGuild().getId())) {
+					// if (!clover.getEconomy().hasServer(inv.event.getGuild().getId())) {
 //						inv.event.getChannel().sendMessage("There is nothing in the shop yet...").queue();
 //					} else {
 //						EmbedBuilder eb = new EmbedBuilder();
