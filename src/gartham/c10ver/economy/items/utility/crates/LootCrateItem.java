@@ -2,12 +2,15 @@ package gartham.c10ver.economy.items.utility.crates;
 
 import org.alixia.javalibrary.json.JSONObject;
 
+import gartham.c10ver.economy.Rewards;
 import gartham.c10ver.economy.items.Item;
 
 public abstract class LootCrateItem extends Item {
 
 	public static final String ITEM_TYPE = "loot-crate";
 	private final Property<String> crateType = stringProperty("type");
+	
+	protected abstract Rewards open();
 
 	protected final void setCrateType(String type) {
 		crateType.set(type);
