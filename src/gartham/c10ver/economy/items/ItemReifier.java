@@ -4,6 +4,8 @@ import org.alixia.javalibrary.json.JSONObject;
 import org.alixia.javalibrary.json.JSONValue;
 
 import gartham.c10ver.economy.items.utility.crates.LootCrateItem;
+import gartham.c10ver.economy.items.utility.foodstuffs.Hamburger;
+import gartham.c10ver.economy.items.utility.foodstuffs.Pizza;
 import gartham.c10ver.economy.items.utility.foodstuffs.Sandwich;
 import gartham.c10ver.economy.items.utility.foodstuffs.Spaghetti;
 
@@ -20,6 +22,10 @@ public class ItemReifier {
 			yield new Spaghetti(json);
 		case Sandwich.ITEM_TYPE:
 			yield new Sandwich(json);
+		case Hamburger.ITEM_TYPE:
+			yield new Hamburger(json);
+		case Pizza.ITEM_TYPE:
+			yield new Pizza(json);
 		default:
 			throw new IllegalArgumentException("Unexpected value: " + type);
 		};
