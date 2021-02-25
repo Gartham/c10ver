@@ -36,7 +36,9 @@ import gartham.c10ver.economy.Server;
 import gartham.c10ver.economy.User;
 import gartham.c10ver.economy.items.Inventory;
 import gartham.c10ver.economy.items.Inventory.Entry;
+import gartham.c10ver.economy.items.Item;
 import gartham.c10ver.economy.items.utility.crates.DailyCrate;
+import gartham.c10ver.economy.items.utility.crates.LootCrateItem;
 import gartham.c10ver.economy.items.utility.crates.MonthlyCrate;
 import gartham.c10ver.economy.items.utility.crates.WeeklyCrate;
 import gartham.c10ver.economy.items.utility.foodstuffs.Sandwich;
@@ -189,16 +191,52 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 			}
 		});
 
-		register(new MatchBasedCommand("open", "use") {
+		new ParentCommand("open", "use") {
+
+			{
+				new Subcommand("crate", "loot-crate") {
+					@SuppressWarnings("unchecked")
+					@Override
+					protected void tailed(SubcommandInvocation inv) {
+						if (inv.args.length == 0)
+							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+									+ " please tell me what type of crate you want to open.").queue();
+						else if (inv.args.length == 1) {
+							if (clover.getEconomy().hasUser(inv.event.getAuthor().getId())) {
+								var i = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
+								var crateEntry = (Entry<LootCrateItem>) i.get("loot-crate");
+								if (crateEntry != null) {
+									for (var is : crateEntry.getStacks())
+										if (is.getItem().getCrateType().equalsIgnoreCase(inv.args[0])) {
+											// TODO Open crate.
+											is.remove(BigInteger.ONE);
+											return;
+										}
+								}
+							}
+							inv.event.getChannel().sendMessage(
+									inv.event.getAuthor().getAsMention() + " you don't have any crates of that type.")
+									.queue();
+
+						} else
+							inv.event.getChannel().sendMessage(
+									inv.event.getAuthor().getAsMention() + " too many args! Just provide a crate type!")
+									.queue();
+					}
+				};
+			}
 
 			@Override
-			public void exec(CommandInvocation inv) {
-				var u = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
-				u.add(new Sandwich()).save();
-				inv.event.getChannel().sendMessage("Success!").queue();
-
+			protected void tailed(CommandInvocation inv) {
+				if (inv.args.length == 0)
+					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+							+ " provide what item you want to open or use and try again.").queue();
+				else
+					inv.event.getChannel()
+							.sendMessage(inv.event.getAuthor().getAsMention() + " you can't open that item (yet?)!")
+							.queue();
 			}
-		});
+		};
 
 		register(new ParentCommand("shop", "market") {
 
