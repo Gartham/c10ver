@@ -4,7 +4,7 @@ import org.alixia.javalibrary.json.JSONObject;
 
 import gartham.c10ver.economy.items.Item;
 
-public class LootCrateItem extends Item {
+public abstract class LootCrateItem extends Item {
 
 	public static final String ITEM_TYPE = "loot-crate";
 	private final Property<String> crateType = stringProperty("type");
