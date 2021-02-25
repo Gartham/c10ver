@@ -26,4 +26,15 @@ public abstract class LootCrateItem extends Item {
 		super(ITEM_TYPE);
 	}
 
+	public static LootCrateItem decipher(JSONObject obj) {
+		String crateType = obj.getString("type");
+		if (crateType == null)
+			throw new IllegalArgumentException();
+		return switch (crateType) {
+		case DailyCrate.ITEM_TYPE -> new DailyCrate(obj);
+		default -> throw new IllegalArgumentException("Unexpected value: " + crateType);
+		};
+
+	}
+
 }
