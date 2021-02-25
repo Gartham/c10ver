@@ -18,7 +18,7 @@ public class WeeklyCrate extends LootCrateItem {
 			CRATE_TYPE = "weekly";
 
 	{
-		setItemName(ITEM_NAME);
+		setCustomName(ITEM_NAME);
 		setIcon(ITEM_ICON);
 		setCrateType(CRATE_TYPE);
 	}

@@ -28,7 +28,7 @@ public class MonthlyCrate extends LootCrateItem {
 
 	{
 		setCrateType(CRATE_TYPE);
-		setItemName(ITEM_NAME);
+		setCustomName(ITEM_NAME);
 		setIcon(ITEM_ICON);
 	}
 

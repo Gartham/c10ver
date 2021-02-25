@@ -17,7 +17,7 @@ public class DailyCrate extends LootCrateItem {
 			CRATE_TYPE = "daily";
 
 	{
-		setItemName(ITEM_NAME);
+		setCustomName(ITEM_NAME);
 		setIcon(ITEM_ICON);
 		setCrateType(CRATE_TYPE);
 	}
