@@ -247,7 +247,8 @@ public final class Utilities {
 		if (!cloves.equals(BigInteger.ZERO))
 			sb.append(format(cloves)).append('\n');
 		for (ItemBunch<?> ib : items)
-			sb.append("`" + ib.getCount() + "`x" + ib.getItem().getIcon() + ' ' + ib.getItem().getCustomName() + '\n');
+			sb.append(
+					"`" + ib.getCount() + "`x" + ib.getItem().getIcon() + ' ' + ib.getItem().getEffectiveName() + '\n');
 
 		var mul = multiplier(mult);
 		if (mul != null)
@@ -260,7 +261,8 @@ public final class Utilities {
 		if (!cloves.equals(BigInteger.ZERO))
 			sb.append(format(cloves)).append('\n');
 		for (ItemBunch<?> ib : items)
-			sb.append("`" + ib.getCount() + "`x" + ib.getItem().getIcon() + ' ' + ib.getItem().getCustomName() + '\n');
+			sb.append(
+					"`" + ib.getCount() + "`x" + ib.getItem().getIcon() + ' ' + ib.getItem().getEffectiveName() + '\n');
 
 		var mul = multiplier(mult);
 		if (mul != null)

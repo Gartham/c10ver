@@ -13,6 +13,10 @@ public abstract class Item extends PropertyObject {
 			icon = stringProperty("$icon").setAttribute(false).setTransient(true),
 			customName = stringProperty("$custom-name").setAttribute(false).setTransient(true);
 
+	public String getEffectiveName() {
+		return getCustomName() == null ? getItemName() : getCustomName();
+	}
+
 	@Override
 	public void load(JSONObject properties) {
 		String s = properties.getString("item-type");
