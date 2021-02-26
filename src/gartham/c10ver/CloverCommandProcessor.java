@@ -214,7 +214,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 											var totalCloves = u.rewardAndSave(rew.getCloves(), totalMult);
 											for (var i : rew.getItemList())
 												u.getInventory().add(i).save();
-											is.remove(BigInteger.ONE);
+											is.removeAndSave(BigInteger.ONE);
 											u.save();
 
 											inv.event.getChannel()

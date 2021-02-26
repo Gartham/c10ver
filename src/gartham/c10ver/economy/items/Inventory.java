@@ -267,7 +267,7 @@ public class Inventory {
 				return item.get().getCustomName();
 			}
 
-			public void remove(BigInteger amt) {
+			public ItemStack remove(BigInteger amt) {
 				if (!alive)
 					throw new IllegalArgumentException("Cannot perform operation while stack is discarded.");
 				if (amt.compareTo(count()) > 0)
@@ -279,7 +279,15 @@ public class Inventory {
 					Entry.this.remove(this);
 					stacks.remove(this);
 					alive = false;
+					return null;
 				}
+				return this;
+			}
+
+			public void removeAndSave(BigInteger amt) {
+				var is = remove(amt);
+				if (is != null)
+					is.save();
 			}
 
 			{
