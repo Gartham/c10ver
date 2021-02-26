@@ -11,6 +11,10 @@ public class Bunch<V> {
 		this.count = count;
 	}
 
+	public Bunch(V value) {
+		this(value, BigInteger.ONE);
+	}
+
 	public V getValue() {
 		return value;
 	}
