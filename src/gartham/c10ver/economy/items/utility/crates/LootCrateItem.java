@@ -14,7 +14,7 @@ public abstract class LootCrateItem extends Item {
 		setItemName(ITEM_NAME);
 	}
 
-	protected abstract Rewards open();
+	public abstract Rewards open();
 
 	protected final void setCrateType(String type) {
 		crateType.set(type);
