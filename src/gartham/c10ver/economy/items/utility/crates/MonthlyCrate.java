@@ -33,7 +33,7 @@ public class MonthlyCrate extends LootCrateItem {
 	}
 
 	@Override
-	protected Rewards open() {
+	public Rewards open() {
 		List<ItemBunch<?>> items = new ArrayList<>();
 		items.add(new ItemBunch<>(new Spaghetti(), BigInteger.valueOf((long) (Math.random() * 3 + 6))));
 		double rand = Math.random();

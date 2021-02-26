@@ -31,7 +31,7 @@ public class WeeklyCrate extends LootCrateItem {
 	}
 
 	@Override
-	protected Rewards open() {
+	public Rewards open() {
 		List<ItemBunch<?>> items = new ArrayList<>();
 		items.add(new ItemBunch<>(new Sandwich(), BigInteger.valueOf((long) (Math.random() * 4 + 2))));
 		if (Math.random() > 0.8)

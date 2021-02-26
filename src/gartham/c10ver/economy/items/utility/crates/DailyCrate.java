@@ -30,7 +30,7 @@ public class DailyCrate extends LootCrateItem {
 	}
 
 	@Override
-	protected Rewards open() {
+	public Rewards open() {
 		List<ItemBunch<?>> items = new ArrayList<>();
 		if (Math.random() < 0.05)
 			items.add(new ItemBunch<>(new Sandwich(), Math.random() < 0.2 ? BigInteger.TWO : BigInteger.ONE));
