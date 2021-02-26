@@ -50,7 +50,7 @@ public final class Multiplier extends PropertyObject {
 	}
 
 	public Duration getTimeRemaining() {
-		return Duration.between(expr.get(), Instant.now());
+		return Duration.between(Instant.now(), expr.get());
 	}
 
 	public BigDecimal getAmount() {
