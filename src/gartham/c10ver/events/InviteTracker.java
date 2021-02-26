@@ -25,13 +25,11 @@ public class InviteTracker {
 			eventHandler.getClover().getBot().awaitReady();
 		} catch (InterruptedException e) {
 		}
-		System.out.println(eventHandler.getClover().getBot().getGuilds());
 		for (Guild g : eventHandler.getClover().getBot().getGuilds()) {
 			Map<String, Integer> invmap = new HashMap<>();
 			invites.put(g.getId(), invmap);
-			for (var i : g.retrieveInvites().complete()) {
+			for (var i : g.retrieveInvites().complete())
 				invmap.put(i.getCode(), i.getUses());
-			}
 		}
 	}
 
@@ -48,23 +46,21 @@ public class InviteTracker {
 		for (Iterator<Invite> iterator = ev.getGuild().retrieveInvites().complete().iterator(); iterator.hasNext();) {
 			var i = iterator.next();
 			if (i.getUses() != map.get(i.getCode())) {
-				if (i.getMaxUses() <= map.get(i.getCode())) {
+				if (i.getMaxUses() != 0 && i.getMaxUses() <= map.get(i.getCode()))
 					map.remove(i.getCode());
-				} else
+				else
 					map.put(i.getCode(), i.getUses());
 				while (iterator.hasNext()) {
 					var j = iterator.next();
-					if (j.isTemporary() && Duration.between(OffsetDateTime.now(), j.getTimeCreated()).getSeconds() > j
-							.getMaxAge()) {
+					if (j.isTemporary()
+							&& Duration.between(OffsetDateTime.now(), j.getTimeCreated()).getSeconds() > j.getMaxAge())
 						map.remove(j.getCode());
-					}
 				}
 				return i.getInviter();
 			}
 			if (i.isTemporary()
-					&& Duration.between(OffsetDateTime.now(), i.getTimeCreated()).getSeconds() > i.getMaxAge()) {
+					&& Duration.between(OffsetDateTime.now(), i.getTimeCreated()).getSeconds() > i.getMaxAge())
 				map.remove(i.getCode());
-			}
 		}
 
 		throw new RuntimeException("Something went wrong!");
