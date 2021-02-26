@@ -211,10 +211,12 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 											for (var m : rew.getMultipliers())
 												u.addMultiplier(m);
 											var totalMult = u.calcMultiplier(inv.event.getGuild());
-											var totalCloves = u.reward(rew.getCloves(), totalMult);
+											var totalCloves = u.rewardAndSave(rew.getCloves(), totalMult);
 											for (var i : rew.getItemList())
 												u.getInventory().add(i).save();
 											is.remove(BigInteger.ONE);
+											u.save();
+
 											inv.event.getChannel()
 													.sendMessage(inv.event.getAuthor().getAsMention()
 															+ " is opening a **" + lci.getCustomName() + "**!\n\n"
