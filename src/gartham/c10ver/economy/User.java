@@ -135,7 +135,6 @@ public class User extends SavablePropertyObject {
 	}
 
 	public BigInteger reward(BigInteger amount, BigDecimal multiplier) {
-
 		var x = new BigDecimal(amount).multiply(multiplier).toBigInteger();
 		getAccount().deposit(x);
 		totalEarnings.set(totalEarnings.get().add(x));

@@ -36,12 +36,10 @@ import gartham.c10ver.economy.Server;
 import gartham.c10ver.economy.User;
 import gartham.c10ver.economy.items.Inventory;
 import gartham.c10ver.economy.items.Inventory.Entry;
-import gartham.c10ver.economy.items.Item;
 import gartham.c10ver.economy.items.utility.crates.DailyCrate;
 import gartham.c10ver.economy.items.utility.crates.LootCrateItem;
 import gartham.c10ver.economy.items.utility.crates.MonthlyCrate;
 import gartham.c10ver.economy.items.utility.crates.WeeklyCrate;
-import gartham.c10ver.economy.items.utility.foodstuffs.Sandwich;
 import gartham.c10ver.economy.questions.Question;
 import gartham.c10ver.economy.questions.Question.Difficulty;
 import gartham.c10ver.economy.server.ColorRole;
@@ -191,7 +189,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 			}
 		});
 
-		new ParentCommand("open", "use") {
+		register(new ParentCommand("open", "use") {
 
 			{
 				new Subcommand("crate", "loot-crate") {
@@ -203,16 +201,27 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 									+ " please tell me what type of crate you want to open.").queue();
 						else if (inv.args.length == 1) {
 							if (clover.getEconomy().hasUser(inv.event.getAuthor().getId())) {
-								var i = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
-								var crateEntry = (Entry<LootCrateItem>) i.get("loot-crate");
-								if (crateEntry != null) {
+								var u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
+								var crateEntry = (Entry<LootCrateItem>) u.getInventory().get("loot-crate");
+								if (crateEntry != null)
 									for (var is : crateEntry.getStacks())
 										if (is.getItem().getCrateType().equalsIgnoreCase(inv.args[0])) {
-											// TODO Open crate.
+											LootCrateItem lci = is.getItem();
+											var rew = lci.open();
+											for (var m : rew.getMultipliers())
+												u.addMultiplier(m);
+											var totalMult = u.calcMultiplier(inv.event.getGuild());
+											var totalCloves = u.reward(rew.getCloves(), totalMult);
+											for (var i : rew.getItemList())
+												u.getInventory().add(i).save();
 											is.remove(BigInteger.ONE);
+											inv.event.getChannel()
+													.sendMessage(inv.event.getAuthor().getAsMention()
+															+ " is opening a **" + lci.getCustomName() + "**!\n\n"
+															+ listRewards(rew, totalCloves, totalMult))
+													.queue();
 											return;
 										}
-								}
 							}
 							inv.event.getChannel().sendMessage(
 									inv.event.getAuthor().getAsMention() + " you don't have any crates of that type.")
@@ -236,7 +245,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 							.sendMessage(inv.event.getAuthor().getAsMention() + " you can't open that item (yet?)!")
 							.queue();
 			}
-		};
+		});
 
 		register(new ParentCommand("shop", "market") {
 
