@@ -114,7 +114,7 @@ public class EventHandler implements EventListener {
 								user.rewardAndSave(rawrew, mult);
 								mre.getChannel()
 										.sendMessage(mre.getAuthor().getAsMention()
-												+ ", you found some coins sitting on the ground.\n"
+												+ ", you found some cloves sitting on the ground.\n"
 												+ Utilities.listRewards(rawrew, mult) + "\nTotal Cloves: "
 												+ format(user.getAccount().getBalance()))
 										.queue();

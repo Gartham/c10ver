@@ -985,7 +985,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 											String m = Utilities.multiplier(mult);
 
 											String msg = user.getAsMention()
-													+ ", you got the question right and earned " + rewards
+													+ ", you got the question right and earned " + format(rewards)
 													+ " for answering it!";
 											if (m != null)
 												msg += "\n\nMultiplier: **" + m + "**.";
