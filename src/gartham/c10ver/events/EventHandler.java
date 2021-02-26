@@ -27,7 +27,8 @@ public class EventHandler implements EventListener {
 	private final Generator<InfoPopup> infoPopupGenerator = Generator.arrayLoop(tip(
 			"You can get daily, weekly, and monthly rewards with the commands: `~daily`, `~weekly`, and `~monthly` respectively!"),
 			tip("Every time you send a message in #general, there's a small chance you'll stumble upon some loot."),
-			tip("You can open crates using the `open crate` command! Just type `~open crate crate-type`."));
+			tip("You can open crates using the `open crate` command! Just type `~open crate crate-type`."),
+			tip("You can pay other users using the `pay` command!"));
 	private final InviteTracker inviteTracker = new InviteTracker(this);
 
 	public Clover getClover() {
