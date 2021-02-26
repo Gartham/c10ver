@@ -1441,6 +1441,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 		help.addCommand("daily", "Receive daily rewards! You can only run this once a day.", "daily");
 		help.addCommand("weekly", "Receive weekly rewards! You can only run this once a day.", "weekly");
 		help.addCommand("monthly", "Receive monthly rewards! You can only run this once a day.", "monthly");
+		help.addCommand("open", "Open a crate or loot box, or use an item!", "open (item-type) (item)", "use");
 		help.addCommand("color", "Lets you purchase a color role.", "color ", "color-role");
 		help.addCommand("pay", "Use this command to pay other people.", "pay (user) (amount)");
 		help.addCommand("balance", "Tells you how rich you are.", "balance", "bal");
