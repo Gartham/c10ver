@@ -243,12 +243,16 @@ public final class Utilities {
 		return listRewards(cloves, null, items);
 	}
 
-	public static String listRewards(Rewards rewards) {
+	public static String listRewards(Rewards rewards, BigInteger totalCloves, BigDecimal totalMult) {
 		String rew = listRewards(rewards.getCloves(), rewards.getItemList());
 		StringBuilder sb = new StringBuilder(rew);
 		for (var m : rewards.getMultipliers())
 			sb.append("[**x").append(m.getAmount()).append("**] for ").append(formatLargest(m.getTimeRemaining(), 2))
 					.append('\n');
+		sb.append("\nTotal Cloves: ").append(format(totalCloves));
+		var mul = multiplier(totalMult);
+		if (mul != null)
+			sb.append("\nTotal Mult: ").append("**[x").append(mul).append("]**");
 		return sb.toString();
 	}
 
@@ -257,8 +261,8 @@ public final class Utilities {
 		if (!cloves.equals(BigInteger.ZERO))
 			sb.append(format(cloves)).append('\n');
 		for (ItemBunch<?> ib : items)
-			sb.append(
-					"`" + ib.getCount() + "`x" + ib.getItem().getIcon() + ' ' + ib.getItem().getEffectiveName() + '\n');
+			sb.append("`" + ib.getCount() + "`x " + ib.getItem().getIcon() + ' ' + ib.getItem().getEffectiveName()
+					+ '\n');
 
 		var mul = multiplier(mult);
 		if (mul != null)
@@ -271,8 +275,8 @@ public final class Utilities {
 		if (!cloves.equals(BigInteger.ZERO))
 			sb.append(format(cloves)).append('\n');
 		for (ItemBunch<?> ib : items)
-			sb.append(
-					"`" + ib.getCount() + "`x" + ib.getItem().getIcon() + ' ' + ib.getItem().getEffectiveName() + '\n');
+			sb.append("`" + ib.getCount() + "`x " + ib.getItem().getIcon() + ' ' + ib.getItem().getEffectiveName()
+					+ '\n');
 
 		var mul = multiplier(mult);
 		if (mul != null)
