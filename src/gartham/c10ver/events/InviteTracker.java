@@ -33,17 +33,14 @@ public class InviteTracker {
 				invmap.put(i.getCode(), i.getUses());
 			}
 		}
-		System.out.println("Invites: " + invites);
 	}
 
 	public void inviteCreated(GuildInviteCreateEvent ev) {
 		invites.get(ev.getGuild().getId()).put(ev.getInvite().expand().complete().getCode(), ev.getInvite().getUses());
-		System.out.println("Invites: " + invites);
 	}
 
 	public void inviteDeleted(GuildInviteDeleteEvent ev) {
 		invites.get(ev.getGuild().getId()).remove(ev.getCode());
-		System.out.println("Invites: " + invites);
 	}
 
 	public net.dv8tion.jda.api.entities.User calcUser(GuildMemberJoinEvent ev) {
@@ -62,7 +59,6 @@ public class InviteTracker {
 						map.remove(j.getCode());
 					}
 				}
-				System.out.println("Invites: " + invites);
 				return i.getInviter();
 			}
 			if (i.isTemporary()
