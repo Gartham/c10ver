@@ -52,7 +52,7 @@ public class MonthlyCrate extends LootCrateItem {
 			mults.add(Multiplier.ofHr(1, BigDecimal.valueOf(35, 2)));
 		if (Math.random() > 0.9)
 			mults.add(Multiplier.ofMin(10, BigDecimal.valueOf(1)));
-		return new Rewards(items, BigInteger.valueOf((long) (Math.random() * 80000 + 100000)), mults);
+		return new Rewards(items, BigInteger.valueOf((long) (Math.random() * 10000 + 12500)), mults);
 	}
 
 }

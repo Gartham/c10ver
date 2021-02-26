@@ -44,7 +44,7 @@ public class WeeklyCrate extends LootCrateItem {
 			items.add(new ItemBunch<>(new MonthlyCrate(), BigInteger.ONE));
 		double random = Math.random();
 		return new Rewards(items,
-				BigInteger.valueOf((long) (7000 + Math.random() * 4000 + random * random * random * random * 10000)));
+				BigInteger.valueOf((long) (300 + Math.random() * 200 + random * random * random * random * 1000)));
 	}
 
 }
