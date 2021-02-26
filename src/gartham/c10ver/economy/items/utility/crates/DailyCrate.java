@@ -38,7 +38,7 @@ public class DailyCrate extends LootCrateItem {
 			items.add(new ItemBunch<>(new DailyCrate(), BigInteger.valueOf(3)));
 		else if (Math.random() < 0.04)
 			items.add(new ItemBunch<>(new WeeklyCrate(), BigInteger.ONE));
-		BigInteger cloves = BigInteger.valueOf((long) (Math.random() * 650 + 300));
+		BigInteger cloves = BigInteger.valueOf((long) (Math.random() * 25 + 5));
 		return Math.random() < 0.01 ? new Rewards(items, cloves, Multiplier.ofSec(90, BigDecimal.valueOf(25, 2)))
 				: new Rewards(items, cloves);
 	}

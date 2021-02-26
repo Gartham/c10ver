@@ -218,9 +218,11 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 											u.save();
 
 											inv.event.getChannel()
-													.sendMessage(inv.event.getAuthor().getAsMention()
-															+ " is opening a **" + lci.getCustomName() + "**!\n\n"
-															+ listRewards(rew, totalCloves, totalMult))
+													.sendMessage(
+															inv.event.getAuthor().getAsMention() + " is opening a **"
+																	+ lci.getCustomName() + "**!\n\n"
+																	+ listRewards(rew, totalCloves,
+																			u.getAccount().getBalance(), totalMult))
 													.queue();
 											return;
 										}

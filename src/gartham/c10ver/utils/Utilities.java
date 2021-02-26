@@ -29,6 +29,7 @@ import org.alixia.javalibrary.json.JSONValue;
 import org.alixia.javalibrary.streams.CharacterStream;
 import org.alixia.javalibrary.strings.matching.Matching;
 
+import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.Rewards;
 import gartham.c10ver.economy.User;
 import gartham.c10ver.economy.items.ItemBunch;
@@ -243,8 +244,9 @@ public final class Utilities {
 		return listRewards(cloves, null, items);
 	}
 
-	public static String listRewards(Rewards rewards, BigInteger totalCloves, BigDecimal totalMult) {
-		String rew = listRewards(rewards.getCloves(), rewards.getItemList());
+	public static String listRewards(Rewards rewards, BigInteger rewardsCloves, BigInteger totalCloves,
+			BigDecimal totalMult) {
+		String rew = listRewards(rewardsCloves, rewards.getItemList());
 		StringBuilder sb = new StringBuilder(rew);
 		for (var m : rewards.getMultipliers())
 			sb.append("[**x").append(m.getAmount()).append("**] for ").append(formatLargest(m.getTimeRemaining(), 2))
