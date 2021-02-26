@@ -6,6 +6,10 @@ import gartham.c10ver.utils.Bunch;
 
 public class ItemBunch<I extends Item> extends Bunch<I> {
 
+	public I getItem() {
+		return getValue();
+	}
+
 	public ItemBunch(I item, BigInteger count) {
 		super(item, count);
 	}
