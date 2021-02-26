@@ -210,6 +210,15 @@ public class Inventory {
 			return true;
 		}
 
+		private void remove(ItemStack is) {
+			if (stacks.size() == 1 && stacks.contains(is)) {
+				entries.remove(is.getItem().getItemType());
+				entryList.remove(Collections.binarySearch(entryList, is.getItem(), COMPARATOR));
+				getFile().delete();
+				alive = false;
+			}
+		}
+
 		private Entry(I item, BigInteger amt) {
 			entries.put(item.getItemType(), this);
 			entryList.add(-Collections.binarySearch(entryList, item, COMPARATOR) - 1, this);
@@ -267,6 +276,7 @@ public class Inventory {
 				else
 					count.set(count().subtract(amt));
 				if (count.get().equals(BigInteger.ZERO)) {
+					Entry.this.remove(this);
 					stacks.remove(this);
 					alive = false;
 				}
