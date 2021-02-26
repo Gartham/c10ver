@@ -29,6 +29,7 @@ import org.alixia.javalibrary.json.JSONValue;
 import org.alixia.javalibrary.streams.CharacterStream;
 import org.alixia.javalibrary.strings.matching.Matching;
 
+import gartham.c10ver.economy.Rewards;
 import gartham.c10ver.economy.User;
 import gartham.c10ver.economy.items.ItemBunch;
 import net.dv8tion.jda.api.entities.MessageEmbed.Field;
@@ -240,6 +241,15 @@ public final class Utilities {
 
 	public static String listRewards(BigInteger cloves, Iterable<ItemBunch<?>> items) {
 		return listRewards(cloves, null, items);
+	}
+
+	public static String listRewards(Rewards rewards) {
+		String rew = listRewards(rewards.getCloves(), rewards.getItemList());
+		StringBuilder sb = new StringBuilder(rew);
+		for (var m : rewards.getMultipliers())
+			sb.append("[**x").append(m.getAmount()).append("**] for ").append(formatLargest(m.getTimeRemaining(), 2))
+					.append('\n');
+		return sb.toString();
 	}
 
 	public static String listRewards(BigInteger cloves, BigDecimal mult, ItemBunch<?>... items) {
