@@ -9,6 +9,9 @@ import gartham.c10ver.commands.InputProcessor;
 import gartham.c10ver.economy.User;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.events.guild.invite.GuildInviteCreateEvent;
+import net.dv8tion.jda.api.events.guild.invite.GuildInviteDeleteEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
@@ -24,6 +27,11 @@ public class EventHandler implements EventListener {
 	private final Generator<InfoPopup> infoPopupGenerator = Generator.arrayLoop(tip(
 			"You can get daily, weekly, and monthly rewards with the commands: `~daily`, `~weekly`, and `~monthly` respectively!"),
 			tip("Every time you send a message in #general, there's a small chance you'll stumble upon some loot."));
+	private final InviteTracker inviteTracker = new InviteTracker(this);
+
+	public Clover getClover() {
+		return clover;
+	}
 
 	public InputProcessor<MessageReceivedEvent> getMessageProcessor() {
 		return messageProcessor;
@@ -35,6 +43,10 @@ public class EventHandler implements EventListener {
 
 	public EventHandler(Clover clover) {
 		this.clover = clover;
+	}
+
+	public void initialize() {
+		inviteTracker.initialize();
 	}
 
 	@Override
@@ -113,10 +125,42 @@ public class EventHandler implements EventListener {
 				}
 			}
 
-		} else if (event instanceof MessageReactionAddEvent) {
-			var mrae = (MessageReactionAddEvent) event;
-			reactionAdditionProcessor.runInputHandlers(mrae);
-		}
+		} else if (event instanceof MessageReactionAddEvent)
+			reactionAdditionProcessor.runInputHandlers((MessageReactionAddEvent) event);
+		else if (event instanceof GuildMemberJoinEvent) {
+			var ge = (GuildMemberJoinEvent) event;
+			var u = inviteTracker.calcUser(ge);
+			if (u == null) {
+				System.err.println(u);
+				return;
+			} else if (u.isFake())
+				return;
+			var inviter = clover.getEconomy().getAccount(u.getId());
+			var joinee = clover.getEconomy().getUser(ge.getUser().getId());
+			if (joinee.getJoinedGuilds().contains(ge.getGuild().getId()))
+				return;
+
+			inviter.deposit(500);
+			inviter.save();
+			joinee.getAccount().deposit(500);
+			joinee.getAccount().save();
+			joinee.getJoinedGuilds().add(ge.getGuild().getId());
+
+			if (clover.getEconomy().hasServer(ge.getGuild().getId())) {
+				var g = clover.getEconomy().getServer(ge.getGuild().getId());
+				if (g.getGeneralChannel() != null) {
+					var gen = ge.getGuild().getTextChannelById(g.getGeneralChannel());
+					if (gen != null)
+						gen.sendMessage(ge.getUser().getAsMention() + " welcome to the server. ^w^\nYou and "
+								+ inviter.getUser().getUser().getAsMention() + " both received "
+								+ Utilities.format(BigInteger.valueOf(500))).queue();
+				}
+			}
+
+		} else if (event instanceof GuildInviteCreateEvent)
+			inviteTracker.inviteCreated((GuildInviteCreateEvent) event);
+		else if (event instanceof GuildInviteDeleteEvent)
+			inviteTracker.inviteDeleted((GuildInviteDeleteEvent) event);
 	}
 
 }

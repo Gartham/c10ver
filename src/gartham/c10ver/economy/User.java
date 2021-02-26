@@ -6,11 +6,14 @@ import java.math.BigInteger;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
 import org.alixia.javalibrary.json.JSONObject;
+import org.alixia.javalibrary.util.StringGateway;
 
+import gartham.c10ver.data.PropertyObject.Property;
 import gartham.c10ver.data.autosave.SavablePropertyObject;
 import gartham.c10ver.economy.items.Inventory;
 import gartham.c10ver.economy.questions.Question;
@@ -25,6 +28,16 @@ public class User extends SavablePropertyObject {
 			totalEarnings = bigIntegerProperty("total-earnings", BigInteger.ZERO);
 	private final Property<ArrayList<Multiplier>> multipliers = listProperty("multipliers",
 			toObjectGateway(Multiplier::new));
+	private final Property<ArrayList<String>> joinedGuilds = listProperty("joined-guilds",
+			toStringGateway(StringGateway.string()));
+
+	public ArrayList<String> getJoinedGuilds() {
+		return joinedGuilds.get();
+	}
+
+	public void setJoinedGuilds(ArrayList<String> joinedGuilds) {
+		this.joinedGuilds.set(joinedGuilds);
+	}
 
 	private static boolean expired(Multiplier m) {
 		return Instant.now().isAfter(m.getExpiration());
@@ -178,6 +191,8 @@ public class User extends SavablePropertyObject {
 			questions.set(new ArrayList<>());
 		if (multipliers.get() == null)
 			multipliers.set(new ArrayList<>());
+		if (joinedGuilds.get() == null)
+			joinedGuilds.set(new ArrayList<>());
 	}
 
 	public Instant getLastDailyInvocation() {
