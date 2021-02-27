@@ -10,7 +10,7 @@ public class Spaghetti extends Foodstuff {
 	// Every item needs a name, type, and icon.
 	public static final String ITEM_TYPE = "spaghetti", ITEM_NAME = "Spaghetti", ITEM_ICON = ":spaghetti:";
 
-	public static final BigDecimal ITEM_MULT = BigDecimal.valueOf(1, 1);// A value of 5, shifted to the right 1 time.
+	public static final BigDecimal ITEM_MULT = BigDecimal.valueOf(5, 1);// A value of 5, shifted to the right 1 time.
 
 	public static final long ITEM_TTL = min(20);// 5 minutes long. See the `min` convenience function
 														// documentation.

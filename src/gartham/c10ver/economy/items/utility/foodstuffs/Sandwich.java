@@ -8,7 +8,7 @@ import org.alixia.javalibrary.json.JSONObject;
 public class Sandwich extends Foodstuff {
 
 	public static final String ITEM_TYPE = "sandwich", ITEM_NAME = "Sandwich", ITEM_ICON = ":sandwich:";
-	public static final BigDecimal ITEM_MULT = BigDecimal.valueOf(25, 2);// 0.25 (25, shifted to the right twice.)
+	public static final BigDecimal ITEM_MULT = BigDecimal.valueOf(2, 2);// 0.25 (2, shifted to the right twice: 0.02.)
 	public static final long ITEM_TTL = sec(150);// 2.5min
 
 	{
