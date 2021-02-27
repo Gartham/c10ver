@@ -64,48 +64,48 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 	{
 
-		register(new MatchBasedCommand("stats", "info") {
-
-			@Override
-			public void exec(CommandInvocation inv) {
-				net.dv8tion.jda.api.entities.User u;
-				if (inv.args.length > 0) {
-					String id = Utilities.parseMention(inv.args[0]);
-					if (id == null) {
-						inv.event.getChannel().sendMessage(
-								inv.event.getAuthor().getAsMention() + " ping who you want to see the stats of.")
-								.queue();
-						return;
-					} else {
-						try {
-							u = clover.getBot().retrieveUserById(id).complete();
-						} catch (NumberFormatException e) {
-							inv.event.getChannel()
-									.sendMessage(inv.event.getAuthor().getAsMention() + " that's not a valid mention.")
-									.queue();
-							return;
-						}
-						if (u == null) {
-							inv.event.getChannel()
-									.sendMessage(inv.event.getAuthor().getAsMention() + " that user couldn't be found.")
-									.queue();
-							return;
-						} else if (!clover.getEconomy().hasUser(u.getId())) {
-							inv.event.getChannel().sendMessage(u.getAsMention() + " doesn't have an account.").queue();
-							return;
-						}
-					}
-				} else if (!clover.getEconomy().hasUser(inv.event.getAuthor().getId())) {
-					inv.event.getChannel().sendMessage("You don't have an account.").queue();
-					return;
-				} else
-					u = inv.event.getAuthor();
-
-				EmbedBuilder eb = new EmbedBuilder();
-				eb.setAuthor(u.getAsTag() + "'s Stats!", null, u.getEffectiveAvatarUrl()).setColor(Color.blue);
-				// TODO Print stats.
-			}
-		});
+//		register(new MatchBasedCommand("stats", "info") {
+//
+//			@Override
+//			public void exec(CommandInvocation inv) {
+//				net.dv8tion.jda.api.entities.User u;
+//				if (inv.args.length > 0) {
+//					String id = Utilities.parseMention(inv.args[0]);
+//					if (id == null) {
+//						inv.event.getChannel().sendMessage(
+//								inv.event.getAuthor().getAsMention() + " ping who you want to see the stats of.")
+//								.queue();
+//						return;
+//					} else {
+//						try {
+//							u = clover.getBot().retrieveUserById(id).complete();
+//						} catch (NumberFormatException e) {
+//							inv.event.getChannel()
+//									.sendMessage(inv.event.getAuthor().getAsMention() + " that's not a valid mention.")
+//									.queue();
+//							return;
+//						}
+//						if (u == null) {
+//							inv.event.getChannel()
+//									.sendMessage(inv.event.getAuthor().getAsMention() + " that user couldn't be found.")
+//									.queue();
+//							return;
+//						} else if (!clover.getEconomy().hasUser(u.getId())) {
+//							inv.event.getChannel().sendMessage(u.getAsMention() + " doesn't have an account.").queue();
+//							return;
+//						}
+//					}
+//				} else if (!clover.getEconomy().hasUser(inv.event.getAuthor().getId())) {
+//					inv.event.getChannel().sendMessage("You don't have an account.").queue();
+//					return;
+//				} else
+//					u = inv.event.getAuthor();
+//
+//				EmbedBuilder eb = new EmbedBuilder();
+//				eb.setAuthor(u.getAsTag() + "'s Stats!", null, u.getEffectiveAvatarUrl()).setColor(Color.blue);
+//				// TODO Print stats.
+//			}
+//		});
 		register(new MatchBasedCommand("daily") {
 			@Override
 			public void exec(CommandInvocation inv) {
