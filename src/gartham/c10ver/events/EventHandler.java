@@ -8,6 +8,7 @@ import gartham.c10ver.Clover;
 import gartham.c10ver.commands.InputProcessor;
 import gartham.c10ver.economy.User;
 import gartham.c10ver.economy.items.ItemBunch;
+import gartham.c10ver.economy.items.utility.crates.NormalCrate;
 import gartham.c10ver.economy.items.utility.foodstuffs.Pizza;
 import gartham.c10ver.economy.items.utility.foodstuffs.Sandwich;
 import gartham.c10ver.utils.Utilities;
@@ -127,14 +128,21 @@ public class EventHandler implements EventListener {
 								infoPopupGenerator.next().show(mre);
 							else if (Math.random() < 0.01) {
 								if (Math.random() < 0.2) {
-
+									NormalCrate crate = new NormalCrate();
+									user.getInventory().add(crate).save();
+									mre.getChannel()
+											.sendMessage(mre.getAuthor().getAsMention()
+													+ " you look hungry... for a loot crate! (Acquired `1`x "
+													+ crate.getIcon() + crate.getCustomName() + ".)")
+											.queue();
 								} else {
 									BigInteger count = BigInteger.valueOf((long) (Math.random() * 3 + 1));
-									user.getInventory().add(new ItemBunch<>(new Sandwich(), count)).save();
+									Sandwich item = new Sandwich();
+									user.getInventory().add(new ItemBunch<>(item, count)).save();
 									mre.getChannel()
 											.sendMessage(mre.getAuthor().getAsMention()
 													+ " you look hungry. Have some sandwiches! (Acquired `" + count
-													+ "`x Sandwiches)")
+													+ "`x " + item.getIcon() + item.getCustomName() + ".)")
 											.queue();
 
 								}
