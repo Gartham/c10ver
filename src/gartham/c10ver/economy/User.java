@@ -64,6 +64,10 @@ public class User extends SavablePropertyObject {
 		return multipliers.get();
 	}
 
+	public BigDecimal getPersonalTotalMultiplier() {
+		return checkMultipliers();
+	}
+
 	public void addMultiplier(Multiplier m) {
 		if (!expired(m))
 			multipliers.get().add(m);

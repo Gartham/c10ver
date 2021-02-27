@@ -254,7 +254,7 @@ public final class Utilities {
 		sb.append("\nTotal Cloves: ").append(format(totalCloves));
 		var mul = multiplier(totalMult);
 		if (mul != null)
-			sb.append("\nTotal Mult: ").append("**[x").append(mul).append("]**");
+			sb.append("\nTotal Mult: ").append("[**x").append(mul).append("**]");
 		return sb.toString();
 	}
 

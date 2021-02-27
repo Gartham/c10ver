@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import org.alixia.javalibrary.JavaTools;
 import org.alixia.javalibrary.util.Box;
 import org.alixia.javalibrary.util.MultidimensionalMap;
 
@@ -32,6 +33,7 @@ import gartham.c10ver.commands.subcommands.ParentCommand;
 import gartham.c10ver.commands.subcommands.SubcommandInvocation;
 import gartham.c10ver.data.PropertyObject;
 import gartham.c10ver.economy.Account;
+import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.Server;
 import gartham.c10ver.economy.User;
 import gartham.c10ver.economy.items.Inventory;
@@ -260,8 +262,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 								inv.event.getChannel()
 										.sendMessage(inv.event.getAuthor().getAsMention() + " you consumed some "
-												+ lci.getEffectiveName() + " and received a multiplier: **[x"
-												+ Utilities.multiplier(mult) + "]**!")
+												+ lci.getEffectiveName() + " and received a multiplier: [**x"
+												+ Utilities.multiplier(mult) + "**]!")
 										.queue();
 								return;
 							}
@@ -270,6 +272,60 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				inv.event.getChannel()
 						.sendMessage(inv.event.getAuthor().getAsMention() + " you can't open that item (yet?)!")
 						.queue();
+			}
+		});
+
+		help.addCommand("mults", "Lists all of your active multipliers.", "mults", "multipliers");
+		register(new MatchBasedCommand("mults", "multipliers") {
+
+			@Override
+			public void exec(CommandInvocation inv) {
+				if (!clover.getEconomy().hasUser(inv.event.getAuthor().getId()))
+					inv.event.getChannel()
+							.sendMessage(inv.event.getAuthor().getAsMention() + " you don't have any multipliers yet.")
+							.queue();
+				else {
+					var u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
+					var multipliers = u.getMultipliers();
+					if (multipliers.isEmpty()) {
+						inv.event.getChannel()
+								.sendMessage(inv.event.getAuthor().getAsMention() + " you don't have any multipliers.")
+								.queue();
+					} else {
+						StringBuilder sb = new StringBuilder();
+						class MultConv {
+							final Multiplier mult;
+
+							public MultConv(Multiplier mult) {
+								this.mult = mult;
+							}
+
+							@Override
+							public boolean equals(Object obj) {
+								return obj instanceof MultConv
+										&& ((MultConv) obj).mult.getAmount().equals(mult.getAmount());
+							}
+
+							@Override
+							public int hashCode() {
+								return mult.getAmount().hashCode() * 31;
+							}
+
+						}
+						var mm = JavaTools.frequencyMap(JavaTools.mask(multipliers, MultConv::new));
+						for (var e : mm.entrySet()) {
+							sb.append('(').append(e.getValue()).append("x) [**x").append(e.getKey().mult.getAmount());
+							if (e.getValue() == 1)
+								sb.append("**] for ");
+							else
+								sb.append("**] for about ");
+							sb.append(Utilities.formatLargest(e.getKey().mult.getTimeRemaining(), 2)).append("\n\n");
+						}
+						sb.append("Total Personal Multiplier: [**x").append(Utilities.multiplier(u.getPersonalTotalMultiplier())).append("**]");
+						inv.event.getChannel()
+								.sendMessage(inv.event.getAuthor().getAsMention() + "'s Multipliers: \n" + sb).queue();
+					}
+				}
 			}
 		});
 
