@@ -7,6 +7,9 @@ import java.math.BigInteger;
 import gartham.c10ver.Clover;
 import gartham.c10ver.commands.InputProcessor;
 import gartham.c10ver.economy.User;
+import gartham.c10ver.economy.items.ItemBunch;
+import gartham.c10ver.economy.items.utility.foodstuffs.Pizza;
+import gartham.c10ver.economy.items.utility.foodstuffs.Sandwich;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.guild.invite.GuildInviteCreateEvent;
@@ -122,6 +125,20 @@ public class EventHandler implements EventListener {
 										.queue();
 							} else if (cmd && Math.random() < 0.08)
 								infoPopupGenerator.next().show(mre);
+							else if (Math.random() < 0.01) {
+								if (Math.random() < 0.2) {
+
+								} else {
+									BigInteger count = BigInteger.valueOf((long) (Math.random() * 3 + 1));
+									user.getInventory().add(new ItemBunch<>(new Sandwich(), count)).save();
+									mre.getChannel()
+											.sendMessage(mre.getAuthor().getAsMention()
+													+ " you look hungry. Have some sandwiches! (Acquired `" + count
+													+ "`x Sandwiches)")
+											.queue();
+
+								}
+							}
 						}
 					}
 				}
