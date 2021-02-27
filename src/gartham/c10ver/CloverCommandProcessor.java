@@ -40,6 +40,7 @@ import gartham.c10ver.economy.items.utility.crates.DailyCrate;
 import gartham.c10ver.economy.items.utility.crates.LootCrateItem;
 import gartham.c10ver.economy.items.utility.crates.MonthlyCrate;
 import gartham.c10ver.economy.items.utility.crates.WeeklyCrate;
+import gartham.c10ver.economy.items.utility.foodstuffs.Foodstuff;
 import gartham.c10ver.economy.questions.Question;
 import gartham.c10ver.economy.questions.Question.Difficulty;
 import gartham.c10ver.economy.server.ColorRole;
@@ -244,10 +245,31 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				if (inv.args.length == 0)
 					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
 							+ " provide what item you want to open or use and try again.").queue();
-				else
-					inv.event.getChannel()
-							.sendMessage(inv.event.getAuthor().getAsMention() + " you can't open that item (yet?)!")
-							.queue();
+				else if (inv.args.length == 1)
+					if (clover.getEconomy().hasUser(inv.event.getAuthor().getId())) {
+						var u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
+						var crateEntry = u.getInventory().get(inv.args[0]);
+						if (crateEntry != null) {
+							Entry<?>.ItemStack is = crateEntry.get(0);
+							if (is.getItem() instanceof Foodstuff) {
+								is.removeAndSave(BigInteger.ONE);
+								var lci = (Foodstuff) is.getItem();
+								var mult = lci.getMultiplier();
+								lci.consume(u);
+								u.save();
+
+								inv.event.getChannel()
+										.sendMessage(inv.event.getAuthor().getAsMention() + " you consumed some "
+												+ lci.getEffectiveName() + " and received a multiplier: **[x"
+												+ Utilities.multiplier(mult) + "]**!")
+										.queue();
+								return;
+							}
+						}
+					}
+				inv.event.getChannel()
+						.sendMessage(inv.event.getAuthor().getAsMention() + " you can't open that item (yet?)!")
+						.queue();
 			}
 		});
 
