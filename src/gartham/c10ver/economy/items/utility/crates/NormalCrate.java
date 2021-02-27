@@ -1,8 +1,13 @@
 package gartham.c10ver.economy.items.utility.crates;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.alixia.javalibrary.json.JSONObject;
 
 import gartham.c10ver.economy.Rewards;
+import gartham.c10ver.economy.items.ItemBunch;
 
 public class NormalCrate extends LootCrateItem {
 	public static final String ITEM_NAME = "Normal Crate", ITEM_ICON = "<:normalcrate:815039013085773825>",
@@ -23,8 +28,15 @@ public class NormalCrate extends LootCrateItem {
 
 	@Override
 	public Rewards open() {
-		// TODO Auto-generated method stub
-		return null;
+		List<ItemBunch<?>> items = new ArrayList<>();
+		if (Math.random() < 0.02)
+			items.add(new ItemBunch<>(switch ((int) (Math.random() * 3)) {
+			case 0 -> new DailyCrate();
+			case 1 -> new WeeklyCrate();
+			case 2 -> new MonthlyCrate();
+			default -> throw new IllegalArgumentException("Unexpected value.");
+			}));
+		return new Rewards(items, BigInteger.valueOf(250));
 	}
 
 }
