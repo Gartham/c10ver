@@ -2,7 +2,10 @@ package gartham.c10ver.commands;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+
+import org.alixia.javalibrary.JavaTools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -57,12 +60,10 @@ public class CommandHelpBook {
 	}
 
 	public final class ParentCommandHelp extends CommandHelp {
-		private final String[] subcommands;
 		private final List<CommandHelp> subcmds = new ArrayList<>();
 
 		public ParentCommandHelp(String name, String description, String[] aliases, String... subcommands) {
 			super(name, description, aliases);
-			this.subcommands = subcommands;
 		}
 
 		@Override
@@ -70,8 +71,8 @@ public class CommandHelpBook {
 			String desc = '*' + description + '*';
 			if (aliases.length != 0)
 				desc += "\nAliases: " + aliasesToString(true, aliases);
-			if (subcommands.length != 0)
-				desc += "\nSubcommands: " + aliasesToString(true, subcommands);
+			if (!subcmds.isEmpty())
+				desc += "\nSubcommands: " + prettyPrint(true, JavaTools.mask(subcmds.iterator(), a -> a.name));
 			desc += "\nType: Category";
 			builder.addField(name, desc, false);
 		}
@@ -83,8 +84,8 @@ public class CommandHelpBook {
 			String desc = '*' + description + '*';
 			if (aliases.length != 0)
 				desc += "\nAliases: " + aliasesToString(true, aliases);
-			if (subcommands.length != 0)
-				desc += "\nSubcommands: " + aliasesToString(true, subcommands);
+			if (!subcmds.isEmpty())
+				desc += "\nSubcommands: " + prettyPrint(true, JavaTools.mask(subcmds.iterator(), a -> a.name));
 			desc += "\nType: `category`\nSubcommands...\n\u200B";
 			builder.appendDescription(desc);
 			for (CommandHelp ch : subcmds)
@@ -122,8 +123,8 @@ public class CommandHelpBook {
 		return help;
 	}
 
-	public ParentCommandHelp addCommand(String name, String description, String[] aliases, String... subcommands) {
-		final ParentCommandHelp pch = new ParentCommandHelp(name, description, aliases, subcommands);
+	public ParentCommandHelp addParentCommand(String name, String description, String[] aliases) {
+		final ParentCommandHelp pch = new ParentCommandHelp(name, description, aliases);
 		helps.add(pch);
 		return pch;
 	}
@@ -144,6 +145,19 @@ public class CommandHelpBook {
 		builder.append(wrap ? '`' + aliases[0] + '`' : aliases[0]);
 		for (int i = 1; i < aliases.length; i++)
 			builder.append(", " + (wrap ? '`' + aliases[i] + '`' : aliases[i]));
+		return builder.toString();
+	}
+
+	private String prettyPrint(boolean wrap, Iterator<String> aliases) {
+		if (!aliases.hasNext())
+			return "";
+		final StringBuilder builder = new StringBuilder();
+		String n = aliases.next();
+		builder.append(wrap ? '`' + n + '`' : n);
+		while (aliases.hasNext()) {
+			n = aliases.next();
+			builder.append(", " + (wrap ? '`' + n + '`' : n));
+		}
 		return builder.toString();
 	}
 
