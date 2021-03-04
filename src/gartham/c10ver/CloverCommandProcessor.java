@@ -313,15 +313,20 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 						}
 						var mm = JavaTools.frequencyMap(JavaTools.mask(multipliers, MultConv::new));
-						for (var e : mm.entrySet()) {
-							sb.append('(').append(e.getValue()).append("x) [**x").append(e.getKey().mult.getAmount());
-							if (e.getValue() == 1)
-								sb.append("**] for ");
-							else
-								sb.append("**] for about ");
-							sb.append(Utilities.formatLargest(e.getKey().mult.getTimeRemaining(), 2)).append("\n\n");
+						if (!mm.isEmpty()) {
+							for (var e : mm.entrySet()) {
+								sb.append('(').append(e.getValue()).append("x) [**x")
+										.append(e.getKey().mult.getAmount());
+								if (e.getValue() == 1)
+									sb.append("**] for ");
+								else
+									sb.append("**] for about ");
+								sb.append(Utilities.formatLargest(e.getKey().mult.getTimeRemaining(), 2)).append('\n');
+							}
+							sb.append('\n');
 						}
-						sb.append("Total Personal Multiplier: [**x").append(Utilities.multiplier(u.getPersonalTotalMultiplier())).append("**]");
+						sb.append("Total Personal Multiplier: [**x")
+								.append(Utilities.multiplier(u.getPersonalTotalMultiplier())).append("**]");
 						inv.event.getChannel()
 								.sendMessage(inv.event.getAuthor().getAsMention() + "'s Multipliers: \n" + sb).queue();
 					}
