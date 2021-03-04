@@ -1,5 +1,6 @@
 package gartham.c10ver.commands;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,15 +16,88 @@ public class CommandHelpBook {
 		this.helpsPerPage = helpsPerPage;
 	}
 
-	public final class CommandHelp {
-		private final String name, description, usage, aliases[];
+	public abstract class CommandHelp {
+		protected final String name, description, aliases[];
 
-		public CommandHelp(String name, String description, String usage, String... aliases) {
+		public CommandHelp(String name, String description, String... aliases) {
 			this.name = name;
 			this.description = description;
-			this.usage = usage;
 			this.aliases = aliases;
 		}
+
+		public abstract void print(EmbedBuilder builder);
+
+		public abstract void print(MessageChannel channel);
+
+	}
+
+	public final class SimpleCommandHelp extends CommandHelp {
+		private final String usage;
+
+		public SimpleCommandHelp(String name, String description, String usage, String... aliases) {
+			super(name, description, aliases);
+			this.usage = usage;
+		}
+
+		public void print(EmbedBuilder builder) {
+			String desc = '*' + description + "*\nUsage: `" + usage + '`';
+			if (aliases.length != 0)
+				desc += "\nAliases: " + aliasesToString(true, aliases);
+			builder.addField(name, desc, false);
+		}
+
+		public void print(MessageChannel channel) {
+			final EmbedBuilder builder = new EmbedBuilder();
+			builder.setColor(new Color(255, 254, 255));
+			builder.setAuthor(name, null, channel.getJDA().getSelfUser().getAvatarUrl())
+					.appendDescription("Showing help for command, `" + name.replace("`", "\\`") + "`:");
+			print(builder);
+			channel.sendMessage(builder.build()).queue();
+		}
+	}
+
+	public final class ParentCommandHelp extends CommandHelp {
+		private final String[] subcommands;
+		private final List<CommandHelp> subcmds = new ArrayList<>();
+
+		public ParentCommandHelp(String name, String description, String[] aliases, String... subcommands) {
+			super(name, description, aliases);
+			this.subcommands = subcommands;
+		}
+
+		@Override
+		public void print(EmbedBuilder builder) {
+			String desc = '*' + description + '*';
+			if (aliases.length != 0)
+				desc += "\nAliases: " + aliasesToString(true, aliases);
+			if (subcommands.length != 0)
+				desc += "\nSubcommands: " + aliasesToString(true, subcommands);
+			desc += "\nType: Category";
+			builder.addField(name, desc, false);
+		}
+
+		@Override
+		public void print(MessageChannel channel) {
+			final EmbedBuilder builder = new EmbedBuilder();
+			builder.setAuthor(name, null, null);
+			String desc = '*' + description + '*';
+			if (aliases.length != 0)
+				desc += "\nAliases: " + aliasesToString(true, aliases);
+			if (subcommands.length != 0)
+				desc += "\nSubcommands: " + aliasesToString(true, subcommands);
+			desc += "\nType: `category`\nSubcommands...\n\u200B";
+			builder.appendDescription(desc);
+			for (CommandHelp ch : subcmds)
+				ch.print(builder);
+			channel.sendMessage(builder.build()).queue();
+		}
+
+		public CommandHelp addSubcommand(String name, String description, String usage, String... aliases) {
+			final CommandHelp help = new SimpleCommandHelp(name, description, usage, aliases);
+			subcmds.add(help);
+			return help;
+		}
+
 	}
 
 	private int helpsPerPage = 3;
@@ -43,9 +117,15 @@ public class CommandHelpBook {
 	}
 
 	public CommandHelp addCommand(String name, String description, String usage, String... aliases) {
-		final CommandHelp help = new CommandHelp(name, description, usage, aliases);
+		final CommandHelp help = new SimpleCommandHelp(name, description, usage, aliases);
 		helps.add(help);
 		return help;
+	}
+
+	public ParentCommandHelp addCommand(String name, String description, String[] aliases, String... subcommands) {
+		final ParentCommandHelp pch = new ParentCommandHelp(name, description, aliases, subcommands);
+		helps.add(pch);
+		return pch;
 	}
 
 	/**
@@ -67,19 +147,6 @@ public class CommandHelpBook {
 		return builder.toString();
 	}
 
-	public void print(EmbedBuilder builder, CommandHelp help) {
-		builder.addField(help.name, "Description: " + help.description + "\n__Usage__: `" + help.usage + "`\nAliases: "
-				+ aliasesToString(true, help.aliases) + "\n\u200B", false);
-	}
-
-	public void print(MessageChannel channel, CommandHelp help) {
-		final EmbedBuilder builder = new EmbedBuilder();
-		builder.setAuthor(null, null, channel.getJDA().getSelfUser().getAvatarUrl())
-				.appendDescription("Showing help for command, `" + help.name.replace("`", "\\`") + "`:");
-		print(builder, help);
-		channel.sendMessage(builder.build()).queue();
-	}
-
 	public void print(MessageChannel channel, int page) {
 		final int item = (page - 1) * helpsPerPage;
 		final int maxPage = (helps.size() + helpsPerPage - 1) / helpsPerPage;
@@ -90,9 +157,10 @@ public class CommandHelpBook {
 					.build()).queue();
 		else {
 			final EmbedBuilder builder = new EmbedBuilder();
+			builder.setColor(new Color(255, 254, 255));
 			builder.appendDescription("Showing page `" + page + "` out of `" + maxPage + "` of help.\n\u200B");
 			for (int i = item; i < item + helpsPerPage;) {
-				print(builder, helps.get(i));
+				helps.get(i).print(builder);
 				if (++i >= helps.size()) {
 					builder.setFooter("End of help reached.");
 					channel.sendMessage(builder.build()).queue();
@@ -110,38 +178,88 @@ public class CommandHelpBook {
 			if (ignoreCase) {
 				for (final CommandHelp ch : helps)
 					if (ch.name.equalsIgnoreCase(command)) {
-						print(channel, ch);
+						ch.print(channel);
 						return true;
 					} else
 						for (final String s : ch.aliases)
 							if (s.equalsIgnoreCase(command)) {
-								print(channel, ch);
+								ch.print(channel);
 								return true;
 							}
 			} else
 				for (final CommandHelp ch : helps)
 					if (ch.name.equals(command)) {
-						print(channel, ch);
+						ch.print(channel);
 						return true;
 					} else
 						for (final String s : ch.aliases)
 							if (s.equals(command)) {
-								print(channel, ch);
+								ch.print(channel);
 								return true;
 							}
 		} else if (ignoreCase) {
 			for (final CommandHelp ch : helps)
 				if (ch.name.equalsIgnoreCase(command)) {
-					print(channel, ch);
+					ch.print(channel);
 					return true;
 				}
 		} else
 			for (final CommandHelp ch : helps)
 				if (ch.name.equals(command)) {
-					print(channel, ch);
+					ch.print(channel);
 					return true;
 				}
 		return false;
 	}
 
+	public boolean print(MessageChannel channel, boolean allowAliases, boolean ignoreCase, String... commands) {
+		List<CommandHelp> helps = this.helps;
+		CommandHelp hlp = null;
+		ROOT: for (String s : commands) {
+			if (hlp instanceof ParentCommandHelp)
+				helps = ((ParentCommandHelp) hlp).subcmds;
+			else if (hlp == null)
+				return false;
+			if (allowAliases) {
+				if (ignoreCase) {
+					for (final CommandHelp ch : helps)
+						if (ch.name.equalsIgnoreCase(s)) {
+							hlp = ch;
+							continue ROOT;
+						} else
+							for (final String s1 : ch.aliases)
+								if (s.equalsIgnoreCase(s1)) {
+									hlp = ch;
+									continue ROOT;
+								}
+				} else
+					for (final CommandHelp ch : helps)
+						if (ch.name.equals(s)) {
+							hlp = ch;
+							continue ROOT;
+						} else
+							for (final String s1 : ch.aliases)
+								if (s.equals(s1)) {
+									hlp = ch;
+									continue ROOT;
+								}
+			} else if (ignoreCase) {
+				for (final CommandHelp ch : helps)
+					if (ch.name.equalsIgnoreCase(s)) {
+						hlp = ch;
+						continue ROOT;
+					}
+			} else
+				for (final CommandHelp ch : helps)
+					if (ch.name.equals(s)) {
+						hlp = ch;
+						continue ROOT;
+					}
+			return false;
+		}
+
+		hlp.print(channel);
+
+		return true;
+	}
 }
