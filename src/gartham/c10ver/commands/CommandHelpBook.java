@@ -218,7 +218,7 @@ public class CommandHelpBook {
 		ROOT: for (String s : commands) {
 			if (hlp instanceof ParentCommandHelp)
 				helps = ((ParentCommandHelp) hlp).subcmds;
-			else if (hlp == null)
+			else if (hlp != null)
 				return false;
 			if (allowAliases) {
 				if (ignoreCase) {
