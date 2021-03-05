@@ -1545,13 +1545,13 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 		help.addCommand("daily", "Receive daily rewards! You can only run this once a day.", "daily");
 		help.addCommand("weekly", "Receive weekly rewards! You can only run this once a day.", "weekly");
 		help.addCommand("monthly", "Receive monthly rewards! You can only run this once a day.", "monthly");
-		help.addCommand("mults", "Shows you what multipliers you have active.", "mults");
 		help.addCommand("open", "Open a crate or loot box, or use an item!", "open (item-type) (item)", "use");
+		help.addCommand("mults", "Shows you what multipliers you have active.", "mults");
 		help.addCommand("color", "Lets you purchase a color role.", "color ", "color-role");
 		help.addCommand("pay", "Use this command to pay other people.", "pay (user) (amount)");
 		help.addCommand("balance", "Tells you how rich you are.", "balance", "bal");
-		help.addCommand("leaderboard", "Check out who the richest people in this server are!", "leaderboard [page]",
-				"baltop");
+		help.addCommand("baltop", "Check out who the richest people in this server are!", "baltop [page]",
+				"leaderboard");
 		help.addCommand("inventory", "Shows your inventory.", "inventory [item-id] [page]", "inv");
 		{
 			var quizHelp = help.addParentCommand("quiz",
