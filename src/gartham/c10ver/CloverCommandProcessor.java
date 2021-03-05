@@ -1541,7 +1541,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 			}
 		});
 
-		help.addCommand("stats", "Shows a user's stats!", "stats [user]", "info");
+//		help.addCommand("stats", "Shows a user's stats!", "stats [user]", "info");
 		help.addCommand("daily", "Receive daily rewards! You can only run this once a day.", "daily");
 		help.addCommand("weekly", "Receive weekly rewards! You can only run this once a day.", "weekly");
 		help.addCommand("monthly", "Receive monthly rewards! You can only run this once a day.", "monthly");
