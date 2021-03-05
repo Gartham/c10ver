@@ -1469,7 +1469,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 									case "color-role":
 									case "colorrole":
 										ROLEP: {
-											String cm = Utilities.parseChannelMention(inv.args[1]);
+											String cm = Utilities.parseRoleMention(inv.args[1]);
 											if (cm == null)
 												cm = inv.args[1];
 											Object o;
