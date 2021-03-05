@@ -6,10 +6,14 @@ import java.math.BigInteger;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import org.alixia.javalibrary.json.JSONObject;
+import org.alixia.javalibrary.util.StringGateway;
 
+import gartham.c10ver.data.PropertyObject.Property;
 import gartham.c10ver.data.autosave.SavablePropertyObject;
 import gartham.c10ver.economy.items.Inventory;
 import gartham.c10ver.economy.questions.Question;
@@ -20,6 +24,66 @@ public class User extends SavablePropertyObject {
 	private final Property<Instant> dailyCommand = instantProperty("daily", Instant.MIN),
 			weeklyCommand = instantProperty("weekly", Instant.MIN),
 			monthlyCommand = instantProperty("monthly", Instant.MIN);
+	private final Property<BigInteger> messageCount = bigIntegerProperty("message-count", BigInteger.ZERO),
+			totalEarnings = bigIntegerProperty("total-earnings", BigInteger.ZERO);
+	private final Property<ArrayList<Multiplier>> multipliers = listProperty("multipliers",
+			toObjectGateway(Multiplier::new));
+	private final Property<ArrayList<String>> joinedGuilds = listProperty("joined-guilds",
+			toStringGateway(StringGateway.string()));
+
+	public ArrayList<String> getJoinedGuilds() {
+		return joinedGuilds.get();
+	}
+
+	public void setJoinedGuilds(ArrayList<String> joinedGuilds) {
+		this.joinedGuilds.set(joinedGuilds);
+	}
+
+	private static boolean expired(Multiplier m) {
+		return Instant.now().isAfter(m.getExpiration());
+	}
+
+	private BigDecimal checkMultipliers() {
+		if (multipliers.get().isEmpty())
+			return BigDecimal.ZERO;
+		BigDecimal res = BigDecimal.ZERO;
+		Instant now = Instant.now();
+		for (Iterator<Multiplier> iterator = multipliers.get().iterator(); iterator.hasNext();) {
+			Multiplier m = iterator.next();
+			if (now.isAfter(m.getExpiration()))
+				iterator.remove();
+			else
+				res = res.add(m.getAmount());
+		}
+
+		return res;
+	}
+
+	public ArrayList<Multiplier> getMultipliers() {
+		checkMultipliers();
+		return multipliers.get();
+	}
+
+	public BigDecimal getPersonalTotalMultiplier() {
+		return BigDecimal.ONE.add(checkMultipliers());
+	}
+
+	public void addMultiplier(Multiplier m) {
+		if (!expired(m))
+			multipliers.get().add(m);
+	}
+
+	public BigInteger getMessageCount() {
+		return messageCount.get();
+	}
+
+	public void setMessageCount(BigInteger count) {
+		messageCount.set(count);
+	}
+
+	public void incrementMessageCount() {
+		setMessageCount(getMessageCount().add(BigInteger.ONE));
+	}
 
 	private final Property<ArrayList<Question>> questions = listProperty("questions",
 			toObjectGateway(t -> new Question((JSONObject) t)));
@@ -59,8 +123,10 @@ public class User extends SavablePropertyObject {
 	public BigDecimal calcMultiplier(Guild guild) {
 		var v = guild == null ? null : guild.getMember(getUser()).getTimeBoosted();
 		var x = v == null ? BigDecimal.ONE
-				: BigDecimal.valueOf(5, -1).add(BigDecimal.valueOf(Duration.between(v, Instant.now()).toDays() + 1)
-						.multiply(BigDecimal.valueOf(1, -2)));
+				: BigDecimal.valueOf(13, 1).add(BigDecimal.valueOf(Duration.between(v, Instant.now()).toDays() + 1)
+						.multiply(BigDecimal.valueOf(1, 2)));
+		x = x.add(checkMultipliers());
+		System.out.println(x);
 		return x;
 	}
 
@@ -80,10 +146,28 @@ public class User extends SavablePropertyObject {
 		return reward(amount, calcMultiplier(guild));
 	}
 
+	@Override
+	public void save() {
+		checkMultipliers();
+		super.save();
+	}
+
 	public BigInteger reward(BigInteger amount, BigDecimal multiplier) {
 		var x = new BigDecimal(amount).multiply(multiplier).toBigInteger();
 		getAccount().deposit(x);
+		totalEarnings.set(totalEarnings.get().add(x));
 		return x;
+	}
+
+	public BigInteger rewardAndSave(BigInteger amount, BigDecimal multiplier) {
+		var x = reward(amount, multiplier);
+		save();
+		account.save();
+		return x;
+	}
+
+	public BigInteger rewardAndSave(long amount, BigDecimal multiplier) {
+		return rewardAndSave(BigInteger.valueOf(amount), multiplier);
 	}
 
 	public BigInteger reward(long amount, BigDecimal multiplier) {
@@ -106,8 +190,14 @@ public class User extends SavablePropertyObject {
 		inventory = new Inventory(userDirectory, this);
 		if (load)
 			load();
+		if (getMessageCount() == null)
+			setMessageCount(BigInteger.ZERO);
 		if (questions.get() == null)
 			questions.set(new ArrayList<>());
+		if (multipliers.get() == null)
+			multipliers.set(new ArrayList<>());
+		if (joinedGuilds.get() == null)
+			joinedGuilds.set(new ArrayList<>());
 	}
 
 	public Instant getLastDailyInvocation() {

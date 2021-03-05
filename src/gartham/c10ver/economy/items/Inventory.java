@@ -18,6 +18,7 @@ import org.alixia.javalibrary.json.JSONObject;
 import gartham.c10ver.data.PropertyObject;
 import gartham.c10ver.economy.Economy;
 import gartham.c10ver.economy.User;
+import gartham.c10ver.economy.items.Inventory.Entry.ItemStack;
 import gartham.c10ver.utils.Utilities;
 
 /**
@@ -71,10 +72,20 @@ public class Inventory {
 		return Utilities.maxPage(pagesize, entryList);
 	}
 
-	private static final Comparator<Object> COMPARATOR = (o1, o2) -> (o1 instanceof String ? (String) o1
-			: o1 instanceof Entry<?> ? ((Entry<?>) o1).getType() : ((Entry<?>.ItemStack) o1).getType())
-					.compareTo(o2 instanceof String ? (String) o2
-							: o2 instanceof Entry<?> ? ((Entry<?>) o2).getType() : ((Entry<?>.ItemStack) o2).getType());
+	private static String res(Object o) {
+		if (o instanceof String)
+			return (String) o;
+		else if (o instanceof Entry<?>)
+			return ((Entry<?>) o).getType();
+		else if (o instanceof ItemStack)
+			return ((Entry<?>.ItemStack) o).getType();
+		else if (o instanceof Item)
+			return ((Item) o).getItemType();
+		else
+			throw new IllegalArgumentException();
+	}
+
+	private static final Comparator<Object> COMPARATOR = (o1, o2) -> res(o1).compareTo(res(o2));
 
 	@SuppressWarnings("unchecked")
 	public <I extends Item> Entry<I> add(I item, BigInteger amt) {
@@ -199,6 +210,15 @@ public class Inventory {
 			return true;
 		}
 
+		private void remove(ItemStack is) {
+			if (stacks.size() == 1 && stacks.contains(is)) {
+				entries.remove(is.getItem().getItemType());
+				entryList.remove(Collections.binarySearch(entryList, is.getItem(), COMPARATOR));
+				getFile().delete();
+				alive = false;
+			}
+		}
+
 		private Entry(I item, BigInteger amt) {
 			entries.put(item.getItemType(), this);
 			entryList.add(-Collections.binarySearch(entryList, item, COMPARATOR) - 1, this);
@@ -239,11 +259,15 @@ public class Inventory {
 				return count.get();
 			}
 
+			public String getEffectiveName() {
+				return getCustomName() == null ? getName() : getCustomName();
+			}
+
 			public String getCustomName() {
 				return item.get().getCustomName();
 			}
 
-			public void remove(BigInteger amt) {
+			public ItemStack remove(BigInteger amt) {
 				if (!alive)
 					throw new IllegalArgumentException("Cannot perform operation while stack is discarded.");
 				if (amt.compareTo(count()) > 0)
@@ -252,9 +276,18 @@ public class Inventory {
 				else
 					count.set(count().subtract(amt));
 				if (count.get().equals(BigInteger.ZERO)) {
+					Entry.this.remove(this);
 					stacks.remove(this);
 					alive = false;
+					return null;
 				}
+				return this;
+			}
+
+			public void removeAndSave(BigInteger amt) {
+				var is = remove(amt);
+				if (is != null)
+					is.save();
 			}
 
 			{

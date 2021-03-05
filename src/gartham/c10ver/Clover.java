@@ -87,6 +87,7 @@ public class Clover {
 		commandParser = new CommandParser(Matching.build("~").or(
 				Matching.build("<@").possibly("!").then(bot.getSelfUser().getId() + ">").then(Matching.whitespace())));
 		bot.addEventListener(eventHandler);
+		eventHandler.initialize();
 	}
 
 	public static void main(String[] args) throws LoginException {

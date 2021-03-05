@@ -48,6 +48,15 @@ public class Account extends SavablePropertyObject {
 		deposit(BigInteger.valueOf(amt));
 	}
 
+	/**
+	 * Takes the specified amount of money out of this {@link Account} and returns
+	 * <code>true</code>, or returns <code>false</code>.
+	 * 
+	 * @param amt The amount to attempt to withdraw.
+	 * @return Whether or not the withdrawal was a success. Withdrawal will be
+	 *         successful only if this {@link Account} has as much or more money
+	 *         than the specified amount.
+	 */
 	public boolean withdraw(BigInteger amt) {
 		if (getBalance().compareTo(amt) < 0)
 			return false;

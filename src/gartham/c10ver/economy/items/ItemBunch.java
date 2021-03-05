@@ -2,21 +2,20 @@ package gartham.c10ver.economy.items;
 
 import java.math.BigInteger;
 
-public class ItemBunch<I extends Item> {
-	private final I item;
-	private final BigInteger count;
+import gartham.c10ver.utils.Bunch;
 
-	public BigInteger getCount() {
-		return count;
-	}
+public class ItemBunch<I extends Item> extends Bunch<I> {
 
 	public I getItem() {
-		return item;
+		return getValue();
 	}
 
 	public ItemBunch(I item, BigInteger count) {
-		this.item = item;
-		this.count = count;
+		super(item, count);
+	}
+
+	public ItemBunch(I value) {
+		super(value);
 	}
 
 	public static <I extends Item> ItemBunch<I> of(I item, BigInteger amount) {
@@ -26,5 +25,5 @@ public class ItemBunch<I extends Item> {
 	public static <I extends Item> ItemBunch<I> of(I item) {
 		return of(item, BigInteger.ONE);
 	}
-	
+
 }

@@ -16,6 +16,7 @@ import java.util.function.Supplier;
 
 import org.alixia.javalibrary.JavaTools;
 import org.alixia.javalibrary.json.JSONArray;
+import org.alixia.javalibrary.json.JSONConstant;
 import org.alixia.javalibrary.json.JSONNumber;
 import org.alixia.javalibrary.json.JSONObject;
 import org.alixia.javalibrary.json.JSONString;
@@ -484,6 +485,26 @@ public class PropertyObject {
 
 	protected final Property<BigInteger> bigIntegerProperty(String key, BigInteger def) {
 		return toStringProperty(key, def, BigInteger::new);
+	}
+
+	protected final Property<Boolean> booleanProperty(String key) {
+		return booleanProperty(key, false);
+	}
+
+	protected final Property<Boolean> booleanProperty(String key, Boolean def) {
+		return new Property<Boolean>(key, def, new Gateway<>() {
+
+			@Override
+			public JSONValue to(Boolean value) {
+				return value == null ? JSONConstant.NULL : value ? JSONConstant.TRUE : JSONConstant.FALSE;
+			}
+
+			@Override
+			public Boolean from(JSONValue value) {
+				var c = (JSONConstant) value;
+				return c == JSONConstant.NULL ? null : c == JSONConstant.TRUE;
+			}
+		});
 	}
 
 	protected final Property<Instant> instantProperty(String key, Instant def) {

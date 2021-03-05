@@ -1,6 +1,7 @@
 package gartham.c10ver.economy;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.collections4.map.HashedMap;
@@ -10,7 +11,7 @@ import gartham.c10ver.economy.items.Inventory;
 
 public class Economy {
 
-	private final File econDir;
+	private final File root;
 	private final Clover clover;
 
 	public Clover getClover() {
@@ -19,21 +20,33 @@ public class Economy {
 
 	public Economy(File dir, Clover clover) {
 		this.clover = clover;
-		econDir = dir;
-		File[] userFolder = dir.listFiles();
+		root = dir;
+		File[] userFolder = getUserDir().listFiles();
 		if (userFolder != null)
 			for (File f : userFolder)
 				if (f.isDirectory())
 					users.put(f.getName(), new User(f, this));
+		File[] serverFolder = getServersDir().listFiles();
+		if (serverFolder != null)
+			for (File f : serverFolder)
+				if (f.isDirectory())
+					servers.put(f.getName(), new Server(f));
 	}
 
 	private final Map<String, User> users = new HashedMap<>();
+	private final Map<String, Server> servers = new HashMap<>();
 
 	public synchronized User getUser(String userID) throws RuntimeException {
 		// TODO Synch over user instead.
 		if (!users.containsKey(userID))
-			users.put(userID, new User(new File(econDir, userID), this));
+			users.put(userID, new User(new File(getUserDir(), userID), this));
 		return users.get(userID);
+	}
+
+	public synchronized Server getServer(String serverID) throws RuntimeException {
+		if (!servers.containsKey(serverID))
+			servers.put(serverID, new Server(new File(getServersDir(), serverID)));
+		return servers.get(serverID);
 	}
 
 	public Account getAccount(String userID) {
@@ -45,7 +58,23 @@ public class Economy {
 	}
 
 	public boolean hasAccount(String userID) {
+		return hasUser(userID);
+	}
+
+	public boolean hasUser(String userID) {
 		return users.containsKey(userID);
+	}
+
+	public boolean hasServer(String serverID) {
+		return servers.containsKey(serverID);
+	}
+
+	public File getUserDir() {
+		return new File(root, "users");
+	}
+
+	public File getServersDir() {
+		return new File(root, "servers");
 	}
 
 }

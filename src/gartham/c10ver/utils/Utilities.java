@@ -29,6 +29,8 @@ import org.alixia.javalibrary.json.JSONValue;
 import org.alixia.javalibrary.streams.CharacterStream;
 import org.alixia.javalibrary.strings.matching.Matching;
 
+import gartham.c10ver.economy.Multiplier;
+import gartham.c10ver.economy.Rewards;
 import gartham.c10ver.economy.User;
 import gartham.c10ver.economy.items.ItemBunch;
 import net.dv8tion.jda.api.entities.MessageEmbed.Field;
@@ -68,6 +70,32 @@ public final class Utilities {
 	 */
 	public static String parseMention(String mention) {
 		var m = Matching.build("<@").possibly("!").match(mention);
+		if (m.length() == mention.length())
+			return null;
+		var nmo = Matching.numbers().match(m);
+		if (nmo.length() == m.length())
+			return null;
+		var res = Matching.build(">").match(nmo);
+		if (res.length() == nmo.length())
+			return null;
+		return m.substring(0, m.length() - nmo.length());
+	}
+
+	public static String parseChannelMention(String mention) {
+		var m = Matching.build("<#").match(mention);
+		if (m.length() == mention.length())
+			return null;
+		var nmo = Matching.numbers().match(m);
+		if (nmo.length() == m.length())
+			return null;
+		var res = Matching.build(">").match(nmo);
+		if (res.length() == nmo.length())
+			return null;
+		return m.substring(0, m.length() - nmo.length());
+	}
+
+	public static String parseRoleMention(String mention) {
+		var m = Matching.build("<@&").match(mention);
 		if (m.length() == mention.length())
 			return null;
 		var nmo = Matching.numbers().match(m);
@@ -216,12 +244,27 @@ public final class Utilities {
 		return listRewards(cloves, null, items);
 	}
 
+	public static String listRewards(Rewards rewards, BigInteger rewardsCloves, BigInteger totalCloves,
+			BigDecimal totalMult) {
+		String rew = listRewards(rewardsCloves, rewards.getItemList());
+		StringBuilder sb = new StringBuilder(rew);
+		for (var m : rewards.getMultipliers())
+			sb.append("[**x").append(m.getAmount()).append("**] for ").append(formatLargest(m.getTimeRemaining(), 2))
+					.append('\n');
+		sb.append("\nTotal Cloves: ").append(format(totalCloves));
+		var mul = multiplier(totalMult);
+		if (mul != null)
+			sb.append("\nTotal Mult: ").append("[**x").append(mul).append("**]");
+		return sb.toString();
+	}
+
 	public static String listRewards(BigInteger cloves, BigDecimal mult, ItemBunch<?>... items) {
 		StringBuilder sb = new StringBuilder();
 		if (!cloves.equals(BigInteger.ZERO))
-			sb.append(format(cloves) + "\n");
+			sb.append(format(cloves)).append('\n');
 		for (ItemBunch<?> ib : items)
-			sb.append("`" + ib.getCount() + "`x" + ib.getItem().getIcon() + ' ' + ib.getItem().getCustomName() + '\n');
+			sb.append("`" + ib.getCount() + "`x " + ib.getItem().getIcon() + ' ' + ib.getItem().getEffectiveName()
+					+ '\n');
 
 		var mul = multiplier(mult);
 		if (mul != null)
@@ -232,9 +275,10 @@ public final class Utilities {
 	public static String listRewards(BigInteger cloves, BigDecimal mult, Iterable<ItemBunch<?>> items) {
 		StringBuilder sb = new StringBuilder();
 		if (!cloves.equals(BigInteger.ZERO))
-			sb.append(format(cloves) + "\n");
+			sb.append(format(cloves)).append('\n');
 		for (ItemBunch<?> ib : items)
-			sb.append("`" + ib.getCount() + "`x" + ib.getItem().getIcon() + ' ' + ib.getItem().getCustomName() + '\n');
+			sb.append("`" + ib.getCount() + "`x " + ib.getItem().getIcon() + ' ' + ib.getItem().getEffectiveName()
+					+ '\n');
 
 		var mul = multiplier(mult);
 		if (mul != null)
@@ -282,6 +326,18 @@ public final class Utilities {
 
 		var b = bd.divide(new BigDecimal(m.amt)).setScale(2, RoundingMode.HALF_UP);
 		return CURRENCY_SYMBOL + ' ' + b.stripTrailingZeros().toPlainString() + m.symbol;
+	}
+
+	public static String strip(String msg) {
+		return stripEveryonePings(stripHerePings(msg));
+	}
+
+	public static String stripEveryonePings(String msg) {
+		return msg.replace("@everyone", "@\u200Beveryone");
+	}
+
+	public static String stripHerePings(String msg) {
+		return msg.replace("@here", "@\u200Bhere");
 	}
 
 }
