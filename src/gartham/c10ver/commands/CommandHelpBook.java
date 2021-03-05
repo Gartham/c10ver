@@ -43,7 +43,7 @@ public class CommandHelpBook {
 		}
 
 		public void print(EmbedBuilder builder) {
-			String desc = '*' + description + "*\nUsage: `" + usage + '`';
+			String desc = '*' + description + "*\nUSAGE: `" + usage + '`';
 			if (aliases.length != 0)
 				desc += "\nALIASES: " + aliasesToString(true, aliases);
 			builder.addField(name, desc, false);
