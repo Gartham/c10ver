@@ -45,7 +45,7 @@ public class CommandHelpBook {
 		public void print(EmbedBuilder builder) {
 			String desc = '*' + description + "*\nUsage: `" + usage + '`';
 			if (aliases.length != 0)
-				desc += "\nAliases: " + aliasesToString(true, aliases);
+				desc += "\nALIASES: " + aliasesToString(true, aliases);
 			builder.addField(name, desc, false);
 		}
 
@@ -62,7 +62,7 @@ public class CommandHelpBook {
 	public final class ParentCommandHelp extends CommandHelp {
 		private final List<CommandHelp> subcmds = new ArrayList<>();
 
-		public ParentCommandHelp(String name, String description, String[] aliases, String... subcommands) {
+		public ParentCommandHelp(String name, String description, String... aliases) {
 			super(name, description, aliases);
 		}
 
@@ -70,10 +70,9 @@ public class CommandHelpBook {
 		public void print(EmbedBuilder builder) {
 			String desc = '*' + description + '*';
 			if (aliases.length != 0)
-				desc += "\nAliases: " + aliasesToString(true, aliases);
+				desc += "\nALIASES: " + aliasesToString(true, aliases);
 			if (!subcmds.isEmpty())
-				desc += "\nSubcommands: " + prettyPrint(true, JavaTools.mask(subcmds.iterator(), a -> a.name));
-			desc += "\nType: Category";
+				desc += "\nSUBCOMMANDS: " + prettyPrint(true, JavaTools.mask(subcmds.iterator(), a -> a.name));
 			builder.addField(name, desc, false);
 		}
 
@@ -83,20 +82,24 @@ public class CommandHelpBook {
 			builder.setAuthor(name, null, null);
 			String desc = '*' + description + '*';
 			if (aliases.length != 0)
-				desc += "\nAliases: " + aliasesToString(true, aliases);
-			if (!subcmds.isEmpty())
-				desc += "\nSubcommands: " + prettyPrint(true, JavaTools.mask(subcmds.iterator(), a -> a.name));
-			desc += "\nType: `category`\nSubcommands...\n\u200B";
+				desc += "\nALIASES: " + aliasesToString(true, aliases);
+			desc += "\nSUBCOMMANDS:\n\u200B";
 			builder.appendDescription(desc);
 			for (CommandHelp ch : subcmds)
 				ch.print(builder);
 			channel.sendMessage(builder.build()).queue();
 		}
 
-		public CommandHelp addSubcommand(String name, String description, String usage, String... aliases) {
-			final CommandHelp help = new SimpleCommandHelp(name, description, usage, aliases);
+		public SimpleCommandHelp addSubcommand(String name, String description, String usage, String... aliases) {
+			final SimpleCommandHelp help = new SimpleCommandHelp(name, description, usage, aliases);
 			subcmds.add(help);
 			return help;
+		}
+
+		public ParentCommandHelp addParentSubcommand(String name, String description, String... aliases) {
+			var x = new ParentCommandHelp(name, description, aliases);
+			subcmds.add(x);
+			return x;
 		}
 
 	}
@@ -123,7 +126,7 @@ public class CommandHelpBook {
 		return help;
 	}
 
-	public ParentCommandHelp addParentCommand(String name, String description, String[] aliases) {
+	public ParentCommandHelp addParentCommand(String name, String description, String... aliases) {
 		final ParentCommandHelp pch = new ParentCommandHelp(name, description, aliases);
 		helps.add(pch);
 		return pch;
