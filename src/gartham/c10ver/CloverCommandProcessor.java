@@ -701,10 +701,10 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 		var quizHelp = help.addParentCommand("quiz",
 				"Lets you make, see, and give quizzes! (You must be an officer to access this command.)");
 		quizHelp.addSubcommand("list", "Lists your questions if you have any registered.", "quiz list [page]", "view");
-		quizHelp.addSubcommand("new", "Walks you through creating a new quiz question.", "quiz new (value) (difficulty)",
-				"make", "create");
-		quizHelp.addSubcommand("delete", "Use this to get rid of any of your questions.", "quiz delete (question-number)",
-				"remove", "del", "rem");
+		quizHelp.addSubcommand("new", "Walks you through creating a new quiz question.",
+				"quiz new (value) (difficulty)", "make", "create");
+		quizHelp.addSubcommand("delete", "Use this to get rid of any of your questions.",
+				"quiz delete (question-number)", "remove", "del", "rem");
 		register(new ParentCommand("quiz") {
 
 			class AskedQuiz {
@@ -1526,7 +1526,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 			@Override
 			protected void tailed(CommandInvocation inv) {
-				help.print(inv.event.getChannel(), ch);
+				ch.print(inv.event.getChannel());
 			}
 		});
 

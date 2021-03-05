@@ -162,20 +162,6 @@ public class CommandHelpBook {
 			builder.append(", " + (wrap ? '`' + n + '`' : n));
 		}
 		return builder.toString();
-  }
-	public void print(EmbedBuilder builder, CommandHelp help) {
-		String dsc = "Description: " + help.description + "\n__Usage__: `" + help.usage + '`';
-		if (help.aliases.length != 0)
-			dsc += "\nAliases: " + aliasesToString(true, help.aliases) + "\n\u200B";
-		builder.addField(help.name, dsc, false);
-	}
-
-	public void print(MessageChannel channel, CommandHelp help) {
-		final EmbedBuilder builder = new EmbedBuilder();
-		builder.setAuthor(null, null, channel.getJDA().getSelfUser().getAvatarUrl())
-				.appendDescription("Showing help for command, `" + help.name.replace("`", "\\`") + "`:");
-		print(builder, help);
-		channel.sendMessage(builder.build()).queue();
 	}
 
 	public void print(MessageChannel channel, int page) {
