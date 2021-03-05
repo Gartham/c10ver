@@ -23,7 +23,7 @@ import org.alixia.javalibrary.JavaTools;
 import org.alixia.javalibrary.util.Box;
 import org.alixia.javalibrary.util.MultidimensionalMap;
 
-import gartham.c10ver.commands.CommandHelpBook.CommandHelp;
+import gartham.c10ver.commands.CommandHelpBook.ParentCommandHelp;
 import gartham.c10ver.commands.CommandInvocation;
 import gartham.c10ver.commands.MatchBasedCommand;
 import gartham.c10ver.commands.SimpleCommandProcessor;
@@ -698,13 +698,6 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 			}
 		});
 
-		var quizHelp = help.addParentCommand("quiz",
-				"Lets you make, see, and give quizzes! (You must be an officer to access this command.)");
-		quizHelp.addSubcommand("list", "Lists your questions if you have any registered.", "quiz list [page]", "view");
-		quizHelp.addSubcommand("new", "Walks you through creating a new quiz question.",
-				"quiz new (value) (difficulty)", "make", "create");
-		quizHelp.addSubcommand("delete", "Use this to get rid of any of your questions.",
-				"quiz delete (question-number)", "remove", "del", "rem");
 		register(new ParentCommand("quiz") {
 
 			class AskedQuiz {
@@ -1132,13 +1125,20 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 		});
 		register(new ParentCommand("setup") {
 
-			private final CommandHelp ch = help.addCommand("setup", "Server configuration and setup.",
-					"setup (subcommand >>>)");
-
+			private final ParentCommandHelp setupHelp = help.addParentCommand("setup",
+					"Allows you to set up and configure the bot to work with a server. (You must be a Clover Officer to access this command!)");
+			private final ParentCommandHelp configHelp = setupHelp.addParentSubcommand("configure",
+					"Configures specific settings for Clover. This will let you change settings, set new settings, and clear old settings.",
+					"config");
 			{
+				setupHelp.addSubcommand("register",
+						"Registers a server (and possibly its general channel) with Clover. This must be run in the server that should be linked to Clover.",
+						"setup register [general-channel]", "create", "new");
+				setupHelp.addSubcommand("view",
+						"Allows you to view configuration settings that Clover has stored for this server.",
+						"setup view");
+
 				new Subcommand("register", "create", "new") {
-					// Syntax:
-					// setup register [general-channel]
 					@Override
 					protected void tailed(SubcommandInvocation inv) {
 						if (!inv.event.isFromGuild()) {
@@ -1226,6 +1226,19 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				new Subcommand("configure", "config") {
 
 					{
+						configHelp.addSubcommand("set",
+								"Sets the value of a specific property. Currently you can set the general, gambling, or spam channel.\nFor example, `setup config set general #main` will configure clover to use `#main` as the general channel.",
+								"setup ... set (property) (value)");
+						configHelp.addSubcommand("clear",
+								"Clears the value of a property. Currently, you can clear the general, spam, and gambling channel properties, or the color role list property.\nExample: `setup config clear color-roles`",
+								"setup ... clear (property)");
+						configHelp.addSubcommand("add",
+								"Adds a value to a property which holds multiple elements, (like the color role list).",
+								"setup ... add (property) (...values)");
+						configHelp.addSubcommand("remove",
+								"Removes a SINGLE ELEMENT from a property that contains multiple elements. Ex: `setup config remove color-roles @Red`.\nTo completely clear a property, use the `clear` subcommand instead of the `remove` subcommand.",
+								"setup ... remove (property) (value)");
+
 						new Subcommand("set") {
 
 							@Override
@@ -1513,9 +1526,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 					@Override
 					protected void tailed(SubcommandInvocation inv) {
-						inv.event.getChannel()
-								.sendMessage(inv.event.getAuthor().getAsMention() + " sepcify a valid subcommand.")
-								.queue();
+						configHelp.print(inv.event.getChannel());
 					}
 				};
 			}
@@ -1526,7 +1537,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 			@Override
 			protected void tailed(CommandInvocation inv) {
-				ch.print(inv.event.getChannel());
+				setupHelp.print(inv.event.getChannel());
 			}
 		});
 
@@ -1541,6 +1552,17 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 		help.addCommand("leaderboard", "Check out who the richest people in this server are!", "leaderboard [page]",
 				"baltop");
 		help.addCommand("inventory", "Shows your inventory.", "inventory [item-id] [page]", "inv");
+		{
+			var quizHelp = help.addParentCommand("quiz",
+					"Lets you make, see, and give quizzes! (You must be a Clover Officer to access this command!)");
+			quizHelp.addSubcommand("list", "Lists your questions if you have any registered.", "quiz list [page]",
+					"view");
+			quizHelp.addSubcommand("new", "Walks you through creating a new quiz question.",
+					"quiz new (value) (difficulty)", "make", "create");
+			quizHelp.addSubcommand("delete", "Use this to get rid of any of your questions.",
+					"quiz delete (question-number)", "remove", "del", "rem");
+		}
+		// setup cmd help inside command object.
 	}
 
 	private final static EmbedBuilder printEntries(List<Entry<?>> entries, EmbedBuilder builder) {
