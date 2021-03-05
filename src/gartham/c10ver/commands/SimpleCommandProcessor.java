@@ -30,12 +30,13 @@ public class SimpleCommandProcessor extends CommandProcessor {
 			@Override
 			public void exec(CommandInvocation inv) {
 				int page = 1;
-				FIRST_ARG: if (inv.args.length == 1) {
+				if (inv.args.length == 1) {
 					String arg;
 					if (!inv.args[0].startsWith("\\"))
 						try {
 							page = Integer.parseInt(inv.args[0]);
-							break FIRST_ARG;
+							printHelp(inv.event.getChannel(), page);
+							return;
 						} catch (final NumberFormatException e) {
 							arg = inv.args[0];
 						}
@@ -50,7 +51,7 @@ public class SimpleCommandProcessor extends CommandProcessor {
 								"No (sub)commands found that matched that: `" + String.join(" ", inv.args) + "`.")
 								.queue();
 				} else
-					printHelp(inv.event.getChannel(), page);
+					printHelp(inv.event.getChannel(), 1);
 
 			}
 		});
