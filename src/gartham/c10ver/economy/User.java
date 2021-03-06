@@ -126,7 +126,6 @@ public class User extends SavablePropertyObject {
 				: BigDecimal.valueOf(13, 1).add(BigDecimal.valueOf(Duration.between(v, Instant.now()).toDays() + 1)
 						.multiply(BigDecimal.valueOf(1, 2)));
 		x = x.add(checkMultipliers());
-		System.out.println(x);
 		return x;
 	}
 
