@@ -270,7 +270,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						}
 					}
 				inv.event.getChannel()
-						.sendMessage(inv.event.getAuthor().getAsMention() + " you can't open that item (yet?)!")
+						.sendMessage(inv.event.getAuthor().getAsMention()
+								+ " you can't use that item! Either you don't have any of it, or it doesn't exist.")
 						.queue();
 			}
 		});
@@ -1545,7 +1546,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 		help.addCommand("daily", "Receive daily rewards! You can only run this once a day.", "daily");
 		help.addCommand("weekly", "Receive weekly rewards! You can only run this once a day.", "weekly");
 		help.addCommand("monthly", "Receive monthly rewards! You can only run this once a day.", "monthly");
-		help.addCommand("open", "Open a crate or loot box, or use an item! Use this to open `crate`s or use `food`.", "open [item-type] (item)", "use");
+		help.addCommand("open", "Open a crate or loot box, or use an item! Use this to open `crate`s or use `food`.",
+				"open [item-type] (item)", "use");
 		help.addCommand("mults", "Shows you what multipliers you have active.", "mults");
 		help.addCommand("color", "Lets you purchase a color role.", "color ", "color-role");
 		help.addCommand("pay", "Use this command to pay other people.", "pay (user) (amount)");
