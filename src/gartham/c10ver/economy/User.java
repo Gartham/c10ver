@@ -22,8 +22,7 @@ import net.dv8tion.jda.api.entities.Guild;
 public class User extends SavablePropertyObject {
 
 	private final Property<Instant> dailyCommand = instantProperty("daily", Instant.MIN),
-			weeklyCommand = instantProperty("weekly", Instant.MIN),
-			monthlyCommand = instantProperty("monthly", Instant.MIN);
+			weeklyCommand = instantProperty("weekly"), monthlyCommand = instantProperty("monthly");
 	private final Property<BigInteger> messageCount = bigIntegerProperty("message-count", BigInteger.ZERO),
 			totalEarnings = bigIntegerProperty("total-earnings", BigInteger.ZERO);
 	private final Property<ArrayList<Multiplier>> multipliers = listProperty("multipliers",
@@ -197,6 +196,15 @@ public class User extends SavablePropertyObject {
 			multipliers.set(new ArrayList<>());
 		if (joinedGuilds.get() == null)
 			joinedGuilds.set(new ArrayList<>());
+		if (weeklyCommand.get() == null) {
+			if (monthlyCommand.get() == null)
+				monthlyCommand.set(Instant.now());
+			weeklyCommand.set(Instant.now());
+			save();
+		} else if (monthlyCommand.get() == null) {
+			monthlyCommand.set(Instant.now());
+			save();
+		}
 	}
 
 	public Instant getLastDailyInvocation() {
