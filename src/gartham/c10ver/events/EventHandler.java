@@ -133,7 +133,7 @@ public class EventHandler implements EventListener {
 									mre.getChannel()
 											.sendMessage(mre.getAuthor().getAsMention()
 													+ " you look hungry... for a loot crate! (Acquired `1`x "
-													+ crate.getIcon() + crate.getCustomName() + ".)")
+													+ crate.getIcon() + crate.getEffectiveName() + ".)")
 											.queue();
 								} else {
 									BigInteger count = BigInteger.valueOf((long) (Math.random() * 3 + 1));
@@ -142,7 +142,7 @@ public class EventHandler implements EventListener {
 									mre.getChannel()
 											.sendMessage(mre.getAuthor().getAsMention()
 													+ " you look hungry. Have some sandwiches! (Acquired `" + count
-													+ "`x " + item.getIcon() + item.getCustomName() + ".)")
+													+ "`x " + item.getIcon() + item.getEffectiveName() + ".)")
 											.queue();
 
 								}
