@@ -48,4 +48,5 @@ public interface MessageInputConsumer extends InputConsumer<MessageReceivedEvent
 				return false;
 		};
 	}
+
 }

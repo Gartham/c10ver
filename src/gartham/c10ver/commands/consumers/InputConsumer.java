@@ -1,12 +1,14 @@
 package gartham.c10ver.commands.consumers;
 
+import java.time.Instant;
+
+import gartham.c10ver.commands.InputProcessor;
 import gartham.c10ver.events.EventHandler;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public interface InputConsumer<E extends GenericEvent> {
+
 	/**
 	 * Is tasked with optionally consuming the specified event so that command
 	 * handlers and later-registered {@link InputConsumer}s don't consume it
@@ -26,6 +28,24 @@ public interface InputConsumer<E extends GenericEvent> {
 	 * @return <code>true</code> if the event should be consumed, <code>false</code>
 	 *         otherwise.
 	 */
-	boolean consume(E event, EventHandler eventHandler, InputConsumer<E> consumer);
+	boolean consume(E event, InputProcessor<? extends E> eventHandler, InputConsumer<E> consumer);
+
+	default boolean consume(E event, InputProcessor<? extends E> eventHandler) {
+		return consume(event, eventHandler, this);
+	}
+
+	default InputConsumer<E> withTTL(long millis) {
+		return expires(Instant.now().plusMillis(millis));
+	}
+
+	default InputConsumer<E> expires(Instant ts) {
+		return (a, b, c) -> {
+			if (Instant.now().isAfter(ts))
+				b.removeInputConsumer(this);
+			else
+				return consume(a, b, c);
+			return false;
+		};
+	}
 
 }

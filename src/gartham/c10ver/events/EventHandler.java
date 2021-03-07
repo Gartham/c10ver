@@ -1,6 +1,8 @@
 package gartham.c10ver.events;
 
+import static gartham.c10ver.events.InfoPopup.tip;
 import static gartham.c10ver.utils.Utilities.format;
+import static java.math.BigInteger.valueOf;
 
 import java.math.BigInteger;
 
@@ -9,7 +11,6 @@ import gartham.c10ver.commands.InputProcessor;
 import gartham.c10ver.economy.User;
 import gartham.c10ver.economy.items.ItemBunch;
 import gartham.c10ver.economy.items.utility.crates.NormalCrate;
-import gartham.c10ver.economy.items.utility.foodstuffs.Pizza;
 import gartham.c10ver.economy.items.utility.foodstuffs.Sandwich;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.events.GenericEvent;
@@ -20,14 +21,12 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import zeale.applicationss.notesss.utilities.generators.Generator;
-import static gartham.c10ver.events.InfoPopup.*;
-import static java.math.BigInteger.*;
 
 public class EventHandler implements EventListener {
 
 	private final Clover clover;
-	private final InputProcessor<MessageReceivedEvent> messageProcessor = new InputProcessor<>(this);
-	private final InputProcessor<MessageReactionAddEvent> reactionAdditionProcessor = new InputProcessor<>(this);
+	private final InputProcessor<MessageReceivedEvent> messageProcessor = new InputProcessor<>();
+	private final InputProcessor<MessageReactionAddEvent> reactionAdditionProcessor = new InputProcessor<>();
 	private final Generator<InfoPopup> infoPopupGenerator = Generator.arrayLoop(tip(
 			"You can get daily, weekly, and monthly rewards with the commands: `~daily`, `~weekly`, and `~monthly` respectively!"),
 			tip("Every time you send a message in #general, there's a small chance you'll stumble upon some loot."),

@@ -25,6 +25,7 @@ import org.alixia.javalibrary.util.MultidimensionalMap;
 
 import gartham.c10ver.commands.CommandHelpBook.ParentCommandHelp;
 import gartham.c10ver.commands.CommandInvocation;
+import gartham.c10ver.commands.InputProcessor;
 import gartham.c10ver.commands.MatchBasedCommand;
 import gartham.c10ver.commands.SimpleCommandProcessor;
 import gartham.c10ver.commands.consumers.InputConsumer;
@@ -46,7 +47,6 @@ import gartham.c10ver.economy.items.utility.foodstuffs.Foodstuff;
 import gartham.c10ver.economy.questions.Question;
 import gartham.c10ver.economy.questions.Question.Difficulty;
 import gartham.c10ver.economy.server.ColorRole;
-import gartham.c10ver.events.EventHandler;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
@@ -827,7 +827,6 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 								User user = clover.getEconomy().getUser(event.getAuthor().getId());
 								user.getQuestions().add(q);
 								user.save();
-								eventHandler.getMessageProcessor().scheduleForRemoval(ic);
 								return true;
 							};
 							clover.getEventHandler().getMessageProcessor()
@@ -1574,11 +1573,13 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 							MessageInputConsumer mic = new MessageInputConsumer() {
 
 								@Override
-								public boolean consume(MessageReceivedEvent event, EventHandler eventHandler,
+								public boolean consume(MessageReceivedEvent event,
+										InputProcessor<? extends MessageReceivedEvent> eventHandler,
 										InputConsumer<MessageReceivedEvent> consumer) {
-									// TODO Auto-generated method stub
+
 									return false;
 								}
+
 							};
 						}
 					}

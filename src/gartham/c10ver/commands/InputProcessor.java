@@ -6,23 +6,18 @@ import java.util.List;
 import gartham.c10ver.commands.consumers.InputConsumer;
 import gartham.c10ver.events.EventHandler;
 import net.dv8tion.jda.api.events.Event;
+import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-public class InputProcessor<E extends Event> {
-	private final List<InputConsumer<E>> consumers = new ArrayList<>(100), toRemove = new ArrayList<>(20);
+public class InputProcessor<E extends GenericEvent> {
+	private final List<InputConsumer<? super E>> consumers = new ArrayList<>(100), toRemove = new ArrayList<>(20);
 
-	public synchronized void registerInputConsumer(InputConsumer<E> ic) {
+	public synchronized void registerInputConsumer(InputConsumer<? super E> ic) {
 		consumers.add(ic);
 	}
 
-	public synchronized void removeInputConsumer(InputConsumer<E> ic) {
+	public synchronized void removeInputConsumer(InputConsumer<? super E> ic) {
 		consumers.remove(ic);
-	}
-
-	private final EventHandler eventHandler;
-
-	public InputProcessor(EventHandler eventHandler) {
-		this.eventHandler = eventHandler;
 	}
 
 	/**
@@ -44,7 +39,7 @@ public class InputProcessor<E extends Event> {
 	 * 
 	 * @param ic The {@link InputConsumer} to schedule for removal.
 	 */
-	public synchronized void scheduleForRemoval(InputConsumer<E> ic) {
+	public synchronized void scheduleForRemoval(InputConsumer<? super E> ic) {
 		toRemove.add(ic);
 	}
 
@@ -52,7 +47,7 @@ public class InputProcessor<E extends Event> {
 		boolean res;
 		DEC: {
 			for (var ic : consumers)
-				if (ic.consume(mre, eventHandler, ic)) {
+				if (ic.consume(mre, this)) {
 					res = true;
 					break DEC;
 				}
