@@ -20,7 +20,7 @@ public interface InputConsumer<E extends GenericEvent> {
 	 * {@link InputConsumer} "didn't match" the input.
 	 * 
 	 * @param event        The event to handle.
-	 * @param eventHandler The {@link EventHandler} that is executing the
+	 * @param processor The {@link EventHandler} that is executing the
 	 *                     {@link #consume(E, EventHandler, InputConsumer)} method
 	 *                     on this {@link InputConsumer}.
 	 * @param consumer     This {@link InputConsumer}. Can be used to refer to this
@@ -28,7 +28,7 @@ public interface InputConsumer<E extends GenericEvent> {
 	 * @return <code>true</code> if the event should be consumed, <code>false</code>
 	 *         otherwise.
 	 */
-	boolean consume(E event, InputProcessor<? extends E> eventHandler, InputConsumer<E> consumer);
+	boolean consume(E event, InputProcessor<? extends E> processor, InputConsumer<E> consumer);
 
 	default boolean consume(E event, InputProcessor<? extends E> eventHandler) {
 		return consume(event, eventHandler, this);
