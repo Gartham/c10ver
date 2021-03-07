@@ -1,5 +1,7 @@
 package gartham.c10ver.commands.consumers;
 
+import java.time.Instant;
+
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -46,6 +48,20 @@ public interface MessageInputConsumer extends InputConsumer<MessageReceivedEvent
 				return consume(event, eventHandler, consumer);
 			else
 				return false;
+		};
+	}
+
+	default MessageInputConsumer withTTL(long millis) {
+		return expires(Instant.now().plusMillis(millis));
+	}
+
+	default MessageInputConsumer expires(Instant ts) {
+		return (a, b, c) -> {
+			if (Instant.now().isAfter(ts))
+				b.removeInputConsumer(this);
+			else
+				return consume(a, b, c);
+			return false;
 		};
 	}
 
