@@ -827,6 +827,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 								User user = clover.getEconomy().getUser(event.getAuthor().getId());
 								user.getQuestions().add(q);
 								user.save();
+								eventHandler.scheduleForRemoval(ic);
 								return true;
 							};
 							clover.getEventHandler().getMessageProcessor()
@@ -1566,9 +1567,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
 									+ " that user is not a member of this server. :(").queue();
 						else {
-							inv.event.getChannel()
-									.sendMessage(inv.event.getAuthor().getAsMention()
-											+ " great! What do you want to give to this person?\n1. Cloves\n2. Item(s)")
+							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+									+ " great! What do you want to give to this person?\n1. Cloves - `1 (amount)`\n2. Item(s) `2 (item-type) [item-subtype] [amount]\n3. Finished")
 									.queue();
 							MessageInputConsumer mic = new MessageInputConsumer() {
 
