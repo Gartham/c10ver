@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import org.alixia.javalibrary.JavaTools;
+import org.alixia.javalibrary.strings.StringTools;
 import org.alixia.javalibrary.util.Box;
 import org.alixia.javalibrary.util.MultidimensionalMap;
 
@@ -1566,21 +1567,40 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						if (u == null)
 							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
 									+ " that user is not a member of this server. :(").queue();
-						else {
+						else {// TODO Check if `u` is bot or caller.
 							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
-									+ " great! What do you want to give to this person?\n1. Cloves - `1 (amount)`\n2. Item(s) `2 (item-type) [item-subtype] [amount]\n3. Finished")
+									+ " great! What do you want to give to this person? (Select a number.)\n1. Cloves - `1. (amount)`\n2. Item(s) `2. (item-type) [item-subtype] [amount]\n3. Finished\n4. Cancel\n\nThis will be automatically cancelled if you don't respond within 30 seconds.")
 									.queue();
 							MessageInputConsumer mic = new MessageInputConsumer() {
 
 								@Override
 								public boolean consume(MessageReceivedEvent event,
-										InputProcessor<? extends MessageReceivedEvent> eventHandler,
+										InputProcessor<? extends MessageReceivedEvent> processor,
 										InputConsumer<MessageReceivedEvent> consumer) {
-
-									return false;
+									var c = event.getMessage().getContentRaw();
+									switch (c) {
+									case "4":
+									case "4.":
+										inv.event.getChannel()
+												.sendMessage(
+														inv.event.getAuthor().getAsMention() + " cancelled the trade.")
+												.queue();
+										processor.removeInputConsumer(consumer);
+										return true;
+									case "3":
+									case "3.":
+										break;
+									case "2":
+									case "2.":
+										break;
+									case "1":
+									case "1.":
+									}
+									return true;
 								}
 
-							};
+							}.filter(u.getUser(), inv.event.getChannel()).withTTL(30000);
+							clover.getEventHandler().getMessageProcessor().registerInputConsumer(mic);
 						}
 					}
 				}
