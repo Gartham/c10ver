@@ -1127,7 +1127,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 		register(new ParentCommand("setup") {
 
 			private final ParentCommandHelp setupHelp = help.addParentCommand("setup",
-					"Allows you to set up and configure the bot to work with a server. (You must be a Clover Officer to access this command!)");
+					"Allows you to set up and configure the bot to work with a server. (__You must be a Clover Officer to access this command!__)");
 			private final ParentCommandHelp configHelp = setupHelp.addParentSubcommand("configure",
 					"Configures specific settings for Clover. This will let you change settings, set new settings, and clear old settings.",
 					"config");
