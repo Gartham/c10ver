@@ -46,6 +46,7 @@ import gartham.c10ver.economy.items.utility.foodstuffs.Foodstuff;
 import gartham.c10ver.economy.questions.Question;
 import gartham.c10ver.economy.questions.Question.Difficulty;
 import gartham.c10ver.economy.server.ColorRole;
+import gartham.c10ver.events.EventHandler;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
@@ -1546,8 +1547,42 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 			@Override
 			public void exec(CommandInvocation inv) {
-				// TODO Auto-generated method stub
+				if (inv.args.length == 0)
+					inv.event.getChannel().sendMessage(
+							inv.event.getAuthor().getAsMention() + " you need to @mention whom you want to trade with.")
+							.queue();
+				else if (inv.args.length > 1)
+					inv.event.getChannel()
+							.sendMessage(
+									inv.event.getAuthor().getAsMention() + " that command only takes one argument!")
+							.queue();
+				else {
+					String id = Utilities.parseMention(inv.args[0]);
+					if (id == null)
+						inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+								+ " please @mention whomever you want to trade with.").queue();
+					else {
+						var u = inv.event.getGuild().getMemberById(id);
+						if (u == null)
+							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+									+ " that user is not a member of this server. :(").queue();
+						else {
+							inv.event.getChannel()
+									.sendMessage(inv.event.getAuthor().getAsMention()
+											+ " great! What do you want to give to this person?\n1. Cloves\n2. Item(s)")
+									.queue();
+							MessageInputConsumer mic = new MessageInputConsumer() {
 
+								@Override
+								public boolean consume(MessageReceivedEvent event, EventHandler eventHandler,
+										InputConsumer<MessageReceivedEvent> consumer) {
+									// TODO Auto-generated method stub
+									return false;
+								}
+							};
+						}
+					}
+				}
 			}
 		});
 
