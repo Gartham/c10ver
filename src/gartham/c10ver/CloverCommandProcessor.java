@@ -1575,6 +1575,9 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					"quiz delete (question-number)", "remove", "del", "rem");
 		}
 		// setup cmd help inside command object.
+		help.addCommand("trade",
+				"Starts a trade with another user. Trades let you securely exchange items, cloves, or other tradeable possessions.",
+				"trade (@user)");
 	}
 
 	private final static EmbedBuilder printEntries(List<Entry<?>> entries, EmbedBuilder builder) {
