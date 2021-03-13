@@ -2,6 +2,8 @@ package gartham.c10ver.commands.consumers;
 
 import java.time.Instant;
 
+import org.alixia.javalibrary.strings.StringTools;
+
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -27,6 +29,24 @@ public interface MessageInputConsumer extends InputConsumer<MessageReceivedEvent
 	default MessageInputConsumer filterChannel(String channelID) {
 		return (event, eventHandler, consumer) -> {
 			if (event.getChannel().getId().equals(channelID))
+				return consume(event, eventHandler, consumer);
+			else
+				return false;
+		};
+	}
+
+	default MessageInputConsumer filterUser(String... userIDs) {
+		return (event, eventHandler, consumer) -> {
+			if (StringTools.equalsAny(event.getAuthor().getId(), userIDs))
+				return consume(event, eventHandler, consumer);
+			else
+				return false;
+		};
+	}
+
+	default MessageInputConsumer filterChannel(String... channelIDs) {
+		return (event, eventHandler, consumer) -> {
+			if (StringTools.equalsAny(event.getChannel().getId(), channelIDs))
 				return consume(event, eventHandler, consumer);
 			else
 				return false;
