@@ -3,6 +3,7 @@ package gartham.c10ver.commands.consumers;
 import java.time.Instant;
 
 import org.alixia.javalibrary.strings.StringTools;
+import org.alixia.javalibrary.util.Box;
 
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -96,6 +97,33 @@ public interface MessageInputConsumer extends InputConsumer<MessageReceivedEvent
 				action.run();
 			} else
 				return consume(a, b, c);
+			return false;
+		};
+	}
+
+	default MessageInputConsumer withActivityTTL(long millis) {
+		var inst = new Box<>(Instant.now().plusMillis(millis));
+		return (a, b, c) -> {
+			if (Instant.now().isAfter(inst.value))
+				b.removeInputConsumer(this);
+			else {
+				inst.value = Instant.now().plusMillis(millis);
+				return consume(a, b, c);
+			}
+			return false;
+		};
+	}
+
+	default MessageInputConsumer withActivityTTL(long millis, Runnable action) {
+		var inst = new Box<>(Instant.now().plusMillis(millis));
+		return (a, b, c) -> {
+			if (Instant.now().isAfter(inst.value)) {
+				b.removeInputConsumer(this);
+				action.run();
+			} else {
+				inst.value = Instant.now().plusMillis(millis);
+				return consume(a, b, c);
+			}
 			return false;
 		};
 	}

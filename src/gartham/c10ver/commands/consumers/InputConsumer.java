@@ -2,6 +2,8 @@ package gartham.c10ver.commands.consumers;
 
 import java.time.Instant;
 
+import org.alixia.javalibrary.util.Box;
+
 import gartham.c10ver.commands.InputProcessor;
 import gartham.c10ver.events.EventHandler;
 import net.dv8tion.jda.api.events.GenericEvent;
@@ -36,6 +38,33 @@ public interface InputConsumer<E extends GenericEvent> {
 
 	default InputConsumer<E> withTTL(long millis) {
 		return expires(Instant.now().plusMillis(millis));
+	}
+
+	default InputConsumer<E> withActivityTTL(long millis) {
+		var inst = new Box<>(Instant.now().plusMillis(millis));
+		return (a, b, c) -> {
+			if (Instant.now().isAfter(inst.value))
+				b.removeInputConsumer(this);
+			else {
+				inst.value = Instant.now().plusMillis(millis);
+				return consume(a, b, c);
+			}
+			return false;
+		};
+	}
+
+	default InputConsumer<E> withActivityTTL(long millis, Runnable action) {
+		var inst = new Box<>(Instant.now().plusMillis(millis));
+		return (a, b, c) -> {
+			if (Instant.now().isAfter(inst.value)) {
+				b.removeInputConsumer(this);
+				action.run();
+			} else {
+				inst.value = Instant.now().plusMillis(millis);
+				return consume(a, b, c);
+			}
+			return false;
+		};
 	}
 
 	default InputConsumer<E> expires(Instant ts) {
