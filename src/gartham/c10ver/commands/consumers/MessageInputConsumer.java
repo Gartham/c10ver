@@ -65,4 +65,19 @@ public interface MessageInputConsumer extends InputConsumer<MessageReceivedEvent
 		};
 	}
 
+	default MessageInputConsumer withTTL(long millis, Runnable action) {
+		return expires(Instant.now().plusMillis(millis), action);
+	}
+
+	default MessageInputConsumer expires(Instant ts, Runnable action) {
+		return (a, b, c) -> {
+			if (Instant.now().isAfter(ts)) {
+				b.removeInputConsumer(this);
+				action.run();
+			} else
+				return consume(a, b, c);
+			return false;
+		};
+	}
+
 }
