@@ -79,7 +79,7 @@ public interface MessageInputConsumer extends InputConsumer<MessageReceivedEvent
 	default MessageInputConsumer expires(Instant ts) {
 		return (a, b, c) -> {
 			if (Instant.now().isAfter(ts))
-				b.removeInputConsumer(this);
+				b.removeInputConsumer(c);
 			else
 				return consume(a, b, c);
 			return false;
@@ -93,7 +93,7 @@ public interface MessageInputConsumer extends InputConsumer<MessageReceivedEvent
 	default MessageInputConsumer expires(Instant ts, Runnable action) {
 		return (a, b, c) -> {
 			if (Instant.now().isAfter(ts)) {
-				b.removeInputConsumer(this);
+				b.removeInputConsumer(c);
 				action.run();
 			} else
 				return consume(a, b, c);
@@ -105,7 +105,7 @@ public interface MessageInputConsumer extends InputConsumer<MessageReceivedEvent
 		var inst = new Box<>(Instant.now().plusMillis(millis));
 		return (a, b, c) -> {
 			if (Instant.now().isAfter(inst.value))
-				b.removeInputConsumer(this);
+				b.removeInputConsumer(c);
 			else {
 				inst.value = Instant.now().plusMillis(millis);
 				return consume(a, b, c);
@@ -118,7 +118,7 @@ public interface MessageInputConsumer extends InputConsumer<MessageReceivedEvent
 		var inst = new Box<>(Instant.now().plusMillis(millis));
 		return (a, b, c) -> {
 			if (Instant.now().isAfter(inst.value)) {
-				b.removeInputConsumer(this);
+				b.removeInputConsumer(c);
 				action.run();
 			} else {
 				inst.value = Instant.now().plusMillis(millis);

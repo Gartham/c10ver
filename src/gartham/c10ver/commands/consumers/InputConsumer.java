@@ -44,7 +44,7 @@ public interface InputConsumer<E extends GenericEvent> {
 		var inst = new Box<>(Instant.now().plusMillis(millis));
 		return (a, b, c) -> {
 			if (Instant.now().isAfter(inst.value))
-				b.removeInputConsumer(this);
+				b.removeInputConsumer(c);
 			else {
 				inst.value = Instant.now().plusMillis(millis);
 				return consume(a, b, c);
@@ -57,7 +57,7 @@ public interface InputConsumer<E extends GenericEvent> {
 		var inst = new Box<>(Instant.now().plusMillis(millis));
 		return (a, b, c) -> {
 			if (Instant.now().isAfter(inst.value)) {
-				b.removeInputConsumer(this);
+				b.removeInputConsumer(c);
 				action.run();
 			} else {
 				inst.value = Instant.now().plusMillis(millis);
@@ -70,7 +70,7 @@ public interface InputConsumer<E extends GenericEvent> {
 	default InputConsumer<E> expires(Instant ts) {
 		return (a, b, c) -> {
 			if (Instant.now().isAfter(ts))
-				b.removeInputConsumer(this);
+				b.removeInputConsumer(c);
 			else
 				return consume(a, b, c);
 			return false;
@@ -97,7 +97,7 @@ public interface InputConsumer<E extends GenericEvent> {
 	default InputConsumer<E> expires(Instant ts, Runnable action) {
 		return (a, b, c) -> {
 			if (Instant.now().isAfter(ts)) {
-				b.removeInputConsumer(this);
+				b.removeInputConsumer(c);
 				action.run();
 			} else
 				return consume(a, b, c);
