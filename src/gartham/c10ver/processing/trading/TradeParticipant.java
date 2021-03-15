@@ -10,7 +10,6 @@ import gartham.c10ver.economy.items.utils.ItemList.Entry;
 
 public class TradeParticipant {
 	private final User ecouser;
-	private final net.dv8tion.jda.api.entities.User discuser;
 	private final ItemList items = new ItemList();
 	private BigInteger cloves = BigInteger.ZERO;
 
@@ -28,17 +27,12 @@ public class TradeParticipant {
 		return ecouser;
 	}
 
-	public net.dv8tion.jda.api.entities.User getDiscuser() {
-		return discuser;
-	}
-
 	public ItemList getItems() {
 		return items;
 	}
 
-	public TradeParticipant(User ecouser, net.dv8tion.jda.api.entities.User discuser) {
+	public TradeParticipant(User ecouser) {
 		this.ecouser = ecouser;
-		this.discuser = discuser;
 	}
 
 	public BigInteger getCloves() {
