@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import org.alixia.javalibrary.JavaTools;
+import org.alixia.javalibrary.strings.StringTools;
 import org.alixia.javalibrary.util.Box;
 import org.alixia.javalibrary.util.MultidimensionalMap;
 
@@ -40,6 +41,7 @@ import gartham.c10ver.economy.Server;
 import gartham.c10ver.economy.User;
 import gartham.c10ver.economy.items.Inventory;
 import gartham.c10ver.economy.items.Inventory.Entry;
+import gartham.c10ver.economy.items.ItemBunch;
 import gartham.c10ver.economy.items.utility.crates.DailyCrate;
 import gartham.c10ver.economy.items.utility.crates.LootCrateItem;
 import gartham.c10ver.economy.items.utility.crates.MonthlyCrate;
@@ -1556,6 +1558,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				boolean initiated;
 				Instant lastActivity;
 
+				boolean reqf, recf;
+
 				public Trade(net.dv8tion.jda.api.entities.User requester, net.dv8tion.jda.api.entities.User requested) {
 					initiated = false;
 					this.requester = requester;
@@ -1563,6 +1567,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					this.lastActivity = Instant.now();
 				}
 
+				List<ItemBunch<?>> rqitems = new ArrayList<>(2), rcitems = new ArrayList<>(2);
+				BigInteger rqcloves = BigInteger.ZERO, rccloves = BigInteger.ZERO;
 			}
 
 			/**
@@ -1607,66 +1613,139 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						if (u == null)
 							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
 									+ " that user is not a member of this server. :(").queue();
+						else if (trades.containsKey(u.getId())) {
+							var t = trades.get(u.getId());
+							if (t.initiated) {
+								if (u.getUser().equals(t.requested))
+									inv.event.getChannel()
+											.sendMessage(inv.event.getAuthor().getAsMention()
+													+ " someone already requested " + u.getEffectiveName()
+													+ " to trade. Please wait until that is finished or cancelled.")
+											.queue();
+								else
+									inv.event.getChannel()
+											.sendMessage(inv.event.getAuthor().getAsMention() + ", "
+													+ u.getEffectiveName() + " is waiting on a trade already. ")
+											.queue();
+							} else
+								inv.event.getChannel()
+										.sendMessage(inv.event.getAuthor().getAsMention() + ", " + u.getEffectiveName()
+												+ " is already engaged in a trade. Please wait 'till they're finished.")
+										.queue();
+						} else if (u.getUser().isBot())
+							inv.event.getChannel()
+									.sendMessage(
+											inv.event.getAuthor().getAsMention() + " you can't start trades with bots!")
+									.queue();
+						else if (u.getUser().equals(inv.event.getAuthor()))
+							inv.event.getChannel().sendMessage(
+									inv.event.getAuthor().getAsMention() + " you can't start a trade with yourself!")
+									.queue();
 						else {
-							if (u.getUser().isBot())
-								inv.event.getChannel().sendMessage(
-										inv.event.getAuthor().getAsMention() + " you can't start trades with bots!")
-										.queue();
-							else if (u.getUser().equals(inv.event.getAuthor()))
-								inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
-										+ " you can't start a trade with yourself!").queue();
-							else {
-								inv.event.getChannel().sendMessage(u.getAsMention() + ":\n"
-										+ inv.event.getAuthor().getAsMention()
-										+ " has requested to trade with you. Type **accept** to start a trade with them.")
-										.queue();
+							inv.event.getChannel().sendMessage(u.getAsMention() + ":\n"
+									+ inv.event.getAuthor().getAsMention()
+									+ " has requested to trade with you. Type **accept** to start the trade with them or type **reject** to reject their request. "
+									+ inv.event.getMember().getEffectiveName()
+									+ " can type **cancel** to cancel the request.").queue();
 
-								var recipient = u.getUser();
-								var requester = inv.event.getAuthor();
-								Trade t = new Trade(requester, recipient);
-								trades.put(recipient.getId(), t);
-								trades.put(requester.getId(), t);
+							var recipient = u.getUser();
+							var requester = inv.event.getAuthor();
+							Trade t = new Trade(requester, recipient);
+							trades.put(recipient.getId(), t);
+							trades.put(requester.getId(), t);
 
-								MessageInputConsumer reccons = new MessageInputConsumer() {
+							Box<MessageInputConsumer> reqconsBox = new Box<>(), recconsBox = new Box<>();
+							Runnable tradeRemoval = new Runnable() {
 
-									@Override
-									public boolean consume(MessageReceivedEvent event,
-											InputProcessor<? extends MessageReceivedEvent> processor,
-											InputConsumer<MessageReceivedEvent> consumer) {
-										var c = event.getMessage().getContentRaw();
-										if (c.equalsIgnoreCase("accept")) {
-											event.getChannel().sendMessage(recipient.getAsMention()
-													+ " you have now started a trade with " + requester.getAsMention()
-													+ ".\n\nYou are both in trade mode. You can type `+item-name amount`")
-													.queue();
-											t.initiated = true;// Begin the trade.
-											processor.removeInputConsumer(consumer);
-											return true;
-										} else if (c.equalsIgnoreCase("reject")) {
-											event.getChannel().sendMessage(requester.getAsMention() + ' '
-													+ u.getEffectiveName() + " did not want to trade with you.")
-													.queue();
-											trades.remove(recipient.getId());
-											trades.remove(requester.getId());
-											processor.removeInputConsumer(consumer);
-											return true;
-										}
-										return false;
+								@Override
+								public void run() {
+									trades.remove(recipient.getId());// Clear trade
+									trades.remove(requester.getId());
+									clover.getEventHandler().getMessageProcessor()
+											.removeInputConsumer(recconsBox.value);
+									clover.getEventHandler().getMessageProcessor()
+											.removeInputConsumer(reqconsBox.value);
+								}
+							};
+
+							var tradeHandler = new MessageInputConsumer() {
+
+								@Override
+								public boolean consume(MessageReceivedEvent event,
+										InputProcessor<? extends MessageReceivedEvent> processor,
+										InputConsumer<MessageReceivedEvent> consumer) {
+									var msg = event.getMessage().getContentRaw();
+									if (msg.equalsIgnoreCase("cancel")) {// Cancel the trade.
+										net.dv8tion.jda.api.entities.User u = event.getAuthor().equals(recipient)
+												? requester
+												: recipient;
+										event.getChannel().sendMessage(u.getAsMention() + ", "
+												+ event.getMember().getEffectiveName() + " has cancelled the trade.")
+												.queue();
+										tradeRemoval.run();
+									} else if (StringTools.equalsAnyIgnoreCase(msg, "done", "finish")) {// Finish on
+																										// this side.
+
+									} else if (msg.startsWith("+")) {// TODO Handle adding items.
+
+									} else if (msg.startsWith("-")) {// TODO Handle removing items.
+
 									}
+									return true;// Consume everything.
+								}
+							}.filterUser(recipient.getId(), requester.getId())
+									.filterChannel(inv.event.getChannel().getId()).withActivityTTL(120000);
 
-								}.filter(recipient, inv.event.getChannel()).withTTL(30000);
-								var reqcons = new MessageInputConsumer() {
+							MessageInputConsumer reccons = new MessageInputConsumer() {
 
-									@Override
-									public boolean consume(MessageReceivedEvent event,
-											InputProcessor<? extends MessageReceivedEvent> processor,
-											InputConsumer<MessageReceivedEvent> consumer) {
-										// TODO Auto-generated method stub
-										return false;
+								@Override
+								public boolean consume(MessageReceivedEvent event,
+										InputProcessor<? extends MessageReceivedEvent> processor,
+										InputConsumer<MessageReceivedEvent> consumer) {
+									var c = event.getMessage().getContentRaw();
+									if (c.equalsIgnoreCase("accept")) {
+										event.getChannel().sendMessage(recipient.getAsMention()
+												+ " you have now started a trade with " + requester.getAsMention()
+												+ ".\n\nYou are both in trade mode. You can type `+item-name amount`")
+												.queue();
+										t.initiated = true;// Begin the trade.
+										processor.removeInputConsumer(consumer);
+										processor.removeInputConsumer(reqconsBox.value);
+										return true;
+									} else if (c.equalsIgnoreCase("reject")) {
+										event.getChannel().sendMessage(requester.getAsMention() + ' '
+												+ u.getEffectiveName() + " did not want to trade with you.").queue();
+										tradeRemoval.run();
+										return true;
 									}
-								};
-								clover.getEventHandler().getMessageProcessor().registerInputConsumer(reccons);
-							}
+									return false;
+								}
+
+							}.filter(recipient, inv.event.getChannel()).withTTL(30000, tradeRemoval);
+							recconsBox.value = reccons;
+
+							var reqcons = new MessageInputConsumer() {
+
+								@Override
+								public boolean consume(MessageReceivedEvent event,
+										InputProcessor<? extends MessageReceivedEvent> processor,
+										InputConsumer<MessageReceivedEvent> consumer) {
+									var c = event.getMessage().getContentRaw();
+									if (c.equalsIgnoreCase("cancel")) {
+										event.getChannel()
+												.sendMessage(recipient.getAsMention() + ", "
+														+ inv.event.getMember().getEffectiveName()
+														+ " cancelled their trade request.")
+												.queue();
+										tradeRemoval.run();
+										return true;
+									}
+									return false;
+								}
+							}.filter(requester, inv.event.getChannel()).withTTL(30000, tradeRemoval);
+							reqconsBox.value = reqcons;
+							clover.getEventHandler().getMessageProcessor().registerInputConsumer(reccons);
+							clover.getEventHandler().getMessageProcessor().registerInputConsumer(reqcons);
 						}
 					}
 				}
