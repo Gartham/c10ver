@@ -12,7 +12,7 @@ public class ItemList {
 
 	public class Entry<I extends Item> {
 		private final I item;
-		private final BigInteger count;
+		private BigInteger count;
 
 		public Entry(I item, BigInteger count) {
 			this.item = item;
@@ -26,6 +26,11 @@ public class ItemList {
 		public BigInteger getCount() {
 			return count;
 		}
+
+		public void setCount(BigInteger count) {
+			this.count = count;
+		}
+
 	}
 
 	public List<Entry<?>> getItems() {
