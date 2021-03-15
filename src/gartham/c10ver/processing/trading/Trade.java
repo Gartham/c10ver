@@ -2,12 +2,14 @@ package gartham.c10ver.processing.trading;
 
 public class Trade {
 	private final TradeParticipant requester, recip;
+	private final TradeManager manager;
 	/**
 	 * Whether the recipient of the trade has accepted to trade.
 	 */
 	private boolean accepted;
 
-	public Trade(TradeParticipant requester, TradeParticipant recip) {
+	Trade(TradeManager manager, TradeParticipant requester, TradeParticipant recip) {
+		this.manager = manager;
 		this.requester = requester;
 		this.recip = recip;
 	}
@@ -26,6 +28,13 @@ public class Trade {
 
 	public TradeParticipant getRecip() {
 		return recip;
+	}
+
+	/**
+	 * Removes this {@link Trade} object from its {@link TradeManager}.
+	 */
+	public void end() {
+		manager.remove(this);
 	}
 
 }
