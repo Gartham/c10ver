@@ -14,14 +14,14 @@ public class TradeParticipant {
 	private final ItemList items = new ItemList();
 	private BigInteger cloves = BigInteger.ZERO;
 
-	private boolean requested;
+	private boolean finished;
 
-	public boolean isRequested() {
-		return requested;
+	public boolean isFinished() {
+		return finished;
 	}
 
-	public void setRequested(boolean requested) {
-		this.requested = requested;
+	public void setFinished(boolean finished) {
+		this.finished = finished;
 	}
 
 	public User getEcouser() {
