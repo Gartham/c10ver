@@ -12,7 +12,15 @@ public class TradeManager {
 		return trades.get(user.getUserID());
 	}
 
+	public Trade getTrade(String user) {
+		return trades.get(user);
+	}
+
 	public boolean participating(User user) {
+		return getTrade(user) != null;
+	}
+
+	public boolean participating(String user) {
 		return getTrade(user) != null;
 	}
 
