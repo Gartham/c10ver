@@ -1577,7 +1577,12 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 			@Override
 			public void exec(CommandInvocation inv) {
-
+				if (!inv.event.isFromGuild()) {
+					inv.event.getChannel().sendMessage(
+							inv.event.getAuthor().getAsMention() + " you may only start a trade inside a server.")
+							.queue();
+					return;
+				}
 				// Trading blocks all other commands so that we don't have to account for things
 				// such as a user consuming an item after it has been listed as a trade item,
 				// but before the trade has succeeded.
@@ -1648,7 +1653,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 							var requester = clover.getEconomy().getUser(inv.event.getAuthor().getId());
 							var recipdisc = u.getUser();
 							var requestdisc = inv.event.getAuthor();
-							Trade t = tradeManager.open(requester, recipient, inv.event.getChannel());
+							Trade t = tradeManager.open(requester, recipient, inv.event.getTextChannel());
 							// This will automatically add itself as a MessageInputConsumer to the msg input
 							// consumer processor associated with clover.
 							// This works because of the fact that the tradeManager that this processor
