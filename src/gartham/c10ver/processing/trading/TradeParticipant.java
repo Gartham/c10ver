@@ -5,8 +5,11 @@ import java.util.Iterator;
 
 import gartham.c10ver.economy.User;
 import gartham.c10ver.economy.items.Item;
+import gartham.c10ver.economy.items.ItemBunch;
 import gartham.c10ver.economy.items.utils.ItemList;
 import gartham.c10ver.economy.items.utils.ItemList.Entry;
+import gartham.c10ver.utils.Utilities;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 public class TradeParticipant {
 	private final User ecouser;
@@ -47,7 +50,6 @@ public class TradeParticipant {
 		this.cloves = this.cloves.add(cloves);
 		if (this.cloves.compareTo(BigInteger.ZERO) < 0)
 			this.cloves = BigInteger.ZERO;
-
 	}
 
 	public void sub(BigInteger cloves) {
@@ -56,33 +58,17 @@ public class TradeParticipant {
 			this.cloves = BigInteger.ZERO;
 	}
 
-	public void add(Item item, BigInteger amt) {
-		for (var x : items.getItems())
-			if (x.getItem().stackable(item)) {
-				x.setCount(x.getCount().add(amt));
-				return;
-			}
-		items.new Entry<>(item, amt);
+	public <I extends Item> Entry<I> add(I item) {
+		return add(item, 1);
 	}
 
-	public void remove(Item item, BigInteger amt) {
-		for (Iterator<Entry<?>> iterator = items.getItems().iterator(); iterator.hasNext();) {
-			var x = iterator.next();
-			if (x.getItem().stackable(item)) {
-				x.setCount(x.getCount().subtract(amt));
-				if (x.getCount().compareTo(BigInteger.ZERO) <= 0)
-					iterator.remove();
-				return;
-			}
-		}
+	public <I extends Item> Entry<I> add(I item, long amount) {
+		return items.add(item, BigInteger.valueOf(amount));
 	}
 
-	public void add(Item item) {
-		add(item, 1);
-	}
-
-	public void add(Item item, long amount) {
-		add(item, BigInteger.valueOf(amount));
+	public EmbedBuilder getTrade(EmbedBuilder e) {
+		return e.setAuthor(ecouser.getUser().getAsTag(), null, ecouser.getUser().getEffectiveAvatarUrl())
+				.setDescription(Utilities.listRewards(cloves, items.getItemBunches()));
 	}
 
 }
