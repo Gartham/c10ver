@@ -19,7 +19,7 @@ public class PreTradeMIC implements MessageInputConsumer {
 				.queue();
 	}
 
-	private Instant recipientTS = Instant.now(), requesterTS = recipientTS;
+	private Instant recipientTS = Instant.now();
 
 	@Override
 	public boolean consume(MessageReceivedEvent event, InputProcessor<? extends MessageReceivedEvent> processor,
@@ -39,6 +39,8 @@ public class PreTradeMIC implements MessageInputConsumer {
 		if (!(event.getChannel().equals(channel)
 				&& (trade.isRequester(event.getAuthor()) || trade.isRecipient(event.getAuthor()))))
 			return false;
+
+		recipientTS = Instant.now();
 
 		var c = event.getMessage().getContentRaw();
 		if (trade.isRecipient(event.getAuthor())) {
