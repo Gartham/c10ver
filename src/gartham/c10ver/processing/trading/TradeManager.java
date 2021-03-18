@@ -3,10 +3,20 @@ package gartham.c10ver.processing.trading;
 import java.util.HashMap;
 import java.util.Map;
 
+import gartham.c10ver.Clover;
 import gartham.c10ver.economy.User;
 
 public class TradeManager {
 	private final Map<String, Trade> trades = new HashMap<>();
+	private final Clover clover;
+
+	public TradeManager(Clover clover) {
+		this.clover = clover;
+	}
+
+	public Clover getClover() {
+		return clover;
+	}
 
 	public Trade getTrade(User user) {
 		return trades.get(user.getUserID());
