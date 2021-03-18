@@ -5,6 +5,7 @@ import java.util.Map;
 
 import gartham.c10ver.Clover;
 import gartham.c10ver.economy.User;
+import net.dv8tion.jda.api.entities.MessageChannel;
 
 public class TradeManager {
 	private final Map<String, Trade> trades = new HashMap<>();
@@ -43,10 +44,10 @@ public class TradeManager {
 	 * @param recipient The person receiving the trade request.
 	 * @return The newly created {@link Trade} object, or <code>null</code>.
 	 */
-	public Trade open(User requester, User recipient) {
+	public Trade open(User requester, User recipient, MessageChannel channel) {
 		if (participating(recipient) || participating(requester))
 			return null;
-		var t = new Trade(this, new TradeParticipant(requester), new TradeParticipant(recipient));
+		var t = new Trade(new TradeParticipant(requester), new TradeParticipant(recipient), this, channel);
 		trades.put(requester.getUserID(), t);
 		trades.put(recipient.getUserID(), t);
 		return t;

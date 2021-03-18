@@ -1648,7 +1648,13 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 							var requester = clover.getEconomy().getUser(inv.event.getAuthor().getId());
 							var recipdisc = u.getUser();
 							var requestdisc = inv.event.getAuthor();
-							Trade t = tradeManager.open(requester, recipient);
+							Trade t = tradeManager.open(requester, recipient, inv.event.getChannel());
+							// This will automatically add itself as a MessageInputConsumer to the msg input
+							// consumer processor associated with clover.
+							// This works because of the fact that the tradeManager that this processor
+							// class has keeps a reference to the Clover object needed by these Trade
+							// objects. The Trade object is a MessageInputConsumer and can be unlinked at
+							// any time by calling its #end() method.
 
 							Box<MessageInputConsumer> reqconsBox = new Box<>(), recconsBox = new Box<>(),
 									tradeHandlerBox = new Box<>();
