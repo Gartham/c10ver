@@ -1,8 +1,14 @@
 package gartham.c10ver.processing.trading;
 
-public class Trade {
+import gartham.c10ver.commands.InputProcessor;
+import gartham.c10ver.commands.consumers.InputConsumer;
+import gartham.c10ver.commands.consumers.MessageInputConsumer;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
+public class Trade implements MessageInputConsumer {
 	private final TradeParticipant requester, recip;
 	private final TradeManager manager;
+
 	/**
 	 * Whether the recipient of the trade has accepted to trade.
 	 */
@@ -31,10 +37,18 @@ public class Trade {
 	}
 
 	/**
-	 * Removes this {@link Trade} object from its {@link TradeManager}.
+	 * Terminates this trade object, removing it from its {@link TradeManager} and
+	 * from the message processor that it is registered to.
 	 */
 	public void end() {
 		manager.remove(this);
+	}
+
+	@Override
+	public boolean consume(MessageReceivedEvent event, InputProcessor<? extends MessageReceivedEvent> processor,
+			InputConsumer<MessageReceivedEvent> consumer) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
