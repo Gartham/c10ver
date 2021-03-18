@@ -1955,57 +1955,6 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 							}.filterUser(recipient.getUserID(), requester.getUserID())
 									.filterChannel(inv.event.getChannel().getId());
 
-							MessageInputConsumer reccons = new MessageInputConsumer() {
-
-								@Override
-								public boolean consume(MessageReceivedEvent event,
-										InputProcessor<? extends MessageReceivedEvent> processor,
-										InputConsumer<MessageReceivedEvent> consumer) {
-									var c = event.getMessage().getContentRaw();
-									if (c.equalsIgnoreCase("accept")) {
-										event.getChannel().sendMessage(recipdisc.getAsMention()
-												+ " you have now started a trade with " + requestdisc.getAsMention()
-												+ ".\n\nYou are both in trade mode. You can type `+item-name amount`")
-												.queue();
-										t.setAccepted(true);
-										processor.removeInputConsumer(consumer);
-										processor.removeInputConsumer(reqconsBox.value);
-										processor.registerInputConsumer(tradeHandlerBox.value);
-										return true;
-									} else if (c.equalsIgnoreCase("reject")) {
-										event.getChannel().sendMessage(requestdisc.getAsMention() + ' '
-												+ u.getEffectiveName() + " did not want to trade with you.").queue();
-										tradeRemoval.run();
-										return true;
-									}
-									return false;
-								}
-
-							}.filter(recipdisc, inv.event.getChannel()).withTTL(30000, tradeRemoval);
-							recconsBox.value = reccons;
-
-							var reqcons = new MessageInputConsumer() {
-
-								@Override
-								public boolean consume(MessageReceivedEvent event,
-										InputProcessor<? extends MessageReceivedEvent> processor,
-										InputConsumer<MessageReceivedEvent> consumer) {
-									var c = event.getMessage().getContentRaw();
-									if (c.equalsIgnoreCase("cancel")) {
-										event.getChannel()
-												.sendMessage(recipdisc.getAsMention() + ", "
-														+ inv.event.getMember().getEffectiveName()
-														+ " cancelled their trade request.")
-												.queue();
-										tradeRemoval.run();
-										return true;
-									}
-									return false;
-								}
-							}.filter(requestdisc, inv.event.getChannel()).withTTL(30000, tradeRemoval);
-							reqconsBox.value = reqcons;
-							clover.getEventHandler().getMessageProcessor().registerInputConsumer(reccons);
-							clover.getEventHandler().getMessageProcessor().registerInputConsumer(reqcons);
 						}
 					}
 				}

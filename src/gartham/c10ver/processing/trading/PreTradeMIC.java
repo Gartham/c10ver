@@ -26,23 +26,8 @@ public class PreTradeMIC implements MessageInputConsumer {
 			InputConsumer<MessageReceivedEvent> consumer) {
 
 		var channel = trade.getInitialChannel();
-
-		if (!trade.isRecipient(event.getAuthor()))
-			if (Instant.now().isAfter(recipientTS.plusSeconds(30))) {
-				channel.sendMessage(trade.getRecip().getEcouser().getUser().getAsTag()
-						+ " didn't reply within 30 seconds to the confirmation, so the trade has been cancelled.")
-						.queue();
-				trade.end();
-				return false;
-			}
-
-		if (!(event.getChannel().equals(channel)
-				&& (trade.isRequester(event.getAuthor()) || trade.isRecipient(event.getAuthor()))))
-			return false;
-
-		recipientTS = Instant.now();
-
 		var c = event.getMessage().getContentRaw();
+
 		if (trade.isRecipient(event.getAuthor())) {
 			if (c.equalsIgnoreCase("accept")) {
 				event.getChannel()
@@ -66,6 +51,13 @@ public class PreTradeMIC implements MessageInputConsumer {
 				return true;
 			}
 		}
+
+		if (Instant.now().isAfter(recipientTS.plusSeconds(30))) {
+			channel.sendMessage(trade.getRecip().getEcouser().getUser().getAsTag()
+					+ " didn't reply within 30 seconds to the confirmation, so the trade has been cancelled.").queue();
+			trade.end();
+		}
+		recipientTS = Instant.now();
 		return false;
 	}
 

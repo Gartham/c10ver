@@ -1,13 +1,9 @@
 package gartham.c10ver.processing.trading;
 
-import gartham.c10ver.commands.InputProcessor;
-import gartham.c10ver.commands.consumers.InputConsumer;
 import gartham.c10ver.commands.consumers.MessageInputConsumer;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class Trade {
 	private final TradeParticipant requester, recip;
