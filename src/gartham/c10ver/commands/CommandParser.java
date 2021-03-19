@@ -32,8 +32,7 @@ public class CommandParser {
 		if (matching != null && prefix.isEmpty())
 			return null;
 
-		boolean haveParsedCmdName = false;
-		String cmdName = "";
+		String cmdName = null;
 
 		StringBuilder currentText = new StringBuilder();
 
@@ -41,11 +40,10 @@ public class CommandParser {
 
 		for (int i = 0; i < text.length(); i++) {
 			if (Character.isWhitespace(text.charAt(i))) {
-				if (haveParsedCmdName) {
+				if (cmdName != null) {
 					args.add(currentText.toString());
 					currentText = new StringBuilder();
 				} else {
-					haveParsedCmdName = true;
 					cmdName = currentText.toString();
 					currentText = new StringBuilder();
 				}
@@ -57,7 +55,7 @@ public class CommandParser {
 			}
 		}
 
-		if (haveParsedCmdName)
+		if (cmdName != null)
 			args.add(currentText.toString());
 		else
 			cmdName = currentText.toString();
