@@ -46,7 +46,7 @@ public class PreTradeMIC implements MessageInputConsumer {
 		} else if (trade.isRequester(event.getAuthor())) {
 			if (c.equalsIgnoreCase("cancel")) {
 				event.getChannel().sendMessage(trade.getRequesterUser().getAsMention()
-						+ " has cancelled the trade request to " + trade.getRecipientMember());
+						+ " has cancelled the trade request to " + trade.getRecipientMember()).queue();
 				trade.end();
 				return true;
 			}
