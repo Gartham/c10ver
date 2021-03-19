@@ -1616,11 +1616,6 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 									inv.event.getAuthor().getAsMention() + " you can't start a trade with yourself!")
 									.queue();
 						else {
-							inv.event.getChannel().sendMessage(u.getAsMention() + ":\n"
-									+ inv.event.getAuthor().getAsMention()
-									+ " has requested to trade with you. Type **accept** to start the trade with them or type **reject** to reject their request. "
-									+ inv.event.getMember().getEffectiveName()
-									+ " can type **cancel** to cancel the request.").queue();
 
 							var recipient = clover.getEconomy().getUser(u.getUser().getId());
 							var requester = clover.getEconomy().getUser(inv.event.getAuthor().getId());
