@@ -10,7 +10,7 @@ public class Trade {
 	private final TradeManager manager;
 	private final TextChannel initialChannel;
 
-	private final MessageInputConsumer preTradeMIC = new PreTradeMIC(this), tradeMIC = new TradeMIC(this);
+	private final MessageInputConsumer preTradeMIC, tradeMIC;
 
 	/**
 	 * Whether the recipient of the trade has accepted to trade.
@@ -22,7 +22,9 @@ public class Trade {
 		this.recip = recip;
 		this.manager = manager;
 		this.initialChannel = initialChannel;
-		manager.getClover().getEventHandler().getMessageProcessor().registerInputConsumer(preTradeMIC);
+		tradeMIC = new TradeMIC(this);
+		manager.getClover().getEventHandler().getMessageProcessor()
+				.registerInputConsumer(preTradeMIC = new PreTradeMIC(this));
 	}
 
 	public TradeManager getManager() {
