@@ -33,7 +33,7 @@ public class PreTradeMIC implements MessageInputConsumer {
 				event.getChannel()
 						.sendMessage(trade.getRecipientUser().getAsMention() + " you have now started a trade with "
 								+ trade.getRequesterUser().getAsMention()
-								+ ".\n\nYou are both in trade mode. You can type `+item-name amount`")
+								+ ".\n\nYou are both in trade mode. You can type `+item-name amount`.")
 						.queue();
 				trade.accept();
 				return true;
@@ -46,7 +46,8 @@ public class PreTradeMIC implements MessageInputConsumer {
 		} else if (trade.isRequester(event.getAuthor())) {
 			if (c.equalsIgnoreCase("cancel")) {
 				event.getChannel().sendMessage(trade.getRequesterUser().getAsMention()
-						+ " has cancelled the trade request to " + trade.getRecipientMember()).queue();
+						+ " has cancelled the trade request to " + trade.getRecipientMember().getAsMention() + '.')
+						.queue();
 				trade.end();
 				return true;
 			}
