@@ -19,6 +19,14 @@ public class TradeMIC implements MessageInputConsumer {
 		this.trade = trade;
 	}
 
+	public static SimpleCommandProcessor getProcessor() {
+		return processor;
+	}
+
+	public Trade getTrade() {
+		return trade;
+	}
+
 	@Override
 	public boolean consume(MessageReceivedEvent event, InputProcessor<? extends MessageReceivedEvent> processor,
 			InputConsumer<MessageReceivedEvent> consumer) {

@@ -10,25 +10,21 @@ import java.awt.Color;
 import java.math.BigInteger;
 import java.text.NumberFormat;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.function.Consumer;
 
 import org.alixia.javalibrary.JavaTools;
-import org.alixia.javalibrary.strings.StringTools;
 import org.alixia.javalibrary.util.Box;
 import org.alixia.javalibrary.util.MultidimensionalMap;
 
 import gartham.c10ver.commands.CommandHelpBook.ParentCommandHelp;
 import gartham.c10ver.commands.CommandInvocation;
-import gartham.c10ver.commands.InputProcessor;
 import gartham.c10ver.commands.MatchBasedCommand;
 import gartham.c10ver.commands.SimpleCommandProcessor;
 import gartham.c10ver.commands.consumers.InputConsumer;
@@ -42,7 +38,6 @@ import gartham.c10ver.economy.Server;
 import gartham.c10ver.economy.User;
 import gartham.c10ver.economy.items.Inventory;
 import gartham.c10ver.economy.items.Inventory.Entry;
-import gartham.c10ver.economy.items.Item;
 import gartham.c10ver.economy.items.utility.crates.DailyCrate;
 import gartham.c10ver.economy.items.utility.crates.LootCrateItem;
 import gartham.c10ver.economy.items.utility.crates.MonthlyCrate;
@@ -1553,28 +1548,6 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 		register(new MatchBasedCommand("trade") {
 
-			private BigInteger parseAmount(String arg, MessageReceivedEvent event) {
-				BigInteger amt;
-				try {
-					amt = new BigInteger(arg);
-				} catch (NumberFormatException e2) {
-					event.getChannel()
-							.sendMessage(
-									event.getAuthor().getAsMention() + " the amount you specify has to be a number.")
-							.queue();
-					return null;
-				}
-				if (amt.compareTo(BigInteger.ZERO) <= 0) {
-					event.getChannel()
-							.sendMessage(
-									event.getAuthor().getAsMention() + " the amount you specify has to be at least 1.")
-							.queue();
-					return null;
-				}
-
-				return amt;
-			}
-
 			@Override
 			public void exec(CommandInvocation inv) {
 				if (!inv.event.isFromGuild()) {
@@ -1651,310 +1624,13 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 							var recipient = clover.getEconomy().getUser(u.getUser().getId());
 							var requester = clover.getEconomy().getUser(inv.event.getAuthor().getId());
-							var recipdisc = u.getUser();
-							var requestdisc = inv.event.getAuthor();
-							Trade t = tradeManager.open(requester, recipient, inv.event.getTextChannel());
+							tradeManager.open(requester, recipient, inv.event.getTextChannel());
 							// This will automatically add itself as a MessageInputConsumer to the msg input
 							// consumer processor associated with clover.
 							// This works because of the fact that the tradeManager that this processor
 							// class has keeps a reference to the Clover object needed by these Trade
 							// objects. The Trade object is a MessageInputConsumer and can be unlinked at
 							// any time by calling its #end() method.
-
-							Box<MessageInputConsumer> reqconsBox = new Box<>(), recconsBox = new Box<>(),
-									tradeHandlerBox = new Box<>();
-							Runnable tradeRemoval = new Runnable() {
-
-								@Override
-								public void run() {
-									t.end();
-									clover.getEventHandler().getMessageProcessor()
-											.removeInputConsumer(recconsBox.value);
-									clover.getEventHandler().getMessageProcessor()
-											.removeInputConsumer(reqconsBox.value);
-									clover.getEventHandler().getMessageProcessor()
-											.removeInputConsumer(tradeHandlerBox.value);
-								}
-							};
-
-							tradeHandlerBox.value = new MessageInputConsumer() {
-
-								Instant inst = Instant.now();
-
-								private void addItem(MessageReceivedEvent event, String msg, boolean recipInvoking,
-										User caller) {
-									inst = Instant.now();
-									var cmd = clover.getCommandParser().parse(null, msg, event);
-									var itemname = cmd.cmdName.substring(1);
-
-									Inventory.Entry<?> e;
-									ENTRY_FINDER: {
-										try {
-											int x = Integer.parseInt(itemname) - 1;
-											if (caller.getInventory().getEntryCount() < x) {
-												e = caller.getInventory().get(x);
-												break ENTRY_FINDER;
-											} else {
-												event.getChannel().sendMessage(event.getAuthor().getAsMention()
-														+ ", you only have `" + caller.getInventory().getEntryCount()
-														+ "` items! Please use a number between `1` and `"
-														+ caller.getInventory().getEntryCount()
-														+ "` or use the item's ID.").queue();
-												return;
-											}
-										} catch (NumberFormatException e1) {
-										}
-										if ((e = caller.getInventory().get(itemname)) == null)
-											if ((e = caller.getInventory()
-													.get(itemname.toLowerCase(Locale.ENGLISH))) == null) {
-												event.getChannel().sendMessage(event.getAuthor().getAsMention()
-														+ ", you don't have any items with that ID.").queue();
-												return;
-											}
-									}
-
-									BigInteger amt;
-									final Entry<?>.ItemStack i;
-
-									if (e.getStacks().size() == 1) {
-
-									} else {
-										// If there is more than one type of stack in this entry, users are required to
-										// specify the index of the item they want to add, or simply include "all" or
-										// "*" as the index.
-									}
-
-									if (cmd.args.length == 0) {
-										amt = BigInteger.ONE;
-										i = e.get(0);
-									} else if (cmd.args.length < 3) {
-										if (cmd.args.length == 1) {
-											if (e.getStacks().size() == 1) {
-												amt = parseAmount(cmd.args[0], event);
-												i = e.get(0);
-											} else {
-												amt = BigInteger.ONE;
-												int x;
-												try {
-													x = Integer.parseInt(cmd.args[0]);
-												} catch (NumberFormatException e1) {
-													event.getChannel().sendMessage(event.getAuthor().getAsMention()
-															+ " the index has to be a number.").queue();
-													return;
-												}
-												if (x > e.getStacks().size()) {
-													event.getChannel().sendMessage(event.getAuthor().getAsMention()
-															+ " you don't have any items at that index for that category.")
-															.queue();
-													return;
-												}
-												i = e.get(x - 1);
-											}
-										} else {
-											amt = parseAmount(cmd.args[1], event);
-											if (amt == null)
-												return;
-											int x;
-											try {
-												x = Integer.parseInt(cmd.args[0]);
-											} catch (NumberFormatException e1) {
-												event.getChannel().sendMessage(event.getAuthor().getAsMention()
-														+ " the index has to be a number.").queue();
-												return;
-											}
-											if (x > e.getStacks().size()) {
-												event.getChannel().sendMessage(event.getAuthor().getAsMention()
-														+ " you don't have any items at that index for that category.")
-														.queue();
-												return;
-											}
-											i = e.get(x - 1);
-										}
-									} else {
-										event.getChannel().sendMessage(event.getAuthor().getAsMention()
-												+ " too many arguments. Please provide only an amount and an index.")
-												.queue();
-										return;
-									}
-
-									var person = recipInvoking ? t.getRecip() : t.getRequester();
-									var inventry = person.getItems().get((Item) i.getItem());
-
-									BigInteger alrd = inventry == null ? BigInteger.ZERO : inventry.getCount();
-
-									if (alrd.add(amt).compareTo(i.count()) > 0)
-										amt = i.count().subtract(alrd);
-
-									if (amt.equals(BigInteger.ZERO)) {
-										event.getChannel()
-												.sendMessage(event.getAuthor().getAsMention()
-														+ " **you've already added** all of that item that you have.")
-												.queue();
-									} else {
-										person.getItems().add((Item) i.getItem(), amt);
-										event.getChannel().sendMessage(event.getAuthor().getAsMention() + " added `"
-												+ amt
-												+ "` of that item to the trade! Here's what you've listed so far: ")
-												.embed(person.getTrade(new EmbedBuilder()).build()).queue();
-									}
-								}
-
-								@Override
-								public boolean consume(MessageReceivedEvent event,
-										InputProcessor<? extends MessageReceivedEvent> processor,
-										InputConsumer<MessageReceivedEvent> consumer) {
-
-									if (Instant.now().isAfter(inst.plusSeconds(120))) {
-										tradeRemoval.run();
-										return false;
-									} else {
-										var msg = event.getMessage().getContentRaw();
-										// Whether or not the recipient is invoking the command.
-										boolean recipInvoking = event.getAuthor().equals(recipdisc);
-										User caller, other;
-										net.dv8tion.jda.api.entities.User callerd, otherd;
-										if (recipInvoking) {
-											caller = recipient;
-											callerd = recipdisc;
-											other = requester;
-											otherd = requestdisc;
-										} else {
-											caller = requester;
-											callerd = requestdisc;
-											other = recipient;
-											otherd = recipdisc;
-										}
-
-										if (msg.equalsIgnoreCase("cancel")) {// Cancel the trade.
-											event.getChannel()
-													.sendMessage(callerd.getAsMention() + ", "
-															+ event.getMember().getEffectiveName()
-															+ " has cancelled the trade.")
-													.queue();
-											tradeRemoval.run();
-										} else if (StringTools.equalsAnyIgnoreCase(msg, "done", "finish")) {// Finish on
-																											// this
-																											// side.
-
-										} else if (msg.startsWith("+")) {
-											addItem(event, msg, recipInvoking, caller);
-										} else if (msg.startsWith("-")) {
-											removeItem(event, msg, recipInvoking, caller);
-										} else {
-
-										}
-
-										return true;// Consume everything.
-									}
-								}
-
-								private void removeItem(MessageReceivedEvent event, String msg, boolean recipInvoking,
-										User caller) {// TODO Handle adding items.
-									inst = Instant.now();
-									var cmd = clover.getCommandParser().parse(null, msg, event);
-									var itemname = cmd.cmdName.substring(1);
-
-									Inventory.Entry<?> e;
-									ENTRY_FINDER: {
-										try {
-											int x = Integer.parseInt(itemname) - 1;
-											if (caller.getInventory().getEntryCount() < x) {
-												e = caller.getInventory().get(x);
-												break ENTRY_FINDER;
-											} else {
-												event.getChannel().sendMessage(event.getAuthor().getAsMention()
-														+ ", you only have `" + caller.getInventory().getEntryCount()
-														+ "` items! Please use a number between `1` and `"
-														+ caller.getInventory().getEntryCount()
-														+ "` or use the item's ID.").queue();
-												return;
-											}
-										} catch (NumberFormatException e1) {
-										}
-										if ((e = caller.getInventory().get(itemname)) == null)
-											if ((e = caller.getInventory()
-													.get(itemname.toLowerCase(Locale.ENGLISH))) == null) {
-												event.getChannel().sendMessage(event.getAuthor().getAsMention()
-														+ ", you don't have any items with that ID.").queue();
-												return;
-											}
-									}
-
-									BigInteger amt;
-									final Entry<?>.ItemStack i;
-									if (cmd.args.length == 0) {
-										amt = BigInteger.ONE;
-										i = e.get(0);
-									} else if (cmd.args.length < 3) {
-										if (cmd.args.length == 1) {
-											if (e.getStacks().size() == 1) {
-												amt = parseAmount(cmd.args[0], event);
-												i = e.get(0);
-											} else {
-												amt = BigInteger.ONE;
-												int x;
-												try {
-													x = Integer.parseInt(cmd.args[0]);
-												} catch (NumberFormatException e1) {
-													event.getChannel().sendMessage(event.getAuthor().getAsMention()
-															+ " the index has to be a number.").queue();
-													return;
-												}
-												if (x > e.getStacks().size()) {
-													event.getChannel().sendMessage(event.getAuthor().getAsMention()
-															+ " you don't have any items at that index for that category.")
-															.queue();
-													return;
-												}
-												i = e.get(x - 1);
-											}
-										} else {
-											amt = parseAmount(cmd.args[1], event);
-											int x;
-											try {
-												x = Integer.parseInt(cmd.args[0]);
-											} catch (NumberFormatException e1) {
-												event.getChannel().sendMessage(event.getAuthor().getAsMention()
-														+ " the index has to be a number.").queue();
-												return;
-											}
-											if (x > e.getStacks().size()) {
-												event.getChannel().sendMessage(event.getAuthor().getAsMention()
-														+ " you don't have any items at that index for that category.")
-														.queue();
-												return;
-											}
-											i = e.get(x - 1);
-										}
-									} else {
-										event.getChannel().sendMessage(event.getAuthor().getAsMention()
-												+ " too many arguments. Please provide only an amount and an index.")
-												.queue();
-										return;
-									}
-
-									var person = recipInvoking ? t.getRecip() : t.getRequester();
-									var inventry = person.getItems().get((Item) i.getItem());
-
-									BigInteger alrd;
-									if (inventry == null)
-										// There is none of the items that the user is adding inside the trade
-										// inv already.
-										alrd = BigInteger.ZERO;
-									else
-										alrd = inventry.getCount();
-									if (alrd.add(amt).compareTo(i.count()) > 0)
-										// User doesn't have enough of this item to add to the trade.
-										amt = i.count().subtract(alrd);
-									person.getItems().add((Item) i.getItem(), amt);
-									event.getChannel().sendMessage(event.getAuthor().getAsMention()
-											+ " added that item to the trade! Here's what you've listed so far: ")
-											.embed(person.getTrade(new EmbedBuilder()).build()).queue();
-									return;
-								}
-							}.filterUser(recipient.getUserID(), requester.getUserID())
-									.filterChannel(inv.event.getChannel().getId());
-
 						}
 					}
 				}
