@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 public class TradeMIC implements MessageInputConsumer {
 
 	private final static SimpleCommandProcessor processor = new SimpleCommandProcessor();
+	private static final TradeCommandParser parser = new TradeCommandParser();
 
 	private final Trade trade;
 	private Instant lastUse = Instant.now();
@@ -30,11 +31,10 @@ public class TradeMIC implements MessageInputConsumer {
 	@Override
 	public boolean consume(MessageReceivedEvent event, InputProcessor<? extends MessageReceivedEvent> processor,
 			InputConsumer<MessageReceivedEvent> consumer) {
-		var clover = trade.getManager().getClover();
 		var txt = event.getMessage().getContentRaw();
 		if (event.getChannel().equals(trade.getInitialChannel()) && (event.getAuthor().equals(trade.getRecipientUser())
 				|| event.getAuthor().equals(trade.getRequesterUser()))) {
-			TradeMIC.processor.run(clover.getCommandParser().parse(null, txt, event));
+			TradeMIC.processor.run(parser.parse(null, txt, event));
 			lastUse = Instant.now();
 			return true;
 		}
