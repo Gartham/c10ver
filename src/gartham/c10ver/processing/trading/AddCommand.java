@@ -7,37 +7,12 @@ import gartham.c10ver.commands.CommandInvocation;
 import gartham.c10ver.commands.MatchBasedCommand;
 import gartham.c10ver.economy.items.Inventory;
 import gartham.c10ver.economy.items.Inventory.Entry;
-import gartham.c10ver.economy.items.Inventory.Entry.ItemStack;
 import gartham.c10ver.economy.items.Item;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 class AddCommand extends MatchBasedCommand {
-
-	private static final class Amount {
-		private final BigInteger amount;
-		private final boolean max;
-
-		public Amount() {
-			this.amount = null;
-			max = true;
-		}
-
-		public Amount(BigInteger amount) {
-			this.amount = amount;
-			max = false;
-		}
-
-		public boolean max() {
-			return max;
-		}
-
-		public BigInteger amount() {
-			return amount;
-		}
-
-	}
 
 	private final Trade trade;
 
