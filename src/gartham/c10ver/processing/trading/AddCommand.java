@@ -172,7 +172,7 @@ class AddCommand extends MatchBasedCommand {
 			}
 			if (x < 1) {
 				inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
-						+ " that's not a valid index! Indices must be greater than 0.");
+						+ " that's not a valid index! Indices must be greater than 0.").queue();
 				return;
 			}
 			i = e.get(x - 1);
