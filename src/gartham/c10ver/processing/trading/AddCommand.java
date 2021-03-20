@@ -7,11 +7,37 @@ import gartham.c10ver.commands.CommandInvocation;
 import gartham.c10ver.commands.MatchBasedCommand;
 import gartham.c10ver.economy.items.Inventory;
 import gartham.c10ver.economy.items.Inventory.Entry;
+import gartham.c10ver.economy.items.Inventory.Entry.ItemStack;
 import gartham.c10ver.economy.items.Item;
+import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 class AddCommand extends MatchBasedCommand {
+
+	private static final class Amount {
+		private final BigInteger amount;
+		private final boolean max;
+
+		public Amount() {
+			this.amount = null;
+			max = true;
+		}
+
+		public Amount(BigInteger amount) {
+			this.amount = amount;
+			max = false;
+		}
+
+		public boolean max() {
+			return max;
+		}
+
+		public BigInteger amount() {
+			return amount;
+		}
+
+	}
 
 	private final Trade trade;
 
@@ -72,60 +98,103 @@ class AddCommand extends MatchBasedCommand {
 		BigInteger amt;
 		final Entry<?>.ItemStack i;
 
-		if (e.getStacks().size() == 1) {
-
-		} else {
-			// If there is more than one type of stack in this entry, users are required to
-			// specify the index of the item they want to add, or simply include "all" or
-			// "*" as the index.
-		}
-
-		if (inv.args.length == 0) {
+		if (inv.args.length == 0) {// +loot-crate
 			amt = BigInteger.ONE;
 			i = e.get(0);
-		} else if (inv.args.length < 3) {
-			if (inv.args.length == 1) {
-				if (e.getStacks().size() == 1) {
-					amt = parseAmount(inv.args[0], inv.event);
-					i = e.get(0);
-				} else {
-					amt = BigInteger.ONE;
-					int x;
-					try {
-						x = Integer.parseInt(inv.args[0]);
-					} catch (NumberFormatException e1) {
-						inv.event.getChannel()
-								.sendMessage(inv.event.getAuthor().getAsMention() + " the index has to be a number.")
-								.queue();
-						return;
-					}
-					if (x > e.getStacks().size()) {
-						inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
-								+ " you don't have any items at that index for that category.").queue();
-						return;
-					}
-					i = e.get(x - 1);
-				}
-			} else {
-				amt = parseAmount(inv.args[1], inv.event);
-				if (amt == null)
+		} else if (inv.args.length == 1)// +item 7
+			if (e.getStacks().size() == 1) {// +pizza 3
+				try {
+					amt = new BigInteger(inv.args[1]);
+				} catch (NumberFormatException e2) {// If item does not have more stacks.
+					int amount = (int) (Math.random() * 10) + 1;
+					inv.event.getChannel()
+							.sendMessage(inv.event.getAuthor().getAsMention() + " please provide an amount: `"
+									+ Utilities.strip(inv.cmdName + inv.args[0] + ' ' + amount) + "` for `" + amount
+									+ "` items.")
+							.queue();
 					return;
+				}
+
+				if (amt.compareTo(BigInteger.ONE) < 0) {// If amt < 1
+					inv.event.getChannel().sendMessage(
+							inv.event.getAuthor().getAsMention() + " you can't add less than 1 items to a trade...")
+							.queue();
+					return;
+				}
+
+				i = e.get(0);
+			} else {// +loot-crate 2
 				int x;
 				try {
-					x = Integer.parseInt(inv.args[0]);
-				} catch (NumberFormatException e1) {
+					x = Integer.parseInt(inv.args[1]);
+				} catch (NumberFormatException e2) {
 					inv.event.getChannel()
-							.sendMessage(inv.event.getAuthor().getAsMention() + " the index has to be a number.")
+							.sendMessage(inv.event.getAuthor().getAsMention()
+									+ " please specify which type of that item you want to trade. For example, `+"
+									+ e.getType() + " 1` to add some of the first type of that item, or: `+"
+									+ e.getType() + " 2` to add some of the second.")
 							.queue();
 					return;
 				}
 				if (x > e.getStacks().size()) {
-					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
-							+ " you don't have any items at that index for that category.").queue();
+					inv.event.getChannel()
+							.sendMessage(
+									inv.event.getAuthor().getAsMention() + " that's not a valid index! You only have `"
+											+ e.getStacks().size() + "` different types of that item.")
+							.queue();
 					return;
 				}
+				if (x < 1) {
+					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+							+ " that's not a valid index! Indices must be greater than 0.");
+					return;
+				}
+
 				i = e.get(x - 1);
+				amt = BigInteger.ONE;
 			}
+		else if (inv.args.length == 2) { // + item 3 9
+			// For two numbers, the index is always first.
+			int x;
+			try {
+				x = Integer.parseInt(inv.args[1]);
+			} catch (NumberFormatException e1) {
+				inv.event.getChannel()
+						.sendMessage(inv.event.getAuthor().getAsMention() + " the index has to be a number.").queue();
+				return;
+			}
+			if (x > e.getStacks().size()) {
+				inv.event.getChannel()
+						.sendMessage(inv.event.getAuthor().getAsMention() + " that's not a valid index! You only have `"
+								+ e.getStacks().size() + "` different types of that item.")
+						.queue();
+				return;
+			}
+			if (x < 1) {
+				inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+						+ " that's not a valid index! Indices must be greater than 0.");
+				return;
+			}
+			i = e.get(x - 1);
+
+			try {
+				amt = new BigInteger(inv.args[2]);
+			} catch (NumberFormatException e2) {// If item does not have more stacks.
+				int amount = (int) (Math.random() * 10) + 1;
+				inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention() + " please provide an amount: `"
+						+ Utilities.strip(inv.cmdName + inv.args[0] + ' ' + amount) + "` for `" + amount + "` items.")
+						.queue();
+				return;
+			}
+
+			if (amt.compareTo(BigInteger.ONE) < 0) {// If amt < 1
+				inv.event.getChannel()
+						.sendMessage(
+								inv.event.getAuthor().getAsMention() + " you can't add less than 1 items to a trade...")
+						.queue();
+				return;
+			}
+
 		} else {
 			inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
 					+ " too many arguments. Please provide only an amount and an index.").queue();
@@ -133,24 +202,21 @@ class AddCommand extends MatchBasedCommand {
 		}
 
 		var person = trade.isRecipient(inv.event.getAuthor()) ? trade.getRecip() : trade.getRequester();
-		var inventry = person.getItems().get((Item) i.getItem());
+		BigInteger total = amt;
+		if (person.getItems().get((Item) i.getItem()) != null)
+			total = amt.add(person.getItems().get((Item) i.getItem()).getCount());
 
-		BigInteger alrd = inventry == null ? BigInteger.ZERO : inventry.getCount();
-
-		if (alrd.add(amt).compareTo(i.count()) > 0)
-			amt = i.count().subtract(alrd);
-
-		if (amt.equals(BigInteger.ZERO)) {
-			inv.event.getChannel().sendMessage(
-					inv.event.getAuthor().getAsMention() + " **you've already added** all of that item that you have.")
-					.queue();
-		} else {
-			person.getItems().add((Item) i.getItem(), amt);
-			inv.event.getChannel()
-					.sendMessage(inv.event.getAuthor().getAsMention() + " added `" + amt
-							+ "` of that item to the trade! Here's what you've listed so far: ")
-					.embed(person.getTrade(new EmbedBuilder()).build()).queue();
+		if (total.compareTo(i.count()) > 0) {
+			inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+					+ " you don't have enough items to add that many to the trade.").queue();
+			return;
 		}
+
+		person.getItems().add((Item) i.getItem(), amt);
+		inv.event.getChannel()
+				.sendMessage(inv.event.getAuthor().getAsMention() + " added `" + amt
+						+ "` of that item to the trade! Here's what you've listed so far: ")
+				.embed(person.getTrade(new EmbedBuilder()).build()).queue();
 
 	}
 
