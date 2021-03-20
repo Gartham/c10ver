@@ -93,4 +93,8 @@ public class ItemList {
 		return JavaTools.mask(getItems(), Entry::toItemBunch);
 	}
 
+	public BigInteger getCount(Item item) {
+		return get(item).getCount();
+	}
+
 }
