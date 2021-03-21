@@ -4,11 +4,11 @@ import gartham.c10ver.commands.CommandInvocation;
 import gartham.c10ver.commands.MatchBasedCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-public class FinishedCommand extends MatchBasedCommand {
+public class AcceptCommand extends MatchBasedCommand {
 
 	private final Trade trade;
 
-	public FinishedCommand(Trade trade) {
+	public AcceptCommand(Trade trade) {
 		super("accept", "finished", "done", "complete");
 		this.trade = trade;
 	}
