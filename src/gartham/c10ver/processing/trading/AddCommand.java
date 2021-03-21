@@ -23,6 +23,14 @@ class AddCommand extends MatchBasedCommand {
 
 	@Override
 	public void exec(CommandInvocation inv) {
+		var person = trade.isRecipient(inv.event.getAuthor()) ? trade.getRecip() : trade.getRequester();
+		if (person.isFinished()) {
+			inv.event.getChannel()
+					.sendMessage(inv.event.getAuthor().getAsMention()
+							+ " you can't make changes after you've marked your side of the trade as complete!")
+					.queue();
+			return;
+		}
 		var ecouser = trade.getManager().getClover().getEconomy().getUser(inv.event.getAuthor().getId());
 
 		Inventory.Entry<?> e;
@@ -156,7 +164,6 @@ class AddCommand extends MatchBasedCommand {
 			return;
 		}
 
-		var person = trade.isRecipient(inv.event.getAuthor()) ? trade.getRecip() : trade.getRequester();
 		BigInteger total = amt;
 		if (person.getItems().get((Item) i.getItem()) != null)
 			total = amt.add(person.getItems().get((Item) i.getItem()).getCount());

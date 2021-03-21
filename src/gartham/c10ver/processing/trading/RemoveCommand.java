@@ -22,6 +22,14 @@ public class RemoveCommand extends MatchBasedCommand {
 
 	@Override
 	public void exec(CommandInvocation inv) {
+		var person = trade.isRecipient(inv.event.getAuthor()) ? trade.getRecip() : trade.getRequester();
+		if (person.isFinished()) {
+			inv.event.getChannel()
+					.sendMessage(inv.event.getAuthor().getAsMention()
+							+ " you can't make changes after you've marked your side of the trade as complete!")
+					.queue();
+			return;
+		}
 		var ecouser = trade.getManager().getClover().getEconomy().getUser(inv.event.getAuthor().getId());
 
 		Inventory.Entry<?> e;
@@ -155,7 +163,6 @@ public class RemoveCommand extends MatchBasedCommand {
 			return;
 		}
 
-		var person = trade.isRecipient(inv.event.getAuthor()) ? trade.getRecip() : trade.getRequester();
 		BigInteger count = person.getItems().getCount(i.getItem());
 		if (count.compareTo(amt) < 0) {// If count < amt, we don't have enough items to remove the requested amt.
 			inv.event.getChannel()
