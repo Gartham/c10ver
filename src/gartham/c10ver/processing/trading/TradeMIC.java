@@ -23,6 +23,7 @@ public class TradeMIC implements MessageInputConsumer {
 		processor.register(new RemoveCommand(trade));
 		processor.register(new ViewCommand(trade));
 		processor.register(new InventoryCommand(trade.getManager().getClover(), "inv", "inventory"));
+		processor.register(new AcceptCommand(trade));
 	}
 
 	public SimpleCommandProcessor getProcessor() {
