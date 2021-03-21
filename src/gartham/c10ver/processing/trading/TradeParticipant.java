@@ -16,6 +16,9 @@ public class TradeParticipant {
 	private final ItemList items = new ItemList();
 	private BigInteger cloves = BigInteger.ZERO;
 
+	/**
+	 * Whether this participant is finished adding what they needed to to the trade.
+	 */
 	private boolean finished;
 
 	public boolean isFinished() {
