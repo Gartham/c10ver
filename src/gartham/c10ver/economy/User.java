@@ -185,7 +185,7 @@ public class User extends SavablePropertyObject {
 		this.economy = economy;
 		userID = userDirectory.getName();
 		account = new Account(userDirectory, this);
-		inventory = new Inventory(userDirectory, this);
+		inventory = new Inventory(userDirectory);
 		if (load)
 			load();
 		if (getMessageCount() == null)
