@@ -20,6 +20,7 @@ public class TradeMIC implements MessageInputConsumer {
 		this.trade = trade;
 		processor.register(new AddCommand(trade));
 		processor.register(new RemoveCommand(trade));
+		processor.register(new ViewCommand(trade));
 	}
 
 	public SimpleCommandProcessor getProcessor() {
