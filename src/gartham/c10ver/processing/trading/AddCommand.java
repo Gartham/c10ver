@@ -174,7 +174,10 @@ class AddCommand extends MatchBasedCommand {
 			return;
 		}
 
+		trade.getRequester().setFinished(false);
+		trade.getRecip().setFinished(false);
 		person.getItems().add((Item) i.getItem(), amt);
+
 		inv.event.getChannel()
 				.sendMessage(inv.event.getAuthor().getAsMention() + " added `" + amt
 						+ "` of that item to the trade! Here's what you've listed so far: ")

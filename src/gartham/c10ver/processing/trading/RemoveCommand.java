@@ -172,7 +172,10 @@ public class RemoveCommand extends MatchBasedCommand {
 			return;
 		}
 
+		trade.getRequester().setFinished(false);
+		trade.getRecip().setFinished(false);
 		person.getItems().remove((Item) i.getItem(), amt);
+
 		inv.event.getChannel()
 				.sendMessage(inv.event.getAuthor().getAsMention() + " removed `" + amt
 						+ "` of that item from the trade! Here's what the trade looks like now: ")
