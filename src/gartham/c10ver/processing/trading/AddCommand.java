@@ -10,7 +10,6 @@ import gartham.c10ver.economy.items.Inventory.Entry;
 import gartham.c10ver.economy.items.Item;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 class AddCommand extends MatchBasedCommand {
 
