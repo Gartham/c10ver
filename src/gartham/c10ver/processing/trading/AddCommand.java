@@ -21,26 +21,6 @@ class AddCommand extends MatchBasedCommand {
 		this.trade = trade;
 	}
 
-	private BigInteger parseAmount(String arg, MessageReceivedEvent event) {
-		BigInteger amt;
-		try {
-			amt = new BigInteger(arg);
-		} catch (NumberFormatException e2) {
-			event.getChannel()
-					.sendMessage(event.getAuthor().getAsMention() + " the amount you specify has to be a number.")
-					.queue();
-			return null;
-		}
-		if (amt.compareTo(BigInteger.ZERO) <= 0) {
-			event.getChannel()
-					.sendMessage(event.getAuthor().getAsMention() + " the amount you specify has to be at least 1.")
-					.queue();
-			return null;
-		}
-
-		return amt;
-	}
-
 	@Override
 	public void exec(CommandInvocation inv) {
 		var ecouser = trade.getManager().getClover().getEconomy().getUser(inv.event.getAuthor().getId());
@@ -76,7 +56,7 @@ class AddCommand extends MatchBasedCommand {
 		if (inv.args.length == 0) {// +loot-crate
 			amt = BigInteger.ONE;
 			i = e.get(0);
-		} else if (inv.args.length == 1)// +item 7
+		} else if (inv.args.length == 2)// +item 7
 			if (e.getStacks().size() == 1) {// +pizza 3
 				try {
 					amt = new BigInteger(inv.args[1]);
@@ -128,7 +108,7 @@ class AddCommand extends MatchBasedCommand {
 				i = e.get(x - 1);
 				amt = BigInteger.ONE;
 			}
-		else if (inv.args.length == 2) { // + item 3 9
+		else if (inv.args.length == 3) { // + item 3 9
 			// For two numbers, the index is always first.
 			int x;
 			try {
