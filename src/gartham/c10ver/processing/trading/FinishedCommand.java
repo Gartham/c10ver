@@ -9,7 +9,7 @@ public class FinishedCommand extends MatchBasedCommand {
 	private final Trade trade;
 
 	public FinishedCommand(Trade trade) {
-		super("finished", "done", "complete");
+		super("accept", "finished", "done", "complete");
 		this.trade = trade;
 	}
 
@@ -19,12 +19,18 @@ public class FinishedCommand extends MatchBasedCommand {
 		if (inv.args.length == 0)
 			if (!person.isFinished()) {
 				person.setFinished(true);
-				inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
-						+ " marked your side of the trade as complete. Here are the items you're planning on trading:")
-						.embed(person.getTrade(new EmbedBuilder()).build()).queue();
+				var other = trade.isRecipient(inv.event.getAuthor()) ? trade.getRequester() : trade.getRecip();
+				if (other.isFinished()) {
+					// TODO
+				} else {
+					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+							+ " you've accepted the trade. Now the person you're trading with needs to accept. If they make any changes, you'll have to accept again before the trade can take place.\n\n By the way, here are the items you're planning on trading:")
+							.embed(person.getTrade(new EmbedBuilder()).build()).queue();
+				}
 			} else
 				inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
-						+ " you've already marked your side of the trade as " + inv.cmdName + '.').queue();
+						+ " you've already accepted, you need to wait on the person you're trading with to accept.")
+						.queue();
 	}
 
 }
