@@ -6,6 +6,7 @@ import gartham.c10ver.commands.InputProcessor;
 import gartham.c10ver.commands.SimpleCommandProcessor;
 import gartham.c10ver.commands.consumers.InputConsumer;
 import gartham.c10ver.commands.consumers.MessageInputConsumer;
+import gartham.c10ver.processing.commands.InventoryCommand;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class TradeMIC implements MessageInputConsumer {
@@ -21,6 +22,7 @@ public class TradeMIC implements MessageInputConsumer {
 		processor.register(new AddCommand(trade));
 		processor.register(new RemoveCommand(trade));
 		processor.register(new ViewCommand(trade));
+		processor.register(new InventoryCommand(trade.getManager().getClover(), "inv", "inventory"));
 	}
 
 	public SimpleCommandProcessor getProcessor() {
