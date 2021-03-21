@@ -27,6 +27,10 @@ public class Trade {
 				.registerInputConsumer(preTradeMIC = new PreTradeMIC(this));
 	}
 
+	public TradeParticipant getParticipant(User user) {
+		return getRecipientUser().equals(user) ? getRecip() : getRequester();
+	}
+
 	public TradeManager getManager() {
 		return manager;
 	}
