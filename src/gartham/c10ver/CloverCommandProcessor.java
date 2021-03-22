@@ -36,8 +36,8 @@ import gartham.c10ver.economy.Account;
 import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.Server;
 import gartham.c10ver.economy.User;
-import gartham.c10ver.economy.items.Inventory;
-import gartham.c10ver.economy.items.Inventory.Entry;
+import gartham.c10ver.economy.items.UserInventory;
+import gartham.c10ver.economy.items.UserInventory.Entry;
 import gartham.c10ver.economy.items.utility.crates.DailyCrate;
 import gartham.c10ver.economy.items.utility.crates.LootCrateItem;
 import gartham.c10ver.economy.items.utility.crates.MonthlyCrate;
@@ -128,7 +128,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					var mult = u.calcMultiplier(inv.event.getGuild());
 					var reward = u.rewardAndSave((long) (Math.random() * 25 + 10), mult);
 
-					Inventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
+					UserInventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
 					var rewards = of(new DailyCrate());
 					invent.add(rewards).save();
 					u.save();
@@ -156,7 +156,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					var mult = u.calcMultiplier(inv.event.getGuild());
 					var amt = u.rewardAndSave((long) (Math.random() * 250 + 100), mult);
 
-					Inventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
+					UserInventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
 					var rewards = of(new WeeklyCrate());
 					invent.add(rewards).save();
 					u.save();
@@ -184,7 +184,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					var mult = u.calcMultiplier(inv.event.getGuild());
 					var amt = u.rewardAndSave((long) (Math.random() * 10000 + 4000), mult);
 
-					Inventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
+					UserInventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
 					var rewards = of(new MonthlyCrate());
 
 					invent.add(rewards).save();

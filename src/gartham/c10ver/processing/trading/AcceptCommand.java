@@ -3,7 +3,7 @@ package gartham.c10ver.processing.trading;
 import gartham.c10ver.commands.CommandInvocation;
 import gartham.c10ver.commands.MatchBasedCommand;
 import gartham.c10ver.economy.User;
-import gartham.c10ver.economy.items.Inventory;
+import gartham.c10ver.economy.items.UserInventory;
 import gartham.c10ver.economy.items.utils.ItemList;
 import gartham.c10ver.economy.items.utils.ItemList.Entry;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -29,7 +29,7 @@ public class AcceptCommand extends MatchBasedCommand {
 					// Do the actual tradeoff.
 
 					ItemList invokerList = person.getItems();
-					Inventory i = person.getEcouser().getInventory();
+					UserInventory i = person.getEcouser().getInventory();
 					for (var e : invokerList.getItems()) {// For each item specified to trade, pull it out of the
 															// inventory.
 						var entry = i.get(e.getItem().getItemType());
@@ -49,7 +49,7 @@ public class AcceptCommand extends MatchBasedCommand {
 	}
 
 	private static void transfer(ItemList items, User from, User to) {
-		Inventory snapshot = from.getInventory().clone
+//		Inventory snapshot = from.getInventory().clone
 	}
 
 }

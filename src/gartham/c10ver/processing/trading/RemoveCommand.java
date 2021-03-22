@@ -5,9 +5,9 @@ import java.util.Locale;
 
 import gartham.c10ver.commands.CommandInvocation;
 import gartham.c10ver.commands.MatchBasedCommand;
-import gartham.c10ver.economy.items.Inventory;
+import gartham.c10ver.economy.items.UserInventory;
 import gartham.c10ver.economy.items.Item;
-import gartham.c10ver.economy.items.Inventory.Entry;
+import gartham.c10ver.economy.items.UserInventory.Entry;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 
@@ -24,7 +24,7 @@ public class RemoveCommand extends MatchBasedCommand {
 	public void exec(CommandInvocation inv) {
 		var ecouser = trade.getManager().getClover().getEconomy().getUser(inv.event.getAuthor().getId());
 
-		Inventory.Entry<?> e;
+		UserInventory.Entry<?> e;
 		ENTRY_FINDER: {
 			try {
 				int x = Integer.parseInt(inv.args[0]) - 1;

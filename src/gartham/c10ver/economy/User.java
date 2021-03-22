@@ -15,7 +15,7 @@ import org.alixia.javalibrary.util.StringGateway;
 
 import gartham.c10ver.data.PropertyObject.Property;
 import gartham.c10ver.data.autosave.SavablePropertyObject;
-import gartham.c10ver.economy.items.Inventory;
+import gartham.c10ver.economy.items.UserInventory;
 import gartham.c10ver.economy.questions.Question;
 import net.dv8tion.jda.api.entities.Guild;
 
@@ -95,7 +95,7 @@ public class User extends SavablePropertyObject {
 	}
 
 	private final Account account;
-	private final Inventory inventory;
+	private final UserInventory inventory;
 	private final Economy economy;
 	private final String userID;
 
@@ -111,7 +111,7 @@ public class User extends SavablePropertyObject {
 		return getSaveLocation().getParentFile().getName();
 	}
 
-	public Inventory getInventory() {
+	public UserInventory getInventory() {
 		return inventory;
 	}
 
@@ -185,7 +185,7 @@ public class User extends SavablePropertyObject {
 		this.economy = economy;
 		userID = userDirectory.getName();
 		account = new Account(userDirectory, this);
-		inventory = new Inventory(userDirectory);
+		inventory = new UserInventory(userDirectory);
 		if (load)
 			load();
 		if (getMessageCount() == null)

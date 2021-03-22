@@ -8,8 +8,8 @@ import gartham.c10ver.Clover;
 import gartham.c10ver.commands.CommandInvocation;
 import gartham.c10ver.commands.MatchBasedCommand;
 import gartham.c10ver.data.PropertyObject;
-import gartham.c10ver.economy.items.Inventory;
-import gartham.c10ver.economy.items.Inventory.Entry;
+import gartham.c10ver.economy.items.UserInventory;
+import gartham.c10ver.economy.items.UserInventory.Entry;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 
@@ -30,7 +30,7 @@ public class InventoryCommand extends MatchBasedCommand {
 	@Override
 	public void exec(CommandInvocation inv) {
 
-		final Inventory invent;
+		final UserInventory invent;
 		final String type;
 		int page;
 		ENTRIES: {
