@@ -28,28 +28,33 @@ import gartham.c10ver.utils.Utilities;
  *
  */
 public class Inventory {
+	
+	public void clear() {
+		entries.clear();
+		entryList.clear();
+	}
 
-	private final File invdir;
-
-	public Inventory(File userDir) {
-		invdir = new File(userDir, "inventory");
-		File[] files = invdir.listFiles();
+	public void load(File dir) {
+		clear();
+		File[] files = dir.listFiles();
 		if (files != null)
 			for (File type : files)
 				new Entry<>(type);
 	}
 
+	
+
 	private final Map<String, Entry<?>> entries = new HashMap<>();
 	private final List<Entry<?>> entryList = new ArrayList<>();
 
 	/**
-	 * Gets a page of entries in this {@link Inventory}. The number of entries per
+	 * Gets a page of entries in this {@link UserInventory}. The number of entries per
 	 * page is specified by the <code>pagesize</code> argument, and the page is
 	 * specified by the <code>page</code> argument. <code>null</code> is returned,
 	 * in lieu of an empty list, if the page number is invalid. The only scenario in
 	 * which the returned list is empty is when the 1st page is requested (the value
 	 * of the <code>page</code> argument is 1) but there are no entries in this
-	 * {@link Inventory}.
+	 * {@link UserInventory}.
 	 * 
 	 * @param page     The page to return.
 	 * @param pagesize The maximum number of elements that can be returned in this
@@ -119,11 +124,11 @@ public class Inventory {
 	}
 
 	/**
-	 * Returns the {@link Entry entries} in this {@link Inventory}. This
+	 * Returns the {@link Entry entries} in this {@link UserInventory}. This
 	 * {@link List} should not be modified directly, although the items in this list
 	 * can be modified using their appropriate methods.
 	 * 
-	 * @return The entries in this {@link Inventory}.
+	 * @return The entries in this {@link UserInventory}.
 	 */
 	public List<Entry<?>> getEntries() {
 		return entryList;
