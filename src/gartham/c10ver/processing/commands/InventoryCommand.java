@@ -8,8 +8,8 @@ import gartham.c10ver.Clover;
 import gartham.c10ver.commands.CommandInvocation;
 import gartham.c10ver.commands.MatchBasedCommand;
 import gartham.c10ver.data.PropertyObject;
-import gartham.c10ver.economy.items.Inventory;
 import gartham.c10ver.economy.items.Inventory.Entry;
+import gartham.c10ver.economy.items.UserInventory;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 
@@ -30,7 +30,7 @@ public class InventoryCommand extends MatchBasedCommand {
 	@Override
 	public void exec(CommandInvocation inv) {
 
-		final Inventory invent;
+		final UserInventory invent;
 		final String type;
 		int page;
 		ENTRIES: {
@@ -76,7 +76,7 @@ public class InventoryCommand extends MatchBasedCommand {
 			}
 
 			invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
-			List<Entry<?>> pageItems = invent.getPage(page, 9);
+			var pageItems = invent.getPage(page, 9);
 			int maxPage = invent.maxPage(9);
 			if (pageItems == null) {
 				inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention() + " you only have `" + maxPage
@@ -99,7 +99,7 @@ public class InventoryCommand extends MatchBasedCommand {
 			return;
 		}
 
-		Entry<?> entry = invent.get(type);
+		var entry = invent.get(type);
 		if (entry == null)
 			inv.event.getChannel()
 					.sendMessage(inv.event.getAuthor().getAsMention() + " you don't have any items of that type!")
@@ -125,8 +125,8 @@ public class InventoryCommand extends MatchBasedCommand {
 		}
 	}
 
-	private final static EmbedBuilder printEntries(List<Entry<?>> entries, EmbedBuilder builder) {
-		for (Entry<?> e : entries)
+	private final static EmbedBuilder printEntries(List<? extends Entry<?>> entries, EmbedBuilder builder) {
+		for (var e : entries)
 			builder.addField(e.getIcon() + ' ' + e.getName(),
 					" *You have [`" + e.getTotalCount() + "`](https://clover.gartham.com 'Item ID: " + e.getType()
 							+ ". Use the ID to get or interact with the item.') of this.*\nUse `inv " + e.getType()
@@ -136,7 +136,7 @@ public class InventoryCommand extends MatchBasedCommand {
 	}
 
 	private final static EmbedBuilder printStacks(List<? extends Entry<?>.ItemStack> list, EmbedBuilder builder) {
-		for (Entry<?>.ItemStack i : list) {
+		for (var i : list) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("*You have [`" + i.getCount() + "`](https://clover.gartham.com 'Item ID: " + i.getType()
 					+ ". Use the ID to get or interact with the item.') of this.*\n");

@@ -7,7 +7,7 @@ import java.util.Map;
 import org.apache.commons.collections4.map.HashedMap;
 
 import gartham.c10ver.Clover;
-import gartham.c10ver.economy.items.Inventory;
+import gartham.c10ver.economy.items.UserInventory;
 
 public class Economy {
 
@@ -53,7 +53,7 @@ public class Economy {
 		return getUser(userID).getAccount();
 	}
 
-	public Inventory getInventory(String userID) {
+	public UserInventory getInventory(String userID) {
 		return getUser(userID).getInventory();
 	}
 

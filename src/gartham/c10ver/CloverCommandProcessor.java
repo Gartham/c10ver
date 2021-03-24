@@ -36,8 +36,8 @@ import gartham.c10ver.economy.Account;
 import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.Server;
 import gartham.c10ver.economy.User;
-import gartham.c10ver.economy.items.Inventory;
-import gartham.c10ver.economy.items.Inventory.Entry;
+import gartham.c10ver.economy.items.UserInventory;
+import gartham.c10ver.economy.items.UserInventory.UserEntry;
 import gartham.c10ver.economy.items.utility.crates.DailyCrate;
 import gartham.c10ver.economy.items.utility.crates.LootCrateItem;
 import gartham.c10ver.economy.items.utility.crates.MonthlyCrate;
@@ -128,7 +128,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					var mult = u.calcMultiplier(inv.event.getGuild());
 					var reward = u.rewardAndSave((long) (Math.random() * 25 + 10), mult);
 
-					Inventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
+					UserInventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
 					var rewards = of(new DailyCrate());
 					invent.add(rewards).save();
 					u.save();
@@ -156,7 +156,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					var mult = u.calcMultiplier(inv.event.getGuild());
 					var amt = u.rewardAndSave((long) (Math.random() * 250 + 100), mult);
 
-					Inventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
+					UserInventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
 					var rewards = of(new WeeklyCrate());
 					invent.add(rewards).save();
 					u.save();
@@ -184,7 +184,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					var mult = u.calcMultiplier(inv.event.getGuild());
 					var amt = u.rewardAndSave((long) (Math.random() * 10000 + 4000), mult);
 
-					Inventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
+					UserInventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
 					var rewards = of(new MonthlyCrate());
 
 					invent.add(rewards).save();
@@ -210,7 +210,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						else if (inv.args.length == 1) {
 							if (clover.getEconomy().hasUser(inv.event.getAuthor().getId())) {
 								var u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
-								var crateEntry = (Entry<LootCrateItem>) u.getInventory().get("loot-crate");
+								var crateEntry = (UserEntry<LootCrateItem>) u.getInventory().get("loot-crate");
 								if (crateEntry != null)
 									for (var is : crateEntry.getStacks())
 										if (is.getItem().getCrateType().equalsIgnoreCase(inv.args[0])) {
@@ -257,7 +257,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						var u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
 						var crateEntry = u.getInventory().get(inv.args[0]);
 						if (crateEntry != null) {
-							Entry<?>.ItemStack is = crateEntry.get(0);
+							var is = crateEntry.get(0);
 							if (is.getItem() instanceof Foodstuff) {
 								is.removeAndSave(BigInteger.ONE);
 								var lci = (Foodstuff) is.getItem();

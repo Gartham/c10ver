@@ -14,6 +14,7 @@ import java.util.Set;
 import org.alixia.javalibrary.JavaTools;
 import org.alixia.javalibrary.json.JSONArray;
 import org.alixia.javalibrary.json.JSONObject;
+import org.alixia.javalibrary.json.JSONValue;
 
 import gartham.c10ver.data.PropertyObject;
 import gartham.c10ver.economy.Economy;
@@ -29,33 +30,57 @@ import gartham.c10ver.utils.Utilities;
  */
 public class Inventory {
 
-	private final File invdir;
-	private final User user;
-
-	public User getUser() {
-		return user;
+	public void clear() {
+		entries.clear();
+		entryList.clear();
 	}
 
-	public Inventory(File userDir, User user) {
-		this.user = user;
-		invdir = new File(userDir, "inventory");
-		File[] files = invdir.listFiles();
-		if (files != null)
+	/**
+	 * Clears this {@link Inventory} then loads it from the specified directory, if
+	 * the dir has any files. If it does not, this method is equivalent to
+	 * {@link #clear()}. If it does, this method will result in an error if any of
+	 * the files are not interpretable as an {@link Entry}.
+	 * 
+	 * @param dir The {@link File directory} to save to.
+	 */
+	public void load(File dir) throws RuntimeException {
+		clear();
+		File[] files = dir.listFiles();
+		if (files != null) {
+			RuntimeException ex = null;
 			for (File type : files)
-				new Entry<>(type);
+				try {
+					newEntry(type);
+				} catch (RuntimeException e) {
+					if (ex == null)
+						ex = e;
+					else
+						ex.addSuppressed(e);
+				}
+			if (ex != null)
+				throw ex;
+		}
 	}
 
 	private final Map<String, Entry<?>> entries = new HashMap<>();
 	private final List<Entry<?>> entryList = new ArrayList<>();
 
+	protected <I extends Item> Entry<I> newEntry(File file) {
+		return new Entry<>(file);
+	}
+
+	protected <I extends Item> Entry<I> newEntry(I item, BigInteger amount) {
+		return new Entry<>(item, amount);
+	}
+
 	/**
-	 * Gets a page of entries in this {@link Inventory}. The number of entries per
-	 * page is specified by the <code>pagesize</code> argument, and the page is
+	 * Gets a page of entries in this {@link UserInventory}. The number of entries
+	 * per page is specified by the <code>pagesize</code> argument, and the page is
 	 * specified by the <code>page</code> argument. <code>null</code> is returned,
-	 * in leiu of an empty list, if the page number is invalid. The only scenario in
+	 * in lieu of an empty list, if the page number is invalid. The only scenario in
 	 * which the returned list is empty is when the 1st page is requested (the value
 	 * of the <code>page</code> argument is 1) but there are no entries in this
-	 * {@link Inventory}.
+	 * {@link UserInventory}.
 	 * 
 	 * @param page     The page to return.
 	 * @param pagesize The maximum number of elements that can be returned in this
@@ -63,7 +88,7 @@ public class Inventory {
 	 * @return A new, unmodifiable list containing the entries that belong to the
 	 *         specified page.
 	 */
-	public List<Entry<?>> getPage(int page, int pagesize) {
+	public List<? extends Entry<?>> getPage(int page, int pagesize) {
 		List<Entry<?>> res = Utilities.paginate(page, pagesize, entryList);
 		return res == null ? null : Collections.unmodifiableList(res);
 	}
@@ -94,7 +119,7 @@ public class Inventory {
 			entry = (Entry<I>) entries.get(item.getItemType());
 			entry.add(item, amt);
 		} else
-			entries.put(item.getItemType(), entry = new Entry<>(item, amt));
+			entries.put(item.getItemType(), entry = newEntry(item, amt));
 		return entry;
 	}
 
@@ -102,7 +127,7 @@ public class Inventory {
 		return add(item, BigInteger.ONE);
 	}
 
-	public Set<Entry<?>> add(ItemBunch<?>... items) {
+	public Set<? extends Entry<?>> add(ItemBunch<?>... items) {
 		Set<Entry<?>> res = new HashSet<>();
 		for (ItemBunch<?> ib : items)
 			res.add(add(ib));
@@ -119,19 +144,19 @@ public class Inventory {
 				: false;
 	}
 
-	public void saveAll() {
+	public void saveAll(File inventoryRoot) {
 		for (Entry<?> e : entryList)
-			e.save();
+			e.saveInto(inventoryRoot);
 	}
 
 	/**
-	 * Returns the {@link Entry entries} in this {@link Inventory}. This
+	 * Returns the {@link Entry entries} in this {@link UserInventory}. This
 	 * {@link List} should not be modified directly, although the items in this list
 	 * can be modified using their appropriate methods.
 	 * 
-	 * @return The entries in this {@link Inventory}.
+	 * @return The entries in this {@link UserInventory}.
 	 */
-	public List<Entry<?>> getEntries() {
+	public List<? extends Entry<?>> getEntries() {
 		return entryList;
 	}
 
@@ -154,7 +179,7 @@ public class Inventory {
 		return bi;
 	}
 
-	public final class Entry<I extends Item> implements Comparable<Entry<?>> {
+	public class Entry<I extends Item> implements Comparable<Entry<?>> {
 		private final List<ItemStack> stacks = new ArrayList<>(1);// The different stacks of this type of item.
 		private boolean alive = false;
 
@@ -165,12 +190,21 @@ public class Inventory {
 			return bi;
 		}
 
-		public List<ItemStack> getPage(int page, int pagesize) {
+		public List<? extends ItemStack> getPage(int page, int pagesize) {
 			return Utilities.paginate(page, pagesize, stacks);
 		}
 
-		private File getFile() {
-			return new File(invdir, getType() + ".txt");
+		/**
+		 * Returns the {@link File} that this {@link Entry} would be stored at if the
+		 * provided {@link File} is the directory representing this {@link Entry}'s
+		 * {@link Inventory}.
+		 * 
+		 * @param inv The {@link File} where this {@link Entry}'s {@link Inventory} is.
+		 * @return The {@link File} representing this {@link Entry} inside its
+		 *         {@link Inventory}.
+		 */
+		public File getFile(File inv) {
+			return new File(inv, getType() + ".txt");
 		}
 
 		private boolean conatins(I item) {
@@ -184,12 +218,20 @@ public class Inventory {
 			return null;
 		}
 
+		protected ItemStack newItemStack(I item, BigInteger amt) {
+			return new ItemStack(item, amt);
+		}
+
+		protected ItemStack newItemStack(JSONObject json) {
+			return new ItemStack(json);
+		}
+
 		public void add(I item, BigInteger amt) {
 			if (!alive)
 				throw new IllegalArgumentException("Cannot perform operation while entry is discarded.");
 			ItemStack is = get(item);
 			if (is == null)
-				is = new ItemStack(item, amt);
+				is = newItemStack(item, amt);
 			else
 				is.add(amt);
 		}
@@ -204,32 +246,36 @@ public class Inventory {
 			if (stacks.isEmpty()) {
 				entries.remove(item.getItemType());
 				entryList.remove(Collections.binarySearch(entryList, item, COMPARATOR));
-				getFile().delete();
+//				getFile().delete();
 				alive = false;
 			}
 			return true;
 		}
 
-		private void remove(ItemStack is) {
-			if (stacks.size() == 1 && stacks.contains(is)) {
-				entries.remove(is.getItem().getItemType());
-				entryList.remove(Collections.binarySearch(entryList, is.getItem(), COMPARATOR));
-				getFile().delete();
-				alive = false;
-			}
+		/**
+		 * Called by an {@link ItemStack} to remove that {@link ItemStack} when the
+		 * {@link ItemStack} has no more items in it (its count hits <code>0</code>).
+		 * 
+		 * @param is The {@link ItemStack} to be removed from this {@link Entry}.
+		 */
+		protected void remove(ItemStack is) {
+			entries.remove(is.getItem().getItemType());
+			entryList.remove(Collections.binarySearch(entryList, is.getItem(), COMPARATOR));
+//			getFile().delete();
+			alive = false;
 		}
 
-		private Entry(I item, BigInteger amt) {
+		protected Entry(I item, BigInteger amt) {
 			entries.put(item.getItemType(), this);
 			entryList.add(-Collections.binarySearch(entryList, item, COMPARATOR) - 1, this);
-			new ItemStack(item, amt);
+			newItemStack(item, amt);
 			alive = true;
-			save();
+//			save();
 		}
 
-		private Entry(File f) {
+		protected Entry(File f) {
 			for (var jv : (JSONArray) Utilities.load(f))
-				new ItemStack((JSONObject) jv);
+				newItemStack((JSONObject) jv);
 			if (stacks.isEmpty())
 				throw new IllegalArgumentException("Invalid file. No stacks found in an entry. File: " + f);
 			String type = this.stacks.get(0).getType();
@@ -238,17 +284,37 @@ public class Inventory {
 			alive = true;
 		}
 
-		public void save() {
+		public void save(File file) {
 			if (alive)
-				Utilities.save(new JSONArray(JavaTools.mask(stacks, ItemStack::toJSON)), getFile());
+				Utilities.save(new JSONArray(JavaTools.mask(stacks, ItemStack::toJSON)), file);
 		}
 
-		public final class ItemStack extends PropertyObject implements Comparable<ItemStack> {
+		public void saveInto(File inventoryRoot) {
+			save(getFile(inventoryRoot));
+		}
+
+		public class ItemStack extends PropertyObject implements Comparable<ItemStack> {
 
 			private boolean alive = true;
 
-			public void save() {
-				Entry.this.save();
+			/**
+			 * <p>
+			 * Saves this {@link ItemStack} to the specified {@link File} in the format
+			 * delineated by {@link Inventory}.
+			 * </p>
+			 * <p>
+			 * Note: This method actually just calls {@link Entry#save(File)
+			 * Entry.this.save(File)}.
+			 * </p>
+			 * 
+			 * @param file The {@link File} to save the {@link ItemStack} to.
+			 */
+			public void save(File file) {
+				Entry.this.save(file);
+			}
+
+			public void saveInto(File inventoryRoot) {
+				Entry.this.saveInto(inventoryRoot);
 			}
 
 			public boolean stackable(Item other) {
@@ -276,7 +342,8 @@ public class Inventory {
 				else
 					count.set(count().subtract(amt));
 				if (count.get().equals(BigInteger.ZERO)) {
-					Entry.this.remove(this);
+					if (stacks.size() == 1 && stacks.contains(this))
+						Entry.this.remove(this);
 					stacks.remove(this);
 					alive = false;
 					return null;
@@ -284,11 +351,11 @@ public class Inventory {
 				return this;
 			}
 
-			public void removeAndSave(BigInteger amt) {
-				var is = remove(amt);
-				if (is != null)
-					is.save();
-			}
+//			public void removeAndSave(BigInteger amt) {
+//				var is = remove(amt);
+////				if (is != null)
+////					is.save();
+//			}
 
 			{
 				stacks.add(this);
@@ -307,12 +374,12 @@ public class Inventory {
 				add(BigInteger.valueOf(amount));
 			}
 
-			private ItemStack(I item, BigInteger amount) {
+			protected ItemStack(I item, BigInteger amount) {
 				this.item.set(item);
 				count.set(amount);
 			}
 
-			private ItemStack(JSONObject json) {
+			protected ItemStack(JSONObject json) {
 				load(item, json);
 				load(count, json);
 			}
@@ -356,7 +423,7 @@ public class Inventory {
 			return stacks.get(0).getName();
 		}
 
-		public List<ItemStack> getStacks() {
+		public List<? extends ItemStack> getStacks() {
 			if (!alive)
 				throw new IllegalArgumentException("Cannot perform operation while entry is discarded.");
 			return stacks;
