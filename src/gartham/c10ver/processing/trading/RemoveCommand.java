@@ -5,9 +5,8 @@ import java.util.Locale;
 
 import gartham.c10ver.commands.CommandInvocation;
 import gartham.c10ver.commands.MatchBasedCommand;
-import gartham.c10ver.economy.items.UserInventory;
 import gartham.c10ver.economy.items.Item;
-import gartham.c10ver.economy.items.UserInventory.Entry;
+import gartham.c10ver.economy.items.UserInventory.UserEntry;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 
@@ -24,7 +23,7 @@ public class RemoveCommand extends MatchBasedCommand {
 	public void exec(CommandInvocation inv) {
 		var ecouser = trade.getManager().getClover().getEconomy().getUser(inv.event.getAuthor().getId());
 
-		UserInventory.Entry<?> e;
+		UserEntry<?> e;
 		ENTRY_FINDER: {
 			try {
 				int x = Integer.parseInt(inv.args[0]) - 1;
@@ -50,7 +49,7 @@ public class RemoveCommand extends MatchBasedCommand {
 		}
 
 		BigInteger amt;
-		final Entry<?>.ItemStack i;
+		final UserEntry<?>.UserItemStack i;
 
 		if (inv.args.length == 0) {// +loot-crate
 			amt = BigInteger.ONE;

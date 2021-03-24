@@ -41,7 +41,7 @@ public class UserInventory extends Inventory {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <I extends Item> Entry<I> add(ItemBunch<? extends I> items) {
+	public <I extends Item> UserEntry<I> add(ItemBunch<? extends I> items) {
 		return (UserEntry<I>) super.add(items);
 	}
 
