@@ -88,7 +88,7 @@ public class Inventory {
 	 * @return A new, unmodifiable list containing the entries that belong to the
 	 *         specified page.
 	 */
-	public List<Entry<?>> getPage(int page, int pagesize) {
+	public List<? extends Entry<?>> getPage(int page, int pagesize) {
 		List<Entry<?>> res = Utilities.paginate(page, pagesize, entryList);
 		return res == null ? null : Collections.unmodifiableList(res);
 	}
@@ -127,7 +127,7 @@ public class Inventory {
 		return add(item, BigInteger.ONE);
 	}
 
-	public Set<Entry<?>> add(ItemBunch<?>... items) {
+	public Set<? extends Entry<?>> add(ItemBunch<?>... items) {
 		Set<Entry<?>> res = new HashSet<>();
 		for (ItemBunch<?> ib : items)
 			res.add(add(ib));
@@ -156,7 +156,7 @@ public class Inventory {
 	 * 
 	 * @return The entries in this {@link UserInventory}.
 	 */
-	public List<Entry<?>> getEntries() {
+	public List<? extends Entry<?>> getEntries() {
 		return entryList;
 	}
 
@@ -179,7 +179,7 @@ public class Inventory {
 		return bi;
 	}
 
-	public final class Entry<I extends Item> implements Comparable<Entry<?>> {
+	public class Entry<I extends Item> implements Comparable<Entry<?>> {
 		private final List<ItemStack> stacks = new ArrayList<>(1);// The different stacks of this type of item.
 		private boolean alive = false;
 
@@ -190,7 +190,7 @@ public class Inventory {
 			return bi;
 		}
 
-		public List<ItemStack> getPage(int page, int pagesize) {
+		public List<? extends ItemStack> getPage(int page, int pagesize) {
 			return Utilities.paginate(page, pagesize, stacks);
 		}
 
@@ -252,13 +252,17 @@ public class Inventory {
 			return true;
 		}
 
-		private void remove(ItemStack is) {
-			if (stacks.size() == 1 && stacks.contains(is)) {
-				entries.remove(is.getItem().getItemType());
-				entryList.remove(Collections.binarySearch(entryList, is.getItem(), COMPARATOR));
-//				getFile().delete();
-				alive = false;
-			}
+		/**
+		 * Called by an {@link ItemStack} to remove that {@link ItemStack} when the
+		 * {@link ItemStack} has no more items in it (its count hits <code>0</code>).
+		 * 
+		 * @param is The {@link ItemStack} to be removed from this {@link Entry}.
+		 */
+		protected void remove(ItemStack is) {
+			entries.remove(is.getItem().getItemType());
+			entryList.remove(Collections.binarySearch(entryList, is.getItem(), COMPARATOR));
+//			getFile().delete();
+			alive = false;
 		}
 
 		protected Entry(I item, BigInteger amt) {
@@ -289,7 +293,7 @@ public class Inventory {
 			save(getFile(inventoryRoot));
 		}
 
-		public final class ItemStack extends PropertyObject implements Comparable<ItemStack> {
+		public class ItemStack extends PropertyObject implements Comparable<ItemStack> {
 
 			private boolean alive = true;
 
@@ -338,7 +342,8 @@ public class Inventory {
 				else
 					count.set(count().subtract(amt));
 				if (count.get().equals(BigInteger.ZERO)) {
-					Entry.this.remove(this);
+					if (stacks.size() == 1 && stacks.contains(this))
+						Entry.this.remove(this);
 					stacks.remove(this);
 					alive = false;
 					return null;
@@ -346,11 +351,11 @@ public class Inventory {
 				return this;
 			}
 
-			public void removeAndSave(BigInteger amt) {
-				var is = remove(amt);
-//				if (is != null)
-//					is.save();
-			}
+//			public void removeAndSave(BigInteger amt) {
+//				var is = remove(amt);
+////				if (is != null)
+////					is.save();
+//			}
 
 			{
 				stacks.add(this);
@@ -418,7 +423,7 @@ public class Inventory {
 			return stacks.get(0).getName();
 		}
 
-		public List<ItemStack> getStacks() {
+		public List<? extends ItemStack> getStacks() {
 			if (!alive)
 				throw new IllegalArgumentException("Cannot perform operation while entry is discarded.");
 			return stacks;
