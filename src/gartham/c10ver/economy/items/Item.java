@@ -8,13 +8,13 @@ import org.alixia.javalibrary.json.JSONObject;
 import gartham.c10ver.data.PropertyObject;
 
 public abstract class Item extends PropertyObject implements Cloneable {
-	private static final String ITEM_TYPE = "$type", ITEM_NAME = "$name", CUSTOM_NAME = "$custom-name",
-			ITEM_ICON = "$icon";
+	private static final String ITEM_TYPE_PK = "$type", ITEM_NAME_PK = "$name", CUSTOM_NAME_PK = "$custom-name",
+			ITEM_ICON_PK = "$icon";
 	{
-		stringProperty(ITEM_TYPE).setAttribute(false);
-		stringProperty(ITEM_NAME).setAttribute(false).setTransient(true);
-		stringProperty(ITEM_ICON).setAttribute(false).setTransient(true);
-		stringProperty(CUSTOM_NAME).setAttribute(false).setTransient(true);
+		stringProperty(ITEM_TYPE_PK).setAttribute(false);
+		stringProperty(ITEM_NAME_PK).setAttribute(false).setTransient(true);
+		stringProperty(ITEM_ICON_PK).setAttribute(false).setTransient(true);
+		stringProperty(CUSTOM_NAME_PK).setAttribute(false).setTransient(true);
 	}
 
 	public String getEffectiveName() {
@@ -23,7 +23,7 @@ public abstract class Item extends PropertyObject implements Cloneable {
 
 	@Override
 	public void load(JSONObject properties) {
-		String s = properties.getString(ITEM_TYPE);
+		String s = properties.getString(ITEM_TYPE_PK);
 		if (!getItemType().equals(s))
 			throw new IllegalArgumentException("Invalid object being loaded. According to object, object is a: " + s
 					+ ". This class represents: " + getItemType());
@@ -35,7 +35,7 @@ public abstract class Item extends PropertyObject implements Cloneable {
 	}
 
 	protected final Property<String> customNameProperty() {
-		return getProperty(CUSTOM_NAME);
+		return getProperty(CUSTOM_NAME_PK);
 	}
 
 	public String getCustomName() {
@@ -57,7 +57,7 @@ public abstract class Item extends PropertyObject implements Cloneable {
 	 *         the name of this {@link Item}.
 	 */
 	protected final Property<String> itemNameProperty() {
-		return getProperty(ITEM_NAME);
+		return getProperty(ITEM_NAME_PK);
 	}
 
 	public String getItemName() {
@@ -75,7 +75,7 @@ public abstract class Item extends PropertyObject implements Cloneable {
 	 *         the icon of this item.
 	 */
 	protected final Property<String> iconProperty() {
-		return getProperty(ITEM_ICON);
+		return getProperty(ITEM_ICON_PK);
 	}
 
 	/**
@@ -106,7 +106,7 @@ public abstract class Item extends PropertyObject implements Cloneable {
 	}
 
 	private final Property<String> itemTypeProperty() {
-		return getProperty(ITEM_TYPE);
+		return getProperty(ITEM_TYPE_PK);
 	}
 
 	public Item(String type) {

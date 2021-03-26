@@ -8,17 +8,17 @@ import gartham.c10ver.economy.items.Item;
 public abstract class LootCrateItem extends Item {
 
 	public static final String ITEM_TYPE = "loot-crate", ITEM_NAME = "Loot Crate";// Values
-	private static final String CRATE_TYPE = "type";// Key
+	private static final String CRATE_TYPE_PK = "type";// Key
 
 	{
-		stringProperty(CRATE_TYPE);
+		stringProperty(CRATE_TYPE_PK);
 		setItemName(ITEM_NAME);
 	}
 
 	public abstract Rewards open();
 
 	private Property<String> crateTypeProperty() {
-		return getProperty(CRATE_TYPE);
+		return getProperty(CRATE_TYPE_PK);
 	}
 
 	protected final void setCrateType(String type) {
