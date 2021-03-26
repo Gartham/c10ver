@@ -23,7 +23,7 @@ public abstract class Item extends PropertyObject implements Cloneable {
 
 	@Override
 	public void load(JSONObject properties) {
-		String s = properties.getString("item-type");
+		String s = properties.getString(ITEM_TYPE);
 		if (!getItemType().equals(s))
 			throw new IllegalArgumentException("Invalid object being loaded. According to object, object is a: " + s
 					+ ". This class represents: " + getItemType());
@@ -110,7 +110,7 @@ public abstract class Item extends PropertyObject implements Cloneable {
 	}
 
 	public Item(String type) {
-		itemNameProperty().set(type);
+		itemTypeProperty().set(type);
 	}
 
 	public Item(String type, JSONObject properties) {
@@ -120,7 +120,7 @@ public abstract class Item extends PropertyObject implements Cloneable {
 	}
 
 	public Item(String type, String name, String icon) {
-		itemTypeProperty().set(type);
+		this(type);
 		itemNameProperty().set(name);
 		iconProperty().set(icon);
 	}
