@@ -1,5 +1,6 @@
 package gartham.c10ver.data;
 
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Duration;
@@ -26,7 +27,12 @@ import org.alixia.javalibrary.util.StringGateway;
 
 public class PropertyObject {
 
-	private final Map<String, Property<?>> propertyMap = new HashMap<>();
+	private Map<String, Property<?>> propertyMap = new HashMap<>();
+
+	@SuppressWarnings("unchecked")
+	protected final <V> Property<V> getProperty(String key) {
+		return (Property<V>) propertyMap.get(key);
+	}
 
 	/**
 	 * <p>
@@ -368,7 +374,15 @@ public class PropertyObject {
 	 *
 	 * @param <V>
 	 */
-	public class Property<V> {
+	public class Property<V> implements Cloneable {
+
+		public Property<V> cloneTo(PropertyObject parent) throws CloneNotSupportedException {
+			var x = parent.new Property<>(key, def, converter);
+			x.value = value;
+			x.attribute = attribute;
+			x.trans = trans;
+			return x;
+		}
 
 		protected final void load(JSONObject properties) {
 			set(properties != null && properties.containsKey(key) ? converter.from(properties.get(key)) : def);
@@ -559,6 +573,40 @@ public class PropertyObject {
 
 	protected final <E extends Enum<E>> Property<E> enumProperty(String key, Class<E> enumType) {
 		return enumProperty(key, null, enumType);
+	}
+
+	/**
+	 * <p>
+	 * Clones this {@link PropertyObject} using {@link Object#clone}, then replaces
+	 * the backing {@link #propertyMap} map with a new {@link Map} containing a
+	 * clone of each {@link Property} contained in this {@link PropertyObject}.
+	 * </p>
+	 * <p>
+	 * Essentially, the {@link #propertyMap}s of the two {@link PropertyObject} will
+	 * be different map objects, and an attempt will be made to clone every single
+	 * {@link Property} in this object (using
+	 * {@link Property#cloneTo(PropertyObject)}), into the resulting object.
+	 * </p>
+	 * <p>
+	 * The cloning mechanism for {@link Property#cloneTo(PropertyObject)} performs a
+	 * shallow copy, so whatever object a {@link Property} has when it is cloned,
+	 * the resulting {@link Property} will also have. This means that if some of
+	 * this {@link PropertyObject} is defined by the value in one of its
+	 * {@link Property Properties} and that value is mutable, whenever that
+	 * property's actual value is modified (not when the {@link Property#value}
+	 * variable is modified), both the cloned {@link Property} and the original
+	 * {@link Property} will see that change, unless one of them changes the object
+	 * pointed to by their {@link Property#value} field.
+	 * </p>
+	 */
+	@Override
+	public PropertyObject clone() throws CloneNotSupportedException {
+		var po = (PropertyObject) super.clone();
+		var newmap = new HashMap<String, Property<?>>();
+		po.propertyMap = newmap;
+		for (var e : propertyMap.entrySet())
+			newmap.put(e.getKey(), e.getValue().cloneTo(po));
+		return po;
 	}
 
 }
