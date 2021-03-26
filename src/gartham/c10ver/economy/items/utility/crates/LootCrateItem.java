@@ -7,26 +7,31 @@ import gartham.c10ver.economy.items.Item;
 
 public abstract class LootCrateItem extends Item {
 
-	public static final String ITEM_TYPE = "loot-crate", ITEM_NAME = "Loot Crate";
-	private final Property<String> crateType = stringProperty("type");
+	public static final String ITEM_TYPE = "loot-crate", ITEM_NAME = "Loot Crate";// Values
+	private static final String CRATE_TYPE = "type";// Key
 
 	{
+		stringProperty(CRATE_TYPE);
 		setItemName(ITEM_NAME);
 	}
 
 	public abstract Rewards open();
 
+	private Property<String> crateTypeProperty() {
+		return getProperty(CRATE_TYPE);
+	}
+
 	protected final void setCrateType(String type) {
-		crateType.set(type);
+		crateTypeProperty().set(type);
 	}
 
 	public String getCrateType() {
-		return crateType.get();
+		return crateTypeProperty().get();
 	}
 
 	public LootCrateItem(JSONObject props) {
 		super(ITEM_TYPE, props);// Item class does a check on item property with JSON input.
-		load(crateType, props);
+		load(crateTypeProperty(), props);
 	}
 
 	public LootCrateItem() {
