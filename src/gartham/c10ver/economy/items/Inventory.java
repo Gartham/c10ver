@@ -249,6 +249,17 @@ public class Inventory implements Cloneable {
 				is.add(amt);
 		}
 
+		/**
+		 * Removes the specified amount of the specified {@link Item} from this
+		 * {@link Entry}. Returns <code>false</code> if the provided {@link Item} is not
+		 * in this {@link Entry} to begin with. Otherwise, performs the removal and
+		 * returns <code>true</code>.
+		 * 
+		 * @param item The type of {@link Item} to be removed.
+		 * @param amt  The amount to remove.
+		 * @return <code>true</code> if the item was contained in this {@link Entry}
+		 *         before the call to this method.
+		 */
 		public boolean remove(I item, BigInteger amt) {
 			if (!alive)
 				throw new IllegalStateException("Cannot perform operation while entry is discarded.");
@@ -259,10 +270,16 @@ public class Inventory implements Cloneable {
 			if (stacks.isEmpty()) {
 				entries.remove(item.getItemType());
 				entryList.remove(Collections.binarySearch(entryList, item, COMPARATOR));
-//				getFile().delete();
 				alive = false;
 			}
 			return true;
+		}
+
+		public boolean has(I item, BigInteger amt) {
+			if (!alive)
+				throw new IllegalStateException("Cannot perform operation while entry is discarded.");
+			var is = get(item);
+			return is != null && is.count().compareTo(amt) >= 0;
 		}
 
 		/**
@@ -274,7 +291,6 @@ public class Inventory implements Cloneable {
 		protected void remove(ItemStack is) {
 			entries.remove(is.getItem().getItemType());
 			entryList.remove(Collections.binarySearch(entryList, is.getItem(), COMPARATOR));
-//			getFile().delete();
 			alive = false;
 		}
 
@@ -283,7 +299,6 @@ public class Inventory implements Cloneable {
 			entryList.add(-Collections.binarySearch(entryList, item, COMPARATOR) - 1, this);
 			newItemStack(item, amt);
 			alive = true;
-//			save();
 		}
 
 		protected Entry(File f) {
@@ -313,6 +328,10 @@ public class Inventory implements Cloneable {
 		}
 
 		public class ItemStack extends PropertyObject implements Comparable<ItemStack> {
+
+			public boolean has(BigInteger amt) {
+				return getCount().compareTo(amt) >= 0;
+			}
 
 			public Entry<I>.ItemStack cloneTo(Entry<I> other) {
 				if (!alive)
