@@ -29,7 +29,7 @@ import gartham.c10ver.utils.Utilities;
  * @author Gartham
  *
  */
-public class Inventory {
+public class Inventory implements Cloneable {
 
 	private static Inventory x;
 
@@ -65,8 +65,8 @@ public class Inventory {
 		}
 	}
 
-	private final Map<String, Entry<?>> entries = new HashMap<>();
-	private final List<Entry<?>> entryList = new ArrayList<>();
+	private Map<String, Entry<?>> entries = new HashMap<>();
+	private List<Entry<?>> entryList = new ArrayList<>();
 
 	protected <I extends Item> Entry<I> newEntry(File file) {
 		return new Entry<>(file);
@@ -461,6 +461,21 @@ public class Inventory {
 	public void cloneTo(Inventory inv) {
 		for (var e : entryList)
 			e.cloneTo(inv);
+	}
+
+	@Override
+	public Inventory clone() throws CloneNotSupportedException {
+		var i = (Inventory) super.clone();
+		i.entries = new HashMap<>(entries.size());
+		i.entryList = new ArrayList<>(entryList.size());
+		cloneTo(i);
+		return i;
+	}
+
+	public Inventory copy() {
+		Inventory i = new Inventory();
+		cloneTo(i);
+		return i;
 	}
 
 }
