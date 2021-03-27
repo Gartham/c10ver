@@ -81,6 +81,8 @@ public class Foodstuff extends Item implements Consumable {
 		return hr(days) * 24;
 	}
 
+	private static final String MULTIPLIER_PK = "mult", TTL_PK = "ttl";
+
 	/**
 	 * <p>
 	 * This is the value that this food item will give to a user's multiplier when
@@ -94,32 +96,42 @@ public class Foodstuff extends Item implements Consumable {
 	 * multipliers are added.
 	 * </p>
 	 */
-	private final Property<BigDecimal> multiplier = bigDecimalProperty("mult").setTransient(true).setAttribute(false);
+	private Property<BigDecimal> multiplierProperty() {
+		return getProperty(MULTIPLIER_PK);
+	}
+
+	{
+		bigDecimalProperty(MULTIPLIER_PK).setTransient(true).setAttribute(false);
+		longProperty(TTL_PK).setTransient(true).setAttribute(false);
+	}
+
 	/**
 	 * This is how long the multiplier effect of this food will last, in
 	 * milliseconds.
 	 */
-	private final Property<Long> ttl = longProperty("ttl").setTransient(true).setAttribute(false);;
+	private Property<Long> ttlProperty() {
+		return getProperty(TTL_PK);
+	}
 
 	public BigDecimal getMultiplier() {
-		return multiplier.get();
+		return multiplierProperty().get();
 	}
 
 	protected void setMultiplier(BigDecimal multiplierValue) {
-		this.multiplier.set(multiplierValue);
+		multiplierProperty().set(multiplierValue);
 	}
 
 	protected void setTTL(long ttl) {
-		this.ttl.set(ttl);
+		ttlProperty().set(ttl);
 	}
 
 	public long getTTL() {
-		return ttl.get();
+		return ttlProperty().get();
 	}
 
 	public Foodstuff(String type, JSONObject properties) {
 		super(type, properties);
-		load(multiplier, properties);
+		load(multiplierProperty(), properties);
 	}
 
 	public Foodstuff(String type) {
@@ -128,7 +140,7 @@ public class Foodstuff extends Item implements Consumable {
 
 	@Override
 	public final void consume(User user) {
-		user.addMultiplier(new Multiplier(Instant.now().plusMillis(ttl.get()), getMultiplier()));
+		user.addMultiplier(new Multiplier(Instant.now().plusMillis(getTTL()), getMultiplier()));
 	}
 
 }
