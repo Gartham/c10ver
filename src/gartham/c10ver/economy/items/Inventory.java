@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,6 +30,8 @@ import gartham.c10ver.utils.Utilities;
  *
  */
 public class Inventory {
+
+	private static Inventory x;
 
 	public void clear() {
 		entries.clear();
@@ -183,6 +186,16 @@ public class Inventory {
 		private final List<ItemStack> stacks = new ArrayList<>(1);// The different stacks of this type of item.
 		private boolean alive = false;
 
+		public Entry<I> cloneTo(Inventory other) {
+			var e = other.new Entry<I>();
+			for (var is : stacks)
+				is.cloneTo(e);
+			other.entries.put(e.stacks.get(0).getItem().getItemType(), e);
+			other.entryList.add(-Collections.binarySearch(entryList, e.getStacks().get(0).getItem(), COMPARATOR) - 1,
+					e);
+			return e;
+		}
+
 		public BigInteger getTotalCount() {
 			BigInteger bi = BigInteger.ZERO;
 			for (ItemStack is : stacks)
@@ -228,7 +241,7 @@ public class Inventory {
 
 		public void add(I item, BigInteger amt) {
 			if (!alive)
-				throw new IllegalArgumentException("Cannot perform operation while entry is discarded.");
+				throw new IllegalStateException("Cannot perform operation while entry is discarded.");
 			ItemStack is = get(item);
 			if (is == null)
 				is = newItemStack(item, amt);
@@ -238,7 +251,7 @@ public class Inventory {
 
 		public boolean remove(I item, BigInteger amt) {
 			if (!alive)
-				throw new IllegalArgumentException("Cannot perform operation while entry is discarded.");
+				throw new IllegalStateException("Cannot perform operation while entry is discarded.");
 			ItemStack is = get(item);
 			if (is == null)
 				return false;
@@ -284,6 +297,12 @@ public class Inventory {
 			alive = true;
 		}
 
+		/**
+		 * Used for cloning.
+		 */
+		private Entry() {
+		}
+
 		public void save(File file) {
 			if (alive)
 				Utilities.save(new JSONArray(JavaTools.mask(stacks, ItemStack::toJSON)), file);
@@ -294,6 +313,12 @@ public class Inventory {
 		}
 
 		public class ItemStack extends PropertyObject implements Comparable<ItemStack> {
+
+			public Entry<I>.ItemStack cloneTo(Entry<I> other) {
+				if (!alive)
+					throw new IllegalStateException();
+				return other.newItemStack(getItem(), getCount());
+			}
 
 			private boolean alive = true;
 
@@ -335,7 +360,7 @@ public class Inventory {
 
 			public ItemStack remove(BigInteger amt) {
 				if (!alive)
-					throw new IllegalArgumentException("Cannot perform operation while stack is discarded.");
+					throw new IllegalStateException("Cannot perform operation while stack is discarded.");
 				if (amt.compareTo(count()) > 0)
 					throw new IllegalArgumentException(
 							"Cannot remove more items from this stack than there are items in this stack.");
@@ -351,12 +376,6 @@ public class Inventory {
 				return this;
 			}
 
-//			public void removeAndSave(BigInteger amt) {
-//				var is = remove(amt);
-////				if (is != null)
-////					is.save();
-//			}
-
 			{
 				stacks.add(this);
 			}
@@ -366,7 +385,7 @@ public class Inventory {
 
 			public void add(BigInteger amount) {
 				if (!alive)
-					throw new IllegalArgumentException("Cannot perform operation while stack is discarded.");
+					throw new IllegalStateException("Cannot perform operation while stack is discarded.");
 				count.set(count.get().add(amount));
 			}
 
@@ -425,7 +444,7 @@ public class Inventory {
 
 		public List<? extends ItemStack> getStacks() {
 			if (!alive)
-				throw new IllegalArgumentException("Cannot perform operation while entry is discarded.");
+				throw new IllegalStateException("Cannot perform operation while entry is discarded.");
 			return stacks;
 		}
 
@@ -437,6 +456,11 @@ public class Inventory {
 		public int compareTo(Entry<?> o) {
 			return getType().compareTo(o.getType());
 		}
+	}
+
+	public void cloneTo(Inventory inv) {
+		for (var e : entryList)
+			e.cloneTo(inv);
 	}
 
 }
