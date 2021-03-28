@@ -269,7 +269,7 @@ public class Inventory implements Cloneable {
 			is.remove(amt);
 			if (stacks.isEmpty()) {
 				entries.remove(item.getItemType());
-				entryList.remove(Collections.binarySearch(entryList, item, COMPARATOR));
+				entryList.remove(JavaTools.binarySearch(is, entryList, COMPARATOR));
 				alive = false;
 			}
 			return true;
@@ -290,7 +290,7 @@ public class Inventory implements Cloneable {
 		 */
 		protected void remove(ItemStack is) {
 			entries.remove(is.getItem().getItemType());
-			entryList.remove(Collections.binarySearch(entryList, is.getItem(), COMPARATOR));
+			entryList.remove(JavaTools.binarySearch(is.getItem(), entryList, COMPARATOR));
 			alive = false;
 		}
 
