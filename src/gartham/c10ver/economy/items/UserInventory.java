@@ -165,9 +165,10 @@ public class UserInventory extends Inventory {
 
 		@Override
 		public boolean remove(I item, BigInteger amt) {
+			var file = getFile();// Can't be called after removal.
 			boolean res = super.remove(item, amt);
-			if (getStacks().isEmpty())
-				getFile().delete();
+			if (stacks.isEmpty())
+				file.delete();
 			return res;
 		}
 

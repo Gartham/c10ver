@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -15,11 +14,8 @@ import java.util.Set;
 import org.alixia.javalibrary.JavaTools;
 import org.alixia.javalibrary.json.JSONArray;
 import org.alixia.javalibrary.json.JSONObject;
-import org.alixia.javalibrary.json.JSONValue;
 
 import gartham.c10ver.data.PropertyObject;
-import gartham.c10ver.economy.Economy;
-import gartham.c10ver.economy.User;
 import gartham.c10ver.economy.items.Inventory.Entry.ItemStack;
 import gartham.c10ver.utils.Utilities;
 
@@ -183,8 +179,8 @@ public class Inventory implements Cloneable {
 	}
 
 	public class Entry<I extends Item> implements Comparable<Entry<?>> {
-		private final List<ItemStack> stacks = new ArrayList<>(1);// The different stacks of this type of item.
-		private boolean alive = false;
+		protected final List<ItemStack> stacks = new ArrayList<>(1);// The different stacks of this type of item.
+		protected boolean alive = false;
 
 		public Entry<I> cloneTo(Inventory other) {
 			var e = other.new Entry<I>();
@@ -266,12 +262,7 @@ public class Inventory implements Cloneable {
 			ItemStack is = get(item);
 			if (is == null)
 				return false;
-			is.remove(amt);
-			if (stacks.isEmpty()) {
-				entries.remove(item.getItemType());
-				entryList.remove(JavaTools.binarySearch(is, entryList, COMPARATOR));
-				alive = false;
-			}
+			is.remove(amt);// Does removal and any necessary cleanup.
 			return true;
 		}
 
@@ -283,10 +274,11 @@ public class Inventory implements Cloneable {
 		}
 
 		/**
-		 * Called by an {@link ItemStack} to remove that {@link ItemStack} when the
-		 * {@link ItemStack} has no more items in it (its count hits <code>0</code>).
+		 * Called by an {@link ItemStack} to remove this {@link Entry} when this
+		 * {@link Entry} no longer has any {@link ItemStack}s in it.
 		 * 
-		 * @param is The {@link ItemStack} to be removed from this {@link Entry}.
+		 * @param is The {@link ItemStack} containing the item type to use to remove
+		 *           this entry.
 		 */
 		protected void remove(ItemStack is) {
 			entries.remove(is.getItem().getItemType());
@@ -339,7 +331,7 @@ public class Inventory implements Cloneable {
 				return other.newItemStack(getItem(), getCount());
 			}
 
-			private boolean alive = true;
+			protected boolean alive = true;
 
 			/**
 			 * <p>
@@ -399,8 +391,8 @@ public class Inventory implements Cloneable {
 				stacks.add(this);
 			}
 
-			private final Property<I> item = toObjectProperty("item", ItemReifier::reify);
-			private final Property<BigInteger> count = bigIntegerProperty("count", BigInteger.ONE);
+			protected final Property<I> item = toObjectProperty("item", ItemReifier::reify);
+			protected final Property<BigInteger> count = bigIntegerProperty("count", BigInteger.ONE);
 
 			public void add(BigInteger amount) {
 				if (!alive)
