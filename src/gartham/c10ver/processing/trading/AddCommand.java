@@ -54,6 +54,16 @@ class AddCommand extends MatchBasedCommand {
 		if (inv.args.length == 0) {// +loot-crate
 			amt = BigInteger.ONE;
 			i = e.get(0);
+		} else if (inv.args.length == 1) {
+			if (e.getStacks().size() == 1) {
+				amt = BigInteger.ONE;
+				i = e.get(0);
+			} else {
+				inv.event.getChannel().sendMessage(
+						"You need to specify which of that item you want to add. (There are different types of `"
+								+ e.getName() + "` items.)");
+				return;
+			}
 		} else if (inv.args.length == 2)// +item 7
 			if (e.getStacks().size() == 1) {// +pizza 3
 				try {
