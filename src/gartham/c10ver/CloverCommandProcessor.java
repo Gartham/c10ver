@@ -36,8 +36,8 @@ import gartham.c10ver.economy.Account;
 import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.Server;
 import gartham.c10ver.economy.User;
-import gartham.c10ver.economy.items.Inventory;
-import gartham.c10ver.economy.items.Inventory.Entry;
+import gartham.c10ver.economy.items.UserInventory;
+import gartham.c10ver.economy.items.UserInventory.UserEntry;
 import gartham.c10ver.economy.items.utility.crates.DailyCrate;
 import gartham.c10ver.economy.items.utility.crates.LootCrateItem;
 import gartham.c10ver.economy.items.utility.crates.MonthlyCrate;
@@ -46,6 +46,8 @@ import gartham.c10ver.economy.items.utility.foodstuffs.Foodstuff;
 import gartham.c10ver.economy.questions.Question;
 import gartham.c10ver.economy.questions.Question.Difficulty;
 import gartham.c10ver.economy.server.ColorRole;
+import gartham.c10ver.processing.commands.InventoryCommand;
+import gartham.c10ver.processing.trading.TradeManager;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
@@ -57,9 +59,12 @@ import net.dv8tion.jda.api.exceptions.PermissionException;
 public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 	private final Clover clover;
+	private final TradeManager tradeManager;
 
 	public CloverCommandProcessor(Clover clover) {
 		this.clover = clover;
+		tradeManager = new TradeManager(clover);
+		register(new InventoryCommand(clover, "inventory", "inv"));
 	}
 
 	{
@@ -123,7 +128,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					var mult = u.calcMultiplier(inv.event.getGuild());
 					var reward = u.rewardAndSave((long) (Math.random() * 25 + 10), mult);
 
-					Inventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
+					UserInventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
 					var rewards = of(new DailyCrate());
 					invent.add(rewards).save();
 					u.save();
@@ -151,7 +156,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					var mult = u.calcMultiplier(inv.event.getGuild());
 					var amt = u.rewardAndSave((long) (Math.random() * 250 + 100), mult);
 
-					Inventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
+					UserInventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
 					var rewards = of(new WeeklyCrate());
 					invent.add(rewards).save();
 					u.save();
@@ -179,7 +184,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					var mult = u.calcMultiplier(inv.event.getGuild());
 					var amt = u.rewardAndSave((long) (Math.random() * 10000 + 4000), mult);
 
-					Inventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
+					UserInventory invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
 					var rewards = of(new MonthlyCrate());
 
 					invent.add(rewards).save();
@@ -205,7 +210,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						else if (inv.args.length == 1) {
 							if (clover.getEconomy().hasUser(inv.event.getAuthor().getId())) {
 								var u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
-								var crateEntry = (Entry<LootCrateItem>) u.getInventory().get("loot-crate");
+								var crateEntry = (UserEntry<LootCrateItem>) u.getInventory().get("loot-crate");
 								if (crateEntry != null)
 									for (var is : crateEntry.getStacks())
 										if (is.getItem().getCrateType().equalsIgnoreCase(inv.args[0])) {
@@ -252,7 +257,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						var u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
 						var crateEntry = u.getInventory().get(inv.args[0]);
 						if (crateEntry != null) {
-							Entry<?>.ItemStack is = crateEntry.get(0);
+							var is = crateEntry.get(0);
 							if (is.getItem() instanceof Foodstuff) {
 								is.removeAndSave(BigInteger.ONE);
 								var lci = (Foodstuff) is.getItem();
@@ -592,112 +597,6 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					inv.event.getChannel().sendMessage("Please run this command in a server.").queue();
 			}
 		});
-		register(new MatchBasedCommand("inventory", "inv") {
-
-			@Override
-			public void exec(CommandInvocation inv) {
-
-				final Inventory invent;
-				final String type;
-				int page;
-				ENTRIES: {
-					if (inv.args.length == 1) {
-						// The argument should be either an item type or a page.
-						try {
-							page = Integer.parseInt(inv.args[0]);
-						} catch (NumberFormatException e) {
-							invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
-							type = inv.args[0];
-							page = 1;
-							break ENTRIES;
-						}
-						if (page < 1) {
-							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention() + " `"
-									+ Utilities.strip(inv.args[0]) + "` is not a valid page.").queue();
-							return;
-						}
-					} else if (inv.args.length == 0)
-						page = 1;
-					else if (inv.args.length == 2) {
-						PARSE_PAGE: {
-							try {
-								page = Integer.parseInt(inv.args[1]);
-								if (page > 0)
-									break PARSE_PAGE;
-							} catch (NumberFormatException e) {
-							}
-							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention() + " `"
-									+ Utilities.strip(inv.args[1]) + "` is not a valid page.").queue();
-							return;
-						}
-
-						type = inv.args[0];
-						invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
-						break ENTRIES;
-					} else {
-						inv.event.getChannel()
-								.sendMessage(inv.event.getAuthor().getAsMention() + " that command doesn't accept "
-										+ inv.args.length + " arguments." + (inv.args.length > 10 ? " >:(" : ""))
-								.queue();
-						return;
-					}
-
-					invent = clover.getEconomy().getInventory(inv.event.getAuthor().getId());
-					List<Entry<?>> pageItems = invent.getPage(page, 9);
-					int maxPage = invent.maxPage(9);
-					if (pageItems == null) {
-						inv.event
-								.getChannel().sendMessage(inv.event.getAuthor().getAsMention() + " you only have `"
-										+ maxPage + (maxPage == 1 ? "` page" : "` pages") + " in your inventory!")
-								.queue();
-					} else {
-						EmbedBuilder eb = new EmbedBuilder();
-
-						eb.setAuthor(inv.event.getAuthor().getAsTag() + "'s Inventory", null,
-								inv.event.getAuthor().getEffectiveAvatarUrl());
-						eb.setDescription('*' + inv.event.getAuthor().getAsMention() + " has `" + invent.getEntryCount()
-								+ "` " + (invent.getEntryCount() == 1 ? "type of item" : "different types of items")
-								+ " and `" + invent.getTotalItemCount() + "` total items.*\n\u200B");
-						printEntries(pageItems, eb);
-						eb.addField("",
-								"You have **" + maxPage + "** page" + (maxPage == 1 ? "" : "s") + " in your inventory.",
-								false);
-//						eb.setFooter(
-//								"You have " + maxPage + " page" + (maxPage == 1 ? "" : "s") + " in your inventory.");
-						inv.event.getChannel().sendMessage(eb.build()).queue();
-					}
-					return;
-				}
-
-				Entry<?> entry = invent.get(type);
-				if (entry == null)
-					inv.event.getChannel()
-							.sendMessage(
-									inv.event.getAuthor().getAsMention() + " you don't have any items of that type!")
-							.queue();
-				else {
-					EmbedBuilder eb = new EmbedBuilder();
-					eb.setAuthor(inv.event.getAuthor().getAsTag() + "'s Inventory: " + entry.getName(), null,
-							inv.event.getAuthor().getEffectiveAvatarUrl());
-					eb.setDescription('*' + inv.event.getAuthor().getAsMention() + " has `" + entry.getTotalCount()
-							+ "` of this item.*\n\u200B");
-					int maxPage = Utilities.maxPage(9, entry.getStacks());
-					if (page > maxPage) {
-						inv.event.getChannel()
-								.sendMessage(inv.event.getAuthor().getAsMention() + " you only have `" + maxPage
-										+ (maxPage == 1 ? "` page" : "` pages") + " of that item in your inventory!")
-								.queue();
-						return;
-					}
-					List<? extends Entry<?>.ItemStack> list = Utilities.paginate(page, 9, entry.getStacks());
-					printStacks(list, eb);
-					eb.addField("", "You have **" + maxPage + "** page" + (maxPage == 1 ? "" : "s")
-							+ " of this item in your inventory.", false);
-//					eb.setFooter("You have " + maxPage + " page" + (maxPage == 1 ? "" : "s") + " in your inventory.");
-					inv.event.getChannel().sendMessage(eb.build()).queue();
-				}
-			}
-		});
 
 		register(new ParentCommand("quiz") {
 
@@ -826,7 +725,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 								User user = clover.getEconomy().getUser(event.getAuthor().getId());
 								user.getQuestions().add(q);
 								user.save();
-								eventHandler.getMessageProcessor().scheduleForRemoval(ic);
+								eventHandler.scheduleForRemoval(ic);
 								return true;
 							};
 							clover.getEventHandler().getMessageProcessor()
@@ -1542,6 +1441,92 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 			}
 		});
 
+		register(new MatchBasedCommand("trade") {
+
+			@Override
+			public void exec(CommandInvocation inv) {
+				if (!inv.event.isFromGuild()) {
+					inv.event.getChannel().sendMessage(
+							inv.event.getAuthor().getAsMention() + " you may only start a trade inside a server.")
+							.queue();
+					return;
+				}
+				// Trading blocks all other commands so that we don't have to account for things
+				// such as a user consuming an item after it has been listed as a trade item,
+				// but before the trade has succeeded.
+//				if (trades.containsKey(inv.event.getAuthor().getId())) {
+//					var trade = trades.get(inv.event.getAuthor().getId());
+//					if (trade.initiated) {
+//						inv.event.getChannel()
+//								.sendMessage(inv.event.getAuthor().getAsMention() + " you are already in a trade!")
+//								.queue();
+//					}
+//				}
+
+				if (inv.args.length == 0)
+					inv.event.getChannel().sendMessage(
+							inv.event.getAuthor().getAsMention() + " you need to @mention whom you want to trade with.")
+							.queue();
+				else if (inv.args.length > 1)
+					inv.event.getChannel()
+							.sendMessage(
+									inv.event.getAuthor().getAsMention() + " that command only takes one argument!")
+							.queue();
+				else {
+					String id = Utilities.parseMention(inv.args[0]);
+					if (id == null)
+						inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+								+ " please @mention whomever you want to trade with.").queue();
+					else {
+						var u = inv.event.getGuild().getMemberById(id);
+						if (u == null)
+							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+									+ " that user is not a member of this server. :(").queue();
+						else if (tradeManager.participating(u.getId())) {
+							var t = tradeManager.getTrade(u.getId());
+							if (t.isAccepted()) {
+								if (u.getUser().getId().equals(t.getRecip().getEcouser().getUserID()))
+									inv.event.getChannel()
+											.sendMessage(inv.event.getAuthor().getAsMention()
+													+ " someone already requested " + u.getEffectiveName()
+													+ " to trade. Please wait until that is finished or cancelled.")
+											.queue();
+								else
+									inv.event.getChannel()
+											.sendMessage(inv.event.getAuthor().getAsMention() + ", "
+													+ u.getEffectiveName() + " is waiting on a trade already. ")
+											.queue();
+							} else
+								inv.event.getChannel()
+										.sendMessage(inv.event.getAuthor().getAsMention() + ", " + u.getEffectiveName()
+												+ " is already engaged in a trade. Please wait 'till they're finished.")
+										.queue();
+						} else if (u.getUser().isBot())
+							inv.event.getChannel()
+									.sendMessage(
+											inv.event.getAuthor().getAsMention() + " you can't start trades with bots!")
+									.queue();
+						else if (u.getUser().equals(inv.event.getAuthor()))
+							inv.event.getChannel().sendMessage(
+									inv.event.getAuthor().getAsMention() + " you can't start a trade with yourself!")
+									.queue();
+						else {
+
+							var recipient = clover.getEconomy().getUser(u.getUser().getId());
+							var requester = clover.getEconomy().getUser(inv.event.getAuthor().getId());
+							tradeManager.open(requester, recipient, inv.event.getTextChannel());
+							// This will automatically add itself as a MessageInputConsumer to the msg input
+							// consumer processor associated with clover.
+							// This works because of the fact that the tradeManager that this processor
+							// class has keeps a reference to the Clover object needed by these Trade
+							// objects. The Trade object is a MessageInputConsumer and can be unlinked at
+							// any time by calling its #end() method.
+						}
+					}
+				}
+			}
+		});
+
 //		help.addCommand("stats", "Shows a user's stats!", "stats [user]", "info");
 		help.addCommand("daily", "Receive daily rewards! You can only run this once a day.", "daily");
 		help.addCommand("weekly", "Receive weekly rewards! You can only run this once a day.", "weekly");
@@ -1566,30 +1551,9 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					"quiz delete (question-number)", "remove", "del", "rem");
 		}
 		// setup cmd help inside command object.
-	}
-
-	private final static EmbedBuilder printEntries(List<Entry<?>> entries, EmbedBuilder builder) {
-		for (Entry<?> e : entries)
-			builder.addField(e.getIcon() + ' ' + e.getName(),
-					" *You have [`" + e.getTotalCount() + "`](https://clover.gartham.com 'Item ID: " + e.getType()
-							+ ". Use the ID to get or interact with the item.') of this.*\nUse `inv " + e.getType()
-							+ "` to see more.",
-					true);
-		return builder;
-	}
-
-	private final static EmbedBuilder printStacks(List<? extends Entry<?>.ItemStack> list, EmbedBuilder builder) {
-		for (Entry<?>.ItemStack i : list) {
-			StringBuilder sb = new StringBuilder();
-			sb.append("*You have [`" + i.getCount() + "`](https://clover.gartham.com 'Item ID: " + i.getType()
-					+ ". Use the ID to get or interact with the item.') of this.*\n");
-			for (java.util.Map.Entry<String, PropertyObject.Property<?>> e : i.getItem().getPropertyMapView()
-					.entrySet())
-				if (e.getValue().isAttribute())
-					sb.append(e.getKey() + ": `" + e.getValue().get() + "`\n");
-			builder.addField(i.getIcon() + ' ' + i.getEffectiveName(), sb.toString(), true);
-		}
-		return builder;
+		help.addCommand("trade",
+				"Starts a trade with another user. Trades let you securely exchange items, cloves, or other tradeable possessions.",
+				"trade (@user)");
 	}
 
 }

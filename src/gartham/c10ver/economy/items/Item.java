@@ -7,11 +7,15 @@ import org.alixia.javalibrary.json.JSONObject;
 
 import gartham.c10ver.data.PropertyObject;
 
-public abstract class Item extends PropertyObject {
-	private final Property<String> itemType = stringProperty("$type").setAttribute(false),
-			itemName = stringProperty("$name").setAttribute(false).setTransient(true),
-			icon = stringProperty("$icon").setAttribute(false).setTransient(true),
-			customName = stringProperty("$custom-name").setAttribute(false).setTransient(true);
+public abstract class Item extends PropertyObject implements Cloneable {
+	private static final String ITEM_TYPE_PK = "$type", ITEM_NAME_PK = "$name", CUSTOM_NAME_PK = "$custom-name",
+			ITEM_ICON_PK = "$icon";
+	{
+		stringProperty(ITEM_TYPE_PK).setAttribute(false);
+		stringProperty(ITEM_NAME_PK).setAttribute(false).setTransient(true);
+		stringProperty(ITEM_ICON_PK).setAttribute(false).setTransient(true);
+		stringProperty(CUSTOM_NAME_PK).setAttribute(false).setTransient(true);
+	}
 
 	public String getEffectiveName() {
 		return getCustomName() == null ? getItemName() : getCustomName();
@@ -19,7 +23,7 @@ public abstract class Item extends PropertyObject {
 
 	@Override
 	public void load(JSONObject properties) {
-		String s = properties.getString("item-type");
+		String s = properties.getString(ITEM_TYPE_PK);
 		if (!getItemType().equals(s))
 			throw new IllegalArgumentException("Invalid object being loaded. According to object, object is a: " + s
 					+ ". This class represents: " + getItemType());
@@ -27,15 +31,19 @@ public abstract class Item extends PropertyObject {
 	}
 
 	protected void setCustomName(String name) {
-		customName.set(name);
+		customNameProperty().set(name);
 	}
 
-	protected final Property<String> getCustomNameProperty() {
-		return customName;
+	protected final Property<String> customNameProperty() {
+		return getProperty(CUSTOM_NAME_PK);
 	}
 
 	public String getCustomName() {
-		return customName.get();
+		return customNameProperty().get();
+	}
+
+	protected final void setItemName(String name) {
+		itemNameProperty().set(name);
 	}
 
 	/**
@@ -48,8 +56,12 @@ public abstract class Item extends PropertyObject {
 	 * @return The {@link gartham.c10ver.data.PropertyObject.Property} that stores
 	 *         the name of this {@link Item}.
 	 */
-	protected final Property<String> getItemNameProperty() {
-		return itemName;
+	protected final Property<String> itemNameProperty() {
+		return getProperty(ITEM_NAME_PK);
+	}
+
+	public String getItemName() {
+		return itemNameProperty().get();
 	}
 
 	/**
@@ -62,16 +74,8 @@ public abstract class Item extends PropertyObject {
 	 * @return The {@link gartham.c10ver.data.PropertyObject.Property} that stores
 	 *         the icon of this item.
 	 */
-	protected final Property<String> getIconProperty() {
-		return icon;
-	}
-
-	public String getItemName() {
-		return itemName.get();
-	}
-
-	protected final void setItemName(String name) {
-		itemName.set(name);
+	protected final Property<String> iconProperty() {
+		return getProperty(ITEM_ICON_PK);
 	}
 
 	/**
@@ -101,32 +105,41 @@ public abstract class Item extends PropertyObject {
 		return true;
 	}
 
+	private final Property<String> itemTypeProperty() {
+		return getProperty(ITEM_TYPE_PK);
+	}
+
 	public Item(String type) {
-		itemType.set(type);
+		itemTypeProperty().set(type);
 	}
 
 	public Item(String type, JSONObject properties) {
-		load(itemType, properties);
+		load(itemTypeProperty(), properties);
 		if (!Objects.equals(type, getItemType()))
 			throw new IllegalArgumentException("Invalid item type: " + getItemType());
 	}
 
 	public Item(String type, String name, String icon) {
-		itemType.set(type);
-		itemName.set(name);
-		this.icon.set(icon);
+		this(type);
+		itemNameProperty().set(name);
+		iconProperty().set(icon);
 	}
 
 	public String getItemType() {
-		return itemType.get();
+		return itemTypeProperty().get();
 	}
 
 	public String getIcon() {
-		return icon.get();
+		return iconProperty().get();
 	}
 
 	protected final void setIcon(String icon) {
-		this.icon.set(icon);
+		iconProperty().set(icon);
+	}
+
+	@Override
+	public Item clone() throws CloneNotSupportedException {
+		return (Item) super.clone();
 	}
 
 }

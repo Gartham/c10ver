@@ -16,8 +16,6 @@ import org.alixia.javalibrary.json.JSONArray;
 import org.alixia.javalibrary.json.JSONObject;
 
 import gartham.c10ver.data.PropertyObject;
-import gartham.c10ver.economy.Economy;
-import gartham.c10ver.economy.User;
 import gartham.c10ver.economy.items.Inventory.Entry.ItemStack;
 import gartham.c10ver.utils.Utilities;
 
@@ -27,35 +25,61 @@ import gartham.c10ver.utils.Utilities;
  * @author Gartham
  *
  */
-public class Inventory {
+public class Inventory implements Cloneable {
 
-	private final File invdir;
-	private final User user;
+	private static Inventory x;
 
-	public User getUser() {
-		return user;
+	public void clear() {
+		entries.clear();
+		entryList.clear();
 	}
-
-	public Inventory(File userDir, User user) {
-		this.user = user;
-		invdir = new File(userDir, "inventory");
-		File[] files = invdir.listFiles();
-		if (files != null)
-			for (File type : files)
-				new Entry<>(type);
-	}
-
-	private final Map<String, Entry<?>> entries = new HashMap<>();
-	private final List<Entry<?>> entryList = new ArrayList<>();
 
 	/**
-	 * Gets a page of entries in this {@link Inventory}. The number of entries per
-	 * page is specified by the <code>pagesize</code> argument, and the page is
+	 * Clears this {@link Inventory} then loads it from the specified directory, if
+	 * the dir has any files. If it does not, this method is equivalent to
+	 * {@link #clear()}. If it does, this method will result in an error if any of
+	 * the files are not interpretable as an {@link Entry}.
+	 * 
+	 * @param dir The {@link File directory} to save to.
+	 */
+	public void load(File dir) throws RuntimeException {
+		clear();
+		File[] files = dir.listFiles();
+		if (files != null) {
+			RuntimeException ex = null;
+			for (File type : files)
+				try {
+					newEntry(type);
+				} catch (RuntimeException e) {
+					if (ex == null)
+						ex = e;
+					else
+						ex.addSuppressed(e);
+				}
+			if (ex != null)
+				throw ex;
+		}
+	}
+
+	private Map<String, Entry<?>> entries = new HashMap<>();
+	private List<Entry<?>> entryList = new ArrayList<>();
+
+	protected <I extends Item> Entry<I> newEntry(File file) {
+		return new Entry<>(file);
+	}
+
+	protected <I extends Item> Entry<I> newEntry(I item, BigInteger amount) {
+		return new Entry<>(item, amount);
+	}
+
+	/**
+	 * Gets a page of entries in this {@link UserInventory}. The number of entries
+	 * per page is specified by the <code>pagesize</code> argument, and the page is
 	 * specified by the <code>page</code> argument. <code>null</code> is returned,
-	 * in leiu of an empty list, if the page number is invalid. The only scenario in
+	 * in lieu of an empty list, if the page number is invalid. The only scenario in
 	 * which the returned list is empty is when the 1st page is requested (the value
 	 * of the <code>page</code> argument is 1) but there are no entries in this
-	 * {@link Inventory}.
+	 * {@link UserInventory}.
 	 * 
 	 * @param page     The page to return.
 	 * @param pagesize The maximum number of elements that can be returned in this
@@ -63,7 +87,7 @@ public class Inventory {
 	 * @return A new, unmodifiable list containing the entries that belong to the
 	 *         specified page.
 	 */
-	public List<Entry<?>> getPage(int page, int pagesize) {
+	public List<? extends Entry<?>> getPage(int page, int pagesize) {
 		List<Entry<?>> res = Utilities.paginate(page, pagesize, entryList);
 		return res == null ? null : Collections.unmodifiableList(res);
 	}
@@ -94,7 +118,7 @@ public class Inventory {
 			entry = (Entry<I>) entries.get(item.getItemType());
 			entry.add(item, amt);
 		} else
-			entries.put(item.getItemType(), entry = new Entry<>(item, amt));
+			entries.put(item.getItemType(), entry = newEntry(item, amt));
 		return entry;
 	}
 
@@ -102,7 +126,7 @@ public class Inventory {
 		return add(item, BigInteger.ONE);
 	}
 
-	public Set<Entry<?>> add(ItemBunch<?>... items) {
+	public Set<? extends Entry<?>> add(ItemBunch<?>... items) {
 		Set<Entry<?>> res = new HashSet<>();
 		for (ItemBunch<?> ib : items)
 			res.add(add(ib));
@@ -119,19 +143,19 @@ public class Inventory {
 				: false;
 	}
 
-	public void saveAll() {
+	public void saveAll(File inventoryRoot) {
 		for (Entry<?> e : entryList)
-			e.save();
+			e.saveInto(inventoryRoot);
 	}
 
 	/**
-	 * Returns the {@link Entry entries} in this {@link Inventory}. This
+	 * Returns the {@link Entry entries} in this {@link UserInventory}. This
 	 * {@link List} should not be modified directly, although the items in this list
 	 * can be modified using their appropriate methods.
 	 * 
-	 * @return The entries in this {@link Inventory}.
+	 * @return The entries in this {@link UserInventory}.
 	 */
-	public List<Entry<?>> getEntries() {
+	public List<? extends Entry<?>> getEntries() {
 		return entryList;
 	}
 
@@ -154,9 +178,19 @@ public class Inventory {
 		return bi;
 	}
 
-	public final class Entry<I extends Item> implements Comparable<Entry<?>> {
-		private final List<ItemStack> stacks = new ArrayList<>(1);// The different stacks of this type of item.
-		private boolean alive = false;
+	public class Entry<I extends Item> implements Comparable<Entry<?>> {
+		protected final List<ItemStack> stacks = new ArrayList<>(1);// The different stacks of this type of item.
+		protected boolean alive = false;
+
+		public Entry<I> cloneTo(Inventory other) {
+			var e = other.new Entry<I>();
+			for (var is : stacks)
+				is.cloneTo(e);
+			other.entries.put(e.stacks.get(0).getItem().getItemType(), e);
+			other.entryList.add(-Collections.binarySearch(entryList, e.getStacks().get(0).getItem(), COMPARATOR) - 1,
+					e);
+			return e;
+		}
 
 		public BigInteger getTotalCount() {
 			BigInteger bi = BigInteger.ZERO;
@@ -165,12 +199,21 @@ public class Inventory {
 			return bi;
 		}
 
-		public List<ItemStack> getPage(int page, int pagesize) {
+		public List<? extends ItemStack> getPage(int page, int pagesize) {
 			return Utilities.paginate(page, pagesize, stacks);
 		}
 
-		private File getFile() {
-			return new File(invdir, getType() + ".txt");
+		/**
+		 * Returns the {@link File} that this {@link Entry} would be stored at if the
+		 * provided {@link File} is the directory representing this {@link Entry}'s
+		 * {@link Inventory}.
+		 * 
+		 * @param inv The {@link File} where this {@link Entry}'s {@link Inventory} is.
+		 * @return The {@link File} representing this {@link Entry} inside its
+		 *         {@link Inventory}.
+		 */
+		public File getFile(File inv) {
+			return new File(inv, getType() + ".txt");
 		}
 
 		private boolean conatins(I item) {
@@ -184,52 +227,75 @@ public class Inventory {
 			return null;
 		}
 
+		protected ItemStack newItemStack(I item, BigInteger amt) {
+			return new ItemStack(item, amt);
+		}
+
+		protected ItemStack newItemStack(JSONObject json) {
+			return new ItemStack(json);
+		}
+
 		public void add(I item, BigInteger amt) {
 			if (!alive)
-				throw new IllegalArgumentException("Cannot perform operation while entry is discarded.");
+				throw new IllegalStateException("Cannot perform operation while entry is discarded.");
 			ItemStack is = get(item);
 			if (is == null)
-				is = new ItemStack(item, amt);
+				is = newItemStack(item, amt);
 			else
 				is.add(amt);
 		}
 
+		/**
+		 * Removes the specified amount of the specified {@link Item} from this
+		 * {@link Entry}. Returns <code>false</code> if the provided {@link Item} is not
+		 * in this {@link Entry} to begin with. Otherwise, performs the removal and
+		 * returns <code>true</code>.
+		 * 
+		 * @param item The type of {@link Item} to be removed.
+		 * @param amt  The amount to remove.
+		 * @return <code>true</code> if the item was contained in this {@link Entry}
+		 *         before the call to this method.
+		 */
 		public boolean remove(I item, BigInteger amt) {
 			if (!alive)
-				throw new IllegalArgumentException("Cannot perform operation while entry is discarded.");
+				throw new IllegalStateException("Cannot perform operation while entry is discarded.");
 			ItemStack is = get(item);
 			if (is == null)
 				return false;
-			is.remove(amt);
-			if (stacks.isEmpty()) {
-				entries.remove(item.getItemType());
-				entryList.remove(Collections.binarySearch(entryList, item, COMPARATOR));
-				getFile().delete();
-				alive = false;
-			}
+			is.remove(amt);// Does removal and any necessary cleanup.
 			return true;
 		}
 
-		private void remove(ItemStack is) {
-			if (stacks.size() == 1 && stacks.contains(is)) {
-				entries.remove(is.getItem().getItemType());
-				entryList.remove(Collections.binarySearch(entryList, is.getItem(), COMPARATOR));
-				getFile().delete();
-				alive = false;
-			}
+		public boolean has(I item, BigInteger amt) {
+			if (!alive)
+				throw new IllegalStateException("Cannot perform operation while entry is discarded.");
+			var is = get(item);
+			return is != null && is.count().compareTo(amt) >= 0;
 		}
 
-		private Entry(I item, BigInteger amt) {
+		/**
+		 * Called by an {@link ItemStack} to remove this {@link Entry} when this
+		 * {@link Entry} no longer has any {@link ItemStack}s in it.
+		 * 
+		 * @param is The {@link ItemStack} containing the item type to use to remove
+		 *           this entry.
+		 */
+		protected void remove(ItemStack is) {
+			entries.remove(is.getItem().getItemType());
+			entryList.remove(JavaTools.binarySearch(is.getItem(), entryList, COMPARATOR));
+			alive = false;
+		}
+
+		protected Entry(I item, BigInteger amt) {
 			entries.put(item.getItemType(), this);
 			entryList.add(-Collections.binarySearch(entryList, item, COMPARATOR) - 1, this);
-			new ItemStack(item, amt);
+			newItemStack(item, amt);
 			alive = true;
-			save();
 		}
 
-		private Entry(File f) {
+		protected Entry(File f) {
 			for (var jv : (JSONArray) Utilities.load(f))
-				new ItemStack((JSONObject) jv);
+				newItemStack((JSONObject) jv);
 			if (stacks.isEmpty())
 				throw new IllegalArgumentException("Invalid file. No stacks found in an entry. File: " + f);
 			String type = this.stacks.get(0).getType();
@@ -238,17 +304,53 @@ public class Inventory {
 			alive = true;
 		}
 
-		public void save() {
-			if (alive)
-				Utilities.save(new JSONArray(JavaTools.mask(stacks, ItemStack::toJSON)), getFile());
+		/**
+		 * Used for cloning.
+		 */
+		private Entry() {
 		}
 
-		public final class ItemStack extends PropertyObject implements Comparable<ItemStack> {
+		public void save(File file) {
+			if (alive)
+				Utilities.save(new JSONArray(JavaTools.mask(stacks, ItemStack::toJSON)), file);
+		}
 
-			private boolean alive = true;
+		public void saveInto(File inventoryRoot) {
+			save(getFile(inventoryRoot));
+		}
 
-			public void save() {
-				Entry.this.save();
+		public class ItemStack extends PropertyObject implements Comparable<ItemStack> {
+
+			public boolean has(BigInteger amt) {
+				return getCount().compareTo(amt) >= 0;
+			}
+
+			public Entry<I>.ItemStack cloneTo(Entry<I> other) {
+				if (!alive)
+					throw new IllegalStateException();
+				return other.newItemStack(getItem(), getCount());
+			}
+
+			protected boolean alive = true;
+
+			/**
+			 * <p>
+			 * Saves this {@link ItemStack} to the specified {@link File} in the format
+			 * delineated by {@link Inventory}.
+			 * </p>
+			 * <p>
+			 * Note: This method actually just calls {@link Entry#save(File)
+			 * Entry.this.save(File)}.
+			 * </p>
+			 * 
+			 * @param file The {@link File} to save the {@link ItemStack} to.
+			 */
+			public void save(File file) {
+				Entry.this.save(file);
+			}
+
+			public void saveInto(File inventoryRoot) {
+				Entry.this.saveInto(inventoryRoot);
 			}
 
 			public boolean stackable(Item other) {
@@ -269,14 +371,15 @@ public class Inventory {
 
 			public ItemStack remove(BigInteger amt) {
 				if (!alive)
-					throw new IllegalArgumentException("Cannot perform operation while stack is discarded.");
+					throw new IllegalStateException("Cannot perform operation while stack is discarded.");
 				if (amt.compareTo(count()) > 0)
 					throw new IllegalArgumentException(
 							"Cannot remove more items from this stack than there are items in this stack.");
 				else
 					count.set(count().subtract(amt));
 				if (count.get().equals(BigInteger.ZERO)) {
-					Entry.this.remove(this);
+					if (stacks.size() == 1 && stacks.contains(this))
+						Entry.this.remove(this);
 					stacks.remove(this);
 					alive = false;
 					return null;
@@ -284,22 +387,16 @@ public class Inventory {
 				return this;
 			}
 
-			public void removeAndSave(BigInteger amt) {
-				var is = remove(amt);
-				if (is != null)
-					is.save();
-			}
-
 			{
 				stacks.add(this);
 			}
 
-			private final Property<I> item = toObjectProperty("item", ItemReifier::reify);
-			private final Property<BigInteger> count = bigIntegerProperty("count", BigInteger.ONE);
+			protected final Property<I> item = toObjectProperty("item", ItemReifier::reify);
+			protected final Property<BigInteger> count = bigIntegerProperty("count", BigInteger.ONE);
 
 			public void add(BigInteger amount) {
 				if (!alive)
-					throw new IllegalArgumentException("Cannot perform operation while stack is discarded.");
+					throw new IllegalStateException("Cannot perform operation while stack is discarded.");
 				count.set(count.get().add(amount));
 			}
 
@@ -307,12 +404,12 @@ public class Inventory {
 				add(BigInteger.valueOf(amount));
 			}
 
-			private ItemStack(I item, BigInteger amount) {
+			protected ItemStack(I item, BigInteger amount) {
 				this.item.set(item);
 				count.set(amount);
 			}
 
-			private ItemStack(JSONObject json) {
+			protected ItemStack(JSONObject json) {
 				load(item, json);
 				load(count, json);
 			}
@@ -356,9 +453,9 @@ public class Inventory {
 			return stacks.get(0).getName();
 		}
 
-		public List<ItemStack> getStacks() {
+		public List<? extends ItemStack> getStacks() {
 			if (!alive)
-				throw new IllegalArgumentException("Cannot perform operation while entry is discarded.");
+				throw new IllegalStateException("Cannot perform operation while entry is discarded.");
 			return stacks;
 		}
 
@@ -370,6 +467,26 @@ public class Inventory {
 		public int compareTo(Entry<?> o) {
 			return getType().compareTo(o.getType());
 		}
+	}
+
+	public void cloneTo(Inventory inv) {
+		for (var e : entryList)
+			e.cloneTo(inv);
+	}
+
+	@Override
+	public Inventory clone() throws CloneNotSupportedException {
+		var i = (Inventory) super.clone();
+		i.entries = new HashMap<>(entries.size());
+		i.entryList = new ArrayList<>(entryList.size());
+		cloneTo(i);
+		return i;
+	}
+
+	public Inventory copy() {
+		Inventory i = new Inventory();
+		cloneTo(i);
+		return i;
 	}
 
 }
