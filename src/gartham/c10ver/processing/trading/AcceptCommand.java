@@ -77,6 +77,7 @@ public class AcceptCommand extends MatchBasedCommand {
 						takeInv.add(e.getItem(), e.getCount());
 					}
 
+					trade.end();
 					trade.getInitialChannel()
 							.sendMessage("Trade between " + trade.getRequesterUser().getAsMention() + " and "
 									+ trade.getRecipientUser().getAsMention()
