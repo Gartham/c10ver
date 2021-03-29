@@ -8,6 +8,7 @@ import gartham.c10ver.economy.items.utility.foodstuffs.Hamburger;
 import gartham.c10ver.economy.items.utility.foodstuffs.Pizza;
 import gartham.c10ver.economy.items.utility.foodstuffs.Sandwich;
 import gartham.c10ver.economy.items.utility.foodstuffs.Spaghetti;
+import gartham.c10ver.economy.items.utility.itembomb.ItemBomb;
 
 public class ItemReifier {
 	@SuppressWarnings("unchecked")
@@ -21,6 +22,7 @@ public class ItemReifier {
 		case Sandwich.ITEM_TYPE -> new Sandwich(json);
 		case Hamburger.ITEM_TYPE -> new Hamburger(json);
 		case Pizza.ITEM_TYPE -> new Pizza(json);
+		case ItemBomb.ITEM_TYPE -> new ItemBomb(json);
 		default -> throw new IllegalArgumentException("Unexpected value: " + type);
 		};
 	}
