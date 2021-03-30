@@ -1527,6 +1527,15 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 			}
 		});
 
+		new MatchBasedCommand("changelog", "updates", "changes") {
+
+			@Override
+			public void exec(CommandInvocation inv) {
+				// TODO Auto-generated method stub
+
+			}
+		};
+
 //		help.addCommand("stats", "Shows a user's stats!", "stats [user]", "info");
 		help.addCommand("daily", "Receive daily rewards! You can only run this once a day.", "daily");
 		help.addCommand("weekly", "Receive weekly rewards! You can only run this once a day.", "weekly");
@@ -1554,6 +1563,9 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 		help.addCommand("trade",
 				"Starts a trade with another user. Trades let you securely exchange items, cloves, or other tradeable possessions.",
 				"trade (@user)");
+		help.addCommand("changelog",
+				"Shows my Change Log, detailing all the updates that have happened to me over time.",
+				"changelog [version] [page]", "updates", "changes");
 	}
 
 }
