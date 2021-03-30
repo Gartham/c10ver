@@ -12,6 +12,7 @@ import javax.security.auth.login.LoginException;
 
 import org.alixia.javalibrary.strings.matching.Matching;
 
+import gartham.c10ver.changelog.Changelog;
 import gartham.c10ver.commands.CommandParser;
 import gartham.c10ver.commands.CommandProcessor;
 import gartham.c10ver.economy.Economy;
@@ -28,6 +29,7 @@ public class Clover {
 	private final CommandProcessor commandProcessor = new CloverCommandProcessor(this);
 	private final EventHandler eventHandler = new EventHandler(this);
 	private final Economy economy = new Economy(new File("data/economy"), this);
+	private final Changelog changelog;
 	private final Set<String> devlist;
 	{
 		Set<String> devlist = new HashSet<>();
@@ -40,6 +42,19 @@ public class Clover {
 					devlist.add(s.nextLine());
 			}
 		this.devlist = Collections.unmodifiableSet(devlist);
+
+		Changelog changelog;
+		try {
+			changelog = Changelog.from(Clover.class.getResourceAsStream("changelog.txt"));
+		} catch (Exception e) {
+			System.err.println("FAILED TO LOAD THE CHANGELOG.");
+			changelog = null;
+		}
+		this.changelog = changelog;
+	}
+
+	public Changelog getChangelog() {
+		return changelog;
 	}
 
 	public Set<String> getDevlist() {
