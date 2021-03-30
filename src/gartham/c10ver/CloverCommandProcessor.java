@@ -23,6 +23,7 @@ import org.alixia.javalibrary.JavaTools;
 import org.alixia.javalibrary.util.Box;
 import org.alixia.javalibrary.util.MultidimensionalMap;
 
+import gartham.c10ver.changelog.Changelog.Version;
 import gartham.c10ver.commands.CommandHelpBook.ParentCommandHelp;
 import gartham.c10ver.commands.CommandInvocation;
 import gartham.c10ver.commands.MatchBasedCommand;
@@ -31,7 +32,6 @@ import gartham.c10ver.commands.consumers.InputConsumer;
 import gartham.c10ver.commands.consumers.MessageInputConsumer;
 import gartham.c10ver.commands.subcommands.ParentCommand;
 import gartham.c10ver.commands.subcommands.SubcommandInvocation;
-import gartham.c10ver.data.PropertyObject;
 import gartham.c10ver.economy.Account;
 import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.Server;
@@ -1527,14 +1527,63 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 			}
 		});
 
-		new MatchBasedCommand("changelog", "updates", "changes") {
+		register(new MatchBasedCommand("changelog", "updates", "changes") {
+
+			private String print(Version version) {
+				StringBuilder str = new StringBuilder();
+				str.append("Changelog for: `").append(version.getVerstr()).append("` - ").append(version.getTitle())
+						.append("```yaml\n");
+				for (var c : version.getChanges()) {
+					str.append(switch (c.getType()) {
+					case ADDITION -> '+';
+					case CHANGE -> '~';
+					case FIX -> '*';
+					case REMOVAL -> '-';
+					default -> "?";
+					}).append(' ').append(c.getContent()).append('\n');
+				}
+				return str.append("```").toString();
+			}
 
 			@Override
 			public void exec(CommandInvocation inv) {
-				// TODO Auto-generated method stub
-
+				var cl = clover.getChangelog();
+				if (cl == null) {
+					inv.event.getChannel().sendMessage("Unable to display the changelog right now.").queue();
+					return;
+				}
+				switch (inv.args.length) {
+				case 0:
+					var ver = cl.getVersions().get(cl.getVersions().size() - 1);// Latest version.
+					inv.event.getChannel().sendMessage(print(ver)).queue();
+					break;
+				case 1:
+					for (var v : cl.getVersions())
+						if (v.getVerstr().equals(inv.args[0])) {
+							inv.event.getChannel().sendMessage(print(v)).queue();
+							return;
+						}
+					int page;
+					try {
+						page = Integer.parseInt(inv.args[0]);
+					} catch (NumberFormatException e) {
+						inv.event.getChannel()
+								.sendMessage("No version or page found: " + Utilities.strip(inv.args[0]) + '.').queue();
+						return;
+					}
+					var vers = Utilities.paginate(page, 10, cl.getVersions());
+					var sb = new StringBuilder();
+					for (var v : vers)
+						sb.append(v.getVerstr()).append(" - ").append(v.getTitle()).append('\n');
+					inv.event.getChannel().sendMessage("Page `" + page + "` of Versions:\n" + sb).queue();
+					break;
+				default:
+					inv.event.getChannel().sendMessage(
+							inv.event.getAuthor().getAsMention() + " you provided too many arguments in that command.")
+							.queue();
+				}
 			}
-		};
+		});
 
 //		help.addCommand("stats", "Shows a user's stats!", "stats [user]", "info");
 		help.addCommand("daily", "Receive daily rewards! You can only run this once a day.", "daily");
@@ -1565,7 +1614,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				"trade (@user)");
 		help.addCommand("changelog",
 				"Shows my Change Log, detailing all the updates that have happened to me over time.",
-				"changelog [version] [page]", "updates", "changes");
+				"changelog [version | page]", "updates", "changes");
 	}
 
 }
