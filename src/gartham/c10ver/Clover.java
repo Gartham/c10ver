@@ -57,6 +57,10 @@ public class Clover {
 		return changelog;
 	}
 
+	public boolean hasLoadedChangelog() {
+		return changelog != null;
+	}
+
 	public Set<String> getDevlist() {
 		return devlist;
 	}
