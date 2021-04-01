@@ -2,9 +2,11 @@ package gartham.c10ver;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -31,6 +33,7 @@ public class Clover {
 	private final Economy economy = new Economy(new File("data/economy"), this);
 	private final Changelog changelog;
 	private final Set<String> devlist;
+	private final List<String> wordlist;
 	{
 		Set<String> devlist = new HashSet<>();
 		InputStream dl = Clover.class.getResourceAsStream("devlist.txt");
@@ -51,6 +54,17 @@ public class Clover {
 			changelog = null;
 		}
 		this.changelog = changelog;
+
+		List<String> wordlist = new ArrayList<>();
+		InputStream wl = Clover.class.getResourceAsStream("words/wordlist.txt");
+		if (wl == null)
+			System.err.println("Couldn't find the worldlist...");
+		else
+			try (var sc = new Scanner(wl)) {
+				while (sc.hasNextLine())
+					wordlist.add(sc.nextLine());
+			}
+		this.wordlist = Collections.unmodifiableList(wordlist);
 	}
 
 	public Changelog getChangelog() {
