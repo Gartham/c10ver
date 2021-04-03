@@ -7,10 +7,6 @@ import gartham.c10ver.games.math.MathProblem;
 
 public class CompoundMathExpression implements MathProblem, MathExpression {
 
-	public static void main(String[] args) {
-		System.out.println(add(Term.of(4), Term.of(9)).multiply(Term.of(7)).add(Term.of(9)).problem());
-	}
-
 	public enum Operator {
 		ADD(1, "+", BigDecimal::add), SUBTRACT(1, "-", BigDecimal::subtract), MULTIPLY(2, "*", BigDecimal::multiply),
 		DIVIDE(2, "/", BigDecimal::divide);
