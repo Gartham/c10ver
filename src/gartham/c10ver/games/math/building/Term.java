@@ -2,7 +2,7 @@ package gartham.c10ver.games.math.building;
 
 import java.math.BigDecimal;
 
-public class Term implements MathExpression {
+public final class Term implements MathExpression {
 
 	private final BigDecimal val;
 
@@ -13,6 +13,11 @@ public class Term implements MathExpression {
 	@Override
 	public BigDecimal eval() {
 		return val;
+	}
+
+	@Override
+	public String problem() {
+		return val.toPlainString();
 	}
 
 }
