@@ -7,6 +7,10 @@ import gartham.c10ver.games.math.MathProblem;
 
 public class CompoundMathExpression implements MathProblem, MathExpression {
 
+	public static void main(String[] args) {
+		System.out.println(add(Term.of(4), Term.of(9)).multiply(Term.of(7)).add(Term.of(9)).problem());
+	}
+
 	public enum Operator {
 		ADD(1, "+", BigDecimal::add), SUBTRACT(1, "-", BigDecimal::subtract), MULTIPLY(2, "*", BigDecimal::multiply),
 		DIVIDE(2, "/", BigDecimal::divide);
@@ -42,12 +46,18 @@ public class CompoundMathExpression implements MathProblem, MathExpression {
 	public CompoundMathExpression(MathExpression first, Operator operator, MathExpression second) {
 		StringBuilder sb = new StringBuilder();
 		int maxord;
-		if (first.ord() < operator.ord()) {
-			sb.append('(').append(first.problem()).append(") ");
-			maxord = operator.ord();
+
+		if (first.ord() >= 0) {
+			if (first.ord() < operator.ord()) {
+				sb.append('(').append(first.problem()).append(") ");
+				maxord = operator.ord();
+			} else {
+				sb.append(first.problem()).append(' ');
+				maxord = first.ord();
+			}
 		} else {
 			sb.append(first.problem()).append(' ');
-			maxord = first.ord();
+			maxord = operator.ord();
 		}
 
 		sb.append(operator.chr()).append(' ');
@@ -55,7 +65,7 @@ public class CompoundMathExpression implements MathProblem, MathExpression {
 		if (second.ord() > maxord)
 			maxord = second.ord();
 
-		if (second.ord() < operator.ord())
+		if (second.ord() >= 0 && second.ord() < operator.ord())
 			sb.append('(').append(second.problem()).append(')');
 		else
 			sb.append(second.problem());
@@ -80,6 +90,22 @@ public class CompoundMathExpression implements MathProblem, MathExpression {
 		return new CompoundMathExpression(first, Operator.DIVIDE, second);
 	}
 
+	public CompoundMathExpression add(MathExpression second) {
+		return add(this, second);
+	}
+
+	public CompoundMathExpression subtract(MathExpression second) {
+		return subtract(this, second);
+	}
+
+	public CompoundMathExpression multiply(MathExpression second) {
+		return multiply(this, second);
+	}
+
+	public CompoundMathExpression divide(MathExpression second) {
+		return divide(this, second);
+	}
+
 	@Override
 	public BigDecimal eval() {
 		return res;
@@ -88,6 +114,11 @@ public class CompoundMathExpression implements MathProblem, MathExpression {
 	@Override
 	public String problem() {
 		return val;
+	}
+
+	@Override
+	public int ord() {
+		return ord;
 	}
 
 }
