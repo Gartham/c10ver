@@ -7,6 +7,10 @@ import gartham.c10ver.games.math.MathProblem;
 
 public class CompoundMathExpression implements MathProblem, MathExpression {
 
+	public static void main(String[] args) {
+		System.out.println(add(Term.of(1).multiply(Term.of(2)), Term.of(1)).multiply(Term.of(2)).problem());
+	}
+
 	public enum Operator {
 		ADD(1, "+", BigDecimal::add), SUBTRACT(1, "-", BigDecimal::subtract), MULTIPLY(2, "*", BigDecimal::multiply),
 		DIVIDE(2, "/", BigDecimal::divide);
@@ -36,37 +40,41 @@ public class CompoundMathExpression implements MathProblem, MathExpression {
 	}
 
 	private final String val;
-	private final int ord;
+	private final int lo, ro;
 	private final BigDecimal res;
 
 	public CompoundMathExpression(MathExpression first, Operator operator, MathExpression second) {
 		StringBuilder sb = new StringBuilder();
-		int maxord;
 
-		if (first.ord() >= 0) {
-			if (first.ord() < operator.ord()) {
+		if (first.ro() >= 0) {
+			if (first.ro() < operator.ord()) {
 				sb.append('(').append(first.problem()).append(") ");
-				maxord = operator.ord();
+				lo = operator.ord();
 			} else {
 				sb.append(first.problem()).append(' ');
-				maxord = first.ord();
+				lo = first.lo();
 			}
 		} else {
 			sb.append(first.problem()).append(' ');
-			maxord = operator.ord();
+			lo = operator.ord();
 		}
 
 		sb.append(operator.chr()).append(' ');
 
-		if (second.ord() > maxord)
-			maxord = second.ord();
-
-		if (second.ord() >= 0 && second.ord() < operator.ord())
-			sb.append('(').append(second.problem()).append(')');
-		else
+		if (second.lo() >= 0) {
+			if (second.lo() < operator.ord()) {
+				sb.append('(').append(second.problem()).append(')');
+				ro = operator.ord();
+			} else {
+				sb.append(second.problem());
+				ro = second.ro();
+			}
+		} else {
 			sb.append(second.problem());
+			ro = operator.ord();
+		}
+
 		val = sb.toString();
-		ord = maxord;
 		res = operator.operate(first.eval(), second.eval());
 	}
 
@@ -86,22 +94,6 @@ public class CompoundMathExpression implements MathProblem, MathExpression {
 		return new CompoundMathExpression(first, Operator.DIVIDE, second);
 	}
 
-	public CompoundMathExpression add(MathExpression second) {
-		return add(this, second);
-	}
-
-	public CompoundMathExpression subtract(MathExpression second) {
-		return subtract(this, second);
-	}
-
-	public CompoundMathExpression multiply(MathExpression second) {
-		return multiply(this, second);
-	}
-
-	public CompoundMathExpression divide(MathExpression second) {
-		return divide(this, second);
-	}
-
 	@Override
 	public BigDecimal eval() {
 		return res;
@@ -113,8 +105,13 @@ public class CompoundMathExpression implements MathProblem, MathExpression {
 	}
 
 	@Override
-	public int ord() {
-		return ord;
+	public int lo() {
+		return lo;
+	}
+
+	@Override
+	public int ro() {
+		return ro;
 	}
 
 }
