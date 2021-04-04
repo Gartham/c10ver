@@ -1,6 +1,7 @@
 package gartham.c10ver.games.math.building;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.function.BiFunction;
 
 import gartham.c10ver.games.math.MathProblem;
@@ -9,7 +10,7 @@ public class CompoundMathExpression implements MathProblem, MathExpression {
 
 	public enum Operator {
 		ADD(1, "+", BigDecimal::add), SUBTRACT(1, "-", BigDecimal::subtract), MULTIPLY(2, "*", BigDecimal::multiply),
-		DIVIDE(2, "/", BigDecimal::divide);
+		DIVIDE(2, "/", (a, b) -> a.divide(b, RoundingMode.HALF_UP));
 
 		private final int ord;
 		private final String chr;
