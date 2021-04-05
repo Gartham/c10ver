@@ -17,7 +17,7 @@ public class SimpleMathProblemGenerator implements MathProblemGenerator {
 		this(new Random());
 	}
 
-	public Random getRand() {
+	public Random getRandom() {
 		return rand;
 	}
 
