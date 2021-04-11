@@ -19,6 +19,8 @@ import gartham.c10ver.commands.CommandParser;
 import gartham.c10ver.commands.CommandProcessor;
 import gartham.c10ver.economy.Economy;
 import gartham.c10ver.events.EventHandler;
+import gartham.c10ver.games.mining.MAGController;
+import gartham.c10ver.processing.commands.MAGCommand;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.User;
@@ -34,6 +36,7 @@ public class Clover {
 	private final Changelog changelog;
 	private final Set<String> devlist;
 	private final List<String> wordlist;
+	private final MAGController miningController = new MAGController(this);
 	{
 		Set<String> devlist = new HashSet<>();
 		InputStream dl = Clover.class.getResourceAsStream("devlist.txt");
@@ -127,5 +130,9 @@ public class Clover {
 		try (var s = new Scanner(Clover.class.getResourceAsStream("token.txt"))) {
 			new Clover(s.nextLine());
 		}
+	}
+
+	public MAGController getMiningController() {
+		return miningController;
 	}
 }
