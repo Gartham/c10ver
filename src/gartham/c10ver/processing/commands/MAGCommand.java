@@ -6,7 +6,7 @@ import gartham.c10ver.commands.MatchBasedCommand;
 public class MAGCommand extends MatchBasedCommand {
 
 	public MAGCommand() {
-		super("mine", "mag");
+		super("mine", "mag", "mining");
 	}
 
 	@Override
