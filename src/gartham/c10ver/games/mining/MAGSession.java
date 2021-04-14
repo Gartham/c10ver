@@ -1,4 +1,4 @@
-package gartham.c10ver.processing.commands;
+package gartham.c10ver.games.mining;
 
 /**
  * A class used to manage the playing of a mining session. Stores state
@@ -7,6 +7,6 @@ package gartham.c10ver.processing.commands;
  * @author Gartham
  *
  */
-class MAGSession {
-
+public class MAGSession {
+	private final String user;
 }
