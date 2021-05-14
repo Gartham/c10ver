@@ -100,7 +100,7 @@ public class SocketTransactionHandler extends TransactionHandler {
 	 * {@link ServerSocket} on this {@link SocketTransactionHandler}'s {@link #port}
 	 */
 	@Override
-	protected void enable() {
+	public void enable() {
 		if (connlistener != null)
 			throw new RuntimeException("Already enabled.");
 		running = true;
@@ -110,7 +110,7 @@ public class SocketTransactionHandler extends TransactionHandler {
 	}
 
 	@Override
-	protected void destroy() {
+	public void destroy() {
 		running = false;
 		if (connlistener != null)
 			try {

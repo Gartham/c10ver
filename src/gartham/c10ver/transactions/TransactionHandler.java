@@ -12,11 +12,11 @@ public abstract class TransactionHandler {
 		return this;
 	}
 
-	protected abstract void enable();
+	public abstract void enable();
 
 	protected final TransactionResponse handleTransaction(Transaction transaction) {
 		return transactionProcessor.apply(transaction);
 	}
 
-	protected abstract void destroy();
+	public abstract void destroy();
 }
