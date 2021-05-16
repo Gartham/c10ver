@@ -287,8 +287,12 @@ public final class Utilities {
 	}
 
 	public static String multiplier(BigDecimal mult) {
+		return multiplier(mult, 2);
+	}
+
+	public static String multiplier(BigDecimal mult, int scale) {
 		if (mult != null) {
-			var scaled = mult.setScale(2, RoundingMode.HALF_UP);
+			var scaled = mult.setScale(scale, RoundingMode.HALF_UP);
 			return scaled.compareTo(BigDecimal.TEN) != 0 ? scaled.toPlainString() : null;
 		}
 		return null;
