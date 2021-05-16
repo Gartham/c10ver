@@ -1,6 +1,6 @@
 package gartham.c10ver.data;
 
-import java.lang.reflect.Field;
+import java.awt.Color;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Duration;
@@ -499,6 +499,25 @@ public class PropertyObject {
 
 	protected final Property<BigInteger> bigIntegerProperty(String key, BigInteger def) {
 		return toStringProperty(key, def, BigInteger::new);
+	}
+
+	protected final Property<Color> colorProperty(String key) {
+		return colorProperty(key, null);
+	}
+
+	protected final Property<Color> colorProperty(String key, Color def) {
+		return toStringProperty(key, def, new Gateway<String, Color>() {
+
+			@Override
+			public Color to(String value) {
+				return new Color(Integer.valueOf(value), true);
+			}
+
+			@Override
+			public String from(Color value) {
+				return String.valueOf(value.getRGB());
+			}
+		});
 	}
 
 	protected final Property<Boolean> booleanProperty(String key) {
