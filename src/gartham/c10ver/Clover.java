@@ -19,6 +19,8 @@ import gartham.c10ver.commands.CommandParser;
 import gartham.c10ver.commands.CommandProcessor;
 import gartham.c10ver.economy.Economy;
 import gartham.c10ver.events.EventHandler;
+import gartham.c10ver.transactions.TransactionHandler;
+import gartham.c10ver.transactions.sockets.SocketTransactionHandler;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.User;
@@ -34,6 +36,8 @@ public class Clover {
 	private final Changelog changelog;
 	private final Set<String> devlist;
 	private final List<String> wordlist;
+
+	private final TransactionHandler transactionHandler = new SocketTransactionHandler(42000);
 	{
 		Set<String> devlist = new HashSet<>();
 		InputStream dl = Clover.class.getResourceAsStream("devlist.txt");
@@ -121,6 +125,9 @@ public class Clover {
 				Matching.build("<@").possibly("!").then(bot.getSelfUser().getId() + ">").then(Matching.whitespace())));
 		bot.addEventListener(eventHandler);
 		eventHandler.initialize();
+		
+		
+		transactionHandler.enable();
 	}
 
 	public static void main(String[] args) throws LoginException {
