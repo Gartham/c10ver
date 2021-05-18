@@ -29,7 +29,7 @@ public class MultiplierManager {
 
 	/**
 	 * Sums up the valid multipliers stored in the multipliers property and deletes
-	 * the expired ones (like a call to {@link #cleanMults()} would).
+	 * the expired ones (like a call to {@link #cleanMults(List)} would).
 	 * 
 	 * @return The sum of the valid multipliers.
 	 */
@@ -58,7 +58,7 @@ public class MultiplierManager {
 	 * <p>
 	 * Gets the total multiplier applied to whatever entity these multipliers apply
 	 * to. This is equivalent to <code>1 + mults</code> where <code>mults</code> is
-	 * the {@link #getTotalMultiplier() sum of the multipliers managed by this
+	 * the {@link #getTotalMultiplier(List) sum of the multipliers managed by this
 	 * object}.
 	 * </p>
 	 * <p>
@@ -66,11 +66,11 @@ public class MultiplierManager {
 	 * total multiplier will be 1.6x, which is the sum of the two multipliers, plus
 	 * their standard 1x multiplier. The value of 1.6x would be returned by this
 	 * function, whereas the simple sum of the multipliers (0.6x) would be returned
-	 * by {@link #getTotalMultiplier()}.
+	 * by {@link #getTotalMultiplier(List)}.
 	 * </p>
 	 * 
 	 * @return <code>{@link BigDecimal#ONE}.{@link BigDecimal#add(BigDecimal)
-	 *         add}({@link #getTotalMultiplier() this.getTotalMultiplier}())</code>
+	 *         add}({@link #getTotalMultiplier(List) this.getTotalMultiplier}())</code>
 	 */
 	public static BigDecimal getTotalValue(List<Multiplier> mults) {
 		return BigDecimal.ONE.add(getTotalMultiplier(mults));
