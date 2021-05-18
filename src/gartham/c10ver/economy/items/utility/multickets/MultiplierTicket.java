@@ -1,6 +1,5 @@
 package gartham.c10ver.economy.items.utility.multickets;
 
-import java.awt.Color;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
@@ -59,6 +58,11 @@ public class MultiplierTicket extends Item {
 		load(iconProperty(), properties);
 		load(valueProperty(), properties);
 		load(ttlProperty(), properties);
+		setCustomName("Mlt (" + Utilities.multiplier(getValue()) + "x/" + Utilities.formatLargest(getTTL(), 2) + ")");
+	}
+
+	{
+		iconProperty().setTransient(false);
 	}
 
 	public MultiplierTicket(String icon, BigDecimal value, Duration ttl) {
