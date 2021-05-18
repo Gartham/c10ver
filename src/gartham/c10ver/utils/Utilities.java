@@ -202,11 +202,7 @@ public final class Utilities {
 	}
 
 	public static String format(Duration duration, TimeUnit... units) {
-		int nanoseconds = duration.getNano();
-		long seconds = duration.getSeconds();
-
-		Map<TimeUnit, Long> parts = getParts(duration);
-		return format(parts, units);
+		return format(getParts(duration), units);
 	}
 
 	public static <E> List<E> paginate(int page, int itemsPerPage, List<E> items) {
