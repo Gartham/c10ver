@@ -143,7 +143,8 @@ public class InventoryCommand extends MatchBasedCommand {
 			for (java.util.Map.Entry<String, PropertyObject.Property<?>> e : i.getItem().getPropertyMapView()
 					.entrySet())
 				if (e.getValue().isAttribute())
-					sb.append(e.getKey() + ": `" + e.getValue().get() + "`\n");
+					sb.append(i.getItem().userFriendlyName(e.getKey()) + ": `"
+							+ i.getItem().userFriendlyValue(e.getKey()) + "`\n");
 			builder.addField(i.getIcon() + ' ' + i.getEffectiveName(), sb.toString(), true);
 		}
 		return builder;
