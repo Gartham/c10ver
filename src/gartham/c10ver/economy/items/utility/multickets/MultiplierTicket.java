@@ -2,15 +2,15 @@ package gartham.c10ver.economy.items.utility.multickets;
 
 import java.awt.Color;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.time.Duration;
+import java.time.Instant;
 
 import org.alixia.javalibrary.json.JSONObject;
 
 import gartham.c10ver.Clover;
+import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.User;
 import gartham.c10ver.economy.items.Item;
-import gartham.c10ver.economy.items.utility.Consumable;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.entities.Guild;
 
@@ -54,8 +54,13 @@ public class MultiplierTicket extends Item {
 		return ttlProperty().get();
 	}
 
-	public void open(Clover clover, Guild guild, User user) {
+	public void use(Clover clover, Guild guild, User user) {
+		var serv = clover.getEconomy().getServer(guild.getId());
+		var chn = guild.getTextChannelById(serv.getGeneralChannel());
+		chn.sendMessage(user.getUser().getAsMention() + " is using a **" + Utilities.multiplier(getValue())
+				+ "x** multiplier that lasts for **" + Utilities.formatLargest(getTTL(), 2) + "**.").queue();
 
+		serv.addMultiplier(new Multiplier(Instant.now().plus(getTTL()), getValue()));
 	}
 
 	public MultiplierTicket(JSONObject properties) {
