@@ -49,17 +49,13 @@ public class MultiplierTicket extends Item {
 		return amountProperty().get();
 	}
 
-	public Duration getTTL() {
+	public Duration getDuration() {
 		return durationProperty().get();
 	}
 
 	public void use(Clover clover, Guild guild, User user) {
-		var serv = clover.getEconomy().getServer(guild.getId());
-		var chn = guild.getTextChannelById(serv.getGeneralChannel());
-		chn.sendMessage(user.getUser().getAsMention() + " is using a **" + Utilities.multiplier(getAmount())
-				+ "x** multiplier that lasts for **" + Utilities.formatLargest(getTTL(), 2) + "**.").queue();
-
-		serv.addMultiplier(new Multiplier(Instant.now().plus(getTTL()), getAmount()));
+		clover.getEconomy().getServer(guild.getId())
+				.addMultiplier(new Multiplier(Instant.now().plus(getDuration()), getAmount()));
 	}
 
 	public MultiplierTicket(JSONObject properties) {
@@ -67,7 +63,8 @@ public class MultiplierTicket extends Item {
 		load(iconProperty(), properties);
 		load(amountProperty(), properties);
 		load(durationProperty(), properties);
-		setCustomName("Mlt (" + Utilities.multiplier(getAmount()) + "x/" + Utilities.formatLargest(getTTL(), 2) + ")");
+		setCustomName(
+				"Mlt (" + Utilities.multiplier(getAmount()) + "x/" + Utilities.formatLargest(getDuration(), 2) + ")");
 	}
 
 	{
@@ -79,7 +76,7 @@ public class MultiplierTicket extends Item {
 		setIcon(icon);
 		amountProperty().set(amount);
 		durationProperty().set(duration);
-		setCustomName("Mlt (" + Utilities.multiplier(amount) + "x/" + Utilities.formatLargest(getTTL(), 2) + ")");
+		setCustomName("Mlt (" + Utilities.multiplier(amount) + "x/" + Utilities.formatLargest(getDuration(), 2) + ")");
 	}
 
 }
