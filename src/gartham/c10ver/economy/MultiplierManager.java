@@ -49,7 +49,7 @@ public class MultiplierManager {
 		return res;
 	}
 
-	public static List<Multiplier> getMultipliers(List<Multiplier> mults) {
+	public static ArrayList<Multiplier> getMultipliers(List<Multiplier> mults) {
 		cleanMults(mults);
 		return new ArrayList<>(mults);
 	}
