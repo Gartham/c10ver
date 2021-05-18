@@ -46,7 +46,7 @@ public class Transaction {
 	}
 
 	public static BigDecimal determineAmount(String itemName) {
-		return switch (determineColor(itemName)) {
+		return switch (itemName.substring(0, itemName.indexOf('-'))) {
 		case "W" -> BigDecimal.valueOf(25, 2);
 		case "R" -> BigDecimal.valueOf(1);
 		case "HP" -> BigDecimal.valueOf(225, 2);
