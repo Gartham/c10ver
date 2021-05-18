@@ -96,6 +96,8 @@ public class Server extends SavablePropertyObject {
 		serverID = saveLocation.getName();
 		if (load)
 			load();
+		if (multipliers.get() == null)
+			multipliers.set(new ArrayList<>());
 	}
 
 }
