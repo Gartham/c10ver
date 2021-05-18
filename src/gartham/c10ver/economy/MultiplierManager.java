@@ -20,7 +20,7 @@ public class MultiplierManager {
 	 * Iterates over the list of multipliers property and cleans out any expired
 	 * multipliers.
 	 */
-	public static void cleanMults(List<? extends Multiplier> mults) {
+	public static void cleanMults(List<Multiplier> mults) {
 		Instant now = Instant.now();
 		for (var iterator = mults.iterator(); iterator.hasNext();)
 			if (now.isAfter(iterator.next().getExpiration()))
@@ -33,7 +33,7 @@ public class MultiplierManager {
 	 * 
 	 * @return The sum of the valid multipliers.
 	 */
-	public static BigDecimal getTotalMultiplier(List<? extends Multiplier> mults) {
+	public static BigDecimal getTotalMultiplier(List<Multiplier> mults) {
 		if (mults.isEmpty())
 			return BigDecimal.ZERO;
 		BigDecimal res = BigDecimal.ZERO;
@@ -49,7 +49,7 @@ public class MultiplierManager {
 		return res;
 	}
 
-	public static List<Multiplier> getMultipliers(List<? extends Multiplier> mults) {
+	public static List<Multiplier> getMultipliers(List<Multiplier> mults) {
 		cleanMults(mults);
 		return new ArrayList<>(mults);
 	}
@@ -72,7 +72,7 @@ public class MultiplierManager {
 	 * @return <code>{@link BigDecimal#ONE}.{@link BigDecimal#add(BigDecimal)
 	 *         add}({@link #getTotalMultiplier() this.getTotalMultiplier}())</code>
 	 */
-	public static BigDecimal getTotalValue(List<? extends Multiplier> mults) {
+	public static BigDecimal getTotalValue(List<Multiplier> mults) {
 		return BigDecimal.ONE.add(getTotalMultiplier(mults));
 	}
 
