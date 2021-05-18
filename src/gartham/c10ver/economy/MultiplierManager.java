@@ -76,4 +76,13 @@ public class MultiplierManager {
 		return BigDecimal.ONE.add(getTotalMultiplier(mults));
 	}
 
+	public static void addMultiplier(Multiplier multiplier, List<? super Multiplier> mults) {
+		if (!expired(multiplier))
+			mults.add(multiplier);
+	}
+
+	public static boolean expired(Multiplier m) {
+		return Instant.now().isAfter(m.getExpiration());
+	}
+
 }
