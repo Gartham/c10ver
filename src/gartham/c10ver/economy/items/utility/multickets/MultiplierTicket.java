@@ -20,57 +20,66 @@ public class MultiplierTicket extends Item {
 	 * {@code MULT_CTYPE_PK} - The "color type" of the multiplier ticket. This is
 	 * "red" for any of the red tickets, "gold" for any of the golds, etc.
 	 */
-	private static final String MULT_VALUE_PK = "value", MULT_TTL_PK = "ttl";
+	private static final String MULT_AMOUNT_PK = "amount", MULT_DURATION_PK = "duration";
+
+	@Override
+	protected String userFriendlyValue(String propertyKey, Object value) {
+		return switch (propertyKey) {
+		case MULT_AMOUNT_PK -> super.userFriendlyValue(propertyKey, value) + 'x';
+		case MULT_DURATION_PK -> Utilities.formatLargest((Duration) value, 2);
+		default -> super.userFriendlyValue(propertyKey, value);
+		};
+	}
 
 	{
-		bigDecimalProperty(MULT_VALUE_PK);
-		durationProperty(MULT_TTL_PK);
+		bigDecimalProperty(MULT_AMOUNT_PK);
+		durationProperty(MULT_DURATION_PK);
 		setItemName(ITEM_NAME);
 	}
 
-	public Property<BigDecimal> valueProperty() {
-		return getProperty(MULT_VALUE_PK);
+	public Property<BigDecimal> amountProperty() {
+		return getProperty(MULT_AMOUNT_PK);
 	}
 
-	public Property<Duration> ttlProperty() {
-		return getProperty(MULT_TTL_PK);
+	public Property<Duration> durationProperty() {
+		return getProperty(MULT_DURATION_PK);
 	}
 
-	public BigDecimal getValue() {
-		return valueProperty().get();
+	public BigDecimal getAmount() {
+		return amountProperty().get();
 	}
 
 	public Duration getTTL() {
-		return ttlProperty().get();
+		return durationProperty().get();
 	}
 
 	public void use(Clover clover, Guild guild, User user) {
 		var serv = clover.getEconomy().getServer(guild.getId());
 		var chn = guild.getTextChannelById(serv.getGeneralChannel());
-		chn.sendMessage(user.getUser().getAsMention() + " is using a **" + Utilities.multiplier(getValue())
+		chn.sendMessage(user.getUser().getAsMention() + " is using a **" + Utilities.multiplier(getAmount())
 				+ "x** multiplier that lasts for **" + Utilities.formatLargest(getTTL(), 2) + "**.").queue();
 
-		serv.addMultiplier(new Multiplier(Instant.now().plus(getTTL()), getValue()));
+		serv.addMultiplier(new Multiplier(Instant.now().plus(getTTL()), getAmount()));
 	}
 
 	public MultiplierTicket(JSONObject properties) {
 		super(ITEM_TYPE, properties);
 		load(iconProperty(), properties);
-		load(valueProperty(), properties);
-		load(ttlProperty(), properties);
-		setCustomName("Mlt (" + Utilities.multiplier(getValue()) + "x/" + Utilities.formatLargest(getTTL(), 2) + ")");
+		load(amountProperty(), properties);
+		load(durationProperty(), properties);
+		setCustomName("Mlt (" + Utilities.multiplier(getAmount()) + "x/" + Utilities.formatLargest(getTTL(), 2) + ")");
 	}
 
 	{
 		iconProperty().setTransient(false);
 	}
 
-	public MultiplierTicket(String icon, BigDecimal value, Duration ttl) {
+	public MultiplierTicket(String icon, BigDecimal amount, Duration duration) {
 		super(ITEM_TYPE);
 		setIcon(icon);
-		valueProperty().set(value);
-		ttlProperty().set(ttl);
-		setCustomName("Mlt (" + Utilities.multiplier(value) + "x/" + Utilities.formatLargest(getTTL(), 2) + ")");
+		amountProperty().set(amount);
+		durationProperty().set(duration);
+		setCustomName("Mlt (" + Utilities.multiplier(amount) + "x/" + Utilities.formatLargest(getTTL(), 2) + ")");
 	}
 
 }
