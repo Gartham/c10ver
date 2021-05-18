@@ -21,17 +21,12 @@ public class MultiplierTicket extends Item {
 	 * {@code MULT_CTYPE_PK} - The "color type" of the multiplier ticket. This is
 	 * "red" for any of the red tickets, "gold" for any of the golds, etc.
 	 */
-	private static final String MULT_COLOR_PK = "color", MULT_VALUE_PK = "value", MULT_TTL_PK = "ttl";
+	private static final String MULT_VALUE_PK = "value", MULT_TTL_PK = "ttl";
 
 	{
-		colorProperty(MULT_COLOR_PK);
 		bigDecimalProperty(MULT_VALUE_PK);
 		durationProperty(MULT_TTL_PK);
 		setItemName(ITEM_NAME);
-	}
-
-	public Property<Color> colorProperty() {
-		return getProperty(MULT_COLOR_PK);
 	}
 
 	public Property<BigDecimal> valueProperty() {
@@ -40,10 +35,6 @@ public class MultiplierTicket extends Item {
 
 	public Property<Duration> ttlProperty() {
 		return getProperty(MULT_TTL_PK);
-	}
-
-	public Color getColor() {
-		return colorProperty().get();
 	}
 
 	public BigDecimal getValue() {
@@ -65,14 +56,14 @@ public class MultiplierTicket extends Item {
 
 	public MultiplierTicket(JSONObject properties) {
 		super(ITEM_TYPE, properties);
-		load(colorProperty(), properties);
+		load(iconProperty(), properties);
 		load(valueProperty(), properties);
 		load(ttlProperty(), properties);
 	}
 
-	public MultiplierTicket(Color color, BigDecimal value, Duration ttl) {
+	public MultiplierTicket(String icon, BigDecimal value, Duration ttl) {
 		super(ITEM_TYPE);
-		colorProperty().set(color);
+		setIcon(icon);
 		valueProperty().set(value);
 		ttlProperty().set(ttl);
 		setCustomName("Mlt (" + Utilities.multiplier(value) + "x/" + Utilities.formatLargest(getTTL(), 2) + ")");
