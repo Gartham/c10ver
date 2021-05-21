@@ -1,5 +1,6 @@
 package gartham.c10ver.transactions;
 
+import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Duration;
@@ -31,6 +32,26 @@ public class Transaction {
 			return item;
 		}
 
+	}
+
+	public static long determinePrice(String itemName) {
+		return switch (itemName) {
+		case "W-1" -> 99;
+		case "W-2" -> 199;
+		case "W-3" -> 299;
+
+		case "R-1" -> 499;
+		case "R-2" -> 899;
+		case "R-3" -> 1399;
+		case "R-4" -> 1899;
+
+		case "HP-1" -> 1299;
+		case "HP-2" -> 2199;
+
+		case "G-1" -> 4999;
+
+		default -> throw new IllegalArgumentException("Unexpected value: " + itemName);
+		};
 	}
 
 	public static String determineColor(String itemName) {
@@ -81,6 +102,37 @@ public class Transaction {
 	public Transaction(List<Entry> items, String userID) {
 		this.items = items;
 		this.userID = userID;
+	}
+
+	public static void verifyPaypalTransaction(JSONObject json) {
+		BigDecimal total = new BigDecimal(json.getString("mc_gross"));
+		int itemNumb = Integer.valueOf(json.getString("num_cart_items"));
+
+		long tot = 0;
+
+		for (int i = 1; i <= itemNumb; i++) {
+			String iname = json.getString("item_name" + i);
+			int quantity = Integer.valueOf(json.getString("quantity" + i));
+			long price = determinePrice(iname);
+
+			double tt = Math.floor(1.0825 * price * quantity);
+			tot += tt;
+		}
+
+		BigDecimal amt = BigDecimal.valueOf(tot).divide(BigDecimal.valueOf(100));
+		if (total.compareTo(amt) != 0) {
+			StringBuilder sb = new StringBuilder().append("Discrepancy in purchase by user: ")
+					.append(json.getString("custom")).append(".\nPaypal Purchase Amount: ")
+					.append(total.toPlainString()).append("\nCalculated Value of Purchase: ")
+					.append(amt.toPlainString()).append("\nTransaction Info:\n").append(json).append("\n\n");
+			System.err.println(sb);
+			try (PrintWriter pw = new PrintWriter("PaymentValidatorLog.txt")) {
+				pw.println(sb.toString());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+		}
 	}
 
 	public static Transaction fromPaypalJSON(JSONValue json) {
