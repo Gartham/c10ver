@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import javax.security.auth.login.LoginException;
 
@@ -24,7 +23,6 @@ import gartham.c10ver.events.EventHandler;
 import gartham.c10ver.transactions.Transaction;
 import gartham.c10ver.transactions.Transaction.Entry;
 import gartham.c10ver.transactions.TransactionHandler;
-import gartham.c10ver.transactions.TransactionResponse;
 import gartham.c10ver.transactions.sockets.SocketTransactionHandler;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -50,7 +48,7 @@ public class Clover {
 			public void accept(Transaction t) {
 				try {
 					bot.getUserById(t.getUserID()).openPrivateChannel().complete().sendMessage(
-							"Thank you for purchasing multipliers on the Clover store. :heart: Multiplier tickets have been added to your inventory (check your inventory with `~inv`). You can use them in any server you want to with `~use mult [item-number]`")
+							"Thank you for purchasing multipliers on the Clover store. :heart:\n\nMultiplier tickets have been added to your inventory (check your inventory with `~inv`).\nYou can use them in any server you want to with `~use mult [item-number]`")
 							.queue();
 				} catch (Exception e) {
 					System.err.println("Failed to msg a user about rewards.");
