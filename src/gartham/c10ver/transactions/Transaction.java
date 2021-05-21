@@ -109,6 +109,18 @@ public class Transaction {
 		this.userID = userID;
 	}
 
+	public static BigDecimal calcPrice(JSONArray json) {
+		long tot = 0;
+		for (var v : json) {
+			var o = (JSONArray) v;
+			var pri = determinePrice(((JSONString) o.get(0)).getValue());
+			int quant = Integer.valueOf(((JSONNumber) o.get(1)).intValue());
+			double tt = Math.floor(1.0825 * pri) * quant;
+			tot += tt;
+		}
+		return BigDecimal.valueOf(tot).divide(BigDecimal.valueOf(100));
+	}
+
 	public static boolean verifyPaypalTransaction(JSONObject json) {
 		BigDecimal total = new BigDecimal(json.getString("mc_gross"));
 		int itemNumb = Integer.valueOf(json.getString("num_cart_items"));
