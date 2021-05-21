@@ -6,14 +6,11 @@ import java.math.BigInteger;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 import org.alixia.javalibrary.json.JSONObject;
 import org.alixia.javalibrary.util.StringGateway;
 
-import gartham.c10ver.data.PropertyObject.Property;
 import gartham.c10ver.data.autosave.SavablePropertyObject;
 import gartham.c10ver.economy.items.UserInventory;
 import gartham.c10ver.economy.questions.Question;
@@ -38,38 +35,16 @@ public class User extends SavablePropertyObject {
 		this.joinedGuilds.set(joinedGuilds);
 	}
 
-	private static boolean expired(Multiplier m) {
-		return Instant.now().isAfter(m.getExpiration());
-	}
-
-	private BigDecimal checkMultipliers() {
-		if (multipliers.get().isEmpty())
-			return BigDecimal.ZERO;
-		BigDecimal res = BigDecimal.ZERO;
-		Instant now = Instant.now();
-		for (Iterator<Multiplier> iterator = multipliers.get().iterator(); iterator.hasNext();) {
-			Multiplier m = iterator.next();
-			if (now.isAfter(m.getExpiration()))
-				iterator.remove();
-			else
-				res = res.add(m.getAmount());
-		}
-
-		return res;
-	}
-
 	public ArrayList<Multiplier> getMultipliers() {
-		checkMultipliers();
-		return multipliers.get();
+		return MultiplierManager.getMultipliers(multipliers.get());
 	}
 
 	public BigDecimal getPersonalTotalMultiplier() {
-		return BigDecimal.ONE.add(checkMultipliers());
+		return MultiplierManager.getTotalValue(multipliers.get());
 	}
 
 	public void addMultiplier(Multiplier m) {
-		if (!expired(m))
-			multipliers.get().add(m);
+		MultiplierManager.addMultiplier(m, multipliers.get());
 	}
 
 	public BigInteger getMessageCount() {
@@ -119,21 +94,35 @@ public class User extends SavablePropertyObject {
 		return account;
 	}
 
+	/**
+	 * Calculates the multiplier applied to a reward that this user earned in the
+	 * provided guild.
+	 * 
+	 * @param guild The guild that the reward was earned in.
+	 * @return The total multiplier
+	 *         (<code>{@link #getPersonalTotalMultiplier()} * nitro_multiplier * {@link Server#getTotalServerMultiplier()}</code>).
+	 */
 	public BigDecimal calcMultiplier(Guild guild) {
 		var v = guild == null ? null : guild.getMember(getUser()).getTimeBoosted();
 		var x = v == null ? BigDecimal.ONE
 				: BigDecimal.valueOf(13, 1).add(BigDecimal.valueOf(Duration.between(v, Instant.now()).toDays() + 1)
 						.multiply(BigDecimal.valueOf(1, 2)));
-		x = x.add(checkMultipliers());
+		x = x.add(MultiplierManager.getTotalMultiplier(multipliers.get()));
+		if (guild != null)
+			x = x.multiply(getEconomy().getServer(guild.getId()).getTotalServerMultiplier());
 		return x;
 	}
 
 	/**
+	 * <p>
 	 * Rewards the user the specified amount. The actual amount deposited into the
 	 * user's account is a product of the specified amount and this user's
 	 * multipliers and possible "effects" which can increase (or decrease) the
 	 * amount of money earned. This method handles a <code>null</code> value for the
 	 * {@link Guild} argument as if the command was not invoked in a server.
+	 * </p>
+	 * <p>
+	 * The total rewards earned multiplied byt
 	 * 
 	 * @param amount The amount to reward the user.
 	 * @param guild  The {@link Guild} that the reward is to be given in. Nitro
@@ -146,10 +135,19 @@ public class User extends SavablePropertyObject {
 
 	@Override
 	public void save() {
-		checkMultipliers();
+		MultiplierManager.cleanMults(multipliers.get());
 		super.save();
 	}
 
+	/**
+	 * Adds the specified amount of cloves, multiplied by the pre-calculated
+	 * multiplier, to this user's account.
+	 * 
+	 * @param amount     The amount earned.
+	 * @param multiplier The total multiplier (already calculated) to multiply the
+	 *                   amount by.
+	 * @return The total number of cloves rewarded (amount * multiplier).
+	 */
 	public BigInteger reward(BigInteger amount, BigDecimal multiplier) {
 		var x = new BigDecimal(amount).multiply(multiplier).toBigInteger();
 		getAccount().deposit(x);
@@ -157,6 +155,15 @@ public class User extends SavablePropertyObject {
 		return x;
 	}
 
+	/**
+	 * Adds the specified amount of rewards, multiplied by the pre-calculated
+	 * multiplier, to this user's account, and then saves this user's data.
+	 * 
+	 * @param amount     The amount of cloves earned.
+	 * @param multiplier The total multiplier (already calculated) to multiply the
+	 *                   amount by.
+	 * @return The total number of cloves rewarded (amount * multiplier).
+	 */
 	public BigInteger rewardAndSave(BigInteger amount, BigDecimal multiplier) {
 		var x = reward(amount, multiplier);
 		save();

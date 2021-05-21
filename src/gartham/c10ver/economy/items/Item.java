@@ -10,6 +10,19 @@ import gartham.c10ver.data.PropertyObject;
 public abstract class Item extends PropertyObject implements Cloneable {
 	private static final String ITEM_TYPE_PK = "$type", ITEM_NAME_PK = "$name", CUSTOM_NAME_PK = "$custom-name",
 			ITEM_ICON_PK = "$icon";
+
+	public String userFriendlyName(String propertyKey) {
+		return propertyKey;
+	}
+
+	public final String userFriendlyValue(String propertyKey) {
+		return userFriendlyValue(propertyKey, getProperty(propertyKey).get());
+	}
+
+	protected String userFriendlyValue(String propertyKey, Object value) {
+		return String.valueOf(value);
+	}
+
 	{
 		stringProperty(ITEM_TYPE_PK).setAttribute(false);
 		stringProperty(ITEM_NAME_PK).setAttribute(false).setTransient(true);

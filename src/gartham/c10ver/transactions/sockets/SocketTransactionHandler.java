@@ -33,7 +33,7 @@ public class SocketTransactionHandler extends TransactionHandler {
 			JSONValue parse = new JSONParser()
 					.parse(CharacterStream.from(new InputStreamReader(is, StandardCharsets.UTF_8)));
 			try {
-				handleTransaction(new Transaction(parse));
+				handleTransaction(Transaction.fromPaypalJSON(parse));
 			} catch (Exception e) {
 				System.err.println(DateTimeFormatter.RFC_1123_DATE_TIME.format(Instant.now())
 						+ "An error occurred while handling a parsed transaction. Transaction contents: " + parse);

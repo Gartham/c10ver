@@ -202,11 +202,7 @@ public final class Utilities {
 	}
 
 	public static String format(Duration duration, TimeUnit... units) {
-		int nanoseconds = duration.getNano();
-		long seconds = duration.getSeconds();
-
-		Map<TimeUnit, Long> parts = getParts(duration);
-		return format(parts, units);
+		return format(getParts(duration), units);
 	}
 
 	public static <E> List<E> paginate(int page, int itemsPerPage, List<E> items) {
@@ -287,8 +283,12 @@ public final class Utilities {
 	}
 
 	public static String multiplier(BigDecimal mult) {
+		return multiplier(mult, 2);
+	}
+
+	public static String multiplier(BigDecimal mult, int scale) {
 		if (mult != null) {
-			var scaled = mult.setScale(2, RoundingMode.HALF_UP);
+			var scaled = mult.setScale(scale, RoundingMode.HALF_UP);
 			return scaled.compareTo(BigDecimal.TEN) != 0 ? scaled.toPlainString() : null;
 		}
 		return null;
