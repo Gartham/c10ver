@@ -7,8 +7,13 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.alixia.javalibrary.json.JSONArray;
+import org.alixia.javalibrary.json.JSONNumber;
 import org.alixia.javalibrary.json.JSONObject;
+import org.alixia.javalibrary.json.JSONParser;
+import org.alixia.javalibrary.json.JSONString;
 import org.alixia.javalibrary.json.JSONValue;
+import org.alixia.javalibrary.streams.CharacterStream;
 
 import gartham.c10ver.economy.items.Item;
 import gartham.c10ver.economy.items.utility.multickets.MultiplierTicket;
@@ -104,7 +109,7 @@ public class Transaction {
 		this.userID = userID;
 	}
 
-	public static void verifyPaypalTransaction(JSONObject json) {
+	public static boolean verifyPaypalTransaction(JSONObject json) {
 		BigDecimal total = new BigDecimal(json.getString("mc_gross"));
 		int itemNumb = Integer.valueOf(json.getString("num_cart_items"));
 
@@ -115,7 +120,7 @@ public class Transaction {
 			int quantity = Integer.valueOf(json.getString("quantity" + i));
 			long price = determinePrice(iname);
 
-			double tt = Math.floor(1.0825 * price * quantity);
+			double tt = Math.floor(1.0825 * price) * quantity;
 			tot += tt;
 		}
 
@@ -131,12 +136,15 @@ public class Transaction {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-
-		}
+			return false;
+		} else
+			return true;
 	}
 
 	public static Transaction fromPaypalJSON(JSONValue json) {
 		JSONObject obj = (JSONObject) json;
+		if (!verifyPaypalTransaction(obj))
+			throw new RuntimeException("Illegal Transaction");
 		String userid = obj.getString("custom");
 		int itemNumb = Integer.valueOf(obj.getString("num_cart_items"));
 		List<Entry> entries = new ArrayList<>();
