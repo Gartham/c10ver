@@ -31,7 +31,8 @@ public class EventHandler implements EventListener {
 			"You can get daily, weekly, and monthly rewards with the commands: `~daily`, `~weekly`, and `~monthly` respectively!"),
 			tip("Every time you send a message in #general, there's a small chance you'll stumble upon some loot."),
 			tip("You can open crates using the `open crate` command! Just type `~open crate crate-type`."),
-			tip("You can pay other users using the `pay` command!"));
+			tip("You can pay other users using the `pay` command!"),
+			tip("Eating food will give you a temporary multiplier. You can eat food with `~use food-name`."));
 	private final InviteTracker inviteTracker = new InviteTracker(this);
 
 	public Clover getClover() {
