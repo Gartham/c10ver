@@ -46,6 +46,7 @@ public abstract class LootCrateItem extends Item {
 		case DailyCrate.CRATE_TYPE -> new DailyCrate(obj);
 		case WeeklyCrate.CRATE_TYPE -> new WeeklyCrate(obj);
 		case MonthlyCrate.CRATE_TYPE -> new MonthlyCrate(obj);
+		case NormalCrate.CRATE_TYPE -> new NormalCrate(obj);
 		default -> throw new IllegalArgumentException("Unexpected value: " + crateType);
 		};
 	}
