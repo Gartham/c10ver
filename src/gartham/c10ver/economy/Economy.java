@@ -49,7 +49,7 @@ public class Economy {
 		return servers.get(serverID);
 	}
 
-	public Account getAccount(String userID) {
+	public UserAccount getAccount(String userID) {
 		return getUser(userID).getAccount();
 	}
 

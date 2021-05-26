@@ -33,7 +33,7 @@ import gartham.c10ver.commands.consumers.InputConsumer;
 import gartham.c10ver.commands.consumers.MessageInputConsumer;
 import gartham.c10ver.commands.subcommands.ParentCommand;
 import gartham.c10ver.commands.subcommands.SubcommandInvocation;
-import gartham.c10ver.economy.Account;
+import gartham.c10ver.economy.UserAccount;
 import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.Server;
 import gartham.c10ver.economy.User;
@@ -518,7 +518,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						return;
 					}
 
-					Account payer = clover.getEconomy().getAccount(inv.event.getAuthor().getId()),
+					UserAccount payer = clover.getEconomy().getAccount(inv.event.getAuthor().getId()),
 							recip = clover.getEconomy().getAccount(mentionedUsers.get(0).getId());
 
 					if (payer.pay(bi, recip))
