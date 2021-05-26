@@ -6,7 +6,7 @@ import java.math.BigInteger;
 
 import gartham.c10ver.data.autosave.SavablePropertyObject;
 
-public class Account extends SavablePropertyObject {
+public class UserAccount extends SavablePropertyObject {
 	private final Property<BigInteger> balance = bigIntegerProperty("bal", BigInteger.ZERO);
 	private final User user;
 
@@ -14,11 +14,11 @@ public class Account extends SavablePropertyObject {
 		return user;
 	}
 
-	public Account(File userDirectory, User user) {
+	public UserAccount(File userDirectory, User user) {
 		this(userDirectory, true, user);
 	}
 
-	protected Account(File userDirectory, boolean load, User user) {
+	protected UserAccount(File userDirectory, boolean load, User user) {
 		super(new File(userDirectory, "main-account.txt"));
 		this.user = user;
 		if (load)
@@ -33,7 +33,7 @@ public class Account extends SavablePropertyObject {
 		return balance.get();
 	}
 
-	public boolean pay(BigInteger amount, Account recipient) {
+	public boolean pay(BigInteger amount, UserAccount recipient) {
 		if (!withdraw(amount))
 			return false;
 		recipient.deposit(amount);
@@ -49,12 +49,12 @@ public class Account extends SavablePropertyObject {
 	}
 
 	/**
-	 * Takes the specified amount of money out of this {@link Account} and returns
+	 * Takes the specified amount of money out of this {@link UserAccount} and returns
 	 * <code>true</code>, or returns <code>false</code>.
 	 * 
 	 * @param amt The amount to attempt to withdraw.
 	 * @return Whether or not the withdrawal was a success. Withdrawal will be
-	 *         successful only if this {@link Account} has as much or more money
+	 *         successful only if this {@link UserAccount} has as much or more money
 	 *         than the specified amount.
 	 */
 	public boolean withdraw(BigInteger amt) {

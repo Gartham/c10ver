@@ -69,7 +69,7 @@ public class User extends SavablePropertyObject {
 		return questions.get();
 	}
 
-	private final Account account;
+	private final UserAccount account;
 	private final UserInventory inventory;
 	private final Economy economy;
 	private final String userID;
@@ -90,7 +90,7 @@ public class User extends SavablePropertyObject {
 		return inventory;
 	}
 
-	public Account getAccount() {
+	public UserAccount getAccount() {
 		return account;
 	}
 
@@ -191,7 +191,7 @@ public class User extends SavablePropertyObject {
 		super(new File(userDirectory, "user-data.txt"));
 		this.economy = economy;
 		userID = userDirectory.getName();
-		account = new Account(userDirectory, this);
+		account = new UserAccount(userDirectory, this);
 		inventory = new UserInventory(userDirectory);
 		if (load)
 			load();
