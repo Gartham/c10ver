@@ -27,8 +27,6 @@ import gartham.c10ver.utils.Utilities;
  */
 public class Inventory implements Cloneable {
 
-	private static Inventory x;
-
 	public void clear() {
 		entries.clear();
 		entryList.clear();
