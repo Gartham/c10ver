@@ -12,6 +12,7 @@ import org.alixia.javalibrary.json.JSONObject;
 import org.alixia.javalibrary.util.StringGateway;
 
 import gartham.c10ver.data.autosave.SavablePropertyObject;
+import gartham.c10ver.economy.accolades.AccoladeList;
 import gartham.c10ver.economy.items.UserInventory;
 import gartham.c10ver.economy.questions.Question;
 import net.dv8tion.jda.api.entities.Guild;
@@ -72,6 +73,7 @@ public class User extends SavablePropertyObject {
 	private final UserAccount account;
 	private final UserInventory inventory;
 	private final Economy economy;
+	private final AccoladeList accolades;
 	private final String userID;
 
 	public net.dv8tion.jda.api.entities.User getUser() {
@@ -88,6 +90,10 @@ public class User extends SavablePropertyObject {
 
 	public UserInventory getInventory() {
 		return inventory;
+	}
+
+	public AccoladeList getAccolades() {
+		return accolades;
 	}
 
 	public UserAccount getAccount() {
@@ -193,6 +199,7 @@ public class User extends SavablePropertyObject {
 		userID = userDirectory.getName();
 		account = new UserAccount(userDirectory, this);
 		inventory = new UserInventory(userDirectory);
+		accolades = new AccoladeList(new File(userDirectory, "accolades.txt"));
 		if (load)
 			load();
 		if (getMessageCount() == null)
