@@ -4,6 +4,7 @@ import java.io.File;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 
 import org.alixia.javalibrary.json.JSONArray;
 import org.alixia.javalibrary.json.JSONNumber;
@@ -13,7 +14,7 @@ import org.alixia.javalibrary.util.Gateway;
 
 import gartham.c10ver.data.autosave.SavablePropertyObject;
 
-public class AccoladeList extends SavablePropertyObject {
+public class AccoladeList extends SavablePropertyObject implements Iterable<AccoladeList.ListEntry> {
 
 	private static final AccoladeType[] ACCOLADE_TYPES = AccoladeType.values();
 
@@ -29,6 +30,18 @@ public class AccoladeList extends SavablePropertyObject {
 			accolades.set(new ArrayList<>());
 	}
 
+	public BigInteger getCount() {
+		return accolades.get().stream().map(ListEntry::count).reduce(BigInteger.ZERO, BigInteger::add);
+	}
+
+	public int typeCount() {
+		return accolades.get().size();
+	}
+
+	public boolean isEmpty() {
+		return accolades.get().isEmpty();
+	}
+
 	public BigInteger get(AccoladeType accolade) {
 		var arr = accolades.get();
 		var pos = Collections.binarySearch(arr, accolade);
@@ -41,7 +54,7 @@ public class AccoladeList extends SavablePropertyObject {
 		var arr = accolades.get();
 		var pos = Collections.binarySearch(arr, accolade);
 		if ((0x80000000 & pos) == 0x80000000) {
-			pos = -pos + 1;
+			pos = -pos - 1;
 			ListEntry entry = new ListEntry(accolade, amount);
 			accolades.get().add(pos, entry);
 		} else
@@ -82,7 +95,7 @@ public class AccoladeList extends SavablePropertyObject {
 		var arr = accolades.get();
 		var pos = Collections.binarySearch(arr, accolade);
 		if ((0x80000000 & pos) == 0x80000000) {
-			pos = -pos + 1;
+			pos = -pos - 1;
 			ListEntry entry = new ListEntry(accolade, amt);
 			accolades.get().add(pos, entry);
 		} else {
@@ -120,6 +133,10 @@ public class AccoladeList extends SavablePropertyObject {
 			return type.compareTo(o);
 		}
 
+		public BigInteger count() {
+			return count;
+		}
+
 	}
 
 	private final Property<ArrayList<ListEntry>> accolades = listProperty("accolades", new Gateway<>() {
@@ -133,5 +150,10 @@ public class AccoladeList extends SavablePropertyObject {
 			return new ListEntry(value);
 		}
 	});
+
+	@Override
+	public Iterator<ListEntry> iterator() {
+		return accolades.get().iterator();
+	}
 
 }
