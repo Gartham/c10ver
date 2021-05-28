@@ -48,6 +48,10 @@ public class AccoladeList extends SavablePropertyObject implements Iterable<Acco
 		return (0x80000000 & pos) == 0 ? accolades.get().get(pos).count : BigInteger.ZERO;
 	}
 
+	public ListEntry get(int index) {
+		return accolades.get().get(index);
+	}
+
 	public void set(AccoladeType accolade, BigInteger amount) {
 		if (amount.compareTo(BigInteger.ZERO) != 1)
 			clear(accolade);
