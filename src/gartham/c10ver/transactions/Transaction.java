@@ -106,7 +106,7 @@ public class Transaction {
 
 	public static boolean verifyPaypalTransaction(JSONObject json) {
 		BigDecimal total = new BigDecimal(json.getString("mc_gross"));
-		int itemNumb = Integer.valueOf(json.getString("num_cart_items"));
+		int itemNumb = Integer.valueOf(json.getString("num_cart_items")) - 1;
 
 		long tot = 0;
 
@@ -114,10 +114,10 @@ public class Transaction {
 			String iname = json.getString("item_name" + i);
 			int quantity = Integer.valueOf(json.getString("quantity" + i));
 			long price = determinePrice(iname);
-
-			double tt = Math.floor(1.0825 * price) * quantity;
-			tot += tt;
+			tot += price * quantity;
 		}
+
+		tot += Math.round(tot * 0.0825);
 
 		BigDecimal amt = BigDecimal.valueOf(tot).divide(BigDecimal.valueOf(100));
 		if (total.compareTo(amt) != 0) {
