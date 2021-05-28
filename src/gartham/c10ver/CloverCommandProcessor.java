@@ -33,10 +33,12 @@ import gartham.c10ver.commands.consumers.InputConsumer;
 import gartham.c10ver.commands.consumers.MessageInputConsumer;
 import gartham.c10ver.commands.subcommands.ParentCommand;
 import gartham.c10ver.commands.subcommands.SubcommandInvocation;
-import gartham.c10ver.economy.UserAccount;
 import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.Server;
 import gartham.c10ver.economy.User;
+import gartham.c10ver.economy.UserAccount;
+import gartham.c10ver.economy.accolades.AccoladeList.ListEntry;
+import gartham.c10ver.economy.accolades.AccoladeType;
 import gartham.c10ver.economy.items.UserInventory;
 import gartham.c10ver.economy.items.UserInventory.UserEntry;
 import gartham.c10ver.economy.items.utility.crates.DailyCrate;
@@ -113,6 +115,64 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 //				// TODO Print stats.
 //			}
 //		});
+		register(new MatchBasedCommand("accolades") {
+
+			@Override
+			public void exec(CommandInvocation inv) {
+				if (inv.args.length == 0) {
+					StringBuilder desc = new StringBuilder();
+					if (!clover.getEconomy().hasUser(inv.event.getAuthor().getId()))
+						desc.append("You don't have any accolades...");
+					else {
+						User u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
+						if (u.getAccolades().isEmpty())
+							desc.append("You don't have any accolades...");
+						else
+							for (var le : u.getAccolades())
+								desc.append('`').append(le.count()).append("x`\t").append(le.type.getIcon()).append(' ')
+										.append(le.type.getName()).append('\n');
+					}
+					inv.event.getChannel()
+							.sendMessage(new EmbedBuilder().setTitle(inv.event.getAuthor().getAsTag() + "'s Accolades")
+									.setDescription(desc.toString()).build())
+							.queue();
+				} else if (inv.args.length != 1)
+					inv.event.getChannel().sendMessage(
+							inv.event.getAuthor().getAsMention() + " that command doesn't take more than 1 argument.")
+							.queue();
+				else {
+					var u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
+					try {
+						int pos = Integer.parseInt(inv.args[0]) - 1;
+						if (pos < 0) {
+							inv.event.getChannel()
+									.sendMessage(
+											inv.event.getAuthor().getAsMention() + ", you can't use a negative index (`"
+													+ inv.args[0] + "`) when picking an accolade!")
+									.queue();
+							return;
+						} else if (pos >= u.getAccolades().typeCount()) {
+							inv.event.getChannel().sendMessage(
+									inv.event.getAuthor().getAsMention() + ", you don't have that many accolades!")
+									.queue();
+							return;
+						} else {
+							var entry = u.getAccolades().get(pos);
+							inv.event.getChannel()
+									.sendMessage(entry.type.getIcon() + " **" + entry.type.getName() + "** - *"
+											+ entry.type.getDescription() + "*\n\nYou own `" + entry.count
+											+ "` of these.\nReward: +" + Utilities.format(entry.type.getValue()))
+									.queue();
+						}
+					} catch (NumberFormatException e) {
+						inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+								+ ", that's not a valid index. Please pick which accolade you want more information about by index.")
+								.queue();
+					}
+
+				}
+			}
+		});
 		register(new MatchBasedCommand("daily") {
 			@Override
 			public void exec(CommandInvocation inv) {
