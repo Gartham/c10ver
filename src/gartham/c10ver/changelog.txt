@@ -40,3 +40,9 @@ v0.9a - Pushing Towards Beta
 + Accolades - Accolades are like achievements in most games, except you can receive them multiple times. Accolades give you rewards upon completion.
 + ~accolades Command - You can use the ~accolades command to view your accolades.
 + ~trade Command - You can use this command to trade with other users. Once you start a trade with another user, you'll both enter "trading mode" and will be able to exchange items and cloves.
+
+v1a - Final Alpha Release
++ Server Multipliers - Server multipliers are multipliers that affect everyone in the server you're in! They can be activated in a server when someone uses a Multiplier Ticket.
++ Multiplier Tickets - Multiplier tickets can be purchased from the official website (http://clover.gartham.com/store). They allow you to activate a server multiplier!
++ Nitro Boost Multiplier - This is a low-level multiplier that takes effect if you've boosted the server! The more days you've been continuously boosting, the higher the multiplier is! (Please note that this special multiplier does not show up when you run the ~mults command, or anywhere else. It will silently multiply your rewards.)
++ Quizzes - Quizzes and Contests are now available! These are all staff-moderated tasks or competitions you can do to get loads of Cloves! A server staff will start a quiz or contest, and users can answer or submit their works. At the end, a winner will be chosen and will receive their loot!
