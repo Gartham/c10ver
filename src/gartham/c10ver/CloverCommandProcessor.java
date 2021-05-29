@@ -403,7 +403,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 								inv.event.getChannel()
 										.sendMessage(inv.event.getAuthor().getAsMention() + " you consumed some "
 												+ lci.getEffectiveName() + " and received a multiplier: [**x"
-												+ Utilities.multiplier(mult) + "**]!")
+												+ Utilities.multiplier(mult) + "**] for **"
+												+ Utilities.format(Duration.ofMillis(lci.getTTL())) + "**!")
 										.queue();
 								return;
 							}
