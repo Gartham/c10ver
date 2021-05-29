@@ -1,48 +1,48 @@
 v0.1a - Initial Build
-+ ~daily Command - Gives daily rewards upon use. Can only be used once a day!
-+ ~weekly Command - Gives weekly rewards upon use. Can only be used once a week!
-+ ~monthly Command - Gives monthly rewards upon use. Can only be used once a month, AND only after you've used the bot for 1 month.
-+ ~pay Command - Used to transfer cloves to other users.
-+ ~balance & ~bal Commands - Used to check oneself's balance.
-+ ~help Command - Can be used to query command help.
++ `daily` Command** - Gives daily rewards upon use. Can only be used once a day!
++ `weekly` Command** - Gives weekly rewards upon use. Can only be used once a week!
++ `monthly` Command** - Gives monthly rewards upon use. Can only be used once a month, AND only after you've used the bot for 1 month.
++ `pay` Command** - Used to transfer cloves to other users.
++ `balance` & `bal` Commands** - Used to check oneself's balance.
++ `help` Command** - Can be used to query command help.
 
 v0.2a - Crates
-+ Daily Crates - Gives a few rewards when opened. Obtained from the ~daily command.
-+ Weekly Crates - Gives some rewards when opened. Obtained from the ~weekly command.
-+ Monthly Crates - Gives lots of rewards when opened. Obtained from the ~monthly command.
-+ ~inv & ~inventory Commands - used to see your inventory.
-+ ~open & ~use Commands - These commands are synonymous. They allow you to use certain items you possess, like crates.
++ **Daily Crates** - Gives a few rewards when opened. Obtained from the `daily` command.
++ **Weekly Crates** - Gives some rewards when opened. Obtained from the `weekly` command.
++ **Monthly Crates** - Gives lots of rewards when opened. Obtained from the `monthly` command.
++ **`inv` & `inventory` Commands** - used to see your inventory.
++ **`open` & `use` Commands** - These commands are synonymous. They allow you to use certain items you possess, like crates.
 
 v0.3a - Baltop & Loot Drops
-+ ~baltop & ~leaderboard Commands - These commands are synonymous. They show you the server leaderboard which ranks everyone in the server by how much money they have.
++ **`baltop` & `leaderboard` Commands** - These commands are synonymous. They show you the server leaderboard which ranks everyone in the server by how much money they have.
 + Added randomized loot drops whenever sending messages. You can now randomly stumble across rewards while sending messages!
 + Added incremenetal loot rewards whenever sending messages. Now when you hit certain milestones in the number of messages you've sent in the server, you'll get more and more cloves.
 
 v0.4a - Food Food Food Food...
-+ Sandwich Item - A boost item that gives you a small multiplier for a few minutes.
-+ Pizza Item - A boost item that gives you a small multiplier for a while.
-+ Hamburger - A boost item that gives you a large multiplier for a decent time.
-+ Spaghetti - A boost item that gives you very large multiplier for a long time.
++ **Sandwich Item** - A boost item that gives you a small multiplier for a few minutes.
++ **Pizza Item** - A boost item that gives you a small multiplier for a while.
++ **Hamburger** - A boost item that gives you a large multiplier for a decent time.
++ **Spaghetti** - A boost item that gives you very large multiplier for a long time.
 
 v0.5a - Mini Mult Update
-+ ~mults Command - Shows the multipliers you have, the server you're in has, and how long each lasts. Also shows your grand total multiplier.
++ **`mults` Command** - Shows the multipliers you have, the server you're in has, and how long each lasts. Also shows your grand total multiplier.
 
 v0.6a - Setup & Config Update
-+ ~setup Master Command - Allows staff to perform administrative set up.
++ **`setup` Master Command** - Allows staff to perform administrative set up.
 
 v0.7a - Color Roles
-+ ~color Command - A command that lets you purchase a color role!
++ **`color` Command** - A command that lets you purchase a color role!
 
 v0.8a - Inviter Rewards!
 + Users are now rewarded with a 3 hour, +1.00 multiplier for inviting other members to the server! Both the inviter and the invitee (person who's joined) will get rewarded, but this won't work if the invitee has already joined before!
 
 v0.9a - Pushing Towards Beta
-+ Accolades - Accolades are like achievements in most games, except you can receive them multiple times. Accolades give you rewards upon completion.
-+ ~accolades Command - You can use the ~accolades command to view your accolades.
-+ ~trade Command - You can use this command to trade with other users. Once you start a trade with another user, you'll both enter "trading mode" and will be able to exchange items and cloves.
++ **Accolades** - Accolades are like achievements in most games, except you can receive them multiple times. Accolades give you rewards upon completion.
++ **`accolades` Command** - You can use the `accolades` command to view your accolades.
++ **`trade` Command** - You can use this command to trade with other users. Once you start a trade with another user, you'll both enter "trading mode" and will be able to exchange items and cloves.
 
 v1a - Final Alpha Release
-+ Server Multipliers - Server multipliers are multipliers that affect everyone in the server you're in! They can be activated in a server when someone uses a Multiplier Ticket.
-+ Multiplier Tickets - Multiplier tickets can be purchased from the official website (http://clover.gartham.com/store). They allow you to activate a server multiplier!
-+ Nitro Boost Multiplier - This is a low-level multiplier that takes effect if you've boosted the server! The more days you've been continuously boosting, the higher the multiplier is! (Please note that this special multiplier does not show up when you run the ~mults command, or anywhere else. It will silently multiply your rewards.)
-+ Quizzes - Quizzes and Contests are now available! These are all staff-moderated tasks or competitions you can do to get loads of Cloves! A server staff will start a quiz or contest, and users can answer or submit their works. At the end, a winner will be chosen and will receive their loot!
++ **Server Multipliers** - Server multipliers are multipliers that affect everyone in the server you're in! They can be activated in a server when someone uses a Multiplier Ticket.
++ **Multiplier Tickets** - Multiplier tickets can be purchased from the official website (http://clover.gartham.com/store). They allow you to activate a server multiplier!
++ **Nitro Boost Multiplier** - This is a low-level multiplier that takes effect if you've boosted the server! The more days you've been continuously boosting, the higher the multiplier is! (Please note that this special multiplier does not show up when you run the `mults` command, or anywhere else. It will silently multiply your rewards.)
++ **Quizzes** - Quizzes and Contests are now available! These are all staff-moderated tasks or competitions you can do to get loads of Cloves! A server staff will start a quiz or contest, and users can answer or submit their works. At the end, a winner will be chosen and will receive their loot!
