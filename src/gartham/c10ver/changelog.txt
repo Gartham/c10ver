@@ -1,6 +1,13 @@
-V0.1b0-alpha - Initial Build
+v0.1a - Initial Build
 + ~daily command for daily rewards.
 + ~weekly command for weekly rewards.
 + ~monthly command for monthly rewards.
 + ~pay command to transfer cloves to other users.
 + ~bal & ~balance command to check oneself's balance.
+
+v0.2a - Crates
++ Daily Crates - Gives a few rewards when opened. Obtained from the ~daily command.
++ Weekly Crates - Gives some rewards when opened. Obtained from the ~weekly command.
++ Monthly Crates - Gives lots of rewards when opened. Obtained from the ~monthly command.
++ ~inv & ~inventory Commands - used to see your inventory.
++ ~open & ~use Commands - These commands are synonymous. They allow you to use certain items you possess, like crates.
