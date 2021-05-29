@@ -29,11 +29,8 @@ import org.alixia.javalibrary.json.JSONValue;
 import org.alixia.javalibrary.streams.CharacterStream;
 import org.alixia.javalibrary.strings.matching.Matching;
 
-import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.Rewards;
-import gartham.c10ver.economy.User;
 import gartham.c10ver.economy.items.ItemBunch;
-import net.dv8tion.jda.api.entities.MessageEmbed.Field;
 
 public final class Utilities {
 
@@ -284,6 +281,10 @@ public final class Utilities {
 
 	public static String multiplier(BigDecimal mult) {
 		return multiplier(mult, 2);
+	}
+
+	public static String prettyPrintMultiplier(BigDecimal mult) {
+		return "[**x" + multiplier(mult) + "**]";
 	}
 
 	public static String multiplier(BigDecimal mult, int scale) {
