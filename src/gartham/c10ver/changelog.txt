@@ -47,3 +47,4 @@ v1a - Final Alpha Release
 + **Nitro Boost Multiplier** - This is a low-level multiplier that takes effect if you've boosted the server! The more days you've been continuously boosting, the higher the multiplier is! (Please note that this special multiplier does not show up when you run the `mults` command, or anywhere else. It will silently multiply your rewards.)
 + **Quizzes** - Quizzes and Contests are now available! These are all staff-moderated tasks or competitions you can do to get loads of Cloves! A server staff will start a quiz or contest, and users can answer or submit their works. At the end, a winner will be chosen and will receive their loot!
 + Using food items now prints how long the gained multiplier lasts.
+~ Changed formatting of command help to make it a little more readable.
