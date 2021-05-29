@@ -1658,7 +1658,9 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 			public void exec(CommandInvocation inv) {
 				var cl = clover.getChangelog();
 				if (cl == null) {
-					inv.event.getChannel().sendMessage("Unable to display the changelog right now.").queue();
+					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+							+ ", the changelog is malformed (there are some mistakes in it!) so I can't display it right now. :(")
+							.queue();
 					return;
 				}
 				switch (inv.args.length) {
@@ -1676,11 +1678,16 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					try {
 						page = Integer.parseInt(inv.args[0]);
 					} catch (NumberFormatException e) {
-						inv.event.getChannel()
-								.sendMessage("No version or page found: " + Utilities.strip(inv.args[0]) + '.').queue();
+						inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+								+ ", no version or page found: " + Utilities.strip(inv.args[0]) + '.').queue();
 						return;
 					}
 					var vers = Utilities.paginate(page, 10, cl.getVersions());
+					if (vers == null) {
+						inv.event.getChannel()
+								.sendMessage(inv.event.getAuthor().getAsMention() + " that's an invalid page!").queue();
+						return;
+					}
 					var sb = new StringBuilder();
 					for (var v : vers)
 						sb.append('`').append(v.getVerstr()).append("` - ").append(v.getTitle()).append('\n');
