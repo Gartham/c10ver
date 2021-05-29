@@ -4,6 +4,7 @@ v0.1a - Initial Build
 + ~monthly Command - Gives monthly rewards upon use. Can only be used once a month, AND only after you've used the bot for 1 month.
 + ~pay Command - Used to transfer cloves to other users.
 + ~balance & ~bal Commands - Used to check oneself's balance.
++ ~help Command - Can be used to query command help.
 
 v0.2a - Crates
 + Daily Crates - Gives a few rewards when opened. Obtained from the ~daily command.
@@ -22,3 +23,15 @@ v0.4a - Food Food Food Food...
 + Pizza Item - A boost item that gives you a small multiplier for a while.
 + Hamburger - A boost item that gives you a large multiplier for a decent time.
 + Spaghetti - A boost item that gives you very large multiplier for a long time.
+
+v0.5a - Mini Mult Update
++ ~mults Command - Shows the multipliers you have, the server you're in has, and how long each lasts. Also shows your grand total multiplier.
+
+v0.6a - Setup & Config Update
++ ~setup Master Command - Allows staff to perform administrative set up.
+
+v0.7a - Color Roles
++ ~color Command - A command that lets you purchase a color role!
+
+v0.8a - Inviter Rewards!
++ Users are now rewarded for inviting other members to the server. Invitees must not have joined the server before for the inviter to get rewards!
