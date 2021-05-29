@@ -1,9 +1,9 @@
 v0.1a - Initial Build
-+ ~daily command for daily rewards.
-+ ~weekly command for weekly rewards.
-+ ~monthly command for monthly rewards.
-+ ~pay command to transfer cloves to other users.
-+ ~bal & ~balance command to check oneself's balance.
++ ~daily Command - Gives daily rewards upon use. Can only be used once a day!
++ ~weekly Command - Gives weekly rewards upon use. Can only be used once a week!
++ ~monthly Command - Gives monthly rewards upon use. Can only be used once a month, AND only after you've used the bot for 1 month.
++ ~pay Command - Used to transfer cloves to other users.
++ ~balance & ~bal Commands - Used to check oneself's balance.
 
 v0.2a - Crates
 + Daily Crates - Gives a few rewards when opened. Obtained from the ~daily command.
@@ -11,3 +11,10 @@ v0.2a - Crates
 + Monthly Crates - Gives lots of rewards when opened. Obtained from the ~monthly command.
 + ~inv & ~inventory Commands - used to see your inventory.
 + ~open & ~use Commands - These commands are synonymous. They allow you to use certain items you possess, like crates.
+
+v0.3a - Baltop & Loot Drops
++ ~baltop & ~leaderboard Commands - These commands are synonymous. They show you the server leaderboard which ranks everyone in the server by how much money they have.
++ Added randomized loot drops whenever sending messages.
+
+v0.4a - More Loot Drops
++ Added incremenetal loot rewards whenever sending messages. Now when you hit certain milestones in the number of messages you've sent in the server, you'll get more and more cloves.
