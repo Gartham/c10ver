@@ -296,7 +296,7 @@ public final class Utilities {
 	}
 
 	public enum MoneyUnit {
-		GRAND("K"), MILLION("M"), BILLION("B"), TRILLION("T");
+		GRAND("K"), MILLION("M"), BILLION("B"), TRILLION("T"), QUADRIILLION("Q");
 
 		private final String symbol;
 		private final BigInteger amt = BigInteger.valueOf(1000).pow(ordinal() + 1);
