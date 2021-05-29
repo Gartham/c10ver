@@ -1707,6 +1707,9 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 		help.addCommand("baltop", "Check out who the richest people in this server are!", "baltop [page]",
 				"leaderboard");
 		help.addCommand("inventory", "Shows your inventory.", "inventory [item-id] [page]", "inv");
+		help.addCommand("accolades",
+				"Shows you what accolades you have. Use a number to get info about a specific accolade you have, for example `~accolades 2` will give you information about the second accolade you have.",
+				"accolades [index]");
 		{
 			var quizHelp = help.addParentCommand("quiz",
 					"Lets you make, see, and give quizzes! (You must be a Clover Officer to access this command!)");
