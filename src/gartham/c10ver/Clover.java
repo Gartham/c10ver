@@ -76,6 +76,7 @@ public class Clover {
 			changelog = Changelog.from(Clover.class.getResourceAsStream("changelog.txt"));
 		} catch (Exception e) {
 			System.err.println("FAILED TO LOAD THE CHANGELOG.");
+			e.printStackTrace();
 			changelog = null;
 		}
 		this.changelog = changelog;

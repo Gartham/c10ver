@@ -29,11 +29,8 @@ import org.alixia.javalibrary.json.JSONValue;
 import org.alixia.javalibrary.streams.CharacterStream;
 import org.alixia.javalibrary.strings.matching.Matching;
 
-import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.Rewards;
-import gartham.c10ver.economy.User;
 import gartham.c10ver.economy.items.ItemBunch;
-import net.dv8tion.jda.api.entities.MessageEmbed.Field;
 
 public final class Utilities {
 
@@ -286,6 +283,10 @@ public final class Utilities {
 		return multiplier(mult, 2);
 	}
 
+	public static String prettyPrintMultiplier(BigDecimal mult) {
+		return "[**x" + multiplier(mult) + "**]";
+	}
+
 	public static String multiplier(BigDecimal mult, int scale) {
 		if (mult != null) {
 			var scaled = mult.setScale(scale, RoundingMode.HALF_UP);
@@ -295,7 +296,7 @@ public final class Utilities {
 	}
 
 	public enum MoneyUnit {
-		GRAND("K"), MILLION("M"), BILLION("B"), TRILLION("T");
+		GRAND("K"), MILLION("M"), BILLION("B"), TRILLION("T"), QUADRIILLION("Q");
 
 		private final String symbol;
 		private final BigInteger amt = BigInteger.valueOf(1000).pow(ordinal() + 1);

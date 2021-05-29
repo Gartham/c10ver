@@ -207,9 +207,9 @@ public class EventHandler implements EventListener {
 							var gen = ge.getGuild().getTextChannelById(g.getGeneralChannel());
 							if (gen != null)
 								gen.sendMessage(ge.getUser().getAsMention() + " welcome to the server. ^w^\nYou and "
-										+ inviter.getUser().getUser().getAsMention()
-										+ " both received a multiplier of **[x" + Utilities.multiplier(BigDecimal.ONE)
-										+ "]** that lasts for **3h**.").queue();
+										+ inviter.getUser().getUser().getAsMention() + " both received a multiplier of "
+										+ Utilities.prettyPrintMultiplier(BigDecimal.ONE) + " that lasts for **3h**.")
+										.queue();
 						}
 					}
 				}

@@ -18,8 +18,13 @@ public class Changelog {
 
 	public static Changelog from(Parser<String> lines) {
 		List<Version> vers = new ArrayList<>();
-		while (lines.peek() != null)
+		while (lines.peek() != null && lines.peek().isBlank())
+			lines.next();
+		while (lines.peek() != null) {
 			vers.add(Version.parse(lines));// Parse a whole version out.
+			while (lines.peek() != null && lines.peek().isBlank())
+				lines.next();
+		}
 		return new Changelog(vers);
 	}
 
@@ -50,25 +55,27 @@ public class Changelog {
 			}
 			List<Change> changes = new ArrayList<>(2);
 			String n;
-			LOOP: while ((n = lines.next()) != null) {
-				if (!n.isEmpty()) {// Ignore empty lines.
+			LOOP: while ((n = lines.peek()) != null) {
+				n = n.strip();
+				if (!n.isBlank()) {// Ignore empty lines.
 					switch (n.charAt(0)) {
 					case '+':
 						changes.add(new Change(Type.ADDITION, n.substring(2)));
-						continue;
+						break;
 					case '-':
 						changes.add(new Change(Type.REMOVAL, n.substring(2)));
-						continue;
+						break;
 					case '~':
 						changes.add(new Change(Type.CHANGE, n.substring(2)));
-						continue;
+						break;
 					case '*':
 						changes.add(new Change(Type.FIX, n.substring(2)));
-						continue;
+						break;
 					default:
 						break LOOP;
 					}
 				}
+				lines.next();
 			}
 			return new Version(verstr, title, changes);
 		}
