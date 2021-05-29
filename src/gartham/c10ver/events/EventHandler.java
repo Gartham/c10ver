@@ -187,7 +187,7 @@ public class EventHandler implements EventListener {
 							var gen = ge.getGuild().getTextChannelById(g.getGeneralChannel());
 							if (gen != null)
 								gen.sendMessage(ge.getUser().getAsMention()
-										+ " welcome back to the server. ^w^\nYou were invited by: "
+										+ " welcome back to the server. ^w^\nYou were invited back by: "
 										+ inviter.getUser().getUser().getAsMention() + ".").queue();
 						}
 					}
