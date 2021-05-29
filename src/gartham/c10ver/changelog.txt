@@ -1,4 +1,6 @@
-V0.1b0-alpha - Potato
-+ Test
-+ Test2
-+ Test3
+V0.1b0-alpha - Initial Build
++ ~daily command for daily rewards.
++ ~weekly command for weekly rewards.
++ ~monthly command for monthly rewards.
++ ~pay command to transfer cloves to other users.
++ ~bal & ~balance command to check oneself's balance.
