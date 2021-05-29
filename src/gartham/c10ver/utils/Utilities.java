@@ -20,8 +20,10 @@ import java.math.RoundingMode;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.alixia.javalibrary.json.JSONObject;
 import org.alixia.javalibrary.json.JSONParser;
@@ -200,6 +202,20 @@ public final class Utilities {
 
 	public static String format(Duration duration, TimeUnit... units) {
 		return format(getParts(duration), units);
+	}
+
+	/**
+	 * Formatting includes only all the time units that have non-zero value.
+	 * 
+	 * @param duration The duration to format.
+	 * @return The formatted string.
+	 */
+	public static String format(Duration duration) {
+		var parts = getParts(duration);
+		for (Iterator<Entry<TimeUnit, Long>> iterator = parts.entrySet().iterator(); iterator.hasNext();)
+			if (iterator.next().getValue() == 0)
+				iterator.remove();
+		return format(duration, parts.keySet().toArray(new TimeUnit[parts.size()]));
 	}
 
 	public static <E> List<E> paginate(int page, int itemsPerPage, List<E> items) {
