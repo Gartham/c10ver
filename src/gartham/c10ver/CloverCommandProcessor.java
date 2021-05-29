@@ -37,8 +37,6 @@ import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.Server;
 import gartham.c10ver.economy.User;
 import gartham.c10ver.economy.UserAccount;
-import gartham.c10ver.economy.accolades.AccoladeList.ListEntry;
-import gartham.c10ver.economy.accolades.AccoladeType;
 import gartham.c10ver.economy.items.UserInventory;
 import gartham.c10ver.economy.items.UserInventory.UserEntry;
 import gartham.c10ver.economy.items.utility.crates.DailyCrate;
@@ -1640,18 +1638,20 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 			private String print(Version version) {
 				StringBuilder str = new StringBuilder();
-				str.append("Changelog for: `").append(version.getVerstr()).append("` - ").append(version.getTitle())
-						.append("```yaml\n");
-				for (var c : version.getChanges()) {
-					str.append(switch (c.getType()) {
+
+				str.append("`").append(version.getVerstr()).append('`');
+				if (version.getTitle() != null)
+					str.append(" - **").append(version.getTitle().strip()).append("**");
+				str.append(" Changelog");
+				for (var c : version.getChanges())
+					str.append('\n').append(switch (c.getType()) {
 					case ADDITION -> '+';
 					case CHANGE -> '~';
 					case FIX -> '*';
 					case REMOVAL -> '-';
 					default -> "?";
-					}).append(' ').append(c.getContent()).append('\n');
-				}
-				return str.append("```").toString();
+					}).append(' ').append(c.getContent());
+				return str.toString();
 			}
 
 			@Override
@@ -1685,12 +1685,17 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					var vers = Utilities.paginate(page, 10, cl.getVersions());
 					if (vers == null) {
 						inv.event.getChannel()
-								.sendMessage(inv.event.getAuthor().getAsMention() + " that's an invalid page!").queue();
+								.sendMessage(inv.event.getAuthor().getAsMention() + " that's not a valid page.")
+								.queue();
 						return;
 					}
 					var sb = new StringBuilder();
-					for (var v : vers)
-						sb.append('`').append(v.getVerstr()).append("` - ").append(v.getTitle()).append('\n');
+					for (var v : vers) {
+						sb.append('`').append(v.getVerstr()).append('`');
+						if (v.getVerstr() != null)
+							sb.append(" - **").append(v.getTitle()).append("**");
+						sb.append("\n");
+					}
 					inv.event.getChannel().sendMessage("Page `" + page + "` of Versions:\n" + sb).queue();
 					break;
 				default:
