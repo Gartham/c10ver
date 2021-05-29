@@ -259,42 +259,49 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 		register(new ParentCommand("open", "use") {
 
+			private boolean openCrate(String cratetype, CommandInvocation inv) {
+				if (clover.getEconomy().hasUser(inv.event.getAuthor().getId())) {
+					var u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
+					@SuppressWarnings("unchecked")
+					var crateEntry = (UserEntry<LootCrateItem>) u.getInventory().get("loot-crate");
+					if (crateEntry != null)
+						for (var is : crateEntry.getStacks())
+							if (is.getItem().getCrateType().equalsIgnoreCase(cratetype)) {
+								LootCrateItem lci = is.getItem();
+								var rew = lci.open();
+								for (var m : rew.getMultipliers())
+									u.addMultiplier(m);
+								var totalMult = u.calcMultiplier(inv.event.getGuild());
+								var totalCloves = u.rewardAndSave(rew.getCloves(), totalMult);
+								for (var i : rew.getItemList())
+									u.getInventory().add(i).save();
+								is.removeAndSave(BigInteger.ONE);
+								u.save();
+
+								inv.event.getChannel()
+										.sendMessage(
+												inv.event.getAuthor().getAsMention() + " is opening a **"
+														+ lci.getCustomName() + "**!\n\n" + listRewards(rew,
+																totalCloves, u.getAccount().getBalance(), totalMult))
+										.queue();
+								return true;
+							}
+				}
+				return false;
+			}
+
 			{
 				new Subcommand("crate", "loot-crate") {
 					@Override
 					protected void tailed(SubcommandInvocation inv) {
 						if (inv.args.length == 0)
-							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
-									+ " please tell me what type of crate you want to open.").queue();
+							inv.event.getChannel()
+									.sendMessage(
+											inv.event.getAuthor().getAsMention() + " what crate do you want to open?")
+									.queue();
 						else if (inv.args.length == 1) {
-							if (clover.getEconomy().hasUser(inv.event.getAuthor().getId())) {
-								var u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
-								@SuppressWarnings("unchecked")
-								var crateEntry = (UserEntry<LootCrateItem>) u.getInventory().get("loot-crate");
-								if (crateEntry != null)
-									for (var is : crateEntry.getStacks())
-										if (is.getItem().getCrateType().equalsIgnoreCase(inv.args[0])) {
-											LootCrateItem lci = is.getItem();
-											var rew = lci.open();
-											for (var m : rew.getMultipliers())
-												u.addMultiplier(m);
-											var totalMult = u.calcMultiplier(inv.event.getGuild());
-											var totalCloves = u.rewardAndSave(rew.getCloves(), totalMult);
-											for (var i : rew.getItemList())
-												u.getInventory().add(i).save();
-											is.removeAndSave(BigInteger.ONE);
-											u.save();
-
-											inv.event.getChannel()
-													.sendMessage(
-															inv.event.getAuthor().getAsMention() + " is opening a **"
-																	+ lci.getCustomName() + "**!\n\n"
-																	+ listRewards(rew, totalCloves,
-																			u.getAccount().getBalance(), totalMult))
-													.queue();
-											return;
-										}
-							}
+							if (openCrate(inv.args[0], inv))
+								return;
 							inv.event.getChannel().sendMessage(
 									inv.event.getAuthor().getAsMention() + " you don't have any crates of that type.")
 									.queue();
@@ -302,6 +309,17 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						} else
 							inv.event.getChannel().sendMessage(
 									inv.event.getAuthor().getAsMention() + " too many args! Just provide a crate type!")
+									.queue();
+					}
+				};
+
+				new Subcommand("daily", "weekly", "monthly") {
+
+					@Override
+					protected void tailed(SubcommandInvocation inv) {
+						if (!openCrate(inv.cmdName, inv))
+							inv.event.getChannel().sendMessage(
+									inv.event.getAuthor().getAsMention() + " you don't have any crates of that type.")
 									.queue();
 					}
 				};
