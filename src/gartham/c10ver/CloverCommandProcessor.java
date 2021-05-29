@@ -1683,7 +1683,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					var vers = Utilities.paginate(page, 10, cl.getVersions());
 					var sb = new StringBuilder();
 					for (var v : vers)
-						sb.append(v.getVerstr()).append(" - ").append(v.getTitle()).append('\n');
+						sb.append('`').append(v.getVerstr()).append("` - ").append(v.getTitle()).append('\n');
 					inv.event.getChannel().sendMessage("Page `" + page + "` of Versions:\n" + sb).queue();
 					break;
 				default:
