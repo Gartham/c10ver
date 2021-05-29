@@ -14,7 +14,11 @@ v0.2a - Crates
 
 v0.3a - Baltop & Loot Drops
 + ~baltop & ~leaderboard Commands - These commands are synonymous. They show you the server leaderboard which ranks everyone in the server by how much money they have.
-+ Added randomized loot drops whenever sending messages.
-
-v0.4a - More Loot Drops
++ Added randomized loot drops whenever sending messages. You can now randomly stumble across rewards while sending messages!
 + Added incremenetal loot rewards whenever sending messages. Now when you hit certain milestones in the number of messages you've sent in the server, you'll get more and more cloves.
+
+v0.4a - Food Food Food Food...
++ Sandwich Item - A boost item that gives you a small multiplier for a few minutes.
++ Pizza Item - A boost item that gives you a small multiplier for a while.
++ Hamburger - A boost item that gives you a large multiplier for a decent time.
++ Spaghetti - A boost item that gives you very large multiplier for a long time.
