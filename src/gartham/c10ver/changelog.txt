@@ -34,4 +34,4 @@ v0.7a - Color Roles
 + ~color Command - A command that lets you purchase a color role!
 
 v0.8a - Inviter Rewards!
-+ Users are now rewarded for inviting other members to the server. Invitees must not have joined the server before for the inviter to get rewards!
++ Users are now rewarded with a 3 hour, +1.00 multiplier for inviting other members to the server! Both the inviter and the invitee (person who's joined) will get rewarded, but this won't work if the invitee has already joined before!
