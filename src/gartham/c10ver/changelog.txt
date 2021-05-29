@@ -35,3 +35,8 @@ v0.7a - Color Roles
 
 v0.8a - Inviter Rewards!
 + Users are now rewarded with a 3 hour, +1.00 multiplier for inviting other members to the server! Both the inviter and the invitee (person who's joined) will get rewarded, but this won't work if the invitee has already joined before!
+
+v0.9a - Pushing Towards Beta
++ Accolades - Accolades are like achievements in most games, except you can receive them multiple times. Accolades give you rewards upon completion.
++ ~accolades Command - You can use the ~accolades command to view your accolades.
++ ~trade Command - You can use this command to trade with other users. Once you start a trade with another user, you'll both enter "trading mode" and will be able to exchange items and cloves.
