@@ -154,11 +154,11 @@ public final class Utilities {
 		values.put(NANOSECONDS, (long) (nanoseconds % 1000));
 		values.put(MICROSECONDS, (long) ((nanoseconds /= 1000) % 1000));
 		values.put(MILLISECONDS, (long) (nanoseconds / 1000));
-		values.put(SECONDS, (long) (int) (seconds % 60));
-		values.put(MINUTES, (long) (int) ((seconds /= 60) % 60));
-		values.put(HOURS, (long) (int) ((seconds /= 60) % 24));
-		values.put(DAYS, (long) (int) ((seconds /= 24) % 365));
-		values.put(YEARS, (long) (int) (seconds /= 365));
+		values.put(SECONDS, (long) (seconds % 60));
+		values.put(MINUTES, (long) ((seconds /= 60) % 60));
+		values.put(HOURS, (long) ((seconds /= 60) % 24));
+		values.put(DAYS, (long) ((seconds /= 24) % 365));
+		values.put(YEARS, (long) (seconds /= 365));
 
 		return values;
 
