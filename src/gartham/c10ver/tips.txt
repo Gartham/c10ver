@@ -1,0 +1,5 @@
+You can get daily, weekly, and monthly rewards with the commands: `~daily`, `~weekly`, and `~monthly` respectively!
+Every time you send a message in #general, there's a small chance you'll stumble upon some loot.
+You can open crates using the `open crate` command! Just type `~open crate crate-type`.
+You can pay other users using the `pay` command!
+Eating food will give you a temporary multiplier. You can eat food with `~use food-name`.
