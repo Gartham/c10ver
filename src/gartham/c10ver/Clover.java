@@ -1,5 +1,7 @@
 package gartham.c10ver;
 
+import static gartham.c10ver.events.InfoPopup.tip;
+
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -20,6 +22,7 @@ import gartham.c10ver.commands.CommandParser;
 import gartham.c10ver.commands.CommandProcessor;
 import gartham.c10ver.economy.Economy;
 import gartham.c10ver.events.EventHandler;
+import gartham.c10ver.events.InfoPopup;
 import gartham.c10ver.transactions.Transaction;
 import gartham.c10ver.transactions.Transaction.Entry;
 import gartham.c10ver.transactions.TransactionHandler;
@@ -39,6 +42,28 @@ public class Clover {
 	private final Changelog changelog;
 	private final Set<String> devlist;
 	private final List<String> wordlist;
+	private final List<InfoPopup> tiplist;
+
+	public List<InfoPopup> getTiplist() {
+		return tiplist;
+	}
+
+	{
+		List<InfoPopup> tiplist = new ArrayList<>(5);
+		try (var s = new Scanner(EventHandler.class.getResourceAsStream("/tips.txt"))) {
+			while (s.hasNextLine())
+				tiplist.add(tip(s.nextLine()));
+		} catch (Exception e) {
+			e.printStackTrace();
+			tiplist = List.of(tip(
+					"You can get daily, weekly, and monthly rewards with the commands: `~daily`, `~weekly`, and `~monthly` respectively!"),
+					tip("Every time you send a message in #general, there's a small chance you'll stumble upon some loot."),
+					tip("You can open crates using the `open crate` command! Just type `~open crate crate-type`."),
+					tip("You can pay other users using the `pay` command!"),
+					tip("Eating food will give you a temporary multiplier. You can eat food with `~use food-name`."));
+		}
+		this.tiplist = tiplist;
+	}
 
 	private final TransactionHandler transactionHandler = new SocketTransactionHandler(42000);
 	{

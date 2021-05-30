@@ -6,9 +6,16 @@ import static java.math.BigInteger.valueOf;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 import gartham.c10ver.Clover;
 import gartham.c10ver.commands.InputProcessor;
@@ -18,6 +25,7 @@ import gartham.c10ver.economy.items.ItemBunch;
 import gartham.c10ver.economy.items.utility.crates.NormalCrate;
 import gartham.c10ver.economy.items.utility.foodstuffs.Sandwich;
 import gartham.c10ver.utils.Utilities;
+import jdk.incubator.jpackage.internal.IOUtils;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.guild.invite.GuildInviteCreateEvent;
 import net.dv8tion.jda.api.events.guild.invite.GuildInviteDeleteEvent;
@@ -32,12 +40,8 @@ public class EventHandler implements EventListener {
 	private final Clover clover;
 	private final InputProcessor<MessageReceivedEvent> messageProcessor = new InputProcessor<>();
 	private final InputProcessor<MessageReactionAddEvent> reactionAdditionProcessor = new InputProcessor<>();
-	private final Generator<InfoPopup> infoPopupGenerator = Generator.arrayLoop(tip(
-			"You can get daily, weekly, and monthly rewards with the commands: `~daily`, `~weekly`, and `~monthly` respectively!"),
-			tip("Every time you send a message in #general, there's a small chance you'll stumble upon some loot."),
-			tip("You can open crates using the `open crate` command! Just type `~open crate crate-type`."),
-			tip("You can pay other users using the `pay` command!"),
-			tip("Eating food will give you a temporary multiplier. You can eat food with `~use food-name`."));
+
+	private final Generator<InfoPopup> infoPopupGenerator;
 	private final InviteTracker inviteTracker = new InviteTracker(this);
 
 	public Clover getClover() {
@@ -54,6 +58,7 @@ public class EventHandler implements EventListener {
 
 	public EventHandler(Clover clover) {
 		this.clover = clover;
+		infoPopupGenerator=Generator.arrayLoop(clover.getTiplist());
 	}
 
 	public void initialize() {
