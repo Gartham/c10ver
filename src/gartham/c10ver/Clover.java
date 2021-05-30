@@ -36,7 +36,7 @@ public class Clover {
 	{
 
 		COMP_BLOCK: {
-			InputStream stream = EventHandler.class.getResourceAsStream("/tips.txt");
+			InputStream stream = Clover.class.getResourceAsStream("tips.txt");
 			LOAD_BLOCK: if (stream != null) {
 				List<InfoPopup> tl = new ArrayList<>(5);
 				try (var s = new Scanner(stream)) {
