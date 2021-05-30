@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import gartham.c10ver.Clover;
+import gartham.c10ver.commands.CommandInvocation;
 import gartham.c10ver.commands.InputProcessor;
 import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.User;
@@ -61,15 +62,16 @@ public class EventHandler implements EventListener {
 		if (event instanceof MessageReceivedEvent) {
 			var mre = (MessageReceivedEvent) event;
 
-			var cmd = false;
+			var ranCmd = false;
+			CommandInvocation commandInvoc = null;
 			if (!messageProcessor.runInputHandlers(mre)) {
-				var commandInvoc = clover.getCommandParser().parse(mre.getMessage().getContentRaw(), mre);
+				commandInvoc = clover.getCommandParser().parse(mre.getMessage().getContentRaw(), mre);
 				if (commandInvoc != null) {
 					clover.getCommandProcessor().run(commandInvoc);
-					cmd = true;// TODO Go off of run method.
+					ranCmd = true;// TODO Go off of run method.
 				}
 			} else
-				cmd = true;
+				ranCmd = true;
 
 			if (mre.isFromGuild() && clover.getEconomy().hasServer(mre.getGuild().getId())) {
 				User user = clover.getEconomy().getUser(mre.getAuthor().getId());
@@ -125,7 +127,8 @@ public class EventHandler implements EventListener {
 												+ Utilities.listRewards(rawrew, mult) + "\nTotal Cloves: "
 												+ format(user.getAccount().getBalance()))
 										.queue();
-							} else if (cmd && Math.random() < 0.08)
+							} else if (ranCmd && !commandInvoc.getCmdName().equalsIgnoreCase("tip")
+									&& Math.random() < 0.08)
 								infoPopupGenerator.next().show(mre);
 							else if (Math.random() < 0.01) {
 								if (Math.random() < 0.2) {
