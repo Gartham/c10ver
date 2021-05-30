@@ -50,3 +50,6 @@ v1a - Final Alpha Release
 v0.1b - Initial Beta Release
 + Using food items now prints how long the gained multiplier lasts.
 ~ Changed formatting of command help to make it a little more readable.
+
+v0.2b - Tip Command
++ **`tip` Command** - Now you can see tips by running the `tip` command. The command will give you a random tip.
