@@ -58,7 +58,7 @@ public class EventHandler implements EventListener {
 
 	public EventHandler(Clover clover) {
 		this.clover = clover;
-		infoPopupGenerator=Generator.arrayLoop(clover.getTiplist());
+		infoPopupGenerator = Generator.loop(clover.getTiplist());
 	}
 
 	public void initialize() {
