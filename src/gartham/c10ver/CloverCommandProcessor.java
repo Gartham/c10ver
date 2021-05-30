@@ -113,6 +113,19 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 //				// TODO Print stats.
 //			}
 //		});
+		register(new MatchBasedCommand("tip") {
+
+			@Override
+			public void exec(CommandInvocation inv) {
+				if (inv.args.length != 0)
+					inv.event.getChannel()
+							.sendMessage(
+									inv.event.getAuthor().getAsMention() + " that command doesn't take any arguments.")
+							.queue();
+				else
+					clover.getTiplist().get((int) (Math.random() * clover.getTiplist().size())).show(inv.event);
+			}
+		});
 		register(new MatchBasedCommand("accolades") {
 
 			@Override
@@ -1726,6 +1739,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 		});
 
 //		help.addCommand("stats", "Shows a user's stats!", "stats [user]", "info");
+		help.addCommand("tip", "Shows a random tip!", "tip");
 		help.addCommand("daily", "Receive daily rewards! You can only run this once a day.", "daily");
 		help.addCommand("weekly", "Receive weekly rewards! You can only run this once a day.", "weekly");
 		help.addCommand("monthly", "Receive monthly rewards! You can only run this once a day.", "monthly");
