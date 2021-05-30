@@ -1,21 +1,13 @@
 package gartham.c10ver.events;
 
-import static gartham.c10ver.events.InfoPopup.tip;
 import static gartham.c10ver.utils.Utilities.format;
 import static java.math.BigInteger.valueOf;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
 
 import gartham.c10ver.Clover;
 import gartham.c10ver.commands.InputProcessor;
@@ -25,7 +17,6 @@ import gartham.c10ver.economy.items.ItemBunch;
 import gartham.c10ver.economy.items.utility.crates.NormalCrate;
 import gartham.c10ver.economy.items.utility.foodstuffs.Sandwich;
 import gartham.c10ver.utils.Utilities;
-import jdk.incubator.jpackage.internal.IOUtils;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.guild.invite.GuildInviteCreateEvent;
 import net.dv8tion.jda.api.events.guild.invite.GuildInviteDeleteEvent;
