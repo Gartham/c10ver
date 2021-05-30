@@ -33,7 +33,31 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 public class Clover {
+	{
 
+		COMP_BLOCK: {
+			InputStream stream = EventHandler.class.getResourceAsStream("/tips.txt");
+			LOAD_BLOCK: if (stream != null) {
+				List<InfoPopup> tl = new ArrayList<>(5);
+				try (var s = new Scanner(stream)) {
+					while (s.hasNextLine())
+						tl.add(tip(s.nextLine()));
+				} catch (Exception e) {
+					e.printStackTrace();
+					break LOAD_BLOCK;
+				}
+				tiplist = tl;
+				break COMP_BLOCK;
+			}
+			tiplist = List.of(tip(
+					"You can get daily, weekly, and monthly rewards with the commands: `~daily`, `~weekly`, and `~monthly` respectively!"),
+					tip("Every time you send a message in #general, there's a small chance you'll stumble upon some loot."),
+					tip("You can open crates using the `open crate` command! Just type `~open crate crate-type`."),
+					tip("You can pay other users using the `pay` command!"),
+					tip("Eating food will give you a temporary multiplier. You can eat food with `~use food-name`."));
+		}
+
+	}
 	private final JDA bot;
 	private final CommandParser commandParser;
 	private final CommandProcessor commandProcessor = new CloverCommandProcessor(this);
@@ -46,23 +70,6 @@ public class Clover {
 
 	public List<InfoPopup> getTiplist() {
 		return tiplist;
-	}
-
-	{
-		List<InfoPopup> tiplist = new ArrayList<>(5);
-		try (var s = new Scanner(EventHandler.class.getResourceAsStream("/tips.txt"))) {
-			while (s.hasNextLine())
-				tiplist.add(tip(s.nextLine()));
-		} catch (Exception e) {
-			e.printStackTrace();
-			tiplist = List.of(tip(
-					"You can get daily, weekly, and monthly rewards with the commands: `~daily`, `~weekly`, and `~monthly` respectively!"),
-					tip("Every time you send a message in #general, there's a small chance you'll stumble upon some loot."),
-					tip("You can open crates using the `open crate` command! Just type `~open crate crate-type`."),
-					tip("You can pay other users using the `pay` command!"),
-					tip("Eating food will give you a temporary multiplier. You can eat food with `~use food-name`."));
-		}
-		this.tiplist = tiplist;
 	}
 
 	private final TransactionHandler transactionHandler = new SocketTransactionHandler(42000);
