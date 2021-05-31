@@ -20,8 +20,10 @@ import java.math.RoundingMode;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.alixia.javalibrary.json.JSONObject;
 import org.alixia.javalibrary.json.JSONParser;
@@ -29,11 +31,8 @@ import org.alixia.javalibrary.json.JSONValue;
 import org.alixia.javalibrary.streams.CharacterStream;
 import org.alixia.javalibrary.strings.matching.Matching;
 
-import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.Rewards;
-import gartham.c10ver.economy.User;
 import gartham.c10ver.economy.items.ItemBunch;
-import net.dv8tion.jda.api.entities.MessageEmbed.Field;
 
 public final class Utilities {
 
@@ -155,11 +154,11 @@ public final class Utilities {
 		values.put(NANOSECONDS, (long) (nanoseconds % 1000));
 		values.put(MICROSECONDS, (long) ((nanoseconds /= 1000) % 1000));
 		values.put(MILLISECONDS, (long) (nanoseconds / 1000));
-		values.put(SECONDS, (long) (int) (seconds % 60));
-		values.put(MINUTES, (long) (int) ((seconds /= 60) % 60));
-		values.put(HOURS, (long) (int) ((seconds /= 60) % 24));
-		values.put(DAYS, (long) (int) ((seconds /= 24) % 365));
-		values.put(YEARS, (long) (int) (seconds /= 365));
+		values.put(SECONDS, (long) (seconds % 60));
+		values.put(MINUTES, (long) ((seconds /= 60) % 60));
+		values.put(HOURS, (long) ((seconds /= 60) % 24));
+		values.put(DAYS, (long) ((seconds /= 24) % 365));
+		values.put(YEARS, (long) (seconds /= 365));
 
 		return values;
 
@@ -202,11 +201,21 @@ public final class Utilities {
 	}
 
 	public static String format(Duration duration, TimeUnit... units) {
-		int nanoseconds = duration.getNano();
-		long seconds = duration.getSeconds();
+		return format(getParts(duration), units);
+	}
 
-		Map<TimeUnit, Long> parts = getParts(duration);
-		return format(parts, units);
+	/**
+	 * Formatting includes only all the time units that have non-zero value.
+	 * 
+	 * @param duration The duration to format.
+	 * @return The formatted string.
+	 */
+	public static String format(Duration duration) {
+		var parts = getParts(duration);
+		for (Iterator<Entry<TimeUnit, Long>> iterator = parts.entrySet().iterator(); iterator.hasNext();)
+			if (iterator.next().getValue() == 0)
+				iterator.remove();
+		return format(duration, parts.keySet().toArray(new TimeUnit[parts.size()]));
 	}
 
 	public static <E> List<E> paginate(int page, int itemsPerPage, List<E> items) {
@@ -287,15 +296,23 @@ public final class Utilities {
 	}
 
 	public static String multiplier(BigDecimal mult) {
+		return multiplier(mult, 2);
+	}
+
+	public static String prettyPrintMultiplier(BigDecimal mult) {
+		return "[**x" + multiplier(mult) + "**]";
+	}
+
+	public static String multiplier(BigDecimal mult, int scale) {
 		if (mult != null) {
-			var scaled = mult.setScale(2, RoundingMode.HALF_UP);
+			var scaled = mult.setScale(scale, RoundingMode.HALF_UP);
 			return scaled.compareTo(BigDecimal.TEN) != 0 ? scaled.toPlainString() : null;
 		}
 		return null;
 	}
 
 	public enum MoneyUnit {
-		GRAND("K"), MILLION("M"), BILLION("B"), TRILLION("T");
+		GRAND("K"), MILLION("M"), BILLION("B"), TRILLION("T"), QUADRIILLION("Q");
 
 		private final String symbol;
 		private final BigInteger amt = BigInteger.valueOf(1000).pow(ordinal() + 1);

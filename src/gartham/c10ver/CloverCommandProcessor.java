@@ -7,6 +7,7 @@ import static gartham.c10ver.utils.Utilities.maxPage;
 import static gartham.c10ver.utils.Utilities.paginate;
 
 import java.awt.Color;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.NumberFormat;
 import java.time.Duration;
@@ -23,6 +24,7 @@ import org.alixia.javalibrary.JavaTools;
 import org.alixia.javalibrary.util.Box;
 import org.alixia.javalibrary.util.MultidimensionalMap;
 
+import gartham.c10ver.changelog.Changelog.Version;
 import gartham.c10ver.commands.CommandHelpBook.ParentCommandHelp;
 import gartham.c10ver.commands.CommandInvocation;
 import gartham.c10ver.commands.MatchBasedCommand;
@@ -31,11 +33,10 @@ import gartham.c10ver.commands.consumers.InputConsumer;
 import gartham.c10ver.commands.consumers.MessageInputConsumer;
 import gartham.c10ver.commands.subcommands.ParentCommand;
 import gartham.c10ver.commands.subcommands.SubcommandInvocation;
-import gartham.c10ver.data.PropertyObject;
-import gartham.c10ver.economy.Account;
 import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.Server;
 import gartham.c10ver.economy.User;
+import gartham.c10ver.economy.UserAccount;
 import gartham.c10ver.economy.items.UserInventory;
 import gartham.c10ver.economy.items.UserInventory.UserEntry;
 import gartham.c10ver.economy.items.utility.crates.DailyCrate;
@@ -43,6 +44,7 @@ import gartham.c10ver.economy.items.utility.crates.LootCrateItem;
 import gartham.c10ver.economy.items.utility.crates.MonthlyCrate;
 import gartham.c10ver.economy.items.utility.crates.WeeklyCrate;
 import gartham.c10ver.economy.items.utility.foodstuffs.Foodstuff;
+import gartham.c10ver.economy.items.utility.multickets.MultiplierTicket;
 import gartham.c10ver.economy.questions.Question;
 import gartham.c10ver.economy.questions.Question.Difficulty;
 import gartham.c10ver.economy.server.ColorRole;
@@ -111,6 +113,77 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 //				// TODO Print stats.
 //			}
 //		});
+		register(new MatchBasedCommand("tip") {
+
+			@Override
+			public void exec(CommandInvocation inv) {
+				if (inv.args.length != 0)
+					inv.event.getChannel()
+							.sendMessage(
+									inv.event.getAuthor().getAsMention() + " that command doesn't take any arguments.")
+							.queue();
+				else
+					clover.getTiplist().get((int) (Math.random() * clover.getTiplist().size())).show(inv.event);
+			}
+		});
+		register(new MatchBasedCommand("accolades") {
+
+			@Override
+			public void exec(CommandInvocation inv) {
+				if (inv.args.length == 0) {
+					StringBuilder desc = new StringBuilder();
+					if (!clover.getEconomy().hasUser(inv.event.getAuthor().getId()))
+						desc.append("You don't have any accolades...");
+					else {
+						User u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
+						if (u.getAccolades().isEmpty())
+							desc.append("You don't have any accolades...");
+						else
+							for (var le : u.getAccolades())
+								desc.append('`').append(le.count()).append("x`\t").append(le.type.getIcon()).append(' ')
+										.append(le.type.getName()).append('\n');
+					}
+					inv.event.getChannel()
+							.sendMessage(new EmbedBuilder().setTitle(inv.event.getAuthor().getAsTag() + "'s Accolades")
+									.setDescription(desc.toString()).build())
+							.queue();
+				} else if (inv.args.length != 1)
+					inv.event.getChannel().sendMessage(
+							inv.event.getAuthor().getAsMention() + " that command doesn't take more than 1 argument.")
+							.queue();
+				else {
+					var u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
+					try {
+						int pos = Integer.parseInt(inv.args[0]) - 1;
+						if (pos < 0) {
+							inv.event.getChannel()
+									.sendMessage(
+											inv.event.getAuthor().getAsMention() + ", you can't use a negative index (`"
+													+ inv.args[0] + "`) when picking an accolade!")
+									.queue();
+							return;
+						} else if (pos >= u.getAccolades().typeCount()) {
+							inv.event.getChannel().sendMessage(
+									inv.event.getAuthor().getAsMention() + ", you don't have that many accolades!")
+									.queue();
+							return;
+						} else {
+							var entry = u.getAccolades().get(pos);
+							inv.event.getChannel()
+									.sendMessage(entry.type.getIcon() + " **" + entry.type.getName() + "** - *"
+											+ entry.type.getDescription() + "*\n\nYou own `" + entry.count
+											+ "` of these.\nReward: +" + Utilities.format(entry.type.getValue()))
+									.queue();
+						}
+					} catch (NumberFormatException e) {
+						inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+								+ ", that's not a valid index. Please pick which accolade you want more information about by index.")
+								.queue();
+					}
+
+				}
+			}
+		});
 		register(new MatchBasedCommand("daily") {
 			@Override
 			public void exec(CommandInvocation inv) {
@@ -199,42 +272,49 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 		register(new ParentCommand("open", "use") {
 
+			private boolean openCrate(String cratetype, CommandInvocation inv) {
+				if (clover.getEconomy().hasUser(inv.event.getAuthor().getId())) {
+					var u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
+					@SuppressWarnings("unchecked")
+					var crateEntry = (UserEntry<LootCrateItem>) u.getInventory().get("loot-crate");
+					if (crateEntry != null)
+						for (var is : crateEntry.getStacks())
+							if (is.getItem().getCrateType().equalsIgnoreCase(cratetype)) {
+								LootCrateItem lci = is.getItem();
+								var rew = lci.open();
+								for (var m : rew.getMultipliers())
+									u.addMultiplier(m);
+								var totalMult = u.calcMultiplier(inv.event.getGuild());
+								var totalCloves = u.rewardAndSave(rew.getCloves(), totalMult);
+								for (var i : rew.getItemList())
+									u.getInventory().add(i).save();
+								is.removeAndSave(BigInteger.ONE);
+								u.save();
+
+								inv.event.getChannel()
+										.sendMessage(
+												inv.event.getAuthor().getAsMention() + " is opening a **"
+														+ lci.getCustomName() + "**!\n\n" + listRewards(rew,
+																totalCloves, u.getAccount().getBalance(), totalMult))
+										.queue();
+								return true;
+							}
+				}
+				return false;
+			}
+
 			{
 				new Subcommand("crate", "loot-crate") {
-					@SuppressWarnings("unchecked")
 					@Override
 					protected void tailed(SubcommandInvocation inv) {
 						if (inv.args.length == 0)
-							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
-									+ " please tell me what type of crate you want to open.").queue();
+							inv.event.getChannel()
+									.sendMessage(
+											inv.event.getAuthor().getAsMention() + " what crate do you want to open?")
+									.queue();
 						else if (inv.args.length == 1) {
-							if (clover.getEconomy().hasUser(inv.event.getAuthor().getId())) {
-								var u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
-								var crateEntry = (UserEntry<LootCrateItem>) u.getInventory().get("loot-crate");
-								if (crateEntry != null)
-									for (var is : crateEntry.getStacks())
-										if (is.getItem().getCrateType().equalsIgnoreCase(inv.args[0])) {
-											LootCrateItem lci = is.getItem();
-											var rew = lci.open();
-											for (var m : rew.getMultipliers())
-												u.addMultiplier(m);
-											var totalMult = u.calcMultiplier(inv.event.getGuild());
-											var totalCloves = u.rewardAndSave(rew.getCloves(), totalMult);
-											for (var i : rew.getItemList())
-												u.getInventory().add(i).save();
-											is.removeAndSave(BigInteger.ONE);
-											u.save();
-
-											inv.event.getChannel()
-													.sendMessage(
-															inv.event.getAuthor().getAsMention() + " is opening a **"
-																	+ lci.getCustomName() + "**!\n\n"
-																	+ listRewards(rew, totalCloves,
-																			u.getAccount().getBalance(), totalMult))
-													.queue();
-											return;
-										}
-							}
+							if (openCrate(inv.args[0], inv))
+								return;
 							inv.event.getChannel().sendMessage(
 									inv.event.getAuthor().getAsMention() + " you don't have any crates of that type.")
 									.queue();
@@ -242,6 +322,74 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						} else
 							inv.event.getChannel().sendMessage(
 									inv.event.getAuthor().getAsMention() + " too many args! Just provide a crate type!")
+									.queue();
+					}
+				};
+
+				new Subcommand("daily", "weekly", "monthly") {
+
+					@Override
+					protected void tailed(SubcommandInvocation inv) {
+						if (!openCrate(inv.cmdName, inv))
+							inv.event.getChannel().sendMessage(
+									inv.event.getAuthor().getAsMention() + " you don't have any crates of that type.")
+									.queue();
+					}
+				};
+
+				new Subcommand("mult", "mult-ticket", "multiplier", "multiplier-ticket") {
+
+					@Override
+					protected void tailed(SubcommandInvocation inv) {
+						if (inv.args.length == 0)
+							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+									+ " please tell me which multiplier you'd like to use. You can refer to it by index.")
+									.queue();
+						else if (inv.args.length == 1) {
+							if (!inv.event.isFromGuild())
+								inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+										+ " you can only use multiplier tickets in a server (as they apply to the whole server).")
+										.queue();
+							else {
+								if (clover.getEconomy().hasUser(inv.event.getAuthor().getId())) {
+									var u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
+									@SuppressWarnings("unchecked")
+									var multEntry = (UserEntry<MultiplierTicket>) u.getInventory()
+											.get("multiplier-ticket");
+									if (multEntry != null) {
+										var ind = Integer.parseInt(inv.args[0]);
+										if (ind > multEntry.getStacks().size()) {
+											inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+													+ " you don't have that many different types of multiplier tickets.")
+													.queue();
+											return;
+										} else if (ind < 1) {
+											inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+													+ " you can't use a negative index...").queue();
+											return;
+										}
+
+										var is = multEntry.get(ind - 1);
+										var mti = is.getItem();
+										Server serv = clover.getEconomy().getServer(inv.event.getGuild().getId());
+										mti.use(clover, inv.event.getGuild(),
+												clover.getEconomy().getUser(inv.event.getAuthor().getId()));
+										var chn = serv.getGeneralChannel() == null ? inv.event.getTextChannel()
+												: inv.event.getGuild().getTextChannelById(serv.getGeneralChannel());
+										chn.sendMessage(inv.event.getAuthor().getAsMention() + " is using a **"
+												+ Utilities.multiplier(mti.getAmount())
+												+ "x** multiplier that lasts for **"
+												+ Utilities.formatLargest(mti.getDuration(), 2) + "**.").queue();
+										is.removeAndSave(BigInteger.ONE);
+
+										serv.save();
+									}
+
+								}
+							}
+						} else
+							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+									+ " too many args! Please provide just the index of the multiplier ticket you want to use.")
 									.queue();
 					}
 				};
@@ -268,7 +416,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 								inv.event.getChannel()
 										.sendMessage(inv.event.getAuthor().getAsMention() + " you consumed some "
 												+ lci.getEffectiveName() + " and received a multiplier: [**x"
-												+ Utilities.multiplier(mult) + "**]!")
+												+ Utilities.multiplier(mult) + "**] for **"
+												+ Utilities.format(Duration.ofMillis(lci.getTTL())) + "**!")
 										.queue();
 								return;
 							}
@@ -281,62 +430,52 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 			}
 		});
 
-		help.addCommand("mults", "Lists all of your active multipliers.", "mults", "multipliers");
+		help.addCommand("mults", "Lists the multipliers that affect your rewards!", "mults", "multipliers");
 		register(new MatchBasedCommand("mults", "multipliers") {
 
 			@Override
 			public void exec(CommandInvocation inv) {
-				if (!clover.getEconomy().hasUser(inv.event.getAuthor().getId()))
-					inv.event.getChannel()
-							.sendMessage(inv.event.getAuthor().getAsMention() + " you don't have any multipliers yet.")
-							.queue();
-				else {
+				StringBuilder sb = new StringBuilder();
+				BigDecimal pm;
+				if (!clover.getEconomy().hasUser(inv.event.getAuthor().getId())) {
+					sb.append(inv.event.getAuthor().getAsMention() + " you don't have any personal multipliers.\n");
+					pm = BigDecimal.ONE;
+				} else {
 					var u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
 					var multipliers = u.getMultipliers();
 					if (multipliers.isEmpty()) {
-						inv.event.getChannel()
-								.sendMessage(inv.event.getAuthor().getAsMention() + " you don't have any multipliers.")
-								.queue();
+						sb.append(inv.event.getAuthor().getAsMention() + " you don't have any personal multipliers.\n");
+						pm = BigDecimal.ONE;
 					} else {
-						StringBuilder sb = new StringBuilder();
-						class MultConv {
-							final Multiplier mult;
-
-							public MultConv(Multiplier mult) {
-								this.mult = mult;
-							}
-
-							@Override
-							public boolean equals(Object obj) {
-								return obj instanceof MultConv
-										&& ((MultConv) obj).mult.getAmount().equals(mult.getAmount());
-							}
-
-							@Override
-							public int hashCode() {
-								return mult.getAmount().hashCode() * 31;
-							}
-
-						}
-						var mm = JavaTools.frequencyMap(JavaTools.mask(multipliers, MultConv::new));
-						if (!mm.isEmpty()) {
-							for (var e : mm.entrySet()) {
-								sb.append('(').append(e.getValue()).append("x) [**x")
-										.append(e.getKey().mult.getAmount());
-								if (e.getValue() == 1)
-									sb.append("**] for ");
-								else
-									sb.append("**] for about ");
-								sb.append(Utilities.formatLargest(e.getKey().mult.getTimeRemaining(), 2)).append('\n');
-							}
-							sb.append('\n');
-						}
+						sb.append(
+								Utilities.strip(inv.event.getAuthor().getAsMention()) + "'s Personal Multipliers: \n");
+						multDispHelper(sb, multipliers);
 						sb.append("Total Personal Multiplier: [**x")
-								.append(Utilities.multiplier(u.getPersonalTotalMultiplier())).append("**]");
-						inv.event.getChannel()
-								.sendMessage(inv.event.getAuthor().getAsMention() + "'s Multipliers: \n" + sb).queue();
+								.append(Utilities.multiplier(pm = u.getPersonalTotalMultiplier())).append("**]\n");
 					}
 				}
+
+				if (inv.event.isFromGuild()) {
+					var s = clover.getEconomy().getServer(inv.event.getGuild().getId());
+					sb.append('\n');
+					if (s.listMultipliers().isEmpty()) {
+						sb.append("**" + Utilities.strip(inv.event.getGuild().getName())
+								+ "** doesn't have any active multipliers.");
+					} else {
+						sb.append(Utilities.strip(inv.event.getGuild().getName()) + "'s Active Multipliers: \n");
+						multDispHelper(sb, s.listMultipliers());
+						sb.append("Total Server Multiplier: [**x")
+								.append(Utilities.multiplier(s.getTotalServerMultiplier())).append("**]");
+					}
+
+					sb.append("\n\nGrand Total Multiplier: [**x" + Utilities.multiplier(pm) + "**] x [**x"
+							+ Utilities.multiplier(s.getTotalServerMultiplier()) + "**] = __[**x"
+							+ Utilities.multiplier(pm.multiply(s.getTotalServerMultiplier())) + "**]__");
+
+				}
+
+				inv.event.getChannel().sendMessage(sb.toString()).queue();
+
 			}
 		});
 
@@ -469,7 +608,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						return;
 					}
 
-					Account payer = clover.getEconomy().getAccount(inv.event.getAuthor().getId()),
+					UserAccount payer = clover.getEconomy().getAccount(inv.event.getAuthor().getId()),
 							recip = clover.getEconomy().getAccount(mentionedUsers.get(0).getId());
 
 					if (payer.pay(bi, recip))
@@ -1527,7 +1666,80 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 			}
 		});
 
+		register(new MatchBasedCommand("changelog", "updates", "changes") {
+
+			private String print(Version version) {
+				StringBuilder str = new StringBuilder();
+
+				str.append("`").append(version.getVerstr()).append('`');
+				if (version.getTitle() != null)
+					str.append(" - **").append(version.getTitle().strip()).append("**");
+				str.append(" Changelog");
+				for (var c : version.getChanges())
+					str.append('\n').append(switch (c.getType()) {
+					case ADDITION -> '+';
+					case CHANGE -> '~';
+					case FIX -> '*';
+					case REMOVAL -> '-';
+					default -> "?";
+					}).append(' ').append(c.getContent());
+				return str.toString();
+			}
+
+			@Override
+			public void exec(CommandInvocation inv) {
+				var cl = clover.getChangelog();
+				if (cl == null) {
+					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+							+ ", the changelog is malformed (there are some mistakes in it!) so I can't display it right now. :(")
+							.queue();
+					return;
+				}
+				switch (inv.args.length) {
+				case 0:
+					var ver = cl.getVersions().get(cl.getVersions().size() - 1);// Latest version.
+					inv.event.getChannel().sendMessage(print(ver)).queue();
+					break;
+				case 1:
+					for (var v : cl.getVersions())
+						if (v.getVerstr().equals(inv.args[0])) {
+							inv.event.getChannel().sendMessage(print(v)).queue();
+							return;
+						}
+					int page;
+					try {
+						page = Integer.parseInt(inv.args[0]);
+					} catch (NumberFormatException e) {
+						inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+								+ ", no version or page found: " + Utilities.strip(inv.args[0]) + '.').queue();
+						return;
+					}
+					var vers = Utilities.paginate(page, 10, cl.getVersions());
+					if (vers == null) {
+						inv.event.getChannel()
+								.sendMessage(inv.event.getAuthor().getAsMention() + " that's not a valid page.")
+								.queue();
+						return;
+					}
+					var sb = new StringBuilder();
+					for (var v : vers) {
+						sb.append('`').append(v.getVerstr()).append('`');
+						if (v.getVerstr() != null)
+							sb.append(" - **").append(v.getTitle()).append("**");
+						sb.append("\n");
+					}
+					inv.event.getChannel().sendMessage("Page `" + page + "` of Versions:\n" + sb).queue();
+					break;
+				default:
+					inv.event.getChannel().sendMessage(
+							inv.event.getAuthor().getAsMention() + " you provided too many arguments in that command.")
+							.queue();
+				}
+			}
+		});
+
 //		help.addCommand("stats", "Shows a user's stats!", "stats [user]", "info");
+		help.addCommand("tip", "Shows a random tip!", "tip");
 		help.addCommand("daily", "Receive daily rewards! You can only run this once a day.", "daily");
 		help.addCommand("weekly", "Receive weekly rewards! You can only run this once a day.", "weekly");
 		help.addCommand("monthly", "Receive monthly rewards! You can only run this once a day.", "monthly");
@@ -1540,6 +1752,9 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 		help.addCommand("baltop", "Check out who the richest people in this server are!", "baltop [page]",
 				"leaderboard");
 		help.addCommand("inventory", "Shows your inventory.", "inventory [item-id] [page]", "inv");
+		help.addCommand("accolades",
+				"Shows you what accolades you have. Use a number to get info about a specific accolade you have, for example `~accolades 2` will give you information about the second accolade you have.",
+				"accolades [index]");
 		{
 			var quizHelp = help.addParentCommand("quiz",
 					"Lets you make, see, and give quizzes! (You must be a Clover Officer to access this command!)");
@@ -1554,6 +1769,42 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 		help.addCommand("trade",
 				"Starts a trade with another user. Trades let you securely exchange items, cloves, or other tradeable possessions.",
 				"trade (@user)");
+		help.addCommand("changelog",
+				"Shows my Change Log, detailing all the updates that have happened to me over time.",
+				"changelog [version | page]", "updates", "changes");
+	}
+
+	private static void multDispHelper(StringBuilder sb, List<Multiplier> mults) {
+		class MultConv {
+			final Multiplier mult;
+
+			public MultConv(Multiplier mult) {
+				this.mult = mult;
+			}
+
+			@Override
+			public boolean equals(Object obj) {
+				return obj instanceof MultConv && ((MultConv) obj).mult.getAmount().equals(mult.getAmount());
+			}
+
+			@Override
+			public int hashCode() {
+				return mult.getAmount().hashCode() * 31;
+			}
+
+		}
+		var mm = JavaTools.frequencyMap(JavaTools.mask(mults, MultConv::new));
+		if (!mm.isEmpty()) {
+			for (var e : mm.entrySet()) {
+				sb.append('(').append(e.getValue()).append("x) [**x").append(e.getKey().mult.getAmount());
+				if (e.getValue() == 1)
+					sb.append("**] for ");
+				else
+					sb.append("**] for about ");
+				sb.append(Utilities.formatLargest(e.getKey().mult.getTimeRemaining(), 2)).append('\n');
+			}
+		}
+
 	}
 
 }

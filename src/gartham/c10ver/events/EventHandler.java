@@ -1,13 +1,18 @@
 package gartham.c10ver.events;
 
-import static gartham.c10ver.events.InfoPopup.tip;
 import static gartham.c10ver.utils.Utilities.format;
 import static java.math.BigInteger.valueOf;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import gartham.c10ver.Clover;
+import gartham.c10ver.commands.CommandInvocation;
 import gartham.c10ver.commands.InputProcessor;
+import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.User;
 import gartham.c10ver.economy.items.ItemBunch;
 import gartham.c10ver.economy.items.utility.crates.NormalCrate;
@@ -27,11 +32,8 @@ public class EventHandler implements EventListener {
 	private final Clover clover;
 	private final InputProcessor<MessageReceivedEvent> messageProcessor = new InputProcessor<>();
 	private final InputProcessor<MessageReactionAddEvent> reactionAdditionProcessor = new InputProcessor<>();
-	private final Generator<InfoPopup> infoPopupGenerator = Generator.arrayLoop(tip(
-			"You can get daily, weekly, and monthly rewards with the commands: `~daily`, `~weekly`, and `~monthly` respectively!"),
-			tip("Every time you send a message in #general, there's a small chance you'll stumble upon some loot."),
-			tip("You can open crates using the `open crate` command! Just type `~open crate crate-type`."),
-			tip("You can pay other users using the `pay` command!"));
+
+	private final Generator<InfoPopup> infoPopupGenerator;
 	private final InviteTracker inviteTracker = new InviteTracker(this);
 
 	public Clover getClover() {
@@ -48,6 +50,7 @@ public class EventHandler implements EventListener {
 
 	public EventHandler(Clover clover) {
 		this.clover = clover;
+		infoPopupGenerator = Generator.loop(clover.getTiplist());
 	}
 
 	public void initialize() {
@@ -59,15 +62,16 @@ public class EventHandler implements EventListener {
 		if (event instanceof MessageReceivedEvent) {
 			var mre = (MessageReceivedEvent) event;
 
-			var cmd = false;
+			var ranCmd = false;
+			CommandInvocation commandInvoc = null;
 			if (!messageProcessor.runInputHandlers(mre)) {
-				var commandInvoc = clover.getCommandParser().parse(mre.getMessage().getContentRaw(), mre);
+				commandInvoc = clover.getCommandParser().parse(mre.getMessage().getContentRaw(), mre);
 				if (commandInvoc != null) {
 					clover.getCommandProcessor().run(commandInvoc);
-					cmd = true;// TODO Go off of run method.
+					ranCmd = true;// TODO Go off of run method.
 				}
 			} else
-				cmd = true;
+				ranCmd = true;
 
 			if (mre.isFromGuild() && clover.getEconomy().hasServer(mre.getGuild().getId())) {
 				User user = clover.getEconomy().getUser(mre.getAuthor().getId());
@@ -123,7 +127,8 @@ public class EventHandler implements EventListener {
 												+ Utilities.listRewards(rawrew, mult) + "\nTotal Cloves: "
 												+ format(user.getAccount().getBalance()))
 										.queue();
-							} else if (cmd && Math.random() < 0.08)
+							} else if (ranCmd && !commandInvoc.getCmdName().equalsIgnoreCase("tip")
+									&& Math.random() < 0.08)
 								infoPopupGenerator.next().show(mre);
 							else if (Math.random() < 0.01) {
 								if (Math.random() < 0.2) {
@@ -153,40 +158,76 @@ public class EventHandler implements EventListener {
 
 		} else if (event instanceof MessageReactionAddEvent)
 			reactionAdditionProcessor.runInputHandlers((MessageReactionAddEvent) event);
-		else if (event instanceof GuildMemberJoinEvent) {
-			var ge = (GuildMemberJoinEvent) event;
-			var u = inviteTracker.calcUser(ge);
-			if (u == null) {
-				System.err.println(u);
-				return;
-			} else if (u.isFake())
-				return;
-			var inviter = clover.getEconomy().getAccount(u.getId());
-			var joinee = clover.getEconomy().getUser(ge.getUser().getId());
-			if (joinee.getJoinedGuilds().contains(ge.getGuild().getId()))
-				return;
-
-			inviter.deposit(500);
-			inviter.save();
-			joinee.getAccount().deposit(500);
-			joinee.getAccount().save();
-			joinee.getJoinedGuilds().add(ge.getGuild().getId());
-
-			if (clover.getEconomy().hasServer(ge.getGuild().getId())) {
-				var g = clover.getEconomy().getServer(ge.getGuild().getId());
-				if (g.getGeneralChannel() != null) {
-					var gen = ge.getGuild().getTextChannelById(g.getGeneralChannel());
-					if (gen != null)
-						gen.sendMessage(ge.getUser().getAsMention() + " welcome to the server. ^w^\nYou and "
-								+ inviter.getUser().getUser().getAsMention() + " both received "
-								+ Utilities.format(BigInteger.valueOf(500))).queue();
+		else if (event instanceof GuildMemberJoinEvent)
+			synchronized (this) {
+				var ge = (GuildMemberJoinEvent) event;
+				var u = inviteTracker.calcUser(ge);
+				if (u == null) {
+					System.err.println(u);
+					return;
 				}
-			}
+				var inviter = clover.getEconomy().getAccount(u.getId());
+				var joinee = clover.getEconomy().getUser(ge.getUser().getId());
+				StringBuilder sb;
+				{
+					var inv = inviter.getUser().getUser();
+					var join = joinee.getUser();
+					sb = new StringBuilder(inv.getAsTag());
+					sb.append('[').append(inv.getId()).append("] has invited ").append(join.getAsTag()).append('[')
+							.append(join.getId()).append("] to ").append(ge.getGuild().getName()).append('[')
+							.append(ge.getGuild().getId()).append(']');
+				}
+				if (joinee.getJoinedGuilds().contains(ge.getGuild().getId())) {
+					print(sb.append('.').toString());
 
-		} else if (event instanceof GuildInviteCreateEvent)
+					if (clover.getEconomy().hasServer(ge.getGuild().getId())) {
+						var g = clover.getEconomy().getServer(ge.getGuild().getId());
+						if (g.getGeneralChannel() != null) {
+							var gen = ge.getGuild().getTextChannelById(g.getGeneralChannel());
+							if (gen != null)
+								gen.sendMessage(ge.getUser().getAsMention()
+										+ " welcome back to the server. ^w^\nYou were invited back by: "
+										+ inviter.getUser().getUser().getAsMention() + ".").queue();
+						}
+					}
+				} else {
+					print(sb.append(" for the first time.").toString());
+
+					Multiplier mult = Multiplier.ofHr(3, BigDecimal.ONE);
+					inviter.getUser().addMultiplier(mult);
+					inviter.getUser().save();
+					joinee.addMultiplier(mult);
+					joinee.getJoinedGuilds().add(ge.getGuild().getId());
+					joinee.save();
+
+					if (clover.getEconomy().hasServer(ge.getGuild().getId())) {
+						var g = clover.getEconomy().getServer(ge.getGuild().getId());
+						if (g.getGeneralChannel() != null) {
+							var gen = ge.getGuild().getTextChannelById(g.getGeneralChannel());
+							if (gen != null)
+								gen.sendMessage(ge.getUser().getAsMention() + " welcome to the server. ^w^\nYou and "
+										+ inviter.getUser().getUser().getAsMention() + " both received a multiplier of "
+										+ Utilities.prettyPrintMultiplier(BigDecimal.ONE) + " that lasts for **3h**.")
+										.queue();
+						}
+					}
+				}
+
+			}
+		else if (event instanceof GuildInviteCreateEvent)
 			inviteTracker.inviteCreated((GuildInviteCreateEvent) event);
 		else if (event instanceof GuildInviteDeleteEvent)
 			inviteTracker.inviteDeleted((GuildInviteDeleteEvent) event);
+	}
+
+	private static void print(String str) {
+		File file = new File("data/logs/invites.txt");
+		file.getParentFile().mkdirs();
+		try (var pw = new PrintWriter(new FileOutputStream(file, true))) {
+			pw.println(str);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }
