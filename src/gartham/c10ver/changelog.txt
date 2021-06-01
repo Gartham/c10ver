@@ -53,3 +53,4 @@ v0.1b - Initial Beta Release
 
 v0.2b - Tip Command
 + **`tip` Command** - Now you can see tips by running the `tip` command. The command will give you a random tip.
++ Bomb Item - Added a new bomb item that explodes into cloves! When someone uses a bomb item, everyone on the server gets credits for it.
