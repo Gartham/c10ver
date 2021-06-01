@@ -44,6 +44,7 @@ import gartham.c10ver.economy.items.utility.crates.LootCrateItem;
 import gartham.c10ver.economy.items.utility.crates.MonthlyCrate;
 import gartham.c10ver.economy.items.utility.crates.WeeklyCrate;
 import gartham.c10ver.economy.items.utility.foodstuffs.Foodstuff;
+import gartham.c10ver.economy.items.utility.itembomb.Bomb;
 import gartham.c10ver.economy.items.utility.multickets.MultiplierTicket;
 import gartham.c10ver.economy.questions.Question;
 import gartham.c10ver.economy.questions.Question.Difficulty;
@@ -304,6 +305,32 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 			}
 
 			{
+				new Subcommand("bomb") {
+
+					@Override
+					protected void tailed(SubcommandInvocation inv) {
+						if (inv.args.length == 0) {
+							if (clover.getEconomy().hasUser(inv.event.getAuthor().getId())) {
+								var u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
+								@SuppressWarnings("unchecked")
+								var crateEntry = (UserEntry<Bomb>) u.getInventory().get("bomb");
+								if (crateEntry != null) {
+									crateEntry.get(0).getItem().consume(inv.event, clover);// Has to do the messaging on
+																							// its own.
+									crateEntry.get(0).removeAndSave(BigInteger.ONE);
+									return;
+								}
+							}
+							inv.event.getChannel()
+									.sendMessage(inv.event.getAuthor().getAsMention() + " you don't have any bombs. :(")
+									.queue();
+						} else
+							inv.event.getChannel()
+									.sendMessage(inv.event.getAuthor().getAsMention() + " too many command arguments!")
+									.queue();
+					}
+				};
+
 				new Subcommand("crate", "loot-crate") {
 					@Override
 					protected void tailed(SubcommandInvocation inv) {
