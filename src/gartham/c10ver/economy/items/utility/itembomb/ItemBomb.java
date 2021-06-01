@@ -1,10 +1,12 @@
 package gartham.c10ver.economy.items.utility.itembomb;
 
+import java.math.BigInteger;
+
 import org.alixia.javalibrary.json.JSONObject;
 
 import gartham.c10ver.Clover;
+import gartham.c10ver.economy.User;
 import gartham.c10ver.economy.items.Item;
-import gartham.c10ver.economy.items.utils.ItemList;
 import net.dv8tion.jda.api.entities.Guild;
 
 public class ItemBomb extends Item {
@@ -13,12 +15,13 @@ public class ItemBomb extends Item {
 	// applicable when the item is consumed. Currently, just a user object is not
 	// enough to fulfill the requirements of this item.
 
-	public void consume(Guild guild, Clover clover) {
-		ItemList items = new ItemList();
+	public BigInteger consume(Guild guild, Clover clover) {
+		BigInteger tot = BigInteger.ZERO;
 		for (var x : guild.loadMembers().get()) {
-			int cloves = (int) (Math.random() * 200) + 50;
+			User user = clover.getEconomy().getUser(x.getId());
+			tot = tot.add(user.rewardAndSave((int) (Math.random() * 200) + 50, user.calcMultiplier(guild)));
 		}
-
+		return tot;
 	}
 
 	public ItemBomb(JSONObject properties) {
