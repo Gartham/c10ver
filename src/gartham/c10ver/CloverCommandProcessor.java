@@ -1361,6 +1361,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 											s.setGamblingChannel(cm);
 											inv.event.getChannel().sendMessage("Gambling channel set to <#" + cm + ">.")
 													.queue();
+											break;
 										}
 										inv.event.getChannel().sendMessage(
 												inv.event.getAuthor().getAsMention() + " that's not a valid channel.")
@@ -1396,11 +1397,10 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 										return;
 									}
 									s.save();
-								} else {
+								} else
 									inv.event.getChannel()
 											.sendMessage(inv.event.getAuthor().getAsMention() + " too many arguments.")
 											.queue();
-								}
 							}
 						};
 
