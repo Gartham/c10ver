@@ -18,6 +18,7 @@ import gartham.c10ver.economy.items.ItemBunch;
 import gartham.c10ver.economy.items.utility.crates.NormalCrate;
 import gartham.c10ver.economy.items.utility.foodstuffs.Sandwich;
 import gartham.c10ver.utils.Utilities;
+import net.dv8tion.jda.api.entities.Invite;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.guild.invite.GuildInviteCreateEvent;
 import net.dv8tion.jda.api.events.guild.invite.GuildInviteDeleteEvent;
@@ -161,7 +162,13 @@ public class EventHandler implements EventListener {
 		else if (event instanceof GuildMemberJoinEvent)
 			synchronized (this) {
 				var ge = (GuildMemberJoinEvent) event;
-				var u = inviteTracker.calcUser(ge);
+				Invite inviteee = inviteTracker.calcUser(ge);
+
+				var serv = clover.getEconomy().getServer(ge.getGuild().getId());
+				if (serv.getIgnoredInvites().contains(inviteee.getCode()))
+					return;
+
+				var u = inviteee.getInviter();
 				if (u == null) {
 					System.err.println(u);
 					return;
