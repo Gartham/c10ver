@@ -751,8 +751,9 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					List<Member> paginate = paginate(page, 10, users);
 					for (int i = 0; i < paginate.size(); i++) {
 						var u = paginate.get(i);
-						sb.append("`#" + (i + 1) + "` " + u.getUser().getName() + "#" + u.getUser().getDiscriminator()
-								+ ": " + format(clover.getEconomy().getAccount(u.getId()).getBalance()) + "\n");
+						sb.append("`#" + (page * 10 - 9 + i) + "` " + u.getUser().getName() + "#"
+								+ u.getUser().getDiscriminator() + ": "
+								+ format(clover.getEconomy().getAccount(u.getId()).getBalance()) + "\n");
 					}
 					eb.addField("Page " + page + " Ranking", sb.toString(), false);
 					eb.setFooter("Showing page " + page + " in the server leaderboard.");
