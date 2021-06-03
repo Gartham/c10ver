@@ -3,6 +3,7 @@ package gartham.c10ver.economy;
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -14,6 +15,8 @@ public class Server extends SavablePropertyObject {
 	// TODO Specify mapProperty's partial immutability.
 	private final Property<Map<String, ColorRole>> colorRoles = mapProperty("color-roles", Map.of(),
 			toObjectGateway(ColorRole::new));
+	private final Property<HashSet<String>> ignoredInvites = setProperty("ignored-invites", new HashSet<>(),
+			JSON_STRING_GATEWAY);
 	private final Property<String> generalChannel = stringProperty("general-channel"),
 			spamChannel = stringProperty("spam-channel"), gamblingChannel = stringProperty("gambling-channel");
 	private final Property<ArrayList<Multiplier>> multipliers = listProperty("multipliers",
@@ -73,6 +76,18 @@ public class Server extends SavablePropertyObject {
 
 	public void setGamblingChannel(String channelID) {
 		gamblingChannel.set(channelID);
+	}
+
+	public void setIgnoredInvites(HashSet<String> values) {
+		ignoredInvites.set(values);
+	}
+
+	public HashSet<String> getIgnoredInvites() {
+		return ignoredInvites.get();
+	}
+
+	public Property<HashSet<String>> ignoredInvitesProperty() {
+		return ignoredInvites;
 	}
 
 	public boolean isGeneral(MessageChannel mc) {
