@@ -239,6 +239,24 @@ public class PropertyObject {
 		});
 	}
 
+	protected final <V> Property<HashSet<V>> setProperty(String key, HashSet<V> def, Gateway<V, JSONValue> gateway) {
+		return new Property<>(key, def, new Gateway<>() {
+
+			@Override
+			public JSONValue to(HashSet<V> value) {
+				return new JSONArray(JavaTools.mask(value, gateway.from()));
+			}
+
+			@Override
+			public HashSet<V> from(JSONValue value) {
+				var arr = new HashSet<V>();
+				for (var v : JavaTools.mask((JSONArray) value, gateway.to()))
+					arr.add(v);
+				return arr;
+			}
+		});
+	}
+
 	protected final <V> Property<ArrayList<V>> listProperty(String key, Gateway<V, JSONValue> gateway) {
 		return new Property<>(key, new Gateway<>() {
 
