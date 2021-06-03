@@ -19,7 +19,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import org.alixia.javalibrary.JavaTools;
 import org.alixia.javalibrary.util.Box;
@@ -710,16 +709,15 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						return;
 					}
 					List<Member> users = new ArrayList<>();
-					inv.event.getGuild().loadMembers(new Consumer<Member>() {
-						@Override
-						public void accept(Member t) {
+					inv.event.getGuild().findMembers(t -> !t.getUser().isBot()).onSuccess(t -> {
+						for (Member m : t) {
 							int search = Collections
-									.binarySearch(users, t,
+									.binarySearch(users, m,
 											((Comparator<Member>) (o1, o2) -> clover.getEconomy().getUser(o1.getId())
 													.getAccount().getBalance().compareTo(clover.getEconomy()
 															.getUser(o2.getId()).getAccount().getBalance()))
 																	.reversed());
-							users.add(search < 0 ? -search - 1 : search, t);
+							users.add(search < 0 ? -search - 1 : search, m);
 						}
 					});
 					int page;
