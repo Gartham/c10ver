@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -1268,14 +1269,19 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 									sb.append("\nSpam Channel: <#").append(s.getSpamChannel()).append('>');
 								if (s.getGamblingChannel() != null)
 									sb.append("\nGambling Channel: <#").append(s.getGamblingChannel()).append('>');
+								if (!s.getIgnoredInvites().isEmpty()) {
+									sb.append("\nIgnored Invites:");
+									for (var e : s.getIgnoredInvites())
+										sb.append("\n`").append(e).append('`');
+								}
 								if (!s.getColorRoles().isEmpty()) {
 									sb.append("\nColor Roles:");
 									for (var e : s.getColorRoles().entrySet())
 										sb.append("\n<@&").append(e.getKey()).append("> ")
 												.append(e.getValue().getName()).append(" **")
 												.append(format(e.getValue().getCost())).append("**");
-								} else if (s.getGeneralChannel() == null && s.getSpamChannel() == null
-										&& s.getGamblingChannel() == null)
+								} else if (s.getIgnoredInvites().isEmpty() && s.getGeneralChannel() == null
+										&& s.getSpamChannel() == null && s.getGamblingChannel() == null)
 									sb.append("\nNothing has been configured for this server yet.");
 								EmbedBuilder eb = new EmbedBuilder().setDescription(sb.toString());
 								inv.event.getChannel().sendMessage(eb.build()).queue();
@@ -1437,6 +1443,17 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 										s.setColorRoles(new HashMap<>());
 										inv.event.getChannel().sendMessage("Cleared the color role list.").queue();
 										break;
+									case "ignored-invites":
+									case "ignored-invs":
+									case "ignoredinvs":
+									case "ignoredinvites":
+									case "ignored-invite":
+									case "ignored-inv":
+									case "ignoredinv":
+									case "ignoredinvite":
+										s.getIgnoredInvites().clear();
+										inv.event.getChannel().sendMessage("Cleared the ignored invites list.").queue();
+										break;
 									default:
 										inv.event.getChannel().sendMessage(
 												inv.event.getAuthor().getAsMention() + " that isn't a valid property.")
@@ -1467,6 +1484,26 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 								} else {
 									Server s = clover.getEconomy().getServer(inv.event.getGuild().getId());
 									switch (inv.args[0]) {
+									case "ignored-invites":
+									case "ignored-invs":
+									case "ignoredinvs":
+									case "ignoredinvites":
+									case "ignored-invite":
+									case "ignored-inv":
+									case "ignoredinv":
+									case "ignoredinvite":
+										if (inv.args.length == 2) {
+											if (s.getIgnoredInvites().isEmpty())
+												s.setIgnoredInvites(new HashSet<>());
+											s.getIgnoredInvites().add(inv.args[1]);
+											inv.event.getChannel().sendMessage("Added the invite successfully.")
+													.queue();
+											break;
+										} else {
+											inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+													+ " you gave too many args. >:(").queue();
+											return;
+										}
 									case "color-roles":
 									case "color-role":
 									case "colorrole":
@@ -1544,6 +1581,28 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 								else if (inv.args.length == 2) {
 									Server s = clover.getEconomy().getServer(inv.event.getGuild().getId());
 									switch (inv.args[0]) {
+									case "ignored-invites":
+									case "ignored-invs":
+									case "ignoredinvs":
+									case "ignoredinvites":
+									case "ignored-invite":
+									case "ignored-inv":
+									case "ignoredinv":
+									case "ignoredinvite":
+										if (s.getIgnoredInvites().contains(inv.args[1])) {
+											s.getIgnoredInvites().remove(inv.args[1]);
+											inv.event.getChannel()
+													.sendMessage("Removed `" + Utilities.strip(inv.args[1])
+															+ "` from the list of ignored invites.")
+													.queue();
+											break;
+										} else {
+											inv.event.getChannel()
+													.sendMessage(inv.event.getAuthor().getAsMention()
+															+ " that invite was not in the list of ignored invites.")
+													.queue();
+											return;
+										}
 									case "color-roles":
 									case "color-role":
 									case "colorrole":
