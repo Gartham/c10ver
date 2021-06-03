@@ -172,7 +172,8 @@ public class EventHandler implements EventListener {
 				if (u == null) {
 					System.err.println(u);
 					return;
-				}
+				} else if (u.isBot())
+					return;
 				var inviter = clover.getEconomy().getAccount(u.getId());
 				var joinee = clover.getEconomy().getUser(ge.getUser().getId());
 				StringBuilder sb;
