@@ -104,7 +104,7 @@ public class CommandHelpBook {
 
 	}
 
-	private int helpsPerPage = 3;
+	private int helpsPerPage = 10;
 
 	private final List<CommandHelp> helps = new ArrayList<>();
 
@@ -175,15 +175,20 @@ public class CommandHelpBook {
 		else {
 			final EmbedBuilder builder = new EmbedBuilder();
 			builder.setColor(new Color(255, 254, 255));
-			builder.appendDescription("Showing page `" + page + "` out of `" + maxPage + "` of help.\n\u200B");
+
+			StringBuilder stringBuilder = new StringBuilder().append("Showing page `").append(page).append("` out of `")
+					.append(maxPage)
+					.append("` of help.\nUse `~help (command name)` to get more help on a specific command.\n\n");
+
 			for (int i = item; i < item + helpsPerPage;) {
-				helps.get(i).print(builder);
+				stringBuilder.append("**\\> ").append(helps.get(i).name).append("**\n");
 				if (++i >= helps.size()) {
 					builder.setFooter("End of help reached.");
 					channel.sendMessage(builder.build()).queue();
 					return;
 				}
 			}
+			builder.appendDescription(stringBuilder.toString());
 			if (page < maxPage)
 				builder.setFooter("Type `help " + (page + 1) + "` to view the next page.");
 			channel.sendMessage(builder.build()).queue();

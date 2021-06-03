@@ -5,7 +5,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
 
 public class SimpleCommandProcessor extends CommandProcessor {
-	protected final CommandHelpBook help = new CommandHelpBook(3);
+	protected final CommandHelpBook help = new CommandHelpBook();
 
 	public void printHelp(EmbedBuilder builder, CommandHelp help) {
 		help.print(builder);
