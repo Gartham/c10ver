@@ -1,6 +1,6 @@
 package gartham.c10ver.data;
 
-import java.lang.reflect.Field;
+import java.awt.Color;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Duration;
@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -204,6 +205,55 @@ public class PropertyObject {
 				return l;
 			}
 
+		});
+	}
+
+	public static final StringGateway<JSONValue> JSON_STRING_GATEWAY = new StringGateway<JSONValue>() {
+
+		@Override
+		public JSONValue to(String value) {
+			return new JSONString(value);
+		}
+
+		@Override
+		public String from(JSONValue value) {
+			return ((JSONString) value).getValue();
+		}
+	};
+
+	protected final <V> Property<HashSet<V>> setProperty(String key, Gateway<V, JSONValue> gateway) {
+		return new Property<>(key, new Gateway<>() {
+
+			@Override
+			public JSONValue to(HashSet<V> value) {
+				return new JSONArray(JavaTools.mask(value, gateway.from()));
+			}
+
+			@Override
+			public HashSet<V> from(JSONValue value) {
+				var arr = new HashSet<V>();
+				for (var v : JavaTools.mask((JSONArray) value, gateway.to()))
+					arr.add(v);
+				return arr;
+			}
+		});
+	}
+
+	protected final <V> Property<HashSet<V>> setProperty(String key, HashSet<V> def, Gateway<V, JSONValue> gateway) {
+		return new Property<>(key, def, new Gateway<>() {
+
+			@Override
+			public JSONValue to(HashSet<V> value) {
+				return new JSONArray(JavaTools.mask(value, gateway.from()));
+			}
+
+			@Override
+			public HashSet<V> from(JSONValue value) {
+				var arr = new HashSet<V>();
+				for (var v : JavaTools.mask((JSONArray) value, gateway.to()))
+					arr.add(v);
+				return arr;
+			}
 		});
 	}
 
@@ -499,6 +549,25 @@ public class PropertyObject {
 
 	protected final Property<BigInteger> bigIntegerProperty(String key, BigInteger def) {
 		return toStringProperty(key, def, BigInteger::new);
+	}
+
+	protected final Property<Color> colorProperty(String key) {
+		return colorProperty(key, null);
+	}
+
+	protected final Property<Color> colorProperty(String key, Color def) {
+		return toStringProperty(key, def, new Gateway<String, Color>() {
+
+			@Override
+			public Color to(String value) {
+				return new Color(Integer.valueOf(value), true);
+			}
+
+			@Override
+			public String from(Color value) {
+				return String.valueOf(value.getRGB());
+			}
+		});
 	}
 
 	protected final Property<Boolean> booleanProperty(String key) {

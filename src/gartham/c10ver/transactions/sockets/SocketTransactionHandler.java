@@ -33,7 +33,7 @@ public class SocketTransactionHandler extends TransactionHandler {
 			JSONValue parse = new JSONParser()
 					.parse(CharacterStream.from(new InputStreamReader(is, StandardCharsets.UTF_8)));
 			try {
-				handleTransaction(new Transaction(parse));
+				handleTransaction(Transaction.fromPaypalJSON(parse));
 			} catch (Exception e) {
 				System.err.println(DateTimeFormatter.RFC_1123_DATE_TIME.format(Instant.now())
 						+ "An error occurred while handling a parsed transaction. Transaction contents: " + parse);
@@ -100,7 +100,7 @@ public class SocketTransactionHandler extends TransactionHandler {
 	 * {@link ServerSocket} on this {@link SocketTransactionHandler}'s {@link #port}
 	 */
 	@Override
-	protected void enable() {
+	public void enable() {
 		if (connlistener != null)
 			throw new RuntimeException("Already enabled.");
 		running = true;
@@ -110,7 +110,7 @@ public class SocketTransactionHandler extends TransactionHandler {
 	}
 
 	@Override
-	protected void destroy() {
+	public void destroy() {
 		running = false;
 		if (connlistener != null)
 			try {

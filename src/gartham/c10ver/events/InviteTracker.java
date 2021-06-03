@@ -41,7 +41,7 @@ public class InviteTracker {
 		invites.get(ev.getGuild().getId()).remove(ev.getCode());
 	}
 
-	public net.dv8tion.jda.api.entities.User calcUser(GuildMemberJoinEvent ev) {
+	public Invite calcUser(GuildMemberJoinEvent ev) {
 		var map = invites.get(ev.getGuild().getId());
 		for (Iterator<Invite> iterator = ev.getGuild().retrieveInvites().complete().iterator(); iterator.hasNext();) {
 			var i = iterator.next();
@@ -56,7 +56,7 @@ public class InviteTracker {
 							&& Duration.between(OffsetDateTime.now(), j.getTimeCreated()).getSeconds() > j.getMaxAge())
 						map.remove(j.getCode());
 				}
-				return i.getInviter();
+				return i;
 			}
 			if (i.isTemporary()
 					&& Duration.between(OffsetDateTime.now(), i.getTimeCreated()).getSeconds() > i.getMaxAge())

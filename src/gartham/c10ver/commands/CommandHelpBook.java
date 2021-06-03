@@ -46,7 +46,7 @@ public class CommandHelpBook {
 			String desc = '*' + description + "*\nUSAGE: `" + usage + '`';
 			if (aliases.length != 0)
 				desc += "\nALIASES: " + aliasesToString(true, aliases);
-			builder.addField(name, desc, false);
+			builder.addField("\\> " + name, desc, false);
 		}
 
 		public void print(MessageChannel channel) {
@@ -73,17 +73,17 @@ public class CommandHelpBook {
 				desc += "\nALIASES: " + aliasesToString(true, aliases);
 			if (!subcmds.isEmpty())
 				desc += "\nSUBCOMMANDS: " + prettyPrint(true, JavaTools.mask(subcmds.iterator(), a -> a.name));
-			builder.addField(name, desc, false);
+			builder.addField("\\> " + name, desc, false);
 		}
 
 		@Override
 		public void print(MessageChannel channel) {
 			final EmbedBuilder builder = new EmbedBuilder();
-			builder.setAuthor(name, null, null);
+			builder.setAuthor("> " + name, null, null);
 			String desc = '*' + description + '*';
 			if (aliases.length != 0)
 				desc += "\nALIASES: " + aliasesToString(true, aliases);
-			desc += "\nSUBCOMMANDS:\n\u200B";
+			desc += "\n**SUBCOMMANDS:**\n\u200B";
 			builder.appendDescription(desc);
 			for (CommandHelp ch : subcmds)
 				ch.print(builder);

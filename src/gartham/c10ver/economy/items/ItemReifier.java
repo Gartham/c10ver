@@ -8,6 +8,8 @@ import gartham.c10ver.economy.items.utility.foodstuffs.Hamburger;
 import gartham.c10ver.economy.items.utility.foodstuffs.Pizza;
 import gartham.c10ver.economy.items.utility.foodstuffs.Sandwich;
 import gartham.c10ver.economy.items.utility.foodstuffs.Spaghetti;
+import gartham.c10ver.economy.items.utility.itembomb.Bomb;
+import gartham.c10ver.economy.items.utility.multickets.MultiplierTicket;
 
 public class ItemReifier {
 	@SuppressWarnings("unchecked")
@@ -21,6 +23,8 @@ public class ItemReifier {
 		case Sandwich.ITEM_TYPE -> new Sandwich(json);
 		case Hamburger.ITEM_TYPE -> new Hamburger(json);
 		case Pizza.ITEM_TYPE -> new Pizza(json);
+		case Bomb.ITEM_TYPE -> new Bomb(json);
+		case MultiplierTicket.ITEM_TYPE -> new MultiplierTicket(json);
 		default -> throw new IllegalArgumentException("Unexpected value: " + type);
 		};
 	}

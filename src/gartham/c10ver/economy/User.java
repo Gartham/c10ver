@@ -6,15 +6,13 @@ import java.math.BigInteger;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 import org.alixia.javalibrary.json.JSONObject;
 import org.alixia.javalibrary.util.StringGateway;
 
-import gartham.c10ver.data.PropertyObject.Property;
 import gartham.c10ver.data.autosave.SavablePropertyObject;
+import gartham.c10ver.economy.accolades.AccoladeList;
 import gartham.c10ver.economy.items.UserInventory;
 import gartham.c10ver.economy.questions.Question;
 import net.dv8tion.jda.api.entities.Guild;
@@ -22,7 +20,8 @@ import net.dv8tion.jda.api.entities.Guild;
 public class User extends SavablePropertyObject {
 
 	private final Property<Instant> dailyCommand = instantProperty("daily", Instant.MIN),
-			weeklyCommand = instantProperty("weekly"), monthlyCommand = instantProperty("monthly");
+			weeklyCommand = instantProperty("weekly", Instant.MIN),
+			monthlyCommand = instantProperty("monthly", Instant.MIN);
 	private final Property<BigInteger> messageCount = bigIntegerProperty("message-count", BigInteger.ZERO),
 			totalEarnings = bigIntegerProperty("total-earnings", BigInteger.ZERO);
 	private final Property<ArrayList<Multiplier>> multipliers = listProperty("multipliers",
@@ -38,38 +37,16 @@ public class User extends SavablePropertyObject {
 		this.joinedGuilds.set(joinedGuilds);
 	}
 
-	private static boolean expired(Multiplier m) {
-		return Instant.now().isAfter(m.getExpiration());
-	}
-
-	private BigDecimal checkMultipliers() {
-		if (multipliers.get().isEmpty())
-			return BigDecimal.ZERO;
-		BigDecimal res = BigDecimal.ZERO;
-		Instant now = Instant.now();
-		for (Iterator<Multiplier> iterator = multipliers.get().iterator(); iterator.hasNext();) {
-			Multiplier m = iterator.next();
-			if (now.isAfter(m.getExpiration()))
-				iterator.remove();
-			else
-				res = res.add(m.getAmount());
-		}
-
-		return res;
-	}
-
 	public ArrayList<Multiplier> getMultipliers() {
-		checkMultipliers();
-		return multipliers.get();
+		return MultiplierManager.getMultipliers(multipliers.get());
 	}
 
 	public BigDecimal getPersonalTotalMultiplier() {
-		return BigDecimal.ONE.add(checkMultipliers());
+		return MultiplierManager.getTotalValue(multipliers.get());
 	}
 
 	public void addMultiplier(Multiplier m) {
-		if (!expired(m))
-			multipliers.get().add(m);
+		MultiplierManager.addMultiplier(m, multipliers.get());
 	}
 
 	public BigInteger getMessageCount() {
@@ -94,9 +71,10 @@ public class User extends SavablePropertyObject {
 		return questions.get();
 	}
 
-	private final Account account;
+	private final UserAccount account;
 	private final UserInventory inventory;
 	private final Economy economy;
+	private final AccoladeList accolades;
 	private final String userID;
 
 	public net.dv8tion.jda.api.entities.User getUser() {
@@ -115,25 +93,43 @@ public class User extends SavablePropertyObject {
 		return inventory;
 	}
 
-	public Account getAccount() {
+	public AccoladeList getAccolades() {
+		return accolades;
+	}
+
+	public UserAccount getAccount() {
 		return account;
 	}
 
+	/**
+	 * Calculates the multiplier applied to a reward that this user earned in the
+	 * provided guild.
+	 * 
+	 * @param guild The guild that the reward was earned in.
+	 * @return The total multiplier
+	 *         (<code>{@link #getPersonalTotalMultiplier()} * nitro_multiplier * {@link Server#getTotalServerMultiplier()}</code>).
+	 */
 	public BigDecimal calcMultiplier(Guild guild) {
 		var v = guild == null ? null : guild.getMember(getUser()).getTimeBoosted();
 		var x = v == null ? BigDecimal.ONE
 				: BigDecimal.valueOf(13, 1).add(BigDecimal.valueOf(Duration.between(v, Instant.now()).toDays() + 1)
 						.multiply(BigDecimal.valueOf(1, 2)));
-		x = x.add(checkMultipliers());
+		x = x.add(MultiplierManager.getTotalMultiplier(multipliers.get()));
+		if (guild != null)
+			x = x.multiply(getEconomy().getServer(guild.getId()).getTotalServerMultiplier());
 		return x;
 	}
 
 	/**
+	 * <p>
 	 * Rewards the user the specified amount. The actual amount deposited into the
 	 * user's account is a product of the specified amount and this user's
 	 * multipliers and possible "effects" which can increase (or decrease) the
 	 * amount of money earned. This method handles a <code>null</code> value for the
 	 * {@link Guild} argument as if the command was not invoked in a server.
+	 * </p>
+	 * <p>
+	 * The total rewards earned multiplied byt
 	 * 
 	 * @param amount The amount to reward the user.
 	 * @param guild  The {@link Guild} that the reward is to be given in. Nitro
@@ -146,10 +142,19 @@ public class User extends SavablePropertyObject {
 
 	@Override
 	public void save() {
-		checkMultipliers();
+		MultiplierManager.cleanMults(multipliers.get());
 		super.save();
 	}
 
+	/**
+	 * Adds the specified amount of cloves, multiplied by the pre-calculated
+	 * multiplier, to this user's account.
+	 * 
+	 * @param amount     The amount earned.
+	 * @param multiplier The total multiplier (already calculated) to multiply the
+	 *                   amount by.
+	 * @return The total number of cloves rewarded (amount * multiplier).
+	 */
 	public BigInteger reward(BigInteger amount, BigDecimal multiplier) {
 		var x = new BigDecimal(amount).multiply(multiplier).toBigInteger();
 		getAccount().deposit(x);
@@ -157,6 +162,15 @@ public class User extends SavablePropertyObject {
 		return x;
 	}
 
+	/**
+	 * Adds the specified amount of rewards, multiplied by the pre-calculated
+	 * multiplier, to this user's account, and then saves this user's data.
+	 * 
+	 * @param amount     The amount of cloves earned.
+	 * @param multiplier The total multiplier (already calculated) to multiply the
+	 *                   amount by.
+	 * @return The total number of cloves rewarded (amount * multiplier).
+	 */
 	public BigInteger rewardAndSave(BigInteger amount, BigDecimal multiplier) {
 		var x = reward(amount, multiplier);
 		save();
@@ -184,8 +198,9 @@ public class User extends SavablePropertyObject {
 		super(new File(userDirectory, "user-data.txt"));
 		this.economy = economy;
 		userID = userDirectory.getName();
-		account = new Account(userDirectory, this);
+		account = new UserAccount(userDirectory, this);
 		inventory = new UserInventory(userDirectory);
+		accolades = new AccoladeList(new File(userDirectory, "accolades.txt"));
 		if (load)
 			load();
 		if (getMessageCount() == null)
@@ -196,15 +211,6 @@ public class User extends SavablePropertyObject {
 			multipliers.set(new ArrayList<>());
 		if (joinedGuilds.get() == null)
 			joinedGuilds.set(new ArrayList<>());
-		if (weeklyCommand.get() == null) {
-			if (monthlyCommand.get() == null)
-				monthlyCommand.set(Instant.now());
-			weeklyCommand.set(Instant.now());
-			save();
-		} else if (monthlyCommand.get() == null) {
-			monthlyCommand.set(Instant.now());
-			save();
-		}
 	}
 
 	public Instant getLastDailyInvocation() {

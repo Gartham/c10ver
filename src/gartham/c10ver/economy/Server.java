@@ -1,6 +1,10 @@
 package gartham.c10ver.economy;
 
 import java.io.File;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 import gartham.c10ver.data.autosave.SavablePropertyObject;
@@ -11,12 +15,35 @@ public class Server extends SavablePropertyObject {
 	// TODO Specify mapProperty's partial immutability.
 	private final Property<Map<String, ColorRole>> colorRoles = mapProperty("color-roles", Map.of(),
 			toObjectGateway(ColorRole::new));
+	private final Property<HashSet<String>> ignoredInvites = setProperty("ignored-invites", new HashSet<>(),
+			JSON_STRING_GATEWAY);
 	private final Property<String> generalChannel = stringProperty("general-channel"),
 			spamChannel = stringProperty("spam-channel"), gamblingChannel = stringProperty("gambling-channel");
+	private final Property<ArrayList<Multiplier>> multipliers = listProperty("multipliers",
+			toObjectGateway(Multiplier::new));
 	private final String serverID;
 
 	public String getServerID() {
 		return serverID;
+	}
+
+	/**
+	 * Returns the total server multiplier that this server has active. If there are
+	 * no active multipliers, this method returns <code>1.0</code>, (<b>not</b>
+	 * <code>0.0</code>).
+	 * 
+	 * @return The total server multiplier, i.e.
+	 */
+	public BigDecimal getTotalServerMultiplier() {
+		return MultiplierManager.getTotalValue(multipliers.get());
+	}
+
+	public List<Multiplier> listMultipliers() {
+		return MultiplierManager.getMultipliers(multipliers.get());
+	}
+
+	public void addMultiplier(Multiplier multiplier) {
+		MultiplierManager.addMultiplier(multiplier, multipliers.get());
 	}
 
 	public Map<String, ColorRole> getColorRoles() {
@@ -51,6 +78,18 @@ public class Server extends SavablePropertyObject {
 		gamblingChannel.set(channelID);
 	}
 
+	public void setIgnoredInvites(HashSet<String> values) {
+		ignoredInvites.set(values);
+	}
+
+	public HashSet<String> getIgnoredInvites() {
+		return ignoredInvites.get();
+	}
+
+	public Property<HashSet<String>> ignoredInvitesProperty() {
+		return ignoredInvites;
+	}
+
 	public boolean isGeneral(MessageChannel mc) {
 		return mc != null && mc.getId().equals(getGeneralChannel());
 	}
@@ -72,6 +111,8 @@ public class Server extends SavablePropertyObject {
 		serverID = saveLocation.getName();
 		if (load)
 			load();
+		if (multipliers.get() == null)
+			multipliers.set(new ArrayList<>());
 	}
 
 }

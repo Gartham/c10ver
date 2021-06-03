@@ -1,22 +1,21 @@
 package gartham.c10ver.transactions;
 
-import java.util.function.Function;
+import java.util.function.Consumer;
 
 public abstract class TransactionHandler {
 
-	private Function<Transaction, TransactionResponse> transactionProcessor;
+	private Consumer<Transaction> transactionProcessor;
 
-	public final TransactionHandler setTransactionProcessor(
-			Function<Transaction, TransactionResponse> transactionProcessor) {
-		this.transactionProcessor = transactionProcessor;
+	public final TransactionHandler setTransactionProcessor(Consumer<Transaction> processor) {
+		transactionProcessor = processor;
 		return this;
 	}
 
-	protected abstract void enable();
+	public abstract void enable();
 
-	protected final TransactionResponse handleTransaction(Transaction transaction) {
-		return transactionProcessor.apply(transaction);
+	protected final void handleTransaction(Transaction transaction) {
+		transactionProcessor.accept(transaction);
 	}
 
-	protected abstract void destroy();
+	public abstract void destroy();
 }
