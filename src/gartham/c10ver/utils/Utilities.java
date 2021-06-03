@@ -19,6 +19,7 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -210,12 +211,22 @@ public final class Utilities {
 	 * @param duration The duration to format.
 	 * @return The formatted string.
 	 */
-	public static String format(Duration duration) {
+	public static String formatRand(Duration duration) {
 		var parts = getParts(duration);
 		for (Iterator<Entry<TimeUnit, Long>> iterator = parts.entrySet().iterator(); iterator.hasNext();)
 			if (iterator.next().getValue() == 0)
 				iterator.remove();
 		return format(duration, parts.keySet().toArray(new TimeUnit[parts.size()]));
+	}
+
+	public static String format(Duration duration) {
+		var parts = getParts(duration);
+		for (Iterator<Entry<TimeUnit, Long>> iterator = parts.entrySet().iterator(); iterator.hasNext();)
+			if (iterator.next().getValue() == 0)
+				iterator.remove();
+		TimeUnit[] arr = parts.keySet().toArray(new TimeUnit[parts.size()]);
+		Arrays.sort(arr);
+		return format(duration, arr);
 	}
 
 	public static <E> List<E> paginate(int page, int itemsPerPage, List<E> items) {
