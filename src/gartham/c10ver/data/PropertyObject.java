@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -204,6 +205,37 @@ public class PropertyObject {
 				return l;
 			}
 
+		});
+	}
+
+	public static final StringGateway<JSONValue> JSON_STRING_GATEWAY = new StringGateway<JSONValue>() {
+
+		@Override
+		public JSONValue to(String value) {
+			return new JSONString(value);
+		}
+
+		@Override
+		public String from(JSONValue value) {
+			return ((JSONString) value).getValue();
+		}
+	};
+
+	protected final <V> Property<HashSet<V>> setProperty(String key, Gateway<V, JSONValue> gateway) {
+		return new Property<>(key, new Gateway<>() {
+
+			@Override
+			public JSONValue to(HashSet<V> value) {
+				return new JSONArray(JavaTools.mask(value, gateway.from()));
+			}
+
+			@Override
+			public HashSet<V> from(JSONValue value) {
+				var arr = new HashSet<V>();
+				for (var v : JavaTools.mask((JSONArray) value, gateway.to()))
+					arr.add(v);
+				return arr;
+			}
 		});
 	}
 
