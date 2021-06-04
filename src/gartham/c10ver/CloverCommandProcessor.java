@@ -1880,14 +1880,10 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 		}
 		var mm = JavaTools.frequencyMap(JavaTools.mask(mults, MultConv::new));
 		if (!mm.isEmpty()) {
-			for (var e : mm.entrySet()) {
-				sb.append('(').append(e.getValue()).append("x) [**x").append(e.getKey().mult.getAmount());
-				if (e.getValue() == 1)
-					sb.append("**] for ");
-				else
-					sb.append("**] for about ");
-				sb.append(Utilities.formatLargest(e.getKey().mult.getTimeRemaining(), 2)).append('\n');
-			}
+			for (var e : mm.entrySet())
+				sb.append('(').append(e.getValue()).append("x) [**x").append(e.getKey().mult.getAmount())
+						.append(e.getValue() == 1 ? "**] for " : "**] for about ")
+						.append(Utilities.formatLargest(e.getKey().mult.getTimeRemaining(), 2)).append('\n');
 		}
 
 	}
