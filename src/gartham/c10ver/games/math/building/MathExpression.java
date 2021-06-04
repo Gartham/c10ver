@@ -17,7 +17,7 @@ public interface MathExpression extends MathProblem {
 	}
 
 	@Override
-	default boolean check(String result) {
+	default AttemptResult check(String result) {
 		return MathUtils.check(eval(), result);
 	}
 

@@ -18,11 +18,11 @@ public class BasicMathProblem implements MathProblem {
 	}
 
 	@Override
-	public boolean check(String result) {
+	public AttemptResult check(String result) {
 		try {
-			return answer.equals(new BigDecimal(result));
+			return answer.equals(new BigDecimal(result)) ? AttemptResult.CORRECT : AttemptResult.INCORRECT;
 		} catch (NumberFormatException e) {
-			return false;
+			return AttemptResult.INVALID;
 		}
 	}
 
