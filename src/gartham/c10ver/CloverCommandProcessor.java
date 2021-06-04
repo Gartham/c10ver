@@ -1928,8 +1928,13 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				var ms = getState(inv);
 				if (running(inv)) {
 					if (inv.args.length == 0) {
-						inv.event.getChannel().sendMessage("Current math game:").embed(printState(ms, inv.event))
-								.queue();
+						if (!ms.players.contains(inv.event.getAuthor().getId())) {
+							ms.players.add(inv.event.getAuthor().getId());
+							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+									+ " you've joined the math lobby! (Type `~math leave` to leave.)").queue();
+						} else
+							inv.event.getChannel().sendMessage("Current math game:").embed(printState(ms, inv.event))
+									.queue();
 					} else if (inv.args.length == 1) {
 						if (StringTools.equalsAnyIgnoreCase(inv.args[0], "clear", "stop", "quit", "leave", "exit")) {
 							if (ms.players.contains(inv.event.getAuthor().getId())) {
