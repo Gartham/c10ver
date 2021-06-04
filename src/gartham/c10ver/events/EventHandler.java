@@ -77,8 +77,11 @@ public class EventHandler implements EventListener {
 			if (mre.isFromGuild() && clover.getEconomy().hasServer(mre.getGuild().getId())) {
 				User user = clover.getEconomy().getUser(mre.getAuthor().getId());
 				user.incrementMessageCount();
-				if (user.getMessageCount().getLowestSetBit() >= 4)// Save every 16 messages.
+				user.getAccount().deposit((long) (Math.random() * 4 + 2));
+				if (user.getMessageCount().getLowestSetBit() >= 4) {// Save every 16 messages.
 					user.save();
+					user.getAccount().save();
+				}
 				if (!mre.getAuthor().isBot()) {
 					BigInteger rewards = switch (user.getMessageCount().toString()) {
 					case "10" -> valueOf(50);
