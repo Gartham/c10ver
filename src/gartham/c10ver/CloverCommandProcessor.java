@@ -19,7 +19,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import org.alixia.javalibrary.JavaTools;
 import org.alixia.javalibrary.util.Box;
@@ -710,16 +709,15 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						return;
 					}
 					List<Member> users = new ArrayList<>();
-					inv.event.getGuild().loadMembers(new Consumer<Member>() {
-						@Override
-						public void accept(Member t) {
+					inv.event.getGuild().findMembers(t -> !t.getUser().isBot()).onSuccess(t -> {
+						for (Member m : t) {
 							int search = Collections
-									.binarySearch(users, t,
+									.binarySearch(users, m,
 											((Comparator<Member>) (o1, o2) -> clover.getEconomy().getUser(o1.getId())
 													.getAccount().getBalance().compareTo(clover.getEconomy()
 															.getUser(o2.getId()).getAccount().getBalance()))
 																	.reversed());
-							users.add(search < 0 ? -search - 1 : search, t);
+							users.add(search < 0 ? -search - 1 : search, m);
 						}
 					});
 					int page;
@@ -753,8 +751,9 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					List<Member> paginate = paginate(page, 10, users);
 					for (int i = 0; i < paginate.size(); i++) {
 						var u = paginate.get(i);
-						sb.append("`#" + (i + 1) + "` " + u.getUser().getName() + "#" + u.getUser().getDiscriminator()
-								+ ": " + format(clover.getEconomy().getAccount(u.getId()).getBalance()) + "\n");
+						sb.append("`#" + (page * 10 - 9 + i) + "` " + u.getUser().getName() + "#"
+								+ u.getUser().getDiscriminator() + ": "
+								+ format(clover.getEconomy().getAccount(u.getId()).getBalance()) + "\n");
 					}
 					eb.addField("Page " + page + " Ranking", sb.toString(), false);
 					eb.setFooter("Showing page " + page + " in the server leaderboard.");
@@ -1881,14 +1880,10 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 		}
 		var mm = JavaTools.frequencyMap(JavaTools.mask(mults, MultConv::new));
 		if (!mm.isEmpty()) {
-			for (var e : mm.entrySet()) {
-				sb.append('(').append(e.getValue()).append("x) [**x").append(e.getKey().mult.getAmount());
-				if (e.getValue() == 1)
-					sb.append("**] for ");
-				else
-					sb.append("**] for about ");
-				sb.append(Utilities.formatLargest(e.getKey().mult.getTimeRemaining(), 2)).append('\n');
-			}
+			for (var e : mm.entrySet())
+				sb.append('(').append(e.getValue()).append("x) [**x").append(e.getKey().mult.getAmount())
+						.append(e.getValue() == 1 ? "**] for " : "**] for about ")
+						.append(Utilities.formatLargest(e.getKey().mult.getTimeRemaining(), 2)).append('\n');
 		}
 
 	}

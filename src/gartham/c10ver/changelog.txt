@@ -57,3 +57,9 @@ v0.2b - Tip Command
 
 v0.3b
 * Fixed times for multipliers from printing out of order (e.g. using a sandwich would sometimes print **30s 2m** with the seconds value first, although the minute value should be printed first, since it's larger).
+* Remove bots from leaderboard.
+* Fix leaderboard numbering (different pages now show the correct ranking numbers).
+~ Change help command formatting to be more concise.
+
+v0.4b
++ Clover now gives 2-5 cloves per message sent (as long as the message is in a tracked server).
