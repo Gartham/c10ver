@@ -36,4 +36,9 @@ public interface MathExpression extends MathProblem {
 	default CompoundMathExpression divide(MathExpression second) {
 		return CompoundMathExpression.divide(this, second);
 	}
+
+	@Override
+	default String answer() {
+		return eval().toPlainString();
+	}
 }

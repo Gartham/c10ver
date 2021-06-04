@@ -48,4 +48,6 @@ public interface MathProblem {
 	 */
 	AttemptResult check(String result);
 
+	String answer();
+
 }

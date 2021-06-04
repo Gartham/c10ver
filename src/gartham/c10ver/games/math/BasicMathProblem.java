@@ -26,4 +26,9 @@ public class BasicMathProblem implements MathProblem {
 		}
 	}
 
+	@Override
+	public String answer() {
+		return answer.toPlainString();
+	}
+
 }
