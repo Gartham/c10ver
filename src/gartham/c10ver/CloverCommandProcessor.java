@@ -1843,8 +1843,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				double diff = 1;
 
 				double upgrade() {
-					value = new BigDecimal(value).multiply(BigDecimal.valueOf(diff += Math.random() * .5 + .5))
-							.toBigInteger().add(value);
+					value = value.add(BigInteger.valueOf((long) (diff * 1000)));
+					diff += Math.random() * .5 + .5;
 					return diff;
 				}
 
@@ -2009,9 +2009,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 									ms2.upgrade();
 									ms2.problem = mpg.generate(ms2.diff);
 									for (var p : ms2.players) {
-										UserAccount acc = clover.getEconomy().getAccount(p);
-										acc.deposit(amt);
-										acc.save();
+										var acc = clover.getEconomy().getUser(p);
+										acc.rewardAndSave(amt, acc.calcMultiplier(event.getGuild()));
 									}
 									inv.event.getChannel().sendMessage(event.getAuthor().getAsMention()
 											+ " you solved the problem! Everyone's been given " + Utilities.format(amt)
