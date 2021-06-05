@@ -1945,7 +1945,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 							}
 							if (ms.players.isEmpty()) {
 								inv.event.getChannel().sendMessage("The math lobby has ended!")
-										.embed(printState(ms, inv.event)).queue();
+										.embed(printStateOver(ms, inv)).queue();
 								end(inv.event.getChannel().getId());
 							} else {
 								inv.event.getChannel()
