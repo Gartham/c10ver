@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.NumberFormat;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -19,14 +20,19 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.alixia.javalibrary.JavaTools;
+import org.alixia.javalibrary.strings.StringTools;
 import org.alixia.javalibrary.util.Box;
 import org.alixia.javalibrary.util.MultidimensionalMap;
 
 import gartham.c10ver.changelog.Changelog.Version;
 import gartham.c10ver.commands.CommandHelpBook.ParentCommandHelp;
 import gartham.c10ver.commands.CommandInvocation;
+import gartham.c10ver.commands.InputProcessor;
 import gartham.c10ver.commands.MatchBasedCommand;
 import gartham.c10ver.commands.SimpleCommandProcessor;
 import gartham.c10ver.commands.consumers.InputConsumer;
@@ -49,11 +55,16 @@ import gartham.c10ver.economy.items.utility.multickets.MultiplierTicket;
 import gartham.c10ver.economy.questions.Question;
 import gartham.c10ver.economy.questions.Question.Difficulty;
 import gartham.c10ver.economy.server.ColorRole;
+import gartham.c10ver.games.math.MathProblem;
+import gartham.c10ver.games.math.MathProblem.AttemptResult;
+import gartham.c10ver.games.math.MathProblemGenerator;
+import gartham.c10ver.games.math.simple.SimpleMathProblemGenerator;
 import gartham.c10ver.processing.commands.InventoryCommand;
 import gartham.c10ver.processing.trading.TradeManager;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
@@ -1819,6 +1830,212 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					inv.event.getChannel().sendMessage(
 							inv.event.getAuthor().getAsMention() + " you provided too many arguments in that command.")
 							.queue();
+				}
+			}
+		});
+
+		register(new MatchBasedCommand("math") {
+
+			Timer timer = new Timer(true);
+
+			class MathState {
+				BigInteger value = BigInteger.valueOf(500);
+				double diff = 1;
+
+				double upgrade() {
+					value = value.add(BigInteger.valueOf((long) (diff * 1000)));
+					diff += Math.random() * .5 + .5;
+					return diff;
+				}
+
+				Set<String> players = new HashSet<>(1);
+				MathProblem problem;
+				MessageInputConsumer mic;
+				TimerTask ts;
+				Instant inst;
+			}
+
+			Map<String, MathState> channelToProblemMap = new HashMap<>();
+			private final MathProblemGenerator mpg = new SimpleMathProblemGenerator();
+
+			/**
+			 * Returns whether or not there's a game currently running in the channel that
+			 * the provided CommandInvocation was invoked in. This command does also clear
+			 * old entries from the map.
+			 * 
+			 * @param inv The invocation.
+			 * @return <code>true</code> if there's a game running in the channel,
+			 *         <code>false</code> otherwise.
+			 */
+			private boolean running(CommandInvocation inv) {
+				return getState(inv) != null;
+			}
+
+			private MathState getState(CommandInvocation inv) {
+				return getState(inv.event);
+			}
+
+			private MathState getState(MessageReceivedEvent event) {
+				return getState(event.getChannel().getId());
+			}
+
+			private MathState getState(String channelId) {
+				return channelToProblemMap.get(channelId);
+			}
+
+			private MessageEmbed printState(MathState state, MessageReceivedEvent event) {
+				return new EmbedBuilder()
+						.setAuthor("Math Lobby - " + String.format("%.2f", state.diff), null,
+								event.getGuild().getIconUrl())
+						.setDescription("Difficulty: `" + String.format("%.2f", state.diff) + "`\nNext Reward: **"
+								+ Utilities.format(state.value) + "**\nPlayers: "
+								+ JavaTools.printInEnglish(JavaTools.mask(state.players.iterator(),
+										a -> event.getJDA().getUserById(a).getAsMention()), true)
+								+ "\nCurrent Problem:```" + state.problem.problem() + "```\nTime Remaining: __"
+								+ Utilities.formatLargest(Duration.between(Instant.now(), state.inst), 2) + "__")
+						.setFooter("Use ~math leave to leave the lobby.",
+								event.getJDA().getSelfUser().getEffectiveAvatarUrl())
+						.build();
+			}
+
+			private MessageEmbed printStateOver(MathState state, CommandInvocation inv) {
+				return new EmbedBuilder()
+						.setAuthor("Math Lobby - " + String.format("%.2f", state.diff), null,
+								inv.event.getGuild().getIconUrl())
+						.setDescription("Difficulty: `" + String.format("%.2f", state.diff) + "`\nMissed Reward: **"
+								+ Utilities.format(state.value) + "**\nPlayers: "
+								+ JavaTools.printInEnglish(JavaTools.mask(state.players.iterator(),
+										a -> inv.event.getJDA().getUserById(a).getAsMention()), true)
+								+ "\nFinal Problem:```" + state.problem.problem() + "```\n**Correct Answer:** `"
+								+ state.problem.answer() + "`\n\n**GAME OVER!**")
+						.setFooter("Use ~math leave to leave the lobby.",
+								inv.event.getJDA().getSelfUser().getEffectiveAvatarUrl())
+						.build();
+			}
+
+			private void end(String channel) {
+				var ms = getState(channel);
+				if (ms == null)
+					return;
+
+				clover.getEventHandler().getMessageProcessor().removeInputConsumer(ms.mic);
+				channelToProblemMap.remove(channel);
+				ms.ts.cancel();
+			}
+
+			@Override
+			public void exec(CommandInvocation inv) {
+				var ms = getState(inv);
+				if (running(inv)) {
+					if (inv.args.length == 0) {
+						if (!ms.players.contains(inv.event.getAuthor().getId())) {
+							ms.players.add(inv.event.getAuthor().getId());
+							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+									+ " you've joined the math lobby! (Type `~math leave` to leave.)").queue();
+						} else
+							inv.event.getChannel().sendMessage("Current math game:").embed(printState(ms, inv.event))
+									.queue();
+					} else if (inv.args.length == 1) {
+						if (StringTools.equalsAnyIgnoreCase(inv.args[0], "clear", "stop", "quit", "leave", "exit")) {
+							if (ms.players.contains(inv.event.getAuthor().getId())) {
+								ms.players.remove(inv.event.getAuthor().getId());
+							} else {
+								inv.event.getChannel().sendMessage("You weren't in that lobby.").queue();
+								return;
+							}
+							if (ms.players.isEmpty()) {
+								inv.event.getChannel().sendMessage("The math lobby has ended!")
+										.embed(printStateOver(ms, inv)).queue();
+								end(inv.event.getChannel().getId());
+							} else {
+								inv.event.getChannel()
+										.sendMessage(inv.event.getAuthor().getAsMention() + " you exited the lobby.")
+										.queue();
+							}
+						} else
+							inv.event.getChannel().sendMessage(
+									"Unknown argument. Use `~math leave` to leave the lobby. Once all players leave, the lobby will end.")
+									.queue();
+					} else {
+						inv.event.getChannel().sendMessage(
+								"Too many arguments. The math command only allows 1 argument when there's an active lobby.")
+								.queue();
+					}
+				} else {
+					if (inv.args.length == 0) {
+						ms = new MathState();
+						channelToProblemMap.put(inv.event.getChannel().getId(), ms);
+						ms.players.add(inv.event.getAuthor().getId());
+						ms.problem = mpg.generate(ms.diff);
+						ms.inst = Instant.now().plusSeconds(30);
+						var ms2 = ms;
+						timer.schedule(ms.ts = new TimerTask() {
+
+							@Override
+							public void run() {
+								end(inv.event.getChannel().getId());
+								inv.event.getChannel()
+										.sendMessage(
+												"**Time's Up!** No one answered the math problem correctly in time!")
+										.embed(printStateOver(ms2, inv)).queue();
+							}
+						}, 30000);
+
+						ms.mic = new MessageInputConsumer() {
+
+							@Override
+							public boolean consume(MessageReceivedEvent event,
+									InputProcessor<? extends MessageReceivedEvent> processor,
+									InputConsumer<MessageReceivedEvent> consumer) {
+								MathState state = getState(event);
+
+								var s = state.problem.check(event.getMessage().getContentDisplay());
+								if (s == AttemptResult.CORRECT) {
+									if (!ms2.players.contains(event.getAuthor().getId()))
+										ms2.players.add(event.getAuthor().getId());
+									ms2.ts.cancel();
+									timer.schedule(ms2.ts = new TimerTask() {
+
+										@Override
+										public void run() {
+											end(inv.event.getChannel().getId());
+											inv.event.getChannel().sendMessage(
+													"**Time's Up!** No one answered the math problem correctly in time!")
+													.embed(printStateOver(ms2, inv)).queue();
+										}
+									}, 30000);
+									ms2.inst = Instant.now().plusSeconds(30);
+									BigInteger amt = ms2.value;
+									ms2.upgrade();
+									ms2.problem = mpg.generate(ms2.diff);
+									for (var p : ms2.players) {
+										var acc = clover.getEconomy().getUser(p);
+										acc.rewardAndSave(amt, acc.calcMultiplier(event.getGuild()));
+									}
+									inv.event.getChannel().sendMessage(event.getAuthor().getAsMention()
+											+ " you solved the problem! Everyone's been given " + Utilities.format(amt)
+											+ " and the difficulty has been increased to `"
+											+ String.format("%.2f", ms2.diff) + "`! The new problem is: ```"
+											+ ms2.problem.problem() + "```").queue();
+									return true;
+								} else if (s == AttemptResult.INCORRECT) {
+									if (!ms2.players.contains(event.getAuthor().getId()))
+										ms2.players.add(event.getAuthor().getId());
+									event.getMessage().addReaction("\u274C").queue();
+									return true;
+								} else
+									return false;
+							}
+						}.filterChannel(inv.event.getChannel().getId());
+						clover.getEventHandler().getMessageProcessor().registerInputConsumer(ms.mic);
+
+						inv.event.getChannel().sendMessage("Starting a new math lobby!")
+								.embed(printState(ms, inv.event)).queue();
+					} else {
+						inv.event.getChannel().sendMessage(
+								"The math command doesn't take any arguments unless you're in a game! (Just use `~math` to start a new lobby.)")
+								.queue();
+					}
 				}
 			}
 		});
