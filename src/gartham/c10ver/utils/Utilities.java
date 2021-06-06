@@ -341,19 +341,31 @@ public final class Utilities {
 		}
 	}
 
-	public static String format(BigInteger money) {
+	/**
+	 * Formats the provided number as if it were a monetary value, (applying the
+	 * {@link MoneyUnit} conversion, as appropriate), but does not prepend the
+	 * {@link #CURRENCY_SYMBOL}.
+	 * 
+	 * @param number The {@link BigInteger} number to format.
+	 * @return A string holding the formatted number.
+	 */
+	public static String formatNumber(BigInteger number) {
 		MoneyUnit m = null;
-		var bd = new BigDecimal(money);
+		var bd = new BigDecimal(number);
 		for (int i = 0; i < MONEY_UNITS.length; i++)
-			if (money.compareTo(MONEY_UNITS[i].amt) >= 0)
+			if (number.compareTo(MONEY_UNITS[i].amt) >= 0)
 				m = MONEY_UNITS[i];
 			else
 				break;
 		if (m == null)
-			return CURRENCY_SYMBOL + ' ' + String.valueOf(money);
+			return String.valueOf(number);
 
 		var b = bd.divide(new BigDecimal(m.amt)).setScale(2, RoundingMode.HALF_UP);
-		return CURRENCY_SYMBOL + ' ' + b.stripTrailingZeros().toPlainString() + m.symbol;
+		return b.stripTrailingZeros().toPlainString() + m.symbol;
+	}
+
+	public static String format(BigInteger money) {
+		return CURRENCY_SYMBOL + ' ' + formatNumber(money);
 	}
 
 	public static String strip(String msg) {
