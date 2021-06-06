@@ -1839,11 +1839,11 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 			Timer timer = new Timer(true);
 
 			class MathState {
-				BigInteger value = BigInteger.valueOf(500);
+				BigInteger value = BigInteger.valueOf(50);
 				double diff = 1;
 
 				double upgrade() {
-					value = value.add(BigInteger.valueOf((long) (diff * 1000)));
+					value = value.add(BigInteger.valueOf((long) (diff * 200)));
 					diff += Math.random() * .5 + .5;
 					return diff;
 				}
