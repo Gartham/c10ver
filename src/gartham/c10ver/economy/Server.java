@@ -19,12 +19,21 @@ public class Server extends SavablePropertyObject {
 			JSON_STRING_GATEWAY);
 	private final Property<String> generalChannel = stringProperty("general-channel"),
 			spamChannel = stringProperty("spam-channel"), gamblingChannel = stringProperty("gambling-channel");
+	private final Property<String> voteRole = stringProperty("vote-role");
 	private final Property<ArrayList<Multiplier>> multipliers = listProperty("multipliers",
 			toObjectGateway(Multiplier::new));
 	private final String serverID;
 
 	public String getServerID() {
 		return serverID;
+	}
+
+	public String getVoteRole() {
+		return voteRole.get();
+	}
+
+	public void setVoteRole(String role) {
+		voteRole.set(role);
 	}
 
 	/**
