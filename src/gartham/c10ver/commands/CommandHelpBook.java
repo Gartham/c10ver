@@ -178,12 +178,13 @@ public class CommandHelpBook {
 
 			StringBuilder stringBuilder = new StringBuilder().append("Showing page `").append(page).append("` out of `")
 					.append(maxPage)
-					.append("` of help.\nUse `~help (command name)` to get more help on a specific command.\n\n");
+					.append("` of help.\nType `~help (command)` to get more help on a specific command.\n\n");
 
 			for (int i = item; i < item + helpsPerPage;) {
 				stringBuilder.append("**\\> ").append(helps.get(i).name).append("**\n");
 				if (++i >= helps.size()) {
 					builder.setFooter("End of help reached.");
+					builder.appendDescription(stringBuilder.toString());
 					channel.sendMessage(builder.build()).queue();
 					return;
 				}
