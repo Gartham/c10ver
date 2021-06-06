@@ -63,3 +63,6 @@ v0.3b
 
 v0.4b
 + Clover now gives 2-5 cloves per message sent (as long as the message is in a tracked server).
++ `math` Command - A minigame to earn cloves has been added! This math-based game lets you solve increasingly harder math problems to get Cloves with or without friends.
+~ The help command has been changed to display only names unless when looking up help by page number or without args.
+* There was a glitch with the help command sometimes not printing commands at the last page that has been fixed.
