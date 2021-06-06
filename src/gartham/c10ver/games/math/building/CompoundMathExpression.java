@@ -74,6 +74,9 @@ public class CompoundMathExpression implements MathProblem, MathExpression {
 	public CompoundMathExpression(MathExpression first, Operator operator, MathExpression second) {
 		StringBuilder sb = new StringBuilder();
 
+//		System.out.println("FIRST: " + first.problem());
+//		System.out.println("SECOND: " + second.problem());
+
 		if (first.ro() > 0 && first.lo() < operator.ord)
 			first = wrap(first);
 		if (second.ro() > 0 && (second.lo() < operator.ord || operator.wrapRight))
@@ -81,13 +84,19 @@ public class CompoundMathExpression implements MathProblem, MathExpression {
 
 		ro = first.ro() > operator.ord ? first.ro() > second.ro() ? first.ro() : second.ro()
 				: operator.ord > second.ro() ? operator.ord : second.ro();
-		lo = first.lo() < operator.ord ? first.lo() < second.lo() ? first.lo() : second.lo()
-				: operator.ord < second.lo() ? operator.ord : second.lo();
+		lo = first.lo() < 0 ? second.lo() < 0 ? operator.ord : second.lo() < operator.ord ? second.lo() : operator.ord
+				: second.lo() < 0 ? first.lo() < operator.ord ? first.lo() : operator.ord
+						: first.lo() < operator.ord ? first.lo() < second.lo() ? first.lo() : second.lo()
+								: operator.ord < second.lo() ? operator.ord : second.lo();
 
 		sb.append(first.problem()).append(' ').append(operator.chr()).append(' ').append(second.problem());
 
 		val = sb.toString();
 		res = operator.operate(first.eval(), second.eval());
+//		System.out.println("RESULT: " + val);
+//		System.out.println("HO: " + ro);
+//		System.out.println("LO: " + lo);
+//		System.out.println("\n\n");
 	}
 
 	public static final CompoundMathExpression add(MathExpression first, MathExpression second) {
