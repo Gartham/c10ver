@@ -167,10 +167,6 @@ public class EventHandler implements EventListener {
 				var ge = (GuildMemberJoinEvent) event;
 				Invite inviteee = inviteTracker.calcUser(ge);
 
-				var serv = clover.getEconomy().getServer(ge.getGuild().getId());
-				if (serv.getIgnoredInvites().contains(inviteee.getCode()))
-					return;
-
 				var u = inviteee.getInviter();
 				if (u == null) {
 					System.err.println(u);
@@ -179,51 +175,93 @@ public class EventHandler implements EventListener {
 					return;
 				var inviter = clover.getEconomy().getAccount(u.getId());
 				var joinee = clover.getEconomy().getUser(ge.getUser().getId());
-				StringBuilder sb;
-				{
-					var inv = inviter.getUser().getUser();
-					var join = joinee.getUser();
-					sb = new StringBuilder(inv.getAsTag());
-					sb.append('[').append(inv.getId()).append("] has invited ").append(join.getAsTag()).append('[')
-							.append(join.getId()).append("] to ").append(ge.getGuild().getName()).append('[')
-							.append(ge.getGuild().getId()).append(']');
-				}
-				if (joinee.getJoinedGuilds().contains(ge.getGuild().getId())) {
-					print(sb.append('.').toString());
 
-					if (clover.getEconomy().hasServer(ge.getGuild().getId())) {
-						var g = clover.getEconomy().getServer(ge.getGuild().getId());
-						if (g.getGeneralChannel() != null) {
-							var gen = ge.getGuild().getTextChannelById(g.getGeneralChannel());
-							if (gen != null)
-								gen.sendMessage(ge.getUser().getAsMention()
-										+ " welcome back to the server. ^w^\nYou were invited back by: "
-										+ inviter.getUser().getUser().getAsMention() + ".").queue();
+				var serv = clover.getEconomy().getServer(ge.getGuild().getId());
+				if (serv.getIgnoredInvites().contains(inviteee.getCode())) {
+					if (joinee.getJoinedGuilds().contains(ge.getGuild().getId())) {
+						print(joinee.getUser().getAsTag() + '[' + joinee.getUserID() + "] joined "
+								+ ge.getGuild().getName() + '[' + ge.getGuild().getId()
+								+ "] with an ignored invite, again.");
+						if (clover.getEconomy().hasServer(ge.getGuild().getId())) {
+							var g = clover.getEconomy().getServer(ge.getGuild().getId());
+							if (g.getGeneralChannel() != null) {
+								var gen = ge.getGuild().getTextChannelById(g.getGeneralChannel());
+								if (gen != null)
+									gen.sendMessage(ge.getUser().getAsMention() + " welcome back to the server. ^w^")
+											.queue();
+							}
+						}
+					} else {
+						print(joinee.getUser().getAsTag() + '[' + joinee.getUserID() + "] joined "
+								+ ge.getGuild().getName() + '[' + ge.getGuild().getId()
+								+ "] with an ignored invite, for the FIRST time.");
+						Multiplier mult = Multiplier.ofHr(3, BigDecimal.ONE);
+						joinee.addMultiplier(mult);
+						joinee.getJoinedGuilds().add(ge.getGuild().getId());
+						joinee.save();
+
+						if (clover.getEconomy().hasServer(ge.getGuild().getId())) {
+							var g = clover.getEconomy().getServer(ge.getGuild().getId());
+							if (g.getGeneralChannel() != null) {
+								var gen = ge.getGuild().getTextChannelById(g.getGeneralChannel());
+								if (gen != null)
+									gen.sendMessage(ge.getUser().getAsMention()
+											+ " welcome to the server. ^w^\nYou received a multiplier of "
+											+ Utilities.prettyPrintMultiplier(BigDecimal.ONE)
+											+ " that lasts for **3h**.").queue();
+							}
 						}
 					}
 				} else {
-					print(sb.append(" for the first time.").toString());
+					StringBuilder sb;
+					{
+						var inv = inviter.getUser().getUser();
+						var join = joinee.getUser();
+						sb = new StringBuilder(inv.getAsTag());
+						sb.append('[').append(inv.getId()).append("] has invited ").append(join.getAsTag()).append('[')
+								.append(join.getId()).append("] to ").append(ge.getGuild().getName()).append('[')
+								.append(ge.getGuild().getId()).append(']');
+					}
+					if (joinee.getJoinedGuilds().contains(ge.getGuild().getId())) {
+						print(sb.append('.').toString());
 
-					Multiplier mult = Multiplier.ofHr(3, BigDecimal.ONE);
-					inviter.getUser().addMultiplier(mult);
-					inviter.getUser().save();
-					joinee.addMultiplier(mult);
-					joinee.getJoinedGuilds().add(ge.getGuild().getId());
-					joinee.save();
+						if (clover.getEconomy().hasServer(ge.getGuild().getId())) {
+							var g = clover.getEconomy().getServer(ge.getGuild().getId());
+							if (g.getGeneralChannel() != null) {
+								var gen = ge.getGuild().getTextChannelById(g.getGeneralChannel());
+								if (gen != null)
+									gen.sendMessage(ge.getUser().getAsMention()
+											+ " welcome back to the server. ^w^\nYou were invited back by: "
+											+ inviter.getUser().getUser().getAsMention() + ".").queue();
+							}
+						}
+					} else {
+						print(sb.append(" for the FIRST time.").toString());
 
-					if (clover.getEconomy().hasServer(ge.getGuild().getId())) {
-						var g = clover.getEconomy().getServer(ge.getGuild().getId());
-						if (g.getGeneralChannel() != null) {
-							var gen = ge.getGuild().getTextChannelById(g.getGeneralChannel());
-							if (gen != null)
-								gen.sendMessage(ge.getUser().getAsMention() + " welcome to the server. ^w^\nYou and "
-										+ inviter.getUser().getUser().getAsMention() + " both received a multiplier of "
-										+ Utilities.prettyPrintMultiplier(BigDecimal.ONE) + " that lasts for **3h**.")
-										.queue();
+						Multiplier mult = Multiplier.ofHr(3, BigDecimal.ONE);
+						inviter.getUser().addMultiplier(mult);
+						inviter.getUser().save();
+						joinee.addMultiplier(mult);
+						joinee.getJoinedGuilds().add(ge.getGuild().getId());
+						joinee.save();
+
+						if (clover.getEconomy().hasServer(ge.getGuild().getId())) {
+							var g = clover.getEconomy().getServer(ge.getGuild().getId());
+							if (g.getGeneralChannel() != null) {
+								var gen = ge.getGuild().getTextChannelById(g.getGeneralChannel());
+								if (gen != null)
+									gen.sendMessage(
+											ge.getUser().getAsMention() + " welcome to the server. ^w^\nYou and "
+													+ inviter.getUser().getUser().getAsMention()
+													+ " both received a multiplier of "
+													+ Utilities.prettyPrintMultiplier(BigDecimal.ONE)
+													+ " that lasts for **3h**.")
+											.queue();
+							}
 						}
 					}
-				}
 
+				}
 			}
 		else if (event instanceof GuildInviteCreateEvent)
 			inviteTracker.inviteCreated((GuildInviteCreateEvent) event);
