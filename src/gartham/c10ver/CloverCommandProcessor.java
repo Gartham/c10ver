@@ -726,6 +726,12 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 		});
 		register(new MatchBasedCommand("baltop", "leaderboard") {
 
+			private BigInteger getBal(Member member) {
+				return clover.getEconomy().hasAccount(member.getId())
+						? clover.getEconomy().getAccount(member.getId()).getBalance()
+						: BigInteger.ZERO;
+			}
+
 			@Override
 			public void exec(CommandInvocation inv) {
 				if (inv.event.isFromGuild()) {
@@ -736,12 +742,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					List<Member> users = new ArrayList<>();
 					inv.event.getGuild().findMembers(t -> !t.getUser().isBot()).onSuccess(t -> {
 						for (Member m : t) {
-							int search = Collections
-									.binarySearch(users, m,
-											((Comparator<Member>) (o1, o2) -> clover.getEconomy().getUser(o1.getId())
-													.getAccount().getBalance().compareTo(clover.getEconomy()
-															.getUser(o2.getId()).getAccount().getBalance()))
-																	.reversed());
+							int search = Collections.binarySearch(users, m,
+									((Comparator<Member>) (o1, o2) -> getBal(o1).compareTo(getBal(o2))).reversed());
 							users.add(search < 0 ? -search - 1 : search, m);
 						}
 					});
