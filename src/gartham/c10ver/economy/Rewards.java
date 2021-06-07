@@ -88,11 +88,11 @@ public class Rewards {
 	}
 
 	public List<ItemBunch<?>> getItemsAsList() {
-		return items == null ? null : Collections.unmodifiableList(items);
+		return items == null ? List.of() : Collections.unmodifiableList(items);
 	}
 
 	public List<Multiplier> getMultipliers() {
-		return multipliers == null ? null : Collections.unmodifiableList(multipliers);
+		return multipliers == null ? List.of() : Collections.unmodifiableList(multipliers);
 	}
 
 	public boolean hasMultipliers() {
@@ -100,7 +100,7 @@ public class Rewards {
 	}
 
 	public BigInteger getCloves() {
-		return cloves;
+		return cloves == null ? BigInteger.ZERO : cloves;
 	}
 
 }
