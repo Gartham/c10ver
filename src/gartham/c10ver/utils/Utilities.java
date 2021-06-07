@@ -33,6 +33,7 @@ import org.alixia.javalibrary.streams.CharacterStream;
 import org.alixia.javalibrary.strings.matching.Matching;
 
 import gartham.c10ver.economy.Rewards;
+import gartham.c10ver.economy.User.Receipt;
 import gartham.c10ver.economy.items.ItemBunch;
 
 public final class Utilities {
@@ -266,7 +267,7 @@ public final class Utilities {
 
 	public static String listRewards(Rewards rewards, BigInteger rewardsCloves, BigInteger totalCloves,
 			BigDecimal totalMult) {
-		String rew = listRewards(rewardsCloves, rewards.getItemList());
+		String rew = listRewards(rewardsCloves, rewards.getItemsAsList());
 		StringBuilder sb = new StringBuilder(rew);
 		for (var m : rewards.getMultipliers())
 			sb.append("[**x").append(m.getAmount()).append("**] for ").append(formatLargest(m.getTimeRemaining(), 2))
@@ -276,6 +277,11 @@ public final class Utilities {
 		if (mul != null)
 			sb.append("\nTotal Mult: ").append("[**x").append(mul).append("**]");
 		return sb.toString();
+	}
+
+	public static String listRewards(Receipt receipt) {
+		return listRewards(receipt.getRewards(), receipt.getResultingCloves(), receipt.getTotalCloves(),
+				receipt.getAppliedMultiplier());
 	}
 
 	public static String listRewards(BigInteger cloves, BigDecimal mult, ItemBunch<?>... items) {
