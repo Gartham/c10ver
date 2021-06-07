@@ -312,7 +312,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 									u.addMultiplier(m);
 								var totalMult = u.calcMultiplier(inv.event.getGuild());
 								var totalCloves = u.rewardAndSave(rew.getCloves(), totalMult);
-								for (var i : rew.getItemList())
+								for (var i : rew.getItemsAsList())
 									u.getInventory().add(i).save();
 								is.removeAndSave(BigInteger.ONE);
 								u.save();
