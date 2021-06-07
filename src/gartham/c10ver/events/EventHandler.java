@@ -8,21 +8,31 @@ import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 import gartham.c10ver.Clover;
 import gartham.c10ver.commands.CommandInvocation;
 import gartham.c10ver.commands.InputProcessor;
 import gartham.c10ver.economy.Multiplier;
+import gartham.c10ver.economy.Rewards;
+import gartham.c10ver.economy.Server;
 import gartham.c10ver.economy.User;
 import gartham.c10ver.economy.items.ItemBunch;
+import gartham.c10ver.economy.items.utility.crates.DailyCrate;
+import gartham.c10ver.economy.items.utility.crates.MonthlyCrate;
 import gartham.c10ver.economy.items.utility.crates.NormalCrate;
+import gartham.c10ver.economy.items.utility.crates.WeeklyCrate;
 import gartham.c10ver.economy.items.utility.foodstuffs.Sandwich;
 import gartham.c10ver.utils.Utilities;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Invite;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.guild.invite.GuildInviteCreateEvent;
 import net.dv8tion.jda.api.events.guild.invite.GuildInviteDeleteEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
@@ -267,6 +277,48 @@ public class EventHandler implements EventListener {
 			inviteTracker.inviteCreated((GuildInviteCreateEvent) event);
 		else if (event instanceof GuildInviteDeleteEvent)
 			inviteTracker.inviteDeleted((GuildInviteDeleteEvent) event);
+		else if (event instanceof GuildMemberRoleAddEvent) {
+			var e = (GuildMemberRoleAddEvent) event;
+			Server s = clover.getEconomy().getServer(e.getGuild().getId());
+			var role = s.getVoteRole();
+			if (role != null) {
+				for (Role r : e.getRoles()) {
+					if (r.getId().equals(role)) {
+
+						e.getGuild().removeRoleFromMember(e.getMember(), r).queue();
+
+						List<ItemBunch<?>> items = new ArrayList<>();
+						items.add(new ItemBunch<>(new WeeklyCrate(), Math.random() > 0.5 ? 3 : 2));
+						if (Math.random() > 0.5)
+							items.add(new ItemBunch<>(new MonthlyCrate()));
+						if (Math.random() > 0.95)
+							items.add(new ItemBunch<>(new DailyCrate(), 50));
+
+						List<Multiplier> multipliers = new ArrayList<>();
+						if (Math.random() > 0.2)
+							multipliers.add(Multiplier.ofHr(12, BigDecimal.valueOf(2, 1)));
+						if (Math.random() > 0.3)
+							multipliers.add(Multiplier.ofHr(12, BigDecimal.valueOf(3, 1)));
+						if (Math.random() > 0.5)
+							multipliers.add(Multiplier.ofHr(12, BigDecimal.valueOf(5, 1)));
+
+						Rewards rewards = new Rewards(items, BigInteger.valueOf((long) (Math.random() * 3000 + 5000)));
+
+						var rec = clover.getEconomy().getUser(e.getUser().getId()).rewardAndSave(rewards, e.getGuild());
+
+						if (s.getGeneralChannel() != null) {
+							var c = e.getGuild().getTextChannelById(s.getGeneralChannel());
+							c.sendMessage(new EmbedBuilder().setAuthor(e.getUser().getAsTag() + " just voted!")
+									.setDescription(e.getUser().getAsMention() + " just voted and received:\n"
+											+ Utilities.listRewards(rec))
+									.build()).queue();
+						}
+
+						return;
+					}
+				}
+			}
+		}
 	}
 
 	private static void print(String str) {
