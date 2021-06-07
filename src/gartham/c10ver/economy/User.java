@@ -13,7 +13,6 @@ import org.alixia.javalibrary.util.StringGateway;
 
 import gartham.c10ver.data.autosave.SavablePropertyObject;
 import gartham.c10ver.economy.accolades.AccoladeList;
-import gartham.c10ver.economy.items.ItemBunch;
 import gartham.c10ver.economy.items.UserInventory;
 import gartham.c10ver.economy.questions.Question;
 import net.dv8tion.jda.api.entities.Guild;
@@ -24,7 +23,8 @@ public class User extends SavablePropertyObject {
 			weeklyCommand = instantProperty("weekly", Instant.MIN),
 			monthlyCommand = instantProperty("monthly", Instant.MIN);
 	private final Property<BigInteger> messageCount = bigIntegerProperty("message-count", BigInteger.ZERO),
-			totalEarnings = bigIntegerProperty("total-earnings", BigInteger.ZERO);
+			totalEarnings = bigIntegerProperty("total-earnings", BigInteger.ZERO),
+			prestige = bigIntegerProperty("prestige", BigInteger.ZERO);
 	private final Property<ArrayList<Multiplier>> multipliers = listProperty("multipliers",
 			toObjectGateway(Multiplier::new));
 	private final Property<ArrayList<String>> joinedGuilds = listProperty("joined-guilds",
@@ -54,12 +54,24 @@ public class User extends SavablePropertyObject {
 		return messageCount.get();
 	}
 
+	public BigInteger getPrestige() {
+		return prestige.get();
+	}
+
 	public void setMessageCount(BigInteger count) {
 		messageCount.set(count);
 	}
 
+	public void setPrestige(BigInteger count) {
+		prestige.set(count);
+	}
+
 	public void incrementMessageCount() {
 		setMessageCount(getMessageCount().add(BigInteger.ONE));
+	}
+
+	public void incrementPrestige() {
+		setPrestige(getPrestige().add(BigInteger.ONE));
 	}
 
 	private final Property<ArrayList<Question>> questions = listProperty("questions",
