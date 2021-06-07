@@ -1419,7 +1419,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 									case "vote-role":
 									case "vote":
 										ROLEP: {
-											String cm = Utilities.parseChannelMention(inv.args[1]);
+											String cm = Utilities.parseRoleMention(inv.args[1]);
 											if (cm == null)
 												cm = Utilities.strip(inv.args[1]);
 											try {
@@ -1430,8 +1430,14 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 											}
 
 											s.setVoteRole(cm);
+											inv.event.getChannel().sendMessage("Vote role set to <@&" + cm + ">.")
+													.queue();
 											break;
 										}
+										inv.event.getChannel().sendMessage(
+												inv.event.getAuthor().getAsMention() + " that's not a valid role.")
+												.queue();
+										return;
 									default:
 										inv.event.getChannel().sendMessage(
 												inv.event.getAuthor().getAsMention() + " that isn't a valid property.")
