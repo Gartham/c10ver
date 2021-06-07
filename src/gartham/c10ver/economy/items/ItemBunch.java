@@ -18,6 +18,10 @@ public class ItemBunch<I extends Item> extends Bunch<I> {
 		super(value);
 	}
 
+	public ItemBunch(I value, long count) {
+		this(value, BigInteger.valueOf(count));
+	}
+
 	public static <I extends Item> ItemBunch<I> of(I item, BigInteger amount) {
 		return new ItemBunch<I>(item, amount);
 	}
