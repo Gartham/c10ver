@@ -266,7 +266,7 @@ public final class Utilities {
 
 	public static String listRewards(Rewards rewards, BigInteger rewardsCloves, BigInteger totalCloves,
 			BigDecimal totalMult) {
-		String rew = listRewards(rewardsCloves, rewards.getItemList());
+		String rew = listRewards(rewardsCloves, rewards.getItemsAsList());
 		StringBuilder sb = new StringBuilder(rew);
 		for (var m : rewards.getMultipliers())
 			sb.append("[**x").append(m.getAmount()).append("**] for ").append(formatLargest(m.getTimeRemaining(), 2))
