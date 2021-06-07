@@ -13,6 +13,7 @@ import org.alixia.javalibrary.util.StringGateway;
 
 import gartham.c10ver.data.autosave.SavablePropertyObject;
 import gartham.c10ver.economy.accolades.AccoladeList;
+import gartham.c10ver.economy.items.ItemBunch;
 import gartham.c10ver.economy.items.UserInventory;
 import gartham.c10ver.economy.questions.Question;
 import net.dv8tion.jda.api.entities.Guild;
@@ -176,6 +177,61 @@ public class User extends SavablePropertyObject {
 		save();
 		account.save();
 		return x;
+	}
+
+	public Receipt reward(Rewards rewards, Guild guild) {
+		var mult = calcMultiplier(guild);
+		BigInteger clovesGiven = BigInteger.ZERO;
+		if (rewards.hasMultipliers())
+			for (var m : rewards.getMultipliers())
+				addMultiplier(m);
+		if (rewards.hasCloves())
+			clovesGiven = reward(rewards.getCloves(), mult);
+		if (rewards.hasItems())
+			getInventory().add(rewards.getItemsAsList());
+
+		return new Receipt(rewards, mult, clovesGiven);
+	}
+
+	public Receipt rewardAndSave(Rewards rewards, Guild guild) {
+		var r = reward(rewards, guild);
+		if (rewards.hasCloves())
+			getAccount().save();
+		if (rewards.hasItems())
+			for (var i : rewards.getItemsAsList())
+				try {
+					getInventory().get(i.getItem()).save();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+		if (rewards.hasMultipliers())
+			save();
+		return r;
+	}
+
+	public class Receipt {
+		private final Rewards rewards;
+		private final BigDecimal appliedMultiplier;
+		private final BigInteger resultingCloves;
+
+		public Receipt(Rewards rewards, BigDecimal appliedMultiplier, BigInteger resultingCloves) {
+			this.rewards = rewards;
+			this.appliedMultiplier = appliedMultiplier;
+			this.resultingCloves = resultingCloves;
+		}
+
+		public Rewards getRewards() {
+			return rewards;
+		}
+
+		public BigDecimal getAppliedMultiplier() {
+			return appliedMultiplier;
+		}
+
+		public BigInteger getResultingCloves() {
+			return resultingCloves;
+		}
+
 	}
 
 	public BigInteger rewardAndSave(long amount, BigDecimal multiplier) {
