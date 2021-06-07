@@ -1293,6 +1293,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 									sb.append("\nSpam Channel: <#").append(s.getSpamChannel()).append('>');
 								if (s.getGamblingChannel() != null)
 									sb.append("\nGambling Channel: <#").append(s.getGamblingChannel()).append('>');
+								if (s.getVoteRole() != null)
+									sb.append("\nVote Role: <@&").append(s.getVoteRole()).append('>');
 								if (!s.getIgnoredInvites().isEmpty()) {
 									sb.append("\nIgnored Invites:");
 									for (var e : s.getIgnoredInvites())
@@ -1357,14 +1359,12 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 											String cm = Utilities.parseChannelMention(inv.args[1]);
 											if (cm == null)
 												break CHANP;
-											Object o;
 											try {
-												o = inv.event.getGuild().getTextChannelById(cm);
+												if (inv.event.getGuild().getTextChannelById(cm) == null)
+													break CHANP;
 											} catch (NumberFormatException e) {
 												break CHANP;
 											}
-											if (o == null)
-												break CHANP;
 											s.setGeneralChannel(cm);
 											inv.event.getChannel().sendMessage("General channel set to <#" + cm + ">.")
 													.queue();
@@ -1380,14 +1380,12 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 											String cm = Utilities.parseChannelMention(inv.args[1]);
 											if (cm == null)
 												break CHANP;
-											Object o;
 											try {
-												o = inv.event.getGuild().getTextChannelById(cm);
+												if (inv.event.getGuild().getTextChannelById(cm) == null)
+													break CHANP;
 											} catch (NumberFormatException e) {
 												break CHANP;
 											}
-											if (o == null)
-												break CHANP;
 											s.setGamblingChannel(cm);
 											inv.event.getChannel().sendMessage("Gambling channel set to <#" + cm + ">.")
 													.queue();
@@ -1403,14 +1401,12 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 											String cm = Utilities.parseChannelMention(inv.args[1]);
 											if (cm == null)
 												break CHANP;
-											Object o;
 											try {
-												o = inv.event.getGuild().getTextChannelById(cm);
+												if (inv.event.getGuild().getTextChannelById(cm) == null)
+													break CHANP;
 											} catch (NumberFormatException e) {
 												break CHANP;
 											}
-											if (o == null)
-												break CHANP;
 											s.setSpamChannel(cm);
 											inv.event.getChannel().sendMessage("Spam channel set to <#" + cm + ">.")
 													.queue();
@@ -1420,6 +1416,22 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 												inv.event.getAuthor().getAsMention() + " that's not a valid channel.")
 												.queue();
 										return;
+									case "vote-role":
+									case "vote":
+										ROLEP: {
+											String cm = Utilities.parseChannelMention(inv.args[1]);
+											if (cm == null)
+												cm = Utilities.strip(inv.args[1]);
+											try {
+												if (inv.event.getGuild().getRoleById(cm) == null)
+													break ROLEP;
+											} catch (NumberFormatException e) {
+												break ROLEP;
+											}
+
+											s.setVoteRole(cm);
+											break;
+										}
 									default:
 										inv.event.getChannel().sendMessage(
 												inv.event.getAuthor().getAsMention() + " that isn't a valid property.")
@@ -1460,6 +1472,11 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 									case "spam":
 										s.setSpamChannel(null);
 										inv.event.getChannel().sendMessage("Unregistered the spam channel.").queue();
+										break;
+									case "vote-role":
+									case "vote":
+										s.setVoteRole(null);
+										inv.event.getChannel().sendMessage("Unregistered the vote role.").queue();
 										break;
 									case "color-roles":
 									case "color-role":
@@ -1544,14 +1561,12 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 												String cm = Utilities.parseChannelMention(inv.args[1]);
 												if (cm == null)
 													cm = Utilities.strip(inv.args[1]);
-												Object o;
 												try {
-													o = inv.event.getGuild().getRoleById(cm);
+													if (inv.event.getGuild().getRoleById(cm) == null)
+														break ROLEP;
 												} catch (NumberFormatException e) {
 													break ROLEP;
 												}
-												if (o == null)
-													break ROLEP;
 												BigInteger cost;
 												try {
 													cost = new BigInteger(inv.args[3]);
@@ -1633,15 +1648,13 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 										ROLEP: {
 											String cm = Utilities.parseRoleMention(inv.args[1]);
 											if (cm == null)
-												cm = inv.args[1];
-											Object o;
+												cm = Utilities.strip(inv.args[1]);
 											try {
-												o = inv.event.getGuild().getRoleById(cm);
+												if (inv.event.getGuild().getRoleById(cm) == null)
+													break ROLEP;
 											} catch (NumberFormatException e) {
 												break ROLEP;
 											}
-											if (o == null)
-												break ROLEP;
 											if (s.getColorRoles().containsKey(cm)) {
 												s.getColorRoles().remove(cm);
 												inv.event.getChannel().sendMessage("Removed the role successfully.")
