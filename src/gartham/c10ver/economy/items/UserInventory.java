@@ -39,6 +39,10 @@ public class UserInventory extends Inventory {
 		return (UserEntry<?>) super.get(key);
 	}
 
+	public UserEntry<?> get(Item item) {
+		return (UserEntry<?>) super.get(item);
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public <I extends Item> UserEntry<I> add(ItemBunch<? extends I> items) {

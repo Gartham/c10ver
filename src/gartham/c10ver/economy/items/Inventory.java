@@ -165,6 +165,10 @@ public class Inventory implements Cloneable {
 		return entries.get(key);
 	}
 
+	public Entry<?> get(Item item) {
+		return get(item.getItemType());
+	}
+
 	public int getEntryCount() {
 		return entryList.size();
 	}
