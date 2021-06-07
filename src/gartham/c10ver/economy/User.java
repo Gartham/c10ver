@@ -212,7 +212,7 @@ public class User extends SavablePropertyObject {
 	public class Receipt {
 		private final Rewards rewards;
 		private final BigDecimal appliedMultiplier;
-		private final BigInteger resultingCloves;
+		private final BigInteger resultingCloves, totalCloves = getAccount().getBalance();
 
 		public Receipt(Rewards rewards, BigDecimal appliedMultiplier, BigInteger resultingCloves) {
 			this.rewards = rewards;
@@ -230,6 +230,10 @@ public class User extends SavablePropertyObject {
 
 		public BigInteger getResultingCloves() {
 			return resultingCloves;
+		}
+
+		public BigInteger getTotalCloves() {
+			return totalCloves;
 		}
 
 	}
