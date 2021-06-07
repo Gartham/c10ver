@@ -2,6 +2,7 @@ package gartham.c10ver.economy.items;
 
 import java.io.File;
 import java.math.BigInteger;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -39,6 +40,7 @@ public class UserInventory extends Inventory {
 		return (UserEntry<?>) super.get(key);
 	}
 
+	@Override
 	public UserEntry<?> get(Item item) {
 		return (UserEntry<?>) super.get(item);
 	}
@@ -52,6 +54,18 @@ public class UserInventory extends Inventory {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Set<? extends UserEntry<?>> add(ItemBunch<?>... items) {
+		return (Set<? extends UserEntry<?>>) super.add(items);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Set<? extends UserEntry<?>> add(Iterable<ItemBunch<?>> items) {
+		return (Set<? extends UserEntry<?>>) super.add(items);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Set<? extends UserEntry<?>> add(Iterator<ItemBunch<?>> items) {
 		return (Set<? extends UserEntry<?>>) super.add(items);
 	}
 

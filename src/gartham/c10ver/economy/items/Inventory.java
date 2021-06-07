@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -129,6 +130,17 @@ public class Inventory implements Cloneable {
 		for (ItemBunch<?> ib : items)
 			res.add(add(ib));
 		return res;
+	}
+
+	public Set<? extends Entry<?>> add(Iterator<ItemBunch<?>> items) {
+		Set<Entry<?>> res = new HashSet<>();
+		while (items.hasNext())
+			res.add(add(items.next()));
+		return res;
+	}
+
+	public Set<? extends Entry<?>> add(Iterable<ItemBunch<?>> items) {
+		return add(items.iterator());
 	}
 
 	public <I extends Item> Entry<I> add(ItemBunch<? extends I> items) {
