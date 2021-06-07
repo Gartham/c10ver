@@ -310,7 +310,9 @@ public class EventHandler implements EventListener {
 							var c = e.getGuild().getTextChannelById(s.getGeneralChannel());
 							c.sendMessage(new EmbedBuilder().setAuthor(e.getUser().getAsTag() + " just voted!")
 									.setDescription(e.getUser().getAsMention() + " just voted and received:\n"
-											+ Utilities.listRewards(rec))
+											+ Utilities.listRewards(rec)
+											+ "\n\nYou can vote by [clicking me](https://top.gg/servers/"
+											+ e.getGuild().getId() + "/vote).")
 									.build()).queue();
 						}
 
