@@ -23,6 +23,8 @@ import gartham.c10ver.economy.items.utility.crates.DailyCrate;
 import gartham.c10ver.economy.items.utility.crates.MonthlyCrate;
 import gartham.c10ver.economy.items.utility.crates.NormalCrate;
 import gartham.c10ver.economy.items.utility.crates.WeeklyCrate;
+import gartham.c10ver.economy.items.utility.foodstuffs.Hamburger;
+import gartham.c10ver.economy.items.utility.foodstuffs.Pizza;
 import gartham.c10ver.economy.items.utility.foodstuffs.Sandwich;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -293,6 +295,10 @@ public class EventHandler implements EventListener {
 							items.add(new ItemBunch<>(new MonthlyCrate()));
 						if (Math.random() > 0.95)
 							items.add(new ItemBunch<>(new DailyCrate(), 50));
+						items.add(new ItemBunch<>(new NormalCrate(), (long) (Math.random() * 5 + 3)));
+						items.add(new ItemBunch<>(new Pizza(), (long) (Math.random() * 5 + 3)));
+						items.add(new ItemBunch<>(new Sandwich(), (long) (Math.random() * 7 + 3)));
+						items.add(new ItemBunch<>(new Hamburger(), (long) (Math.random() * 2 + 4)));
 
 						List<Multiplier> multipliers = new ArrayList<>();
 						if (Math.random() > 0.2)
