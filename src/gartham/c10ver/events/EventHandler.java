@@ -26,6 +26,8 @@ import gartham.c10ver.economy.items.utility.crates.WeeklyCrate;
 import gartham.c10ver.economy.items.utility.foodstuffs.Hamburger;
 import gartham.c10ver.economy.items.utility.foodstuffs.Pizza;
 import gartham.c10ver.economy.items.utility.foodstuffs.Sandwich;
+import gartham.c10ver.economy.items.valuables.VoteToken;
+import gartham.c10ver.economy.items.valuables.VoteToken.Type;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Invite;
@@ -299,6 +301,7 @@ public class EventHandler implements EventListener {
 						items.add(new ItemBunch<>(new Pizza(), (long) (Math.random() * 5 + 3)));
 						items.add(new ItemBunch<>(new Sandwich(), (long) (Math.random() * 7 + 3)));
 						items.add(new ItemBunch<>(new Hamburger(), (long) (Math.random() * 2 + 4)));
+						items.add(new ItemBunch<>(new VoteToken(Type.NORMAL)));
 
 						List<Multiplier> multipliers = new ArrayList<>();
 						if (Math.random() > 0.2)
@@ -317,7 +320,7 @@ public class EventHandler implements EventListener {
 							c.sendMessage(new EmbedBuilder().setAuthor(e.getUser().getAsTag() + " just voted!")
 									.setDescription(e.getUser().getAsMention() + " just voted and received:\n"
 											+ Utilities.listRewards(rec)
-											+ "\n\nYou can vote by [clicking me](https://top.gg/servers/"
+											+ "\n\nYou can [vote on top.gg by clicking me](https://top.gg/servers/"
 											+ e.getGuild().getId() + "/vote).")
 									.build()).queue();
 						}
