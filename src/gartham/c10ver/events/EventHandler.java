@@ -301,7 +301,7 @@ public class EventHandler implements EventListener {
 						items.add(new ItemBunch<>(new Pizza(), (long) (Math.random() * 5 + 3)));
 						items.add(new ItemBunch<>(new Sandwich(), (long) (Math.random() * 7 + 3)));
 						items.add(new ItemBunch<>(new Hamburger(), (long) (Math.random() * 2 + 4)));
-						items.add(new ItemBunch<>(new VoteToken(Type.NORMAL)));
+						items.add(new ItemBunch<>(new VoteToken(Type.NORMAL), 5));
 
 						List<Multiplier> multipliers = new ArrayList<>();
 						if (Math.random() > 0.2)

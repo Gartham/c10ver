@@ -2215,7 +2215,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 										.printLootChance(Pizza.ITEM_ICON, Pizza.ITEM_NAME, "[3-7] @ 100%")
 										.printLootChance(Sandwich.ITEM_ICON, Sandwich.ITEM_NAME, "[3-9] @ 100%")
 										.printLootChance(Hamburger.ITEM_ICON, Hamburger.ITEM_NAME, "[4-5] @ 100%")
-										.printLootChance(VoteToken.Type.NORMAL.getIcon(), "Vote Token", "[1] @ 100%").sb
+										.printLootChance(VoteToken.Type.NORMAL.getIcon(), "Vote Token", "[5] @ 100%").sb
 												.append("\n\n[Click Here](https://top.gg/servers/"
 														+ inv.event.getGuild().getId() + "/vote) to vote!")
 												.toString())
