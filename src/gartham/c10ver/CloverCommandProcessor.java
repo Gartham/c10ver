@@ -2075,7 +2075,119 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 			}
 		});
 
-//		help.addCommand("stats", "Shows a user's stats!", "stats [user]", "info");
+		register(new MatchBasedCommand("prestige") {
+
+			@Override
+			public void exec(CommandInvocation inv) {
+				if (clover.getEconomy().hasUser(inv.event.getAuthor().getId())) {
+					var u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
+
+					BigInteger cost, pamount;
+
+					if (inv.args.length == 0) {
+						pamount = BigInteger.ONE;
+						cost = cost(u.getPrestige().add(BigInteger.ONE));
+					} else if (inv.args.length == 1) {
+						if (inv.args[0].equalsIgnoreCase("max")) {
+							cost = BigInteger.ZERO;
+							for (pamount = BigInteger.ONE;; pamount = pamount.add(BigInteger.ONE)) {
+								var cst = cost(u.getPrestige().add(pamount)).add(cost);
+								if (cst.compareTo(u.getAccount().getBalance()) > 0) {
+									pamount = pamount.subtract(BigInteger.ONE);
+									break;
+								}
+								cost = cst;
+							}
+							if (pamount.equals(BigInteger.ZERO)) {
+								inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+										+ " you don't have enough cloves to prestige.").queue();
+								return;
+							}
+						} else {
+							try {
+								pamount = new BigInteger(inv.args[0]);
+							} catch (NumberFormatException e) {
+								inv.event.getChannel()
+										.sendMessage(
+												inv.event.getAuthor().getAsMention() + ", invalid prestige amount.")
+										.queue();
+								return;
+							}
+							cost = BigInteger.ZERO;
+							for (BigInteger bi = BigInteger.ONE; bi.compareTo(pamount) <= 0; bi = bi
+									.add(BigInteger.ONE)) {
+								var cst = cost(u.getPrestige().add(bi)).add(cost);
+								if (cst.compareTo(u.getAccount().getBalance()) > 0) {
+									inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+											+ " you don't have enough cloves to prestige that many times. The maximum amount of times you can prestige is `"
+											+ pamount.subtract(BigInteger.ONE) + "`.").queue();
+									return;
+								}
+								cost = cst;
+							}
+						}
+					} else {
+						inv.event.getChannel()
+								.sendMessage(inv.event.getAuthor().getAsMention() + ", too many arguments.").queue();
+						return;
+					}
+
+					if (u.getAccount().getBalance().compareTo(cost) >= 0) {
+
+						final BigInteger cohst = cost, pahmount = pamount;
+
+						MessageInputConsumer mic = new MessageInputConsumer() {
+
+							@Override
+							public boolean consume(MessageReceivedEvent event,
+									InputProcessor<? extends MessageReceivedEvent> processor,
+									InputConsumer<MessageReceivedEvent> consumer) {
+								if (StringTools.equalsAnyIgnoreCase(event.getMessage().getContentRaw(), "y", "yes")) {
+									u.getAccount().withdraw(cohst);
+									u.getAccount().save();
+									u.setPrestige(u.getPrestige().add(pahmount));
+									u.save();
+
+									inv.event.getChannel().sendMessage(new EmbedBuilder()
+											.setAuthor(inv.event.getAuthor().getAsTag() + " Prestiged!")
+											.setDescription("You prestiged to rank `"
+													+ Utilities.toRomanNumerals(u.getPrestige()) + "`.")
+											.build()).queue();
+									processor.removeInputConsumer(consumer);
+								} else if (StringTools.equalsAnyIgnoreCase(event.getMessage().getContentRaw(), "n",
+										"no")) {
+									event.getMessage().addReaction("\u2611").queue();
+									processor.removeInputConsumer(consumer);
+								} else {
+									inv.event.getChannel().sendMessage(
+											inv.event.getAuthor().getAsMention() + " invalid response, cancelling...")
+											.queue();
+									processor.removeInputConsumer(consumer);
+								}
+								return true;
+							}
+						}.withActivityTTL(30000).filter(inv.event.getAuthor(), inv.event.getChannel());
+
+						inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+								+ ", do you want to prestige? (Y/N) Prestiging will cost: " + Utilities.format(cost))
+								.queue();
+						clover.getEventHandler().getMessageProcessor().registerInputConsumer(mic);
+					} else
+						inv.event.getChannel()
+								.sendMessage(inv.event.getAuthor().getAsMention()
+										+ " you don't have enough cloves to prestige. Current rank: "
+										+ (u.getPrestige().compareTo(BigInteger.ZERO) == 0 ? "None"
+												: Utilities.toRomanNumerals(u.getPrestige())))
+								.queue();
+
+				} else {
+					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+							+ " you don't have enough cloves to prestige. Current rank: None.").queue();
+				}
+			}
+		});
+
+		help.addCommand("stats", "Shows a user's stats!", "stats [user]", "info");
 		help.addCommand("tip", "Shows a random tip!", "tip");
 		help.addCommand("daily", "Receive daily rewards! You can only run this once a day.", "daily");
 		help.addCommand("weekly", "Receive weekly rewards! You can only run this once a day.", "weekly");
@@ -2092,6 +2204,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 		help.addCommand("accolades",
 				"Shows you what accolades you have. Use a number to get info about a specific accolade you have, for example `~accolades 2` will give you information about the second accolade you have.",
 				"accolades [index]");
+		help.addCommand("prestige", "Prestiges you to the next rank. Use `~stats` to see your prestige.", "prestige",
+				"rankup");
 		{
 			var quizHelp = help.addParentCommand("quiz",
 					"Lets you make, see, and give quizzes! (You must be a Clover Officer to access this command!)");
@@ -2138,6 +2252,12 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						.append(Utilities.formatLargest(e.getKey().mult.getTimeRemaining(), 2)).append('\n');
 		}
 
+	}
+
+	private static BigInteger cost(BigInteger rank) {
+		var x = rank.subtract(BigInteger.ONE).divideAndRemainder(BigInteger.valueOf(3));
+		return BigInteger.valueOf(1000).multiply(BigInteger.TEN.pow(x[0].intValue()))
+				.multiply(x[1].add(BigInteger.ONE).pow(2));
 	}
 
 }

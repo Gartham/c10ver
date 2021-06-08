@@ -46,6 +46,93 @@ public final class Utilities {
 		YEARS, DAYS, HOURS, MINUTES, SECONDS, MILLISECONDS, MICROSECONDS, NANOSECONDS;
 	}
 
+	public enum RomanNumeral {
+		I(1, false), IV(4, false), V(5), IX(9), X(10), XL(40), L(50), XC(90), C(100), CD(400), D(500), CM(900), M(1000);
+
+		private final long value;
+		private final boolean barrable;
+
+		private RomanNumeral(long value) {
+			this.value = value;
+			barrable = true;
+		}
+
+		public StringBuilder bar(StringBuilder bar) {
+			StringBuilder res = new StringBuilder();
+			for (char c : name().toCharArray())
+				res.append(c).append(bar);
+			return res;
+		}
+
+		private RomanNumeral(long value, boolean barrable) {
+			this.value = value;
+			this.barrable = barrable;
+		}
+
+		public long getValue() {
+			return value;
+		}
+	}
+
+	public static double log2(double value) {
+		return Math.log(value) / Math.log(2);
+	}
+
+	/**
+	 * Performs a log operation that estimates the log of the provided
+	 * {@link BigInteger} by an arbitrary base. The number is not exact because the
+	 * result of the log operation in base 2 is floored before the change of base
+	 * occurs.
+	 * 
+	 * @param base
+	 * @param value
+	 * @return
+	 */
+	public static BigDecimal logEstimation(long base, BigInteger value) {
+		return BigDecimal.valueOf(((double) logBase2Floor(value)) / log2(base));
+	}
+
+	public static int logBase2Floor(BigInteger value) {
+		return value.bitLength();
+	}
+
+	private static RomanNumeral[] ROMAN_NUMERALS = RomanNumeral.values();
+
+	public static String toRomanNumerals(BigInteger number) {
+		StringBuilder sb = new StringBuilder();
+		if (number.compareTo(BigInteger.valueOf(4000)) >= 0) {
+			StringBuilder bars = new StringBuilder("\u0305");
+			BigInteger barc = BigInteger.valueOf(1000 * ROMAN_NUMERALS[ROMAN_NUMERALS.length - 1].value);
+			while (number.compareTo(barc) > 0) {
+				bars.append('\u0305');
+				barc = barc.multiply(BigInteger.valueOf(1000));
+			}
+			while (!bars.isEmpty()) {
+				barc = barc.divide(BigInteger.valueOf(1000));
+				for (int i = ROMAN_NUMERALS.length - 1; i >= 1; i--) {
+					BigInteger v = barc.multiply(BigInteger.valueOf(ROMAN_NUMERALS[i].value));
+					while (v.compareTo(number) <= 0) {
+						number = number.subtract(v);
+						sb.append(ROMAN_NUMERALS[i].bar(bars));
+					}
+				}
+				bars.deleteCharAt(bars.length() - 1);
+			}
+		}
+		for (int i = ROMAN_NUMERALS.length - 1; i >= 0; i--) {
+			BigInteger val = BigInteger.valueOf(ROMAN_NUMERALS[i].value);
+			while (val.compareTo(number) <= 0) {
+				number = number.subtract(val);
+				sb.append(ROMAN_NUMERALS[i].name());
+			}
+		}
+		return sb.toString();
+	}
+
+	public static String toRomanNumerals(long number) {
+		return toRomanNumerals(BigInteger.valueOf(number));
+	}
+
 	public static JSONObject loadObj(File file) {
 		return (JSONObject) load(file);
 	}
