@@ -2082,66 +2082,104 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				if (clover.getEconomy().hasUser(inv.event.getAuthor().getId())) {
 					var u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
 
+					BigInteger cost, pamount;
+
 					if (inv.args.length == 0) {
-						var x = u.getPrestige().divideAndRemainder(BigInteger.valueOf(3));
-						BigInteger cost = BigInteger.valueOf(1000).multiply(BigInteger.valueOf(10).pow(x[0].intValue()))
-								.multiply(x[1].add(BigInteger.ONE).pow(2));
-
-						if (u.getAccount().getBalance().compareTo(cost) >= 0) {
-
-							MessageInputConsumer mic = new MessageInputConsumer() {
-
-								@Override
-								public boolean consume(MessageReceivedEvent event,
-										InputProcessor<? extends MessageReceivedEvent> processor,
-										InputConsumer<MessageReceivedEvent> consumer) {
-									if (StringTools.equalsAnyIgnoreCase(event.getMessage().getContentRaw(), "y",
-											"yes")) {
-										u.getAccount().withdraw(cost);
-										u.getAccount().save();
-										u.incrementPrestige();
-										u.save();
-
-										inv.event.getChannel().sendMessage(new EmbedBuilder()
-												.setAuthor(inv.event.getAuthor().getAsTag() + " Prestiged!")
-												.setDescription("You prestiged to rank `"
-														+ Utilities.toRomanNumerals(u.getPrestige()) + "`.")
-												.build()).queue();
-										processor.removeInputConsumer(consumer);
-									} else if (StringTools.equalsAnyIgnoreCase(event.getMessage().getContentRaw(), "n",
-											"no")) {
-										event.getMessage().addReaction("\u2611").queue();
-										processor.removeInputConsumer(consumer);
-									} else {
-										inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
-												+ " invalid response, cancelling...").queue();
-										processor.removeInputConsumer(consumer);
-									}
-									return true;
-								}
-							}.withActivityTTL(30000).filter(inv.event.getAuthor(), inv.event.getChannel());
-
-							inv.event.getChannel()
-									.sendMessage(inv.event.getAuthor().getAsMention()
-											+ ", do you want to prestige? (Y/N) Prestiging will cost: "
-											+ Utilities.format(cost))
-									.queue();
-							clover.getEventHandler().getMessageProcessor().registerInputConsumer(mic);
-						} else
-							inv.event.getChannel()
-									.sendMessage(inv.event.getAuthor().getAsMention()
-											+ " you don't have enough cloves to prestige. Current rank: "
-											+ (u.getPrestige().compareTo(BigInteger.ZERO) == 0 ? "None"
-													: Utilities.toRomanNumerals(u.getPrestige())))
-									.queue();
+						pamount = BigInteger.ONE;
+						cost = cost(u.getPrestige().add(BigInteger.ONE));
 					} else if (inv.args.length == 1) {
-						// TODO Prestige multiple times.
-//						var x = u.getPrestige().divideAndRemainder(BigInteger.valueOf(3));
-//						BigInteger cost = BigInteger.valueOf(1000).multiply(BigInteger.valueOf(10).pow(x[0].intValue()))
-//								.multiply(x[1].add(BigInteger.ONE).pow(2));
-					} else
+						if (inv.args[0].equalsIgnoreCase("max")) {
+							cost = BigInteger.ZERO;
+							for (pamount = BigInteger.ONE;; pamount = pamount.add(BigInteger.ONE)) {
+								var cst = cost(u.getPrestige().add(pamount)).add(cost);
+								if (cst.compareTo(u.getAccount().getBalance()) > 0) {
+									pamount = pamount.subtract(BigInteger.ONE);
+									break;
+								}
+								cost = cst;
+							}
+							if (pamount.equals(BigInteger.ZERO)) {
+								inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+										+ " you don't have enough cloves to prestige.").queue();
+								return;
+							}
+						} else {
+							try {
+								pamount = new BigInteger(inv.args[0]);
+							} catch (NumberFormatException e) {
+								inv.event.getChannel()
+										.sendMessage(
+												inv.event.getAuthor().getAsMention() + ", invalid prestige amount.")
+										.queue();
+								return;
+							}
+							cost = BigInteger.ZERO;
+							for (BigInteger bi = BigInteger.ONE; bi.compareTo(pamount) <= 0; bi = bi
+									.add(BigInteger.ONE)) {
+								var cst = cost(u.getPrestige().add(bi)).add(cost);
+								if (cst.compareTo(u.getAccount().getBalance()) > 0) {
+									inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+											+ " you don't have enough cloves to prestige that many times. The maximum amount of times you can prestige is `"
+											+ pamount.subtract(BigInteger.ONE) + "`.").queue();
+									return;
+								}
+								cost = cst;
+							}
+						}
+					} else {
 						inv.event.getChannel()
 								.sendMessage(inv.event.getAuthor().getAsMention() + ", too many arguments.").queue();
+						return;
+					}
+
+					if (u.getAccount().getBalance().compareTo(cost) >= 0) {
+
+						final BigInteger cohst = cost, pahmount = pamount;
+
+						MessageInputConsumer mic = new MessageInputConsumer() {
+
+							@Override
+							public boolean consume(MessageReceivedEvent event,
+									InputProcessor<? extends MessageReceivedEvent> processor,
+									InputConsumer<MessageReceivedEvent> consumer) {
+								if (StringTools.equalsAnyIgnoreCase(event.getMessage().getContentRaw(), "y", "yes")) {
+									u.getAccount().withdraw(cohst);
+									u.getAccount().save();
+									u.setPrestige(u.getPrestige().add(pahmount));
+									u.save();
+
+									inv.event.getChannel().sendMessage(new EmbedBuilder()
+											.setAuthor(inv.event.getAuthor().getAsTag() + " Prestiged!")
+											.setDescription("You prestiged to rank `"
+													+ Utilities.toRomanNumerals(u.getPrestige()) + "`.")
+											.build()).queue();
+									processor.removeInputConsumer(consumer);
+								} else if (StringTools.equalsAnyIgnoreCase(event.getMessage().getContentRaw(), "n",
+										"no")) {
+									event.getMessage().addReaction("\u2611").queue();
+									processor.removeInputConsumer(consumer);
+								} else {
+									inv.event.getChannel().sendMessage(
+											inv.event.getAuthor().getAsMention() + " invalid response, cancelling...")
+											.queue();
+									processor.removeInputConsumer(consumer);
+								}
+								return true;
+							}
+						}.withActivityTTL(30000).filter(inv.event.getAuthor(), inv.event.getChannel());
+
+						inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+								+ ", do you want to prestige? (Y/N) Prestiging will cost: " + Utilities.format(cost))
+								.queue();
+						clover.getEventHandler().getMessageProcessor().registerInputConsumer(mic);
+					} else
+						inv.event.getChannel()
+								.sendMessage(inv.event.getAuthor().getAsMention()
+										+ " you don't have enough cloves to prestige. Current rank: "
+										+ (u.getPrestige().compareTo(BigInteger.ZERO) == 0 ? "None"
+												: Utilities.toRomanNumerals(u.getPrestige())))
+								.queue();
+
 				} else {
 					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
 							+ " you don't have enough cloves to prestige. Current rank: None.").queue();
@@ -2214,6 +2252,12 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						.append(Utilities.formatLargest(e.getKey().mult.getTimeRemaining(), 2)).append('\n');
 		}
 
+	}
+
+	private static BigInteger cost(BigInteger rank) {
+		var x = rank.subtract(BigInteger.ONE).divideAndRemainder(BigInteger.valueOf(3));
+		return BigInteger.valueOf(1000).multiply(BigInteger.TEN.pow(x[0].intValue()))
+				.multiply(x[1].add(BigInteger.ONE).pow(2));
 	}
 
 }
