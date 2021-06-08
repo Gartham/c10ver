@@ -2075,6 +2075,80 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 			}
 		});
 
+		register(new MatchBasedCommand("prestige") {
+
+			@Override
+			public void exec(CommandInvocation inv) {
+				if (clover.getEconomy().hasUser(inv.event.getAuthor().getId())) {
+					var u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
+
+					if (inv.args.length == 0) {
+						var x = u.getPrestige().divideAndRemainder(BigInteger.valueOf(3));
+						BigInteger cost = BigInteger.valueOf(1000).multiply(BigInteger.valueOf(10).pow(x[0].intValue()))
+								.multiply(x[1].add(BigInteger.ONE).pow(2));
+
+						if (u.getAccount().getBalance().compareTo(cost) >= 0) {
+
+							MessageInputConsumer mic = new MessageInputConsumer() {
+
+								@Override
+								public boolean consume(MessageReceivedEvent event,
+										InputProcessor<? extends MessageReceivedEvent> processor,
+										InputConsumer<MessageReceivedEvent> consumer) {
+									if (StringTools.equalsAnyIgnoreCase(event.getMessage().getContentRaw(), "y",
+											"yes")) {
+										u.getAccount().withdraw(cost);
+										u.getAccount().save();
+										u.incrementPrestige();
+										u.save();
+
+										inv.event.getChannel().sendMessage(new EmbedBuilder()
+												.setAuthor(inv.event.getAuthor().getAsTag() + " Prestiged!")
+												.setDescription("You prestiged to rank `"
+														+ Utilities.toRomanNumerals(u.getPrestige()) + "`.")
+												.build()).queue();
+										processor.removeInputConsumer(consumer);
+									} else if (StringTools.equalsAnyIgnoreCase(event.getMessage().getContentRaw(), "n",
+											"no")) {
+										event.getMessage().addReaction("\u2611").queue();
+										processor.removeInputConsumer(consumer);
+									} else {
+										inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+												+ " invalid response, cancelling...").queue();
+										processor.removeInputConsumer(consumer);
+									}
+									return true;
+								}
+							}.withActivityTTL(30000).filter(inv.event.getAuthor(), inv.event.getChannel());
+
+							inv.event.getChannel()
+									.sendMessage(inv.event.getAuthor().getAsMention()
+											+ ", do you want to prestige? (Y/N) Prestiging will cost: "
+											+ Utilities.format(cost))
+									.queue();
+							clover.getEventHandler().getMessageProcessor().registerInputConsumer(mic);
+						} else
+							inv.event.getChannel()
+									.sendMessage(inv.event.getAuthor().getAsMention()
+											+ " you don't have enough cloves to prestige. Current rank: "
+											+ (u.getPrestige().compareTo(BigInteger.ZERO) == 0 ? "None"
+													: Utilities.toRomanNumerals(u.getPrestige())))
+									.queue();
+					} else if (inv.args.length == 1) {
+						// TODO Prestige multiple times.
+//						var x = u.getPrestige().divideAndRemainder(BigInteger.valueOf(3));
+//						BigInteger cost = BigInteger.valueOf(1000).multiply(BigInteger.valueOf(10).pow(x[0].intValue()))
+//								.multiply(x[1].add(BigInteger.ONE).pow(2));
+					} else
+						inv.event.getChannel()
+								.sendMessage(inv.event.getAuthor().getAsMention() + ", too many arguments.").queue();
+				} else {
+					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+							+ " you don't have enough cloves to prestige. Current rank: None.").queue();
+				}
+			}
+		});
+
 		help.addCommand("stats", "Shows a user's stats!", "stats [user]", "info");
 		help.addCommand("tip", "Shows a random tip!", "tip");
 		help.addCommand("daily", "Receive daily rewards! You can only run this once a day.", "daily");
@@ -2092,6 +2166,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 		help.addCommand("accolades",
 				"Shows you what accolades you have. Use a number to get info about a specific accolade you have, for example `~accolades 2` will give you information about the second accolade you have.",
 				"accolades [index]");
+		help.addCommand("prestige", "Prestiges you to the next rank. Use `~stats` to see your prestige.", "prestige",
+				"rankup");
 		{
 			var quizHelp = help.addParentCommand("quiz",
 					"Lets you make, see, and give quizzes! (You must be a Clover Officer to access this command!)");
