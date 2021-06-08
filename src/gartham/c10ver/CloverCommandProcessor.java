@@ -128,13 +128,20 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				sb.append("Cloves: **").append(Utilities.format(ua.getAccount().getBalance())).append("** (`")
 						.append(NumberFormat.getInstance().format(ua.getAccount().getBalance())).append("`)")
 						.append('\n');
+				sb.append("Total Earnings: **").append(Utilities.format(ua.getAccount().getTotalEarnings()))
+						.append("** (`").append(NumberFormat.getInstance().format(ua.getAccount().getTotalEarnings()))
+						.append("`)").append('\n');
 				sb.append("Message Count: **").append(Utilities.formatNumber(ua.getMessageCount())).append("** (`")
-						.append(NumberFormat.getInstance().format(ua.getMessageCount())).append("`)").append('\n');
+						.append(NumberFormat.getInstance().format(ua.getMessageCount())).append("`)\n");
+				sb.append("Vote Count: **").append(Utilities.formatNumber(ua.getVoteCount())).append("** (`")
+						.append(NumberFormat.getInstance().format(ua.getVoteCount())).append("`)\n");
 				sb.append("Servers Visited: ")
 						.append(JavaTools.printInEnglish(JavaTools.mask(ua.getJoinedGuilds().iterator(), a -> {
 							var g = u.getJDA().getGuildById(a);
 							return g == null ? "`[" + a + "]`" : g.getName();
-						}), true));
+						}), true)).append('\n');
+				sb.append("Prestige: **").append(Utilities.formatNumber(ua.getPrestige())).append("** (`")
+						.append(NumberFormat.getInstance().format(ua.getPrestige())).append("`)\n");
 				eb.setDescription(sb.toString());
 				inv.event.getChannel().sendMessage(eb.build()).queue();
 			}
