@@ -48,10 +48,15 @@ import gartham.c10ver.economy.items.UserInventory.UserEntry;
 import gartham.c10ver.economy.items.utility.crates.DailyCrate;
 import gartham.c10ver.economy.items.utility.crates.LootCrateItem;
 import gartham.c10ver.economy.items.utility.crates.MonthlyCrate;
+import gartham.c10ver.economy.items.utility.crates.NormalCrate;
 import gartham.c10ver.economy.items.utility.crates.WeeklyCrate;
 import gartham.c10ver.economy.items.utility.foodstuffs.Foodstuff;
+import gartham.c10ver.economy.items.utility.foodstuffs.Hamburger;
+import gartham.c10ver.economy.items.utility.foodstuffs.Pizza;
+import gartham.c10ver.economy.items.utility.foodstuffs.Sandwich;
 import gartham.c10ver.economy.items.utility.itembomb.Bomb;
 import gartham.c10ver.economy.items.utility.multickets.MultiplierTicket;
+import gartham.c10ver.economy.items.valuables.VoteToken;
 import gartham.c10ver.economy.questions.Question;
 import gartham.c10ver.economy.questions.Question.Difficulty;
 import gartham.c10ver.economy.server.ColorRole;
@@ -2194,6 +2199,31 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 			}
 		});
 
+		register(new MatchBasedCommand("vote") {
+
+			@Override
+			public void exec(CommandInvocation inv) {
+				inv.event.getChannel()
+						.sendMessage("**You can vote at https://top.gg/servers/" + inv.event.getGuild().getId()
+								+ "/vote to get rewards!**")
+						.embed(new EmbedBuilder().setAuthor("Vote Rewards", null, inv.event.getGuild().getIconUrl())
+								.setDescription(new LootRewardStringBuilder()
+										.printLootChance(WeeklyCrate.ITEM_ICON, WeeklyCrate.ITEM_NAME, "[2-3] @ 100%")
+										.printLootChance(MonthlyCrate.ITEM_ICON, MonthlyCrate.ITEM_NAME, "[1] @ 50%")
+										.printLootChance(DailyCrate.ITEM_ICON, DailyCrate.ITEM_NAME, "[50] @ 5%")
+										.printLootChance(NormalCrate.ITEM_ICON, NormalCrate.ITEM_NAME, "[3-7] @ 100%")
+										.printLootChance(Pizza.ITEM_ICON, Pizza.ITEM_NAME, "[3-7] @ 100%")
+										.printLootChance(Sandwich.ITEM_ICON, Sandwich.ITEM_NAME, "[3-9] @ 100%")
+										.printLootChance(Hamburger.ITEM_ICON, Hamburger.ITEM_NAME, "[4-5] @ 100%")
+										.printLootChance(VoteToken.Type.NORMAL.getIcon(), "Vote Token", "[1] @ 100%").sb
+												.append("\n\n[Click Here](https://top.gg/servers/"
+														+ inv.event.getGuild().getId() + "/vote) to vote!")
+												.toString())
+								.build())
+						.queue();
+			}
+		});
+
 		help.addCommand("prestige", "Allows you to prestige to the next rank. (Use `~stats` to see your current rank.)",
 				"prestige [amount|'max']");
 		help.addCommand("stats", "Shows a user's stats!", "stats [user]", "info");
@@ -2232,6 +2262,24 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 		help.addCommand("changelog",
 				"Shows my Change Log, detailing all the updates that have happened to me over time.",
 				"changelog [version | page]", "updates", "changes");
+	}
+
+	private static class LootRewardStringBuilder {
+		private final StringBuilder sb;
+
+		public LootRewardStringBuilder() {
+			sb = new StringBuilder();
+		}
+
+		public LootRewardStringBuilder printLootChance(String icon, String name, String chancestr) {
+			CloverCommandProcessor.printLootChance(icon, name, chancestr, sb);
+			return this;
+		}
+
+	}
+
+	private static StringBuilder printLootChance(String icon, String name, String chancestr, StringBuilder sb) {
+		return sb.append(icon).append(' ').append(name).append(" `").append(chancestr).append("`\n");
 	}
 
 	private static void multDispHelper(StringBuilder sb, List<Multiplier> mults) {
