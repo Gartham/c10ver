@@ -2187,6 +2187,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 			}
 		});
 
+		help.addCommand("prestige", "Allows you to prestige to the next rank. (Use `~stats` to see your current rank.)",
+				"prestige [amount|'max']");
 		help.addCommand("stats", "Shows a user's stats!", "stats [user]", "info");
 		help.addCommand("tip", "Shows a random tip!", "tip");
 		help.addCommand("daily", "Receive daily rewards! You can only run this once a day.", "daily");
