@@ -23,8 +23,8 @@ public class User extends SavablePropertyObject {
 			weeklyCommand = instantProperty("weekly", Instant.MIN),
 			monthlyCommand = instantProperty("monthly", Instant.MIN);
 	private final Property<BigInteger> messageCount = bigIntegerProperty("message-count", BigInteger.ZERO),
-			totalEarnings = bigIntegerProperty("total-earnings", BigInteger.ZERO),
-			prestige = bigIntegerProperty("prestige", BigInteger.ZERO);
+			prestige = bigIntegerProperty("prestige", BigInteger.ZERO),
+			voteCount = bigIntegerProperty("vote-count", BigInteger.ZERO);
 	private final Property<ArrayList<Multiplier>> multipliers = listProperty("multipliers",
 			toObjectGateway(Multiplier::new));
 	private final Property<ArrayList<String>> joinedGuilds = listProperty("joined-guilds",
@@ -64,6 +64,14 @@ public class User extends SavablePropertyObject {
 
 	public void setPrestige(BigInteger count) {
 		prestige.set(count);
+	}
+
+	public void setVoteCount(BigInteger count) {
+		voteCount.set(count);
+	}
+
+	public void incrementVoteCount() {
+		setVoteCount(getVoteCount().add(BigInteger.ONE));
 	}
 
 	public void incrementMessageCount() {
@@ -171,7 +179,7 @@ public class User extends SavablePropertyObject {
 	public BigInteger reward(BigInteger amount, BigDecimal multiplier) {
 		var x = new BigDecimal(amount).multiply(multiplier).toBigInteger();
 		getAccount().deposit(x);
-		totalEarnings.set(totalEarnings.get().add(x));
+		getAccount().addTotalEarnings(x);
 		return x;
 	}
 
@@ -319,6 +327,10 @@ public class User extends SavablePropertyObject {
 
 	public Duration timeSinceLastMonthly() {
 		return Duration.between(getLastMonthlyInvocation(), Instant.now());
+	}
+
+	public BigInteger getVoteCount() {
+		return voteCount.get();
 	}
 
 }
