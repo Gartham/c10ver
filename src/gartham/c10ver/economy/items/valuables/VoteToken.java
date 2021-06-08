@@ -14,7 +14,8 @@ public class VoteToken extends Item {
 	}
 
 	public enum Type {
-		RED("<:RedVoteToken:851408233759506432>", "Red"), GOLD("<:GoldVoteToken:851408233716383784>", "Gold"), NORMAL("<:VoteToken:851408233998450688>");
+		RED("<:RedVoteToken:851408233759506432>", "Red"), GOLD("<:GoldVoteToken:851408233716383784>", "Gold"),
+		NORMAL("<:VoteToken:851408233998450688>");
 
 		private Type(String icon, String name) {
 			this.icon = icon;
@@ -31,6 +32,14 @@ public class VoteToken extends Item {
 		}
 
 		private final String icon, name;
+
+		public String getIcon() {
+			return icon;
+		}
+
+		public String getName() {
+			return name;
+		}
 	}
 
 	private Property<Type> tokenTypeProperty() {
