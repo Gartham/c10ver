@@ -320,8 +320,7 @@ public class EventHandler implements EventListener {
 							c.sendMessage(new EmbedBuilder().setAuthor(e.getUser().getAsTag() + " just voted!")
 									.setDescription(e.getUser().getAsMention() + " just voted and received:\n"
 											+ Utilities.listRewards(rec)
-											+ "\n\nYou can [vote on top.gg by clicking me](https://top.gg/servers/"
-											+ e.getGuild().getId() + "/vote).")
+											+ "\n\nYou can [vote on top.gg by clicking me](s).")
 									.build()).queue();
 						}
 
