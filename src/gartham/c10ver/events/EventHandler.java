@@ -317,10 +317,13 @@ public class EventHandler implements EventListener {
 
 						if (s.getGeneralChannel() != null) {
 							var c = e.getGuild().getTextChannelById(s.getGeneralChannel());
-							c.sendMessage(new EmbedBuilder().setAuthor(e.getUser().getAsTag() + " just voted!")
+							c.sendMessage(new EmbedBuilder()
+									.setAuthor(e.getUser().getAsTag() + " just voted!", null,
+											e.getUser().getEffectiveAvatarUrl())
 									.setDescription(e.getUser().getAsMention() + " just voted and received:\n"
 											+ Utilities.listRewards(rec)
-											+ "\n\nYou can [vote on top.gg by clicking me](s).")
+											+ "\n\nYou can [vote on top.gg by clicking me](https://top.gg/servers/"
+											+ e.getGuild().getId() + "/vote).")
 									.build()).queue();
 						}
 
