@@ -134,40 +134,39 @@ public class EventHandler implements EventListener {
 								.queue();
 					} else {
 						var serv = clover.getEconomy().getServer(mre.getGuild().getId());
-						if (serv.isGeneral(mre.getChannel())) {
-							if (Math.random() < 0.02) {
-								var mult = user.calcMultiplier(mre.getGuild());
-								BigInteger rawrew = BigInteger.valueOf((long) (Math.random() * 20 + 40));
-								user.rewardAndSave(rawrew, mult);
+						if (serv.isGeneral(mre.getChannel()) && Math.random() < 0.02) {
+							var mult = user.calcMultiplier(mre.getGuild());
+							BigInteger rawrew = BigInteger.valueOf((long) (Math.random() * 20 + 40));
+							user.rewardAndSave(rawrew, mult);
+							mre.getChannel()
+									.sendMessage(mre.getAuthor().getAsMention()
+											+ ", you found some cloves sitting on the ground.\n"
+											+ Utilities.listRewards(rawrew, mult) + "\nTotal Cloves: "
+											+ format(user.getAccount().getBalance()))
+									.queue();
+						} else if (ranCmd && !commandInvoc.getCmdName().equalsIgnoreCase("tip")
+								&& Math.random() < 0.18) {
+							System.out.println("Tip");
+							infoPopupGenerator.next().show(mre);
+						} else if (serv.isGeneral(mre.getChannel()) && Math.random() < 0.01) {
+							if (Math.random() < 0.2) {
+								NormalCrate crate = new NormalCrate();
+								user.getInventory().add(crate).save();
 								mre.getChannel()
 										.sendMessage(mre.getAuthor().getAsMention()
-												+ ", you found some cloves sitting on the ground.\n"
-												+ Utilities.listRewards(rawrew, mult) + "\nTotal Cloves: "
-												+ format(user.getAccount().getBalance()))
+												+ " you look hungry... for a loot crate! (Acquired `1`x "
+												+ crate.getIcon() + crate.getEffectiveName() + ".)")
 										.queue();
-							} else if (ranCmd && !commandInvoc.getCmdName().equalsIgnoreCase("tip")
-									&& Math.random() < 0.08)
-								infoPopupGenerator.next().show(mre);
-							else if (Math.random() < 0.01) {
-								if (Math.random() < 0.2) {
-									NormalCrate crate = new NormalCrate();
-									user.getInventory().add(crate).save();
-									mre.getChannel()
-											.sendMessage(mre.getAuthor().getAsMention()
-													+ " you look hungry... for a loot crate! (Acquired `1`x "
-													+ crate.getIcon() + crate.getEffectiveName() + ".)")
-											.queue();
-								} else {
-									BigInteger count = BigInteger.valueOf((long) (Math.random() * 3 + 1));
-									Sandwich item = new Sandwich();
-									user.getInventory().add(new ItemBunch<>(item, count)).save();
-									mre.getChannel()
-											.sendMessage(mre.getAuthor().getAsMention()
-													+ " you look hungry. Have some sandwiches! (Acquired `" + count
-													+ "`x " + item.getIcon() + item.getEffectiveName() + ".)")
-											.queue();
+							} else {
+								BigInteger count = BigInteger.valueOf((long) (Math.random() * 3 + 1));
+								Sandwich item = new Sandwich();
+								user.getInventory().add(new ItemBunch<>(item, count)).save();
+								mre.getChannel()
+										.sendMessage(mre.getAuthor().getAsMention()
+												+ " you look hungry. Have some sandwiches! (Acquired `" + count + "`x "
+												+ item.getIcon() + item.getEffectiveName() + ".)")
+										.queue();
 
-								}
 							}
 						}
 					}
