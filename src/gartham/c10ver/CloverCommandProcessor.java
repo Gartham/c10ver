@@ -1578,7 +1578,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 											return;
 										} else if (inv.args.length == 4) {
 											ROLEP: {
-												String cm = Utilities.parseChannelMention(inv.args[1]);
+												String cm = Utilities.parseRoleMention(inv.args[1]);
 												if (cm == null)
 													cm = Utilities.strip(inv.args[1]);
 												try {
