@@ -144,11 +144,9 @@ public class EventHandler implements EventListener {
 											+ Utilities.listRewards(rawrew, mult) + "\nTotal Cloves: "
 											+ format(user.getAccount().getBalance()))
 									.queue();
-						} else if (ranCmd && !commandInvoc.getCmdName().equalsIgnoreCase("tip")
-								&& Math.random() < 0.18) {
-							System.out.println("Tip");
+						} else if (ranCmd && !commandInvoc.getCmdName().equalsIgnoreCase("tip") && Math.random() < 0.18)
 							infoPopupGenerator.next().show(mre);
-						} else if (serv.isGeneral(mre.getChannel()) && Math.random() < 0.01) {
+						else if (serv.isGeneral(mre.getChannel()) && Math.random() < 0.01)
 							if (Math.random() < 0.2) {
 								NormalCrate crate = new NormalCrate();
 								user.getInventory().add(crate).save();
@@ -168,7 +166,6 @@ public class EventHandler implements EventListener {
 										.queue();
 
 							}
-						}
 					}
 				}
 			}
