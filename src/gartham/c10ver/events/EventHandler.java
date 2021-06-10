@@ -51,6 +51,10 @@ public class EventHandler implements EventListener {
 	private final Generator<InfoPopup> infoPopupGenerator;
 	private final InviteTracker inviteTracker = new InviteTracker(this);
 
+	public Generator<InfoPopup> getTipGenerator() {
+		return infoPopupGenerator;
+	}
+
 	public Clover getClover() {
 		return clover;
 	}
@@ -144,7 +148,8 @@ public class EventHandler implements EventListener {
 											+ Utilities.listRewards(rawrew, mult) + "\nTotal Cloves: "
 											+ format(user.getAccount().getBalance()))
 									.queue();
-						} else if (ranCmd && !commandInvoc.getCmdName().equalsIgnoreCase("tip") && Math.random() < 0.18)
+						} else if (ranCmd && commandInvoc != null && !commandInvoc.getCmdName().equalsIgnoreCase("tip")
+								&& Math.random() < 0.18)
 							infoPopupGenerator.next().show(mre);
 						else if (serv.isGeneral(mre.getChannel()) && Math.random() < 0.01)
 							if (Math.random() < 0.2) {
