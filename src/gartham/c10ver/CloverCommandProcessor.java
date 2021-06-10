@@ -145,7 +145,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 							var g = u.getJDA().getGuildById(a);
 							return g == null ? "`[" + a + "]`" : g.getName();
 						}), true)).append('\n');
-				sb.append("Prestige: **").append(Utilities.formatNumber(ua.getPrestige())).append("** (`")
+				sb.append("Prestige: **").append(Utilities.toRomanNumerals(ua.getPrestige())).append("** (`")
 						.append(NumberFormat.getInstance().format(ua.getPrestige())).append("`)\n");
 				eb.setDescription(sb.toString());
 				inv.event.getChannel().sendMessage(eb.build()).queue();
@@ -161,7 +161,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 									inv.event.getAuthor().getAsMention() + " that command doesn't take any arguments.")
 							.queue();
 				else
-					clover.getTiplist().get((int) (Math.random() * clover.getTiplist().size())).show(inv.event);
+					clover.getEventHandler().getTipGenerator().next().show(inv.event);
 			}
 		});
 		register(new MatchBasedCommand("accolades") {
