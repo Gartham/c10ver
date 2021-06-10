@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import gartham.c10ver.Clover;
 import gartham.c10ver.commands.CommandInvocation;
@@ -135,7 +136,7 @@ public class EventHandler implements EventListener {
 								.sendMessage(mre.getAuthor().getAsMention() + " congratulations, you just reached "
 										+ user.getMessageCount() + " messages! You've earned: "
 										+ Utilities.listRewards(amt, mult))
-								.queue();
+								.queue(t -> t.delete().queueAfter(10, TimeUnit.SECONDS));
 					} else {
 						var serv = clover.getEconomy().getServer(mre.getGuild().getId());
 						if (serv.isGeneral(mre.getChannel()) && Math.random() < 0.02) {
@@ -147,7 +148,7 @@ public class EventHandler implements EventListener {
 											+ ", you found some cloves sitting on the ground.\n"
 											+ Utilities.listRewards(rawrew, mult) + "\nTotal Cloves: "
 											+ format(user.getAccount().getBalance()))
-									.queue();
+									.queue(t -> t.delete().queueAfter(10, TimeUnit.SECONDS));
 						} else if (ranCmd && commandInvoc != null && !commandInvoc.getCmdName().equalsIgnoreCase("tip")
 								&& Math.random() < 0.18)
 							infoPopupGenerator.next().show(mre);
@@ -159,7 +160,7 @@ public class EventHandler implements EventListener {
 										.sendMessage(mre.getAuthor().getAsMention()
 												+ " you look hungry... for a loot crate! (Acquired `1`x "
 												+ crate.getIcon() + crate.getEffectiveName() + ".)")
-										.queue();
+										.queue(t -> t.delete().queueAfter(10, TimeUnit.SECONDS));
 							} else {
 								BigInteger count = BigInteger.valueOf((long) (Math.random() * 3 + 1));
 								Sandwich item = new Sandwich();
@@ -168,7 +169,7 @@ public class EventHandler implements EventListener {
 										.sendMessage(mre.getAuthor().getAsMention()
 												+ " you look hungry. Have some sandwiches! (Acquired `" + count + "`x "
 												+ item.getIcon() + item.getEffectiveName() + ".)")
-										.queue();
+										.queue(t -> t.delete().queueAfter(10, TimeUnit.SECONDS));
 
 							}
 					}
