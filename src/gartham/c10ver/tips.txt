@@ -3,3 +3,6 @@ Every time you send a message in #general, there's a small chance you'll stumble
 You can open crates using the `open crate` command! Just type `~open crate crate-type`.
 You can pay other users using the `pay` command!
 Eating food will give you a temporary multiplier. You can eat food with `~use food-name`.
+Wanna support us? Check out the official store (http://clover.gartham.com/store )!
+You can buy color roles using the `~color` command!
+Low on funds? Start a Math lobby with `~math` and get cloves for doing math!
