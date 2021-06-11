@@ -1955,7 +1955,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 										a -> inv.event.getJDA().getUserById(a).getAsMention()), true)
 								+ "\nFinal Problem:```" + state.problem.problem() + "```\n**Correct Answer:** `"
 								+ state.problem.answer() + "`\n\n**GAME OVER!**")
-						.setFooter("Use ~math leave to leave the lobby.",
+						.setFooter("Use ~math to start a new lobby!",
 								inv.event.getJDA().getSelfUser().getEffectiveAvatarUrl())
 						.build();
 			}
