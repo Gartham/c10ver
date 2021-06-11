@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.alixia.javalibrary.json.JSONObject;
 
+import gartham.c10ver.economy.AbstractMultiplier;
 import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.Rewards;
 import gartham.c10ver.economy.items.ItemBunch;
@@ -45,13 +46,13 @@ public class MonthlyCrate extends LootCrateItem {
 		if (Math.random() > 0.6)
 			items.add(new ItemBunch<>(new WeeklyCrate(),
 					Math.random() > 0.6 ? BigInteger.valueOf((long) (Math.random() * 3 + 1)) : BigInteger.ONE));
-		List<Multiplier> mults = new ArrayList<>();
+		List<AbstractMultiplier> mults = new ArrayList<>();
 		if (Math.random() > 0.3)
-			mults.add(Multiplier.ofMin(90, BigDecimal.valueOf(2, 1)));
+			mults.add(AbstractMultiplier.ofMin(90, BigDecimal.valueOf(2, 1)));
 		if (Math.random() > 0.6)
-			mults.add(Multiplier.ofHr(1, BigDecimal.valueOf(35, 2)));
+			mults.add(AbstractMultiplier.ofHr(1, BigDecimal.valueOf(35, 2)));
 		if (Math.random() > 0.9)
-			mults.add(Multiplier.ofMin(10, BigDecimal.valueOf(1)));
+			mults.add(AbstractMultiplier.ofMin(10, BigDecimal.valueOf(1)));
 		return new Rewards(items, BigInteger.valueOf((long) (Math.random() * 10000 + 12500)), mults);
 	}
 

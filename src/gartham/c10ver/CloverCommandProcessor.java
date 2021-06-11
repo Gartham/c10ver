@@ -40,6 +40,7 @@ import gartham.c10ver.commands.consumers.MessageInputConsumer;
 import gartham.c10ver.commands.subcommands.ParentCommand;
 import gartham.c10ver.commands.subcommands.SubcommandInvocation;
 import gartham.c10ver.economy.Multiplier;
+import gartham.c10ver.economy.Rewards;
 import gartham.c10ver.economy.Server;
 import gartham.c10ver.economy.User;
 import gartham.c10ver.economy.UserAccount;
@@ -310,7 +311,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 		register(new ParentCommand("open", "use") {
 
-			private boolean openCrate(String cratetype, CommandInvocation inv) {
+			private boolean openCrate(String cratetype, CommandInvocation inv, BigInteger count) {
 				if (clover.getEconomy().hasUser(inv.event.getAuthor().getId())) {
 					var u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
 					@SuppressWarnings("unchecked")
@@ -318,22 +319,28 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					if (crateEntry != null)
 						for (var is : crateEntry.getStacks())
 							if (is.getItem().getCrateType().equalsIgnoreCase(cratetype)) {
-								LootCrateItem lci = is.getItem();
-								var rew = lci.open();
-								for (var m : rew.getMultipliers())
-									u.addMultiplier(m);
-								var totalMult = u.calcMultiplier(inv.event.getGuild());
-								var totalCloves = u.rewardAndSave(rew.getCloves(), totalMult);
-								for (var i : rew.getItemsAsList())
-									u.getInventory().add(i).save();
-								is.removeAndSave(BigInteger.ONE);
-								u.save();
 
-								inv.event.getChannel()
-										.sendMessage(
-												inv.event.getAuthor().getAsMention() + " is opening a **"
-														+ lci.getCustomName() + "**!\n\n" + listRewards(rew,
-																totalCloves, u.getAccount().getBalance(), totalMult))
+								if (!is.has(count)) {
+									inv.event.getChannel()
+											.sendMessage("You can't use that many, you only have `"
+													+ NumberFormat.getIntegerInstance().format(is.getCount()) + "`! :(")
+											.queue();
+									return true;
+								}
+
+								LootCrateItem lci = is.getItem();
+								;
+								Rewards rew = new Rewards();
+								for (var i = BigInteger.ZERO; i.compareTo(count) < 0; i = i.add(BigInteger.ONE))
+									rew = rew.with(lci.open());
+
+								var rec = u.rewardAndSave(rew, inv.event.getGuild());
+
+								is.remove(count);
+
+								inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention() + " opened "
+										+ NumberFormat.getIntegerInstance().format(count) + " **" + lci.getCustomName()
+										+ (count.equals(BigInteger.ONE) ? "" : "s") + "**!\n\n" + listRewards(rec))
 										.queue();
 								return true;
 							}
@@ -377,16 +384,31 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 											inv.event.getAuthor().getAsMention() + " what crate do you want to open?")
 									.queue();
 						else if (inv.args.length == 1) {
-							if (openCrate(inv.args[0], inv))
+							if (openCrate(inv.args[0], inv, BigInteger.ONE))
 								return;
 							inv.event.getChannel().sendMessage(
 									inv.event.getAuthor().getAsMention() + " you don't have any crates of that type.")
 									.queue();
 
-						} else
+						} else if (inv.args.length == 2) {
+							BigInteger val;
+							try {
+								val = new BigInteger(inv.args[1]);
+							} catch (NumberFormatException e) {
+								inv.event.getChannel().sendMessage(
+										"That's not a valid number. Your last argument should be how many crates you want to open.\n**Example**: `~open crate daily 5`")
+										.queue();
+								return;
+							}
+							if (openCrate(inv.args[0], inv, val))
+								return;
 							inv.event.getChannel().sendMessage(
-									inv.event.getAuthor().getAsMention() + " too many args! Just provide a crate type!")
+									inv.event.getAuthor().getAsMention() + " you don't have any crates of that type.")
 									.queue();
+						} else
+							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+									+ " too many args! Provide a crate type (and how many crates you want to open)!\n**Example**: `~`"
+									+ inv.getPreargs()[0] + ' ' + inv.cmdName + " daily 3").queue();
 					}
 				};
 
@@ -394,7 +416,23 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 					@Override
 					protected void tailed(SubcommandInvocation inv) {
-						if (!openCrate(inv.cmdName, inv))
+						var val = BigInteger.ONE;
+						if (inv.args.length == 1) {
+							try {
+								val = new BigInteger(inv.args[0]);
+							} catch (NumberFormatException e) {
+								inv.event.getChannel().sendMessage(
+										"That's not a valid number. Your last argument should be how many crates you want to open.\n**Example**: `~open crate daily 5`")
+										.queue();
+								return;
+							}
+						} else if (inv.args.length != 0) {
+							inv.event.getChannel().sendMessage(
+									"Too many arguments specified. Please pick just a crate type and an amount to open.\n**Example**: `~open weekly 3` or `~open weekly`")
+									.queue();
+							return;
+						}
+						if (!openCrate(inv.cmdName, inv, val))
 							inv.event.getChannel().sendMessage(
 									inv.event.getAuthor().getAsMention() + " you don't have any crates of that type.")
 									.queue();
@@ -464,14 +502,35 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				if (inv.args.length == 0)
 					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
 							+ " provide what item you want to open or use and try again.").queue();
-				else if (inv.args.length == 1)
+				else if (inv.args.length <= 2)
 					if (clover.getEconomy().hasUser(inv.event.getAuthor().getId())) {
 						var u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
 						var crateEntry = u.getInventory().get(inv.args[0]);
+
+						BigInteger amt;
+						if (inv.args.length == 2) {
+							try {
+								amt = new BigInteger(inv.args[1]);
+							} catch (NumberFormatException e) {
+								inv.event.getChannel().sendMessage(
+										"Your second argument is not a number. :(\nExample Usage: `~use pizza 12`")
+										.queue();
+								return;
+							}
+						} else
+							amt = BigInteger.ONE;
+
 						if (crateEntry != null) {
 							var is = crateEntry.get(0);
 							if (is.getItem() instanceof Foodstuff) {
-								is.removeAndSave(BigInteger.ONE);
+								if (!is.has(amt)) {
+									inv.event.getChannel()
+											.sendMessage("You can't use that many, you only have `"
+													+ NumberFormat.getIntegerInstance().format(is.getCount()) + "`! :(")
+											.queue();
+									return;
+								}
+								is.removeAndSave(amt);
 								var lci = (Foodstuff) is.getItem();
 								var mult = lci.getMultiplier();
 								lci.consume(u);
@@ -659,6 +718,11 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						bi = new BigInteger(inv.args[1]);
 					} catch (NumberFormatException e) {
 						inv.event.getChannel().sendMessage("Your second argument needs to be a number.").queue();
+						return;
+					}
+					if (bi.compareTo(BigInteger.ZERO) <= 0) {
+						inv.event.getChannel().sendMessage("You can't pay any less than "
+								+ Utilities.format(BigInteger.ZERO) + " to another user.").queue();
 						return;
 					}
 					var mentionedUsers = inv.event.getMessage().getMentionedUsers();

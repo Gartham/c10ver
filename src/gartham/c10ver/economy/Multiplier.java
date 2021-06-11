@@ -69,4 +69,5 @@ public final class Multiplier extends PropertyObject {
 	public Multiplier(JSONValue obj) {
 		this((JSONObject) obj);
 	}
+
 }

@@ -133,8 +133,9 @@ public class User extends SavablePropertyObject {
 	public BigDecimal calcMultiplier(Guild guild) {
 		var v = guild == null ? null : guild.getMember(getUser()).getTimeBoosted();
 		var x = v == null ? BigDecimal.ONE
-				: BigDecimal.valueOf(13, 1).add(BigDecimal.valueOf(Duration.between(v.toInstant(), Instant.now()).toDays() + 1)
-						.multiply(BigDecimal.valueOf(1, 2)));
+				: BigDecimal.valueOf(13, 1)
+						.add(BigDecimal.valueOf(Duration.between(v.toInstant(), Instant.now()).toDays() + 1)
+								.multiply(BigDecimal.valueOf(1, 2)));
 		x = x.add(MultiplierManager.getTotalMultiplier(multipliers.get()));
 		if (guild != null)
 			x = x.multiply(getEconomy().getServer(guild.getId()).getTotalServerMultiplier());
@@ -203,8 +204,9 @@ public class User extends SavablePropertyObject {
 		var mult = calcMultiplier(guild);
 		BigInteger clovesGiven = BigInteger.ZERO;
 		if (rewards.hasMultipliers())
-			for (var m : rewards.getMultipliers())
-				addMultiplier(m);
+			for (var m : rewards.getMultipliers().entrySet())
+				for (int i = 0; i < m.getValue(); i++)
+					addMultiplier(m.getKey().reify());
 		if (rewards.hasCloves())
 			clovesGiven = reward(rewards.getCloves(), mult);
 		if (rewards.hasItems())

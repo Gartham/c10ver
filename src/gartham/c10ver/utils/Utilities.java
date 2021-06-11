@@ -356,9 +356,9 @@ public final class Utilities {
 			BigDecimal totalMult) {
 		String rew = listRewards(rewardsCloves, rewards.getItemsAsList());
 		StringBuilder sb = new StringBuilder(rew);
-		for (var m : rewards.getMultipliers())
-			sb.append("[**x").append(m.getAmount()).append("**] for ").append(formatLargest(m.getTimeRemaining(), 2))
-					.append('\n');
+		for (var m : rewards.getMultipliers().entrySet())
+			sb.append(m.getValue() + "x [**x").append(m.getKey().getAmt()).append("**] for ")
+					.append(formatLargest(m.getKey().getDuration(), 2)).append('\n');
 		sb.append("\nTotal Cloves: ").append(format(totalCloves));
 		var mul = multiplier(totalMult);
 		if (mul != null)

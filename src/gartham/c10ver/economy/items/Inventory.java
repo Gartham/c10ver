@@ -17,6 +17,7 @@ import org.alixia.javalibrary.json.JSONArray;
 import org.alixia.javalibrary.json.JSONObject;
 
 import gartham.c10ver.data.PropertyObject;
+import gartham.c10ver.economy.items.Inventory.Entry;
 import gartham.c10ver.economy.items.Inventory.Entry.ItemStack;
 import gartham.c10ver.utils.Utilities;
 
@@ -26,7 +27,7 @@ import gartham.c10ver.utils.Utilities;
  * @author Gartham
  *
  */
-public class Inventory implements Cloneable {
+public class Inventory implements Cloneable, Iterable<Entry<?>> {
 
 	public void clear() {
 		entries.clear();
@@ -192,7 +193,7 @@ public class Inventory implements Cloneable {
 		return bi;
 	}
 
-	public class Entry<I extends Item> implements Comparable<Entry<?>> {
+	public class Entry<I extends Item> implements Comparable<Entry<?>>, Iterable<Entry<I>.ItemStack> {
 		protected final List<ItemStack> stacks = new ArrayList<>(1);// The different stacks of this type of item.
 		protected boolean alive = false;
 
@@ -334,6 +335,10 @@ public class Inventory implements Cloneable {
 		}
 
 		public class ItemStack extends PropertyObject implements Comparable<ItemStack> {
+
+			public ItemBunch<I> toItemBunch() {
+				return new ItemBunch<>(getItem(), getCount());
+			}
 
 			public boolean has(BigInteger amt) {
 				return getCount().compareTo(amt) >= 0;
@@ -481,6 +486,11 @@ public class Inventory implements Cloneable {
 		public int compareTo(Entry<?> o) {
 			return getType().compareTo(o.getType());
 		}
+
+		@Override
+		public Iterator<Entry<I>.ItemStack> iterator() {
+			return stacks.iterator();
+		}
 	}
 
 	public void cloneTo(Inventory inv) {
@@ -501,6 +511,16 @@ public class Inventory implements Cloneable {
 		Inventory i = new Inventory();
 		cloneTo(i);
 		return i;
+	}
+
+	@Override
+	public Iterator<Entry<?>> iterator() {
+		return entryList.iterator();
+	}
+
+	public void putInto(Inventory other) {
+		for (var e : this)
+			other.add(JavaTools.mask(e, ItemStack::toItemBunch));
 	}
 
 }

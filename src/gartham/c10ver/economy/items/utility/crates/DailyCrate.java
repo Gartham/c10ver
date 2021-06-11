@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.alixia.javalibrary.json.JSONObject;
 
+import gartham.c10ver.economy.AbstractMultiplier;
 import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.Rewards;
 import gartham.c10ver.economy.items.ItemBunch;
@@ -39,7 +40,8 @@ public class DailyCrate extends LootCrateItem {
 		else if (Math.random() < 0.04)
 			items.add(new ItemBunch<>(new WeeklyCrate(), BigInteger.ONE));
 		BigInteger cloves = BigInteger.valueOf((long) (Math.random() * 25 + 5));
-		return Math.random() < 0.01 ? new Rewards(items, cloves, Multiplier.ofSec(90, BigDecimal.valueOf(25, 2)))
+		return Math.random() < 0.01
+				? new Rewards(items, cloves, AbstractMultiplier.ofSec(90, BigDecimal.valueOf(25, 2)))
 				: new Rewards(items, cloves);
 	}
 
