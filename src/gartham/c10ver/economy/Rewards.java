@@ -2,6 +2,7 @@ package gartham.c10ver.economy;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -101,6 +102,24 @@ public class Rewards {
 
 	public BigInteger getCloves() {
 		return cloves == null ? BigInteger.ZERO : cloves;
+	}
+
+	public static Rewards combine(Rewards... others) {
+		List<ItemBunch<?>> items = new ArrayList<>();
+		List<Multiplier> mults = new ArrayList<>();
+		BigInteger cloves = BigInteger.ZERO;
+		for (var r : others) {
+			items.addAll(r.items);
+			mults.addAll(r.multipliers);
+			cloves = cloves.add(r.cloves);
+		}
+		return new Rewards(items, cloves, mults);
+	}
+
+	public Rewards with(Rewards... others) {
+		var arr = Arrays.copyOf(others, others.length + 1);
+		arr[arr.length - 1] = this;
+		return combine(arr);
 	}
 
 }
