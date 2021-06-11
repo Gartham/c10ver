@@ -131,7 +131,7 @@ public class User extends SavablePropertyObject {
 	 *         (<code>{@link #getPersonalTotalMultiplier()} * nitro_multiplier * {@link Server#getTotalServerMultiplier()}</code>).
 	 */
 	public BigDecimal calcMultiplier(Guild guild) {
-		var v = guild == null ? null : guild.getMember(getUser()).getTimeBoosted();
+		var v = guild == null ? null : guild.getMember(getUser()).getTimeBoosted().toInstant();
 		var x = v == null ? BigDecimal.ONE
 				: BigDecimal.valueOf(13, 1).add(BigDecimal.valueOf(Duration.between(v, Instant.now()).toDays() + 1)
 						.multiply(BigDecimal.valueOf(1, 2)));
