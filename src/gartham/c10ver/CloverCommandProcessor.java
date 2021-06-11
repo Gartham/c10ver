@@ -723,7 +723,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					}
 					if (bi.compareTo(BigInteger.ZERO) <= 0) {
 						inv.event.getChannel().sendMessage("You can't pay any less than "
-								+ Utilities.format(BigInteger.ZERO) + " to another user.").queue();
+								+ Utilities.format(BigInteger.ONE) + " to another user.").queue();
 						return;
 					}
 					var mentionedUsers = inv.event.getMessage().getMentionedUsers();
