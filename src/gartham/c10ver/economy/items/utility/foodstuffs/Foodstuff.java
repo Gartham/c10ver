@@ -2,10 +2,12 @@ package gartham.c10ver.economy.items.utility.foodstuffs;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.Duration;
 import java.time.Instant;
 
 import org.alixia.javalibrary.json.JSONObject;
 
+import gartham.c10ver.economy.AbstractMultiplier;
 import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.User;
 import gartham.c10ver.economy.items.Item;
@@ -141,6 +143,10 @@ public class Foodstuff extends Item implements Consumable {
 	@Override
 	public final void consume(User user) {
 		user.addMultiplier(new Multiplier(Instant.now().plusMillis(getTTL()), getMultiplier()));
+	}
+
+	public final AbstractMultiplier mult() {
+		return new AbstractMultiplier(getMultiplier(), Duration.ofMillis(getTTL()));
 	}
 
 }

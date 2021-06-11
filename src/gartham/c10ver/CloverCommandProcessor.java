@@ -533,12 +533,13 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 								is.removeAndSave(amt);
 								var lci = (Foodstuff) is.getItem();
 								var mult = lci.getMultiplier();
-								lci.consume(u);
+								for (BigInteger i = BigInteger.ZERO; i.compareTo(amt) < 0; i = i.add(BigInteger.ONE))
+									lci.consume(u);
 								u.save();
 
 								inv.event.getChannel()
 										.sendMessage(inv.event.getAuthor().getAsMention() + " you consumed some "
-												+ lci.getEffectiveName() + " and received a multiplier: [**x"
+												+ lci.getEffectiveName() + " and received: " + amt + "x [**x"
 												+ Utilities.multiplier(mult) + "**] for **"
 												+ Utilities.format(Duration.ofMillis(lci.getTTL())) + "**!")
 										.queue();
