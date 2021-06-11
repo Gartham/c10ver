@@ -70,9 +70,8 @@ public class Clover {
 					tip("Wanna support us? Check out the official store (http://clover.gartham.com/store )!"),
 					tip("You can buy color roles using the `~color` command!"),
 					tip("Low on funds? Start a Math lobby with `~math` and get cloves for doing math!"),
-					e -> e.getChannel()
-							.sendMessage(
-									"Vote vote vote vote... ^c^ https://top.gg/servers/" + e.getGuild().getId() + "/vote")
+					e -> e.getChannel().sendMessage(
+							"Vote vote vote vote... ^c^ https://top.gg/servers/" + e.getGuild().getId() + "/vote")
 							.queue());
 		}
 
@@ -203,7 +202,11 @@ public class Clover {
 	}
 
 	public static void main(String[] args) throws LoginException {
-		try (var s = new Scanner(Clover.class.getResourceAsStream("token.txt"))) {
+		boolean devmode = false;
+		for (var s : args)
+			if (s.equalsIgnoreCase("dev"))
+				devmode = true;
+		try (var s = new Scanner(Clover.class.getResourceAsStream(devmode ? "dev-token.txt" : "token.txt"))) {
 			new Clover(s.nextLine());
 		}
 	}
