@@ -132,23 +132,25 @@ public class EventHandler implements EventListener {
 					if (rewards != null) {
 						var mult = user.calcMultiplier(mre.getGuild());
 						var amt = user.rewardAndSave(rewards, mult);
-						mre.getChannel()
-								.sendMessage(mre.getAuthor().getAsMention() + " congratulations, you just reached "
-										+ user.getMessageCount() + " messages! You've earned: "
-										+ Utilities.listRewards(amt, mult))
-								.queue(t -> t.delete().queueAfter(10, TimeUnit.SECONDS));
+						if (user.getSettings().isRandomRewardsNotifyingEnabled())
+							mre.getChannel()
+									.sendMessage(mre.getAuthor().getAsMention() + " congratulations, you just reached "
+											+ user.getMessageCount() + " messages! You've earned: "
+											+ Utilities.listRewards(amt, mult))
+									.queue(t -> t.delete().queueAfter(10, TimeUnit.SECONDS));
 					} else {
 						var serv = clover.getEconomy().getServer(mre.getGuild().getId());
 						if (serv.isGeneral(mre.getChannel()) && Math.random() < 0.02) {
 							var mult = user.calcMultiplier(mre.getGuild());
 							BigInteger rawrew = BigInteger.valueOf((long) (Math.random() * 20 + 40));
 							user.rewardAndSave(rawrew, mult);
-							mre.getChannel()
-									.sendMessage(mre.getAuthor().getAsMention()
-											+ ", you found some cloves sitting on the ground.\n"
-											+ Utilities.listRewards(rawrew, mult) + "\nTotal Cloves: "
-											+ format(user.getAccount().getBalance()))
-									.queue(t -> t.delete().queueAfter(10, TimeUnit.SECONDS));
+							if (user.getSettings().isRandomRewardsNotifyingEnabled())
+								mre.getChannel()
+										.sendMessage(mre.getAuthor().getAsMention()
+												+ ", you found some cloves sitting on the ground.\n"
+												+ Utilities.listRewards(rawrew, mult) + "\nTotal Cloves: "
+												+ format(user.getAccount().getBalance()))
+										.queue(t -> t.delete().queueAfter(10, TimeUnit.SECONDS));
 						} else if (ranCmd && commandInvoc != null && !commandInvoc.getCmdName().equalsIgnoreCase("tip")
 								&& Math.random() < 0.18)
 							infoPopupGenerator.next().show(mre);
@@ -156,20 +158,22 @@ public class EventHandler implements EventListener {
 							if (Math.random() < 0.2) {
 								NormalCrate crate = new NormalCrate();
 								user.getInventory().add(crate).save();
-								mre.getChannel()
-										.sendMessage(mre.getAuthor().getAsMention()
-												+ " you look hungry... for a loot crate! (Acquired `1`x "
-												+ crate.getIcon() + crate.getEffectiveName() + ".)")
-										.queue(t -> t.delete().queueAfter(10, TimeUnit.SECONDS));
+								if (user.getSettings().isRandomRewardsNotifyingEnabled())
+									mre.getChannel()
+											.sendMessage(mre.getAuthor().getAsMention()
+													+ " you look hungry... for a loot crate! (Acquired `1`x "
+													+ crate.getIcon() + crate.getEffectiveName() + ".)")
+											.queue(t -> t.delete().queueAfter(10, TimeUnit.SECONDS));
 							} else {
 								BigInteger count = BigInteger.valueOf((long) (Math.random() * 3 + 1));
 								Sandwich item = new Sandwich();
 								user.getInventory().add(new ItemBunch<>(item, count)).save();
-								mre.getChannel()
-										.sendMessage(mre.getAuthor().getAsMention()
-												+ " you look hungry. Have some sandwiches! (Acquired `" + count + "`x "
-												+ item.getIcon() + item.getEffectiveName() + ".)")
-										.queue(t -> t.delete().queueAfter(10, TimeUnit.SECONDS));
+								if (user.getSettings().isRandomRewardsNotifyingEnabled())
+									mre.getChannel()
+											.sendMessage(mre.getAuthor().getAsMention()
+													+ " you look hungry. Have some sandwiches! (Acquired `" + count
+													+ "`x " + item.getIcon() + item.getEffectiveName() + ".)")
+											.queue(t -> t.delete().queueAfter(10, TimeUnit.SECONDS));
 
 							}
 					}
