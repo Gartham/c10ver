@@ -1,6 +1,6 @@
 package gartham.c10ver.economy.items.utility;
 
-import gartham.c10ver.economy.User;
+import gartham.c10ver.economy.users.User;
 
 public interface Consumable {
 	/**

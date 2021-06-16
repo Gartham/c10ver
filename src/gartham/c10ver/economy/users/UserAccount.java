@@ -1,7 +1,10 @@
-package gartham.c10ver.economy;
+package gartham.c10ver.economy.users;
 
 import java.io.File;
 import java.math.BigInteger;
+
+import gartham.c10ver.economy.Account;
+import gartham.c10ver.economy.Owned;
 
 public class UserAccount extends Account implements Owned<User> {
 	private final Property<BigInteger> totalEarnings = bigIntegerProperty("total-earnings", BigInteger.ZERO);

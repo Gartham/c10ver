@@ -1,4 +1,4 @@
-package gartham.c10ver.economy;
+package gartham.c10ver.economy.users;
 
 import java.io.File;
 import java.math.BigDecimal;
@@ -12,6 +12,11 @@ import org.alixia.javalibrary.json.JSONObject;
 import org.alixia.javalibrary.util.StringGateway;
 
 import gartham.c10ver.data.autosave.SavablePropertyObject;
+import gartham.c10ver.economy.Economy;
+import gartham.c10ver.economy.Multiplier;
+import gartham.c10ver.economy.MultiplierManager;
+import gartham.c10ver.economy.Rewards;
+import gartham.c10ver.economy.Server;
 import gartham.c10ver.economy.accolades.AccoladeList;
 import gartham.c10ver.economy.items.UserInventory;
 import gartham.c10ver.economy.questions.Question;

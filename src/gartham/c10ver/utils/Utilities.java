@@ -33,8 +33,8 @@ import org.alixia.javalibrary.streams.CharacterStream;
 import org.alixia.javalibrary.strings.matching.Matching;
 
 import gartham.c10ver.economy.Rewards;
-import gartham.c10ver.economy.User.Receipt;
 import gartham.c10ver.economy.items.ItemBunch;
+import gartham.c10ver.economy.users.User.Receipt;
 
 public final class Utilities {
 
