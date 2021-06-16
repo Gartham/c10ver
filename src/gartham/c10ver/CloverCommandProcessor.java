@@ -2294,7 +2294,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 			}
 		});
 
-		register(new ParentCommand("settings") {
+		register(new ParentCommand("settings", "setting", "option", "options") {
 
 			private <T> T getValue(CommandInvocation inv, Function<UserSettings, T> grabber, T def) {
 				return clover.getEconomy().hasUser(inv.event.getAuthor().getId())
