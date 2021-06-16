@@ -2334,8 +2334,13 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				new Subcommand("rrn") {
 					@Override
 					protected void tailed(SubcommandInvocation inv) {
-						setValue(inv, UserSettings::randomRewardsNotifyingEnabledProperty,
-								() -> Boolean.valueOf(inv.args[0]));
+						if (inv.args.length == 0)
+							inv.event.getChannel().sendMessage(
+									"This setting determines whether Clover will send you a message whenever you stumble upon random loot while talking. By default, it is **disabled** (i.e. `false`).")
+									.queue();
+						else
+							setValue(inv, UserSettings::randomRewardsNotifyingEnabledProperty,
+									() -> Boolean.valueOf(inv.args[0]));
 					}
 				};
 			}
