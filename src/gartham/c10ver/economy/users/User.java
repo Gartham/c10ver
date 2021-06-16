@@ -128,6 +128,10 @@ public class User extends SavablePropertyObject {
 		return account;
 	}
 
+	public UserSettings getSettings() {
+		return settings;
+	}
+
 	/**
 	 * Calculates the multiplier applied to a reward that this user earned in the
 	 * provided guild.
