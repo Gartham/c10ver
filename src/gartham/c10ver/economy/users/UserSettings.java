@@ -27,6 +27,10 @@ public class UserSettings extends SavablePropertyObject implements Owned<User> {
 		return randomRewardsNotifyingEnabled.set(!randomRewardsNotifyingEnabled.get()).get();
 	}
 
+	public Property<Boolean> randomRewardsNotifyingEnabledProperty() {
+		return randomRewardsNotifyingEnabled;
+	}
+
 	private final User owner;
 
 	public UserSettings(File userDir, User owner) {
