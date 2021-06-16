@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.alixia.javalibrary.JavaTools;
 import org.alixia.javalibrary.strings.StringTools;
@@ -39,6 +41,7 @@ import gartham.c10ver.commands.consumers.InputConsumer;
 import gartham.c10ver.commands.consumers.MessageInputConsumer;
 import gartham.c10ver.commands.subcommands.ParentCommand;
 import gartham.c10ver.commands.subcommands.SubcommandInvocation;
+import gartham.c10ver.data.PropertyObject.Property;
 import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.Rewards;
 import gartham.c10ver.economy.Server;
@@ -61,6 +64,7 @@ import gartham.c10ver.economy.questions.Question.Difficulty;
 import gartham.c10ver.economy.server.ColorRole;
 import gartham.c10ver.economy.users.User;
 import gartham.c10ver.economy.users.UserAccount;
+import gartham.c10ver.economy.users.UserSettings;
 import gartham.c10ver.games.math.MathProblem;
 import gartham.c10ver.games.math.MathProblem.AttemptResult;
 import gartham.c10ver.games.math.MathProblemGenerator;
@@ -2287,6 +2291,64 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 												.toString())
 								.build())
 						.queue();
+			}
+		});
+
+		register(new ParentCommand("settings") {
+
+			private <T> T getValue(CommandInvocation inv, Function<UserSettings, T> grabber, T def) {
+				return clover.getEconomy().hasUser(inv.event.getAuthor().getId())
+						? grabber.apply(clover.getEconomy().getUser(inv.event.getAuthor().getId()).getSettings())
+						: def;
+			}
+
+			private <T> void setValue(CommandInvocation inv, Function<UserSettings, Property<T>> grabber,
+					Supplier<T> value, Function<T, String> conv) {
+				var u = clover.getEconomy().getUser(inv.event.getAuthor().getId()).getSettings();
+				Property<T> prop;
+				prop = grabber.apply(u);
+				T v;
+
+				try {
+					v = value.get();
+				} catch (Exception e) {
+					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+							+ " failed to change the setting's value. Please make sure you provided a value and that it is valid for this setting.")
+							.queue();
+					return;
+				}
+
+				prop.set(v);
+				inv.event.getChannel()
+						.sendMessage(
+								inv.event.getAuthor().getAsMention() + ", setting changed to: `" + conv.apply(v) + "`.")
+						.queue();
+			}
+
+			private <T> void setValue(CommandInvocation inv, Function<UserSettings, Property<T>> grabber,
+					Supplier<T> value) {
+				setValue(inv, grabber, value, Object::toString);
+			}
+
+			{
+				new Subcommand("rrn") {
+					@Override
+					protected void tailed(SubcommandInvocation inv) {
+						setValue(inv, UserSettings::randomRewardsNotifyingEnabledProperty,
+								() -> Boolean.valueOf(inv.args[0]));
+					}
+				};
+			}
+
+			@Override
+			protected void tailed(CommandInvocation inv) {
+				StringBuilder sb = new StringBuilder(inv.event.getAuthor().getAsMention());
+				sb.append(", this command is used for viewing and changing your settings.\n\n");
+				sb.append("[`rrn`] Random Rewards Notifications: `")
+						.append(getValue(inv, UserSettings::isRandomRewardsNotifyingEnabled, false))
+						.append("`\n\n\u2022 **To find out what a setting is or check its value**, run: `~settings (prefix)`, e.g.: `~settings rrn` to view random rewards notifications.\n\u2022 **To change a setting**, run: `~settings (prefix) (new-value)`, e.g.: `~sesttings rrn false` to disable random rewards notifications.");
+				inv.event.getChannel().sendMessage(sb.toString()).queue();
+
 			}
 		});
 
