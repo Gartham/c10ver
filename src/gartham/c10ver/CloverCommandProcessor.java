@@ -2357,6 +2357,9 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 			}
 		});
 
+		help.addCommand("settings",
+				"Allows you to view and change your settings. For a list of settings (and values), run the command with no arguments.",
+				"setting", "options", "option");
 		help.addCommand("prestige", "Allows you to prestige to the next rank. (Use `~stats` to see your current rank.)",
 				"prestige [amount|'max']");
 		help.addCommand("stats", "Shows a user's stats!", "stats [user]", "info");
