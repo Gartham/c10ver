@@ -101,6 +101,7 @@ public class User extends SavablePropertyObject {
 	private final UserInventory inventory;
 	private final Economy economy;
 	private final AccoladeList accolades;
+	private final UserSettings settings;
 	private final String userID;
 
 	public net.dv8tion.jda.api.entities.User getUser() {
@@ -288,6 +289,7 @@ public class User extends SavablePropertyObject {
 		account = new UserAccount(userDirectory, this);
 		inventory = new UserInventory(userDirectory);
 		accolades = new AccoladeList(new File(userDirectory, "accolades.txt"));
+		settings = new UserSettings(userDirectory, this);
 		if (load)
 			load();
 		if (getMessageCount() == null)

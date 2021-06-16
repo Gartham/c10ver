@@ -7,7 +7,25 @@ import gartham.c10ver.economy.Owned;
 
 public class UserSettings extends SavablePropertyObject implements Owned<User> {
 
-	private final Property<Boolean> notifyOfRandomRewards = booleanProperty("rrn", false);
+	private final Property<Boolean> randomRewardsNotifyingEnabled = booleanProperty("rrn", false);
+
+	public boolean isRandomRewardsNotifyingEnabled() {
+		return randomRewardsNotifyingEnabled.get();
+	}
+
+	public void setRandomRewardsNotifyingEnabled(boolean enabled) {
+		randomRewardsNotifyingEnabled.set(enabled);
+	}
+
+	/**
+	 * Flips the boolean property of 'whether random rewards will notify the user'
+	 * and returns the new value of this property.
+	 * 
+	 * @return What the property was flipped to.
+	 */
+	public boolean flipRandomRewardsNotifyingEnabled() {
+		return randomRewardsNotifyingEnabled.set(!randomRewardsNotifyingEnabled.get()).get();
+	}
 
 	private final User owner;
 
