@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.alixia.javalibrary.JavaTools;
 import org.alixia.javalibrary.strings.StringTools;
@@ -39,11 +41,10 @@ import gartham.c10ver.commands.consumers.InputConsumer;
 import gartham.c10ver.commands.consumers.MessageInputConsumer;
 import gartham.c10ver.commands.subcommands.ParentCommand;
 import gartham.c10ver.commands.subcommands.SubcommandInvocation;
+import gartham.c10ver.data.PropertyObject.Property;
 import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.Rewards;
 import gartham.c10ver.economy.Server;
-import gartham.c10ver.economy.User;
-import gartham.c10ver.economy.UserAccount;
 import gartham.c10ver.economy.items.UserInventory;
 import gartham.c10ver.economy.items.UserInventory.UserEntry;
 import gartham.c10ver.economy.items.utility.crates.DailyCrate;
@@ -61,6 +62,9 @@ import gartham.c10ver.economy.items.valuables.VoteToken;
 import gartham.c10ver.economy.questions.Question;
 import gartham.c10ver.economy.questions.Question.Difficulty;
 import gartham.c10ver.economy.server.ColorRole;
+import gartham.c10ver.economy.users.User;
+import gartham.c10ver.economy.users.UserAccount;
+import gartham.c10ver.economy.users.UserSettings;
 import gartham.c10ver.games.math.MathProblem;
 import gartham.c10ver.games.math.MathProblem.AttemptResult;
 import gartham.c10ver.games.math.MathProblemGenerator;
@@ -2290,6 +2294,72 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 			}
 		});
 
+		register(new ParentCommand("settings", "setting", "option", "options") {
+
+			private <T> T getValue(CommandInvocation inv, Function<UserSettings, T> grabber, T def) {
+				return clover.getEconomy().hasUser(inv.event.getAuthor().getId())
+						? grabber.apply(clover.getEconomy().getUser(inv.event.getAuthor().getId()).getSettings())
+						: def;
+			}
+
+			private <T> void setValue(CommandInvocation inv, Function<UserSettings, Property<T>> grabber,
+					Supplier<T> value, Function<T, String> conv) {
+				var u = clover.getEconomy().getUser(inv.event.getAuthor().getId()).getSettings();
+				Property<T> prop;
+				prop = grabber.apply(u);
+				T v;
+
+				try {
+					v = value.get();
+				} catch (Exception e) {
+					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+							+ " failed to change the setting's value. Please make sure you provided a value and that it is valid for this setting.")
+							.queue();
+					return;
+				}
+
+				prop.set(v);
+				inv.event.getChannel()
+						.sendMessage(
+								inv.event.getAuthor().getAsMention() + ", setting changed to: `" + conv.apply(v) + "`.")
+						.queue();
+			}
+
+			private <T> void setValue(CommandInvocation inv, Function<UserSettings, Property<T>> grabber,
+					Supplier<T> value) {
+				setValue(inv, grabber, value, Object::toString);
+			}
+
+			{
+				new Subcommand("rrn") {
+					@Override
+					protected void tailed(SubcommandInvocation inv) {
+						if (inv.args.length == 0)
+							inv.event.getChannel().sendMessage(
+									"This setting determines whether Clover will send you a message whenever you stumble upon random loot while talking. By default, it is **disabled** (i.e. `false`).")
+									.queue();
+						else
+							setValue(inv, UserSettings::randomRewardsNotifyingEnabledProperty,
+									() -> Boolean.valueOf(inv.args[0]));
+					}
+				};
+			}
+
+			@Override
+			protected void tailed(CommandInvocation inv) {
+				StringBuilder sb = new StringBuilder(inv.event.getAuthor().getAsMention());
+				sb.append(", this command is used for viewing and changing your settings.\n\n");
+				sb.append("[`rrn`] Random Rewards Notifications: `")
+						.append(getValue(inv, UserSettings::isRandomRewardsNotifyingEnabled, false))
+						.append("`\n\n\u2022 **To find out what a setting is or check its value**, run: `~settings (prefix)`, e.g.: `~settings rrn` to view random rewards notifications.\n\u2022 **To change a setting**, run: `~settings (prefix) (new-value)`, e.g.: `~sesttings rrn false` to disable random rewards notifications.");
+				inv.event.getChannel().sendMessage(sb.toString()).queue();
+
+			}
+		});
+
+		help.addCommand("settings",
+				"Allows you to view and change your settings. For a list of settings (and values), run the command with no arguments.",
+				"setting", "options", "option");
 		help.addCommand("prestige", "Allows you to prestige to the next rank. (Use `~stats` to see your current rank.)",
 				"prestige [amount|'max']");
 		help.addCommand("stats", "Shows a user's stats!", "stats [user]", "info");

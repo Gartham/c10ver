@@ -4,6 +4,7 @@ import java.io.File;
 import java.math.BigInteger;
 
 import gartham.c10ver.data.autosave.SavablePropertyObject;
+import gartham.c10ver.economy.users.UserAccount;
 
 public class Account extends SavablePropertyObject {
 	private final Property<BigInteger> balance = bigIntegerProperty("bal", BigInteger.ZERO);

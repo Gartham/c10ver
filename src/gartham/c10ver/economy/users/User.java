@@ -1,4 +1,4 @@
-package gartham.c10ver.economy;
+package gartham.c10ver.economy.users;
 
 import java.io.File;
 import java.math.BigDecimal;
@@ -12,6 +12,11 @@ import org.alixia.javalibrary.json.JSONObject;
 import org.alixia.javalibrary.util.StringGateway;
 
 import gartham.c10ver.data.autosave.SavablePropertyObject;
+import gartham.c10ver.economy.Economy;
+import gartham.c10ver.economy.Multiplier;
+import gartham.c10ver.economy.MultiplierManager;
+import gartham.c10ver.economy.Rewards;
+import gartham.c10ver.economy.Server;
 import gartham.c10ver.economy.accolades.AccoladeList;
 import gartham.c10ver.economy.items.UserInventory;
 import gartham.c10ver.economy.questions.Question;
@@ -96,6 +101,7 @@ public class User extends SavablePropertyObject {
 	private final UserInventory inventory;
 	private final Economy economy;
 	private final AccoladeList accolades;
+	private final UserSettings settings;
 	private final String userID;
 
 	public net.dv8tion.jda.api.entities.User getUser() {
@@ -120,6 +126,10 @@ public class User extends SavablePropertyObject {
 
 	public UserAccount getAccount() {
 		return account;
+	}
+
+	public UserSettings getSettings() {
+		return settings;
 	}
 
 	/**
@@ -283,6 +293,7 @@ public class User extends SavablePropertyObject {
 		account = new UserAccount(userDirectory, this);
 		inventory = new UserInventory(userDirectory);
 		accolades = new AccoladeList(new File(userDirectory, "accolades.txt"));
+		settings = new UserSettings(userDirectory, this);
 		if (load)
 			load();
 		if (getMessageCount() == null)

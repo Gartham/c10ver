@@ -8,6 +8,8 @@ import org.apache.commons.collections4.map.HashedMap;
 
 import gartham.c10ver.Clover;
 import gartham.c10ver.economy.items.UserInventory;
+import gartham.c10ver.economy.users.User;
+import gartham.c10ver.economy.users.UserAccount;
 
 public class Economy {
 

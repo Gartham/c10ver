@@ -9,9 +9,9 @@ import org.alixia.javalibrary.json.JSONObject;
 
 import gartham.c10ver.economy.AbstractMultiplier;
 import gartham.c10ver.economy.Multiplier;
-import gartham.c10ver.economy.User;
 import gartham.c10ver.economy.items.Item;
 import gartham.c10ver.economy.items.utility.Consumable;
+import gartham.c10ver.economy.users.User;
 
 public class Foodstuff extends Item implements Consumable {
 

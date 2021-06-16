@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import gartham.c10ver.Clover;
-import gartham.c10ver.economy.User;
+import gartham.c10ver.economy.users.User;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 public class TradeManager {
