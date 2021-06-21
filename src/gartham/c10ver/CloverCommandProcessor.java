@@ -1194,10 +1194,10 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 									var mult = u1.calcMultiplier(event.getGuild());
 									var rewards = u1.rewardAndSave(q.getValue(), mult);
 
-									String m = Utilities.multiplier(mult);
+									String m = Utilities.prettyPrintMultiplier(mult);
 
 									String msg = user.getAsMention() + ", you got the question right and earned "
-											+ rewards + " for answering it!";
+											+ Utilities.format(rewards) + " for answering it!";
 									if (m != null)
 										msg += "\n\nMultiplier: **" + m + "**.";
 
