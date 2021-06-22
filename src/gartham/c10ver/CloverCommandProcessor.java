@@ -86,6 +86,14 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 	private final Clover clover;
 	private final TradeManager tradeManager;
 
+	private static final String BARS[][] = { { "<:HealthFront:856774887379959818>" },
+			{ "<:HealthSectionEmpty:856778113206452254>", "<:HealthSection12_5p:856774887296991253>",
+					"<:HealthSection25p:856774887423344660>", "<:HealthSection37_5p:856774887388610561>",
+					"<:HealthSection50p:856774886998409268>", "<:HealthSection62_5p:856774887103266847>",
+					"<:HealthSection75p:856774887179943937>", "<:HealthSection87_5p:856774887565033482>",
+					"<:HealthSectionFull:856774887439990834>" },
+			{ "<:HealthBackEmpty:856774887377076274>", "<:HealthBackFull:856774887137345547>" } };
+
 	public CloverCommandProcessor(Clover clover) {
 		this.clover = clover;
 		tradeManager = new TradeManager(clover);
@@ -2370,6 +2378,22 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 			}
 		});
 
+		register(new MatchBasedCommand("health") {
+
+			@Override
+			public void exec(CommandInvocation inv) {
+				for (int j = 0; j < 10; j++) {
+					StringBuilder sb = new StringBuilder();
+					for (int i = 0; i < 10; i++) {
+						sb.append("Health: `").append(j * 10 + i).append("` / `100` ").append(calcHealthbar(j * 10 + i))
+								.append('\n');
+					}
+					inv.event.getChannel().sendMessage(sb.toString()).queue();
+				}
+				inv.event.getChannel().sendMessage("Health: `FULL` " + calcHealthbar(100)).queue();
+			}
+		});
+
 		help.addCommand("settings",
 				"Allows you to view and change your settings. For a list of settings (and values), run the command with no arguments.",
 				"setting", "options", "option");
@@ -2464,6 +2488,19 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 		var x = rank.subtract(BigInteger.ONE).divideAndRemainder(BigInteger.valueOf(3));
 		return BigInteger.valueOf(1000).multiply(BigInteger.TEN.pow(x[0].intValue()))
 				.multiply(x[1].add(BigInteger.ONE).pow(2));
+	}
+
+	private static String calcHealthbar(int health) {
+		StringBuilder bar = new StringBuilder(BARS[0][0]);
+		if (health == 100) {
+			bar.append(BARS[1][BARS[1].length - 1]);
+			bar.append(BARS[2][1]);
+		} else {
+			bar.append(BARS[1][health == 0 ? 0 : Math.round(health * (BARS[1].length - 1) / 100f)]);
+			bar.append(BARS[2][0]);
+		}
+
+		return bar.toString();
 	}
 
 }
