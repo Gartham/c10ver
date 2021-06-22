@@ -7,6 +7,7 @@ import static gartham.c10ver.utils.Utilities.maxPage;
 import static gartham.c10ver.utils.Utilities.paginate;
 
 import java.awt.Color;
+import java.io.File;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.NumberFormat;
@@ -2354,6 +2355,18 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						.append("`\n\n\u2022 **To find out what a setting is or check its value**, run: `~settings (prefix)`, e.g.: `~settings rrn` to view random rewards notifications.\n\u2022 **To change a setting**, run: `~settings (prefix) (new-value)`, e.g.: `~sesttings rrn false` to disable random rewards notifications.");
 				inv.event.getChannel().sendMessage(sb.toString()).queue();
 
+			}
+		});
+
+		register(new MatchBasedCommand("rpg") {
+
+			@Override
+			public void exec(CommandInvocation inv) {
+				inv.event.getChannel().sendMessage(new EmbedBuilder()
+						.setAuthor(inv.event.getAuthor().getAsTag() + "'s Nymph", null,
+								inv.event.getAuthor().getEffectiveAvatarUrl())
+						.setImage("attachment://creature.png").appendDescription("Health: FULL [100/100]").build())
+						.addFile(new File("E:\\Images\\Artt\\Clover\\Pets/nymph.png"), "creature.png").queue();
 			}
 		});
 
