@@ -2350,11 +2350,17 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					protected void tailed(SubcommandInvocation inv) {
 						if (inv.args.length == 0)
 							inv.event.getChannel().sendMessage(
-									"This setting determines if Clover will remind you when it's time for you to vote! By default, it is **disabled** (i.e., `false`).")
+									"Vote Reminders! If this is on, Clover will message you when it's time to vote. By default, it is **disabled** (i.e., `false`).")
 									.queue();
-						else
-							setValue(inv, UserSettings::voteRemindersEnabledProperty,
-									() -> Boolean.valueOf(inv.args[0]));
+						else {
+							boolean b = Boolean.valueOf(inv.args[0]);
+							clover.getEventHandler().getVoteManager().setVotingRemindersEnabled(
+									inv.event.getAuthor().getId(), inv.event.getGuild().getId(), b);
+							inv.event.getChannel()
+									.sendMessage(
+											inv.event.getAuthor().getAsMention() + ", setting changed to: `" + b + "`.")
+									.queue();
+						}
 					}
 				};
 			}
