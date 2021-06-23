@@ -515,9 +515,10 @@ public class PropertyObject {
 		public Property<V> set(V value) {
 			V old = this.value;
 			this.value = value;
-			for (var e : listeners.entrySet())
-				for (int i = 0; i < e.getValue(); i++)
-					e.getKey().accept(old, value);
+			if (listeners != null)
+				for (var e : listeners.entrySet())
+					for (int i = 0; i < e.getValue(); i++)
+						e.getKey().accept(old, value);
 			return this;
 		}
 
