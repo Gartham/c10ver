@@ -8,29 +8,18 @@ import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import gartham.c10ver.Clover;
 import gartham.c10ver.commands.CommandInvocation;
 import gartham.c10ver.commands.InputProcessor;
 import gartham.c10ver.economy.Multiplier;
-import gartham.c10ver.economy.Rewards;
 import gartham.c10ver.economy.Server;
 import gartham.c10ver.economy.items.ItemBunch;
-import gartham.c10ver.economy.items.utility.crates.DailyCrate;
-import gartham.c10ver.economy.items.utility.crates.MonthlyCrate;
 import gartham.c10ver.economy.items.utility.crates.NormalCrate;
-import gartham.c10ver.economy.items.utility.crates.WeeklyCrate;
-import gartham.c10ver.economy.items.utility.foodstuffs.Hamburger;
-import gartham.c10ver.economy.items.utility.foodstuffs.Pizza;
 import gartham.c10ver.economy.items.utility.foodstuffs.Sandwich;
-import gartham.c10ver.economy.items.valuables.VoteToken;
-import gartham.c10ver.economy.items.valuables.VoteToken.Type;
 import gartham.c10ver.economy.users.User;
 import gartham.c10ver.utils.Utilities;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Invite;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.GenericEvent;
@@ -52,6 +41,10 @@ public class EventHandler implements EventListener {
 	private final Generator<InfoPopup> infoPopupGenerator;
 	private final InviteTracker inviteTracker = new InviteTracker(this);
 	private final VoteManager voteManager;
+
+	public VoteManager getVoteManager() {
+		return voteManager;
+	}
 
 	public Generator<InfoPopup> getTipGenerator() {
 		return infoPopupGenerator;
@@ -296,7 +289,13 @@ public class EventHandler implements EventListener {
 			if (role != null) {
 				for (Role r : e.getRoles()) {
 					if (r.getId().equals(role)) {
-						e.getGuild().removeRoleFromMember(e.getMember(), r).queue();
+						try {
+							e.getGuild().removeRoleFromMember(e.getMember(), r).queue();
+						} catch (Exception er) {
+							System.err
+									.println("An error occurred while attempting to remove the vote role from a user!");
+							er.printStackTrace();
+						}
 						voteManager.handleVoteRoleAdded(e.getMember());
 						break;
 					}
