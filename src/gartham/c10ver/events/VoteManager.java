@@ -2,8 +2,15 @@ package gartham.c10ver.events;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.sql.Date;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import gartham.c10ver.Clover;
 import gartham.c10ver.economy.Multiplier;
@@ -26,6 +33,9 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
 public class VoteManager {
+
+	private final Timer timer = new Timer(true);
+	private final Map<String, Map<String, TimerTask>> tasks = new HashMap<>();
 
 	private final Clover clover;
 
@@ -71,14 +81,73 @@ public class VoteManager {
 								+ "\n\nYou can [vote on top.gg by clicking me](https://top.gg/servers/"
 								+ member.getGuild().getId() + "/vote).")
 				.build();
-		MessageChannel channel;
-		channel = s.getGeneralChannel() != null ? member.getGuild().getTextChannelById(s.getGeneralChannel())
-				: member.getUser().openPrivateChannel().complete();
 
+		if (u.getSettings().isVoteRemindersEnabled()) {
+			TimerTask task = new TimerTask() {
+
+				@Override
+				public void run() {
+					remove(member.getId(), s.getServerID());
+					MessageChannel channel = s.getGeneralChannel() != null
+							? member.getGuild().getTextChannelById(s.getGeneralChannel())
+							: member.getUser().openPrivateChannel().complete();
+					channel.sendMessage("Hey there " + member.getAsMention() + "! It's time to vote for **"
+							+ member.getGuild().getName() + "**! Here's the vote link: https://top.gg/servers/"
+							+ member.getGuild().getId()
+							+ "/vote\n\n(You can disable this using the command: `~settings vr false`.)").queue();
+				}
+			};
+			timer.schedule(task, Date.from(Instant.now().plus(12, ChronoUnit.SECONDS)));
+
+			var o = put(member.getId(), s.getServerID(), task);
+			if (o != null)
+				o.cancel();
+		}
+
+		MessageChannel channel = s.getGeneralChannel() != null
+				? member.getGuild().getTextChannelById(s.getGeneralChannel())
+				: member.getUser().openPrivateChannel().complete();
 		channel.sendMessage(embed).queue(
 //				t -> {
 //					t.addReaction("\u274C").queue(t2 -> t.addReaction("\u2611").queue());
 //				}
 		);
+	}
+
+	public TimerTask put(String user, String server, TimerTask task) {
+		var u = tasks.get(user);
+		if (u == null)
+			tasks.put(user, u = new HashMap<>());
+
+		var s = u.get(server);
+		u.put(server, task);
+		return s;
+	}
+
+	public TimerTask remove(String user, String server) {
+		var u = tasks.get(user);
+		if (u != null) {
+			var t = u.remove(server);
+			if (u.isEmpty())
+				tasks.remove(user);
+			return t;
+		}
+		return null;
+	}
+
+	public TimerTask get(String user, String server) {
+		var u = tasks.get(user);
+		return u == null ? null : u.get(server);
+	}
+
+	public boolean contains(String user, String server) {
+		return get(user, server) != null;
+	}
+
+	public void setVotingRemindersEnabled(User user, String server, boolean b) {
+		if (!b)
+			remove(user.getUserID(), server).cancel();
+		user.getSettings().setVoteRemindersEnabled(b);
+		user.getSettings().save();
 	}
 }

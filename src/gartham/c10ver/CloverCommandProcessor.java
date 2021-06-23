@@ -2319,6 +2319,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				}
 
 				prop.set(v);
+				u.save();
 				inv.event.getChannel()
 						.sendMessage(
 								inv.event.getAuthor().getAsMention() + ", setting changed to: `" + conv.apply(v) + "`.")
@@ -2355,7 +2356,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						else {
 							boolean b = Boolean.valueOf(inv.args[0]);
 							clover.getEventHandler().getVoteManager().setVotingRemindersEnabled(
-									inv.event.getAuthor().getId(), inv.event.getGuild().getId(), b);
+									clover.getEconomy().getUser(inv.event.getAuthor().getId()),
+									inv.event.getGuild().getId(), b);
 							inv.event.getChannel()
 									.sendMessage(
 											inv.event.getAuthor().getAsMention() + ", setting changed to: `" + b + "`.")
