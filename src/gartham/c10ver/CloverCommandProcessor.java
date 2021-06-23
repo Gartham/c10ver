@@ -2319,6 +2319,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				}
 
 				prop.set(v);
+				u.save();
 				inv.event.getChannel()
 						.sendMessage(
 								inv.event.getAuthor().getAsMention() + ", setting changed to: `" + conv.apply(v) + "`.")
@@ -2336,11 +2337,32 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					protected void tailed(SubcommandInvocation inv) {
 						if (inv.args.length == 0)
 							inv.event.getChannel().sendMessage(
-									"This setting determines whether Clover will send you a message whenever you stumble upon random loot while talking. By default, it is **disabled** (i.e. `false`).")
+									"This setting determines whether Clover will send you a message whenever you stumble upon random loot while talking. By default, it is **disabled** (i.e., `false`).")
 									.queue();
 						else
 							setValue(inv, UserSettings::randomRewardsNotifyingEnabledProperty,
 									() -> Boolean.valueOf(inv.args[0]));
+					}
+				};
+
+				new Subcommand("vr") {
+
+					@Override
+					protected void tailed(SubcommandInvocation inv) {
+						if (inv.args.length == 0)
+							inv.event.getChannel().sendMessage(
+									"Vote Reminders! If this is on, Clover will message you when it's time to vote. By default, it is **disabled** (i.e., `false`).")
+									.queue();
+						else {
+							boolean b = Boolean.valueOf(inv.args[0]);
+							clover.getEventHandler().getVoteManager().setVotingRemindersEnabled(
+									clover.getEconomy().getUser(inv.event.getAuthor().getId()),
+									inv.event.getGuild().getId(), b);
+							inv.event.getChannel()
+									.sendMessage(
+											inv.event.getAuthor().getAsMention() + ", setting changed to: `" + b + "`.")
+									.queue();
+						}
 					}
 				};
 			}
@@ -2351,6 +2373,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				sb.append(", this command is used for viewing and changing your settings.\n\n");
 				sb.append("[`rrn`] Random Rewards Notifications: `")
 						.append(getValue(inv, UserSettings::isRandomRewardsNotifyingEnabled, false))
+						.append("`\n[`vr`] Vote Reminder: `")
+						.append(getValue(inv, UserSettings::isVoteRemindersEnabled, false))
 						.append("`\n\n\u2022 **To find out what a setting is or check its value**, run: `~settings (prefix)`, e.g.: `~settings rrn` to view random rewards notifications.\n\u2022 **To change a setting**, run: `~settings (prefix) (new-value)`, e.g.: `~sesttings rrn false` to disable random rewards notifications.");
 				inv.event.getChannel().sendMessage(sb.toString()).queue();
 

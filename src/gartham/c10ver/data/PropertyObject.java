@@ -10,9 +10,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -441,6 +443,28 @@ public class PropertyObject {
 		private final String key;
 		private V value, def;
 		private final Gateway<V, JSONValue> converter;
+		private Map<BiConsumer<? super V, ? super V>, Integer> listeners;
+
+		public void addListener(BiConsumer<? super V, ? super V> listener) {
+			int c;
+			if (listeners == null) {
+				listeners = new IdentityHashMap<>();
+				c = 0;
+			} else
+				c = listeners.containsKey(listener) ? listeners.get(listener) : 0;
+			listeners.put(listener, c + 1);
+		}
+
+		public void removeListener(BiConsumer<? super V, ? super V> listener) {
+			if (listeners == null || !listeners.containsKey(listener))
+				return;
+			int c = listeners.get(listener);
+			if (--c == 0) {
+				listeners.remove(listener);
+				if (listeners.isEmpty())
+					listeners = null;
+			}
+		}
 
 		private boolean attribute = true, trans;
 
@@ -489,7 +513,12 @@ public class PropertyObject {
 		}
 
 		public Property<V> set(V value) {
+			V old = this.value;
 			this.value = value;
+			if (listeners != null)
+				for (var e : listeners.entrySet())
+					for (int i = 0; i < e.getValue(); i++)
+						e.getKey().accept(old, value);
 			return this;
 		}
 
