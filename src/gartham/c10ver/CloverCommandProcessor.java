@@ -411,8 +411,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 									.queue();
 						} else
 							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
-									+ " too many args! Provide a crate type (and how many crates you want to open)!\n**Example**: `~`"
-									+ inv.getPreargs()[0] + ' ' + inv.cmdName + " daily 3").queue();
+									+ " too many args! Provide a crate type (and how many crates you want to open)!\n**Example**: `~"
+									+ inv.getPreargs()[0] + ' ' + inv.cmdName + " daily 3`").queue();
 					}
 				};
 
