@@ -97,7 +97,7 @@ public class VoteManager {
 							+ "/vote\n\n(You can disable this using the command: `~settings vr false`.)").queue();
 				}
 			};
-			timer.schedule(task, Date.from(Instant.now().plus(12, ChronoUnit.SECONDS)));
+			timer.schedule(task, Date.from(Instant.now().plus(12, ChronoUnit.HOURS)));
 
 			var o = put(member.getId(), s.getServerID(), task);
 			if (o != null)
