@@ -7,14 +7,23 @@ import gartham.c10ver.economy.Owned;
 
 public class UserSettings extends SavablePropertyObject implements Owned<User> {
 
-	private final Property<Boolean> randomRewardsNotifyingEnabled = booleanProperty("rrn", false);
+	private final Property<Boolean> randomRewardsNotifyingEnabled = booleanProperty("rrn", false),
+			voteRemindersEnabled = booleanProperty("vr", false);
 
 	public boolean isRandomRewardsNotifyingEnabled() {
 		return randomRewardsNotifyingEnabled.get();
 	}
 
+	public boolean isVoteRemindersEnabled() {
+		return voteRemindersEnabled.get();
+	}
+
 	public void setRandomRewardsNotifyingEnabled(boolean enabled) {
 		randomRewardsNotifyingEnabled.set(enabled);
+	}
+
+	public void setVoteRemindersEnabled(boolean enabled) {
+		voteRemindersEnabled.set(enabled);
 	}
 
 	/**
@@ -27,8 +36,16 @@ public class UserSettings extends SavablePropertyObject implements Owned<User> {
 		return randomRewardsNotifyingEnabled.set(!randomRewardsNotifyingEnabled.get()).get();
 	}
 
+	public boolean flipVoteRemindersEnabled() {
+		return voteRemindersEnabled.set(!voteRemindersEnabled.get()).get();
+	}
+
 	public Property<Boolean> randomRewardsNotifyingEnabledProperty() {
 		return randomRewardsNotifyingEnabled;
+	}
+
+	public Property<Boolean> voteRemindersEnabledProperty() {
+		return voteRemindersEnabled;
 	}
 
 	private final User owner;
