@@ -32,6 +32,8 @@ import org.alixia.javalibrary.strings.StringTools;
 import org.alixia.javalibrary.util.Box;
 import org.alixia.javalibrary.util.MultidimensionalMap;
 
+import club.minnced.discord.webhook.WebhookClientBuilder;
+import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import gartham.c10ver.changelog.Changelog.Version;
 import gartham.c10ver.commands.CommandHelpBook.ParentCommandHelp;
 import gartham.c10ver.commands.CommandInvocation;
@@ -70,6 +72,8 @@ import gartham.c10ver.games.math.MathProblem;
 import gartham.c10ver.games.math.MathProblem.AttemptResult;
 import gartham.c10ver.games.math.MathProblemGenerator;
 import gartham.c10ver.games.math.simple.SimpleMathProblemGenerator;
+import gartham.c10ver.games.rpg.rooms.RectangularRoom;
+import gartham.c10ver.games.rpg.rooms.SquareRoom;
 import gartham.c10ver.processing.commands.InventoryCommand;
 import gartham.c10ver.processing.trading.TradeManager;
 import gartham.c10ver.utils.Utilities;
@@ -2390,10 +2394,45 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 			}
 		});
 
-		register(new MatchBasedCommand("rpg") {
+		register(new ParentCommand("rpg") {
+
+			{
+				new Subcommand("wh") {
+
+					@Override
+					protected void tailed(SubcommandInvocation inv) {
+						if (inv.event.isFromGuild()) {
+							inv.event.getTextChannel().retrieveWebhooks().queue(t -> {
+								for (var w : t)
+									if (w.getName().equalsIgnoreCase("clover-rpg")) {
+										var x = WebhookClientBuilder.fromJDA(w).build();
+										x.send(new WebhookMessageBuilder()
+												.setContent("I like grass. Do you have any grass?")
+												.setUsername("[Wild] Nymph")
+												.setAvatarUrl(
+														"https://cdn.discordapp.com/attachments/807401695944507411/857495452097576970/nymph_emoji.png")
+												.build());
+										return;
+									}
+							});
+						} else
+							inv.event.getChannel().sendMessage("You need to be in a server to do that!").queue();
+					}
+				};
+
+				new Subcommand("room") {
+
+					@Override
+					protected void tailed(SubcommandInvocation inv) {
+						int size = 25;
+						var sq = new RectangularRoom(Math.round(2.28f * size), size);
+						inv.event.getChannel().sendMessage("```\n" + sq.layoutString() + "\n```").queue();
+					}
+				};
+			}
 
 			@Override
-			public void exec(CommandInvocation inv) {
+			public void tailed(CommandInvocation inv) {
 				inv.event.getChannel().sendMessage(new EmbedBuilder()
 						.setAuthor(inv.event.getAuthor().getAsTag() + "'s Nymph", null,
 								inv.event.getAuthor().getEffectiveAvatarUrl())
