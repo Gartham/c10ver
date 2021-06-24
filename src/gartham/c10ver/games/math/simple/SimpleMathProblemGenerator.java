@@ -62,12 +62,12 @@ public class SimpleMathProblemGenerator implements MathProblemGenerator {
 		BigDecimal x = expr.eval(), valbd = BigDecimal.valueOf(value);
 		if (x.abs().compareTo(valbd) > 0) {
 
-			BigDecimal rand = new BigDecimal(
-					BigDecimal.valueOf(Math.random()).multiply(valbd).add(expr.eval().subtract(valbd)).toBigInteger());
+			BigDecimal resultingShiftAmount = new BigDecimal(x.abs().subtract(valbd)
+					.add(BigDecimal.valueOf(Math.sqrt(Math.random())).multiply(valbd.multiply(BigDecimal.valueOf(2))))
+					.toBigInteger());
 
-			// Range - expr.eval() - value, expr.eval();
-
-			return x.compareTo(BigDecimal.ZERO) < 0 ? expr.add(Term.of(rand)) : expr.subtract(Term.of(rand));
+			return x.compareTo(BigDecimal.ZERO) < 0 ? expr.add(Term.of(resultingShiftAmount))
+					: expr.subtract(Term.of(resultingShiftAmount));
 		} else
 			return expr;
 	}

@@ -8,29 +8,18 @@ import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import gartham.c10ver.Clover;
 import gartham.c10ver.commands.CommandInvocation;
 import gartham.c10ver.commands.InputProcessor;
 import gartham.c10ver.economy.Multiplier;
-import gartham.c10ver.economy.Rewards;
 import gartham.c10ver.economy.Server;
 import gartham.c10ver.economy.items.ItemBunch;
-import gartham.c10ver.economy.items.utility.crates.DailyCrate;
-import gartham.c10ver.economy.items.utility.crates.MonthlyCrate;
 import gartham.c10ver.economy.items.utility.crates.NormalCrate;
-import gartham.c10ver.economy.items.utility.crates.WeeklyCrate;
-import gartham.c10ver.economy.items.utility.foodstuffs.Hamburger;
-import gartham.c10ver.economy.items.utility.foodstuffs.Pizza;
 import gartham.c10ver.economy.items.utility.foodstuffs.Sandwich;
-import gartham.c10ver.economy.items.valuables.VoteToken;
-import gartham.c10ver.economy.items.valuables.VoteToken.Type;
 import gartham.c10ver.economy.users.User;
 import gartham.c10ver.utils.Utilities;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Invite;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.GenericEvent;
@@ -51,6 +40,11 @@ public class EventHandler implements EventListener {
 
 	private final Generator<InfoPopup> infoPopupGenerator;
 	private final InviteTracker inviteTracker = new InviteTracker(this);
+	private final VoteManager voteManager;
+
+	public VoteManager getVoteManager() {
+		return voteManager;
+	}
 
 	public Generator<InfoPopup> getTipGenerator() {
 		return infoPopupGenerator;
@@ -71,6 +65,7 @@ public class EventHandler implements EventListener {
 	public EventHandler(Clover clover) {
 		this.clover = clover;
 		infoPopupGenerator = Generator.loop(clover.getTiplist());
+		voteManager = new VoteManager(clover);
 	}
 
 	public void initialize() {
@@ -294,46 +289,15 @@ public class EventHandler implements EventListener {
 			if (role != null) {
 				for (Role r : e.getRoles()) {
 					if (r.getId().equals(role)) {
-
-						e.getGuild().removeRoleFromMember(e.getMember(), r).queue();
-
-						List<ItemBunch<?>> items = new ArrayList<>();
-						items.add(new ItemBunch<>(new WeeklyCrate(), Math.random() > 0.5 ? 3 : 2));
-						if (Math.random() > 0.5)
-							items.add(new ItemBunch<>(new MonthlyCrate()));
-						if (Math.random() > 0.95)
-							items.add(new ItemBunch<>(new DailyCrate(), 50));
-						items.add(new ItemBunch<>(new NormalCrate(), (long) (Math.random() * 5 + 3)));
-						items.add(new ItemBunch<>(new Pizza(), (long) (Math.random() * 5 + 3)));
-						items.add(new ItemBunch<>(new Sandwich(), (long) (Math.random() * 7 + 3)));
-						items.add(new ItemBunch<>(new Hamburger(), (long) (Math.random() * 2 + 4)));
-						items.add(new ItemBunch<>(new VoteToken(Type.NORMAL), 5));
-
-						List<Multiplier> multipliers = new ArrayList<>();
-						if (Math.random() > 0.2)
-							multipliers.add(Multiplier.ofHr(12, BigDecimal.valueOf(2, 1)));
-						if (Math.random() > 0.3)
-							multipliers.add(Multiplier.ofHr(12, BigDecimal.valueOf(3, 1)));
-						if (Math.random() > 0.5)
-							multipliers.add(Multiplier.ofHr(12, BigDecimal.valueOf(5, 1)));
-
-						Rewards rewards = new Rewards(items, BigInteger.valueOf((long) (Math.random() * 3000 + 5000)));
-
-						var rec = clover.getEconomy().getUser(e.getUser().getId()).rewardAndSave(rewards, e.getGuild());
-
-						if (s.getGeneralChannel() != null) {
-							var c = e.getGuild().getTextChannelById(s.getGeneralChannel());
-							c.sendMessage(new EmbedBuilder()
-									.setAuthor(e.getUser().getAsTag() + " just voted!", null,
-											e.getUser().getEffectiveAvatarUrl())
-									.setDescription(e.getUser().getAsMention() + " just voted and received:\n"
-											+ Utilities.listRewards(rec)
-											+ "\n\nYou can [vote on top.gg by clicking me](https://top.gg/servers/"
-											+ e.getGuild().getId() + "/vote).")
-									.build()).queue();
+						try {
+							e.getGuild().removeRoleFromMember(e.getMember(), r).queue();
+						} catch (Exception er) {
+							System.err
+									.println("An error occurred while attempting to remove the vote role from a user!");
+							er.printStackTrace();
 						}
-
-						return;
+						voteManager.handleVoteRoleAdded(e.getMember());
+						break;
 					}
 				}
 			}
