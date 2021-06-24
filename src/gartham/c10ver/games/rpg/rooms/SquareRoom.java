@@ -1,4 +1,4 @@
-package gartham.c10ver.games.questing.rooms;
+package gartham.c10ver.games.rpg.rooms;
 
 import java.util.Arrays;
 

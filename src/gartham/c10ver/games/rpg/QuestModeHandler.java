@@ -1,4 +1,4 @@
-package gartham.c10ver.games.questing;
+package gartham.c10ver.games.rpg;
 
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.hooks.EventListener;

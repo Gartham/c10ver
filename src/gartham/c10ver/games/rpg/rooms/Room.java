@@ -1,4 +1,4 @@
-package gartham.c10ver.games.questing.rooms;
+package gartham.c10ver.games.rpg.rooms;
 
 /**
  * Represents a room. This class stores all of the information pertaining to a
