@@ -16,7 +16,7 @@ public class SquareRoom implements Room {
 			throw new IllegalArgumentException("Square Rooms can't be smaller than 3 units!");
 		this.map = new char[size][size];
 		for (int i = 1; i < map.length - 1; i++) {
-			map[i][0] = map[i][map[i].length - 1] = '\u2502';
+			map[i][0] = map[i][map[i].length - 1] = SIDE[0];
 			Arrays.fill(map[i], 1, map[i].length - 1, ' ');
 		}
 		Arrays.fill(map[0], 0, map[0].length - 1, '-');
