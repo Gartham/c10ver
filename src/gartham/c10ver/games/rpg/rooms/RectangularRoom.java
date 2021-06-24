@@ -2,7 +2,7 @@ package gartham.c10ver.games.rpg.rooms;
 
 import java.util.Arrays;
 
-public class RectanglularRoom implements Room {
+public class RectangularRoom implements Room {
 
 	// Vertical (Single, Double), Horizontal
 	private static final char[] SIDE = { '\u2502', '\u2551', '\u2500', '\u2550' },
@@ -13,7 +13,7 @@ public class RectanglularRoom implements Room {
 	private final char[][] map;
 	private final int width, height;
 
-	public RectanglularRoom(int width, int height) {
+	public RectangularRoom(int width, int height) {
 		if (width < 3 || height < 3)
 			throw new IllegalArgumentException("Room can't be smaller than 3 units!");
 		this.map = new char[this.height = height][this.width = width];
