@@ -73,7 +73,7 @@ import gartham.c10ver.games.math.MathProblem.AttemptResult;
 import gartham.c10ver.games.math.MathProblemGenerator;
 import gartham.c10ver.games.math.simple.SimpleMathProblemGenerator;
 import gartham.c10ver.games.rpg.rooms.RectangularRoom;
-import gartham.c10ver.games.rpg.rooms.SquareRoom;
+import gartham.c10ver.games.rpg.rooms.RectangularRoom.Side;
 import gartham.c10ver.processing.commands.InventoryCommand;
 import gartham.c10ver.processing.trading.TradeManager;
 import gartham.c10ver.utils.Utilities;
@@ -2424,8 +2424,14 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 					@Override
 					protected void tailed(SubcommandInvocation inv) {
-						int size = 25;
+						int size = (int) (Math.random() * 20 + 6);
 						var sq = new RectangularRoom(Math.round(2.28f * size), size);
+						Side side = Math.random() > 0.5 ? Side.RIGHT : Side.LEFT;
+						sq.createOpening(side, (int) (Math.random() * (sq.getHeight())) + 3,
+								(int) (Math.random() * (sq.getHeight() - 4)));
+						if (Math.random() > 0.5)
+							sq.createOpening(side.opposite(), (int) (Math.random() * (sq.getHeight())) + 3,
+									(int) (Math.random() * (sq.getHeight())));
 						inv.event.getChannel().sendMessage("```\n" + sq.layoutString() + "\n```").queue();
 					}
 				};
