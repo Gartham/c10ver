@@ -2466,7 +2466,11 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 								@SuppressWarnings("resource")
 								var sc = new Scanner(System.in);
 								while (sc.hasNextLine())
-									handle(sc.nextLine());
+									try {
+										handle(sc.nextLine());
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
 							}
 
 							private final SimpleCommandProcessor processor = new SimpleCommandProcessor();
