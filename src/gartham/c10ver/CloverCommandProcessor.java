@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -29,9 +30,11 @@ import java.util.function.Supplier;
 
 import org.alixia.javalibrary.JavaTools;
 import org.alixia.javalibrary.strings.StringTools;
+import org.alixia.javalibrary.strings.matching.Matching;
 import org.alixia.javalibrary.util.Box;
 import org.alixia.javalibrary.util.MultidimensionalMap;
 
+import club.minnced.discord.webhook.WebhookClient;
 import club.minnced.discord.webhook.WebhookClientBuilder;
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import gartham.c10ver.changelog.Changelog.Version;
@@ -2435,6 +2438,90 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						inv.event.getChannel().sendMessage("```\n" + sq.layoutString() + "\n```").queue();
 					}
 				};
+
+				new Subcommand("health") {
+
+					@Override
+					public void tailed(SubcommandInvocation inv) {
+						for (int j = 0; j < 10; j++) {
+							StringBuilder sb = new StringBuilder();
+							for (int i = 0; i < 10; i++) {
+								sb.append("Health: `").append(j * 10 + i).append("` / `100` ")
+										.append(calcHealthbar(j * 10 + i)).append('\n');
+							}
+							inv.event.getChannel().sendMessage(sb.toString()).queue();
+						}
+						inv.event.getChannel().sendMessage("Health: `FULL` " + calcHealthbar(100)).queue();
+					}
+				};
+
+				new Subcommand("enb-wh") {
+
+					@Override
+					protected void tailed(SubcommandInvocation inv) {
+						var t = new Thread(new Runnable() {
+
+							@Override
+							public void run() {
+								@SuppressWarnings("resource")
+								var sc = new Scanner(System.in);
+								while (sc.hasNextLine())
+									handle(sc.nextLine());
+							}
+
+							private final SimpleCommandProcessor processor = new SimpleCommandProcessor();
+							private WebhookClient channel;
+							private String avatar, name;
+							{
+								processor.register(new MatchBasedCommand("sc") {
+
+									@Override
+									public void exec(CommandInvocation inv) {
+										var x = clover.getBot().getTextChannelById(inv.args[0]);
+										var whs = x.retrieveWebhooks().complete();
+										for (var e : whs)
+											if (e.getName().equalsIgnoreCase("cltest")) {
+												channel = WebhookClientBuilder.fromJDA(e).build();
+												return;
+											}
+										channel = WebhookClientBuilder.fromJDA(x.createWebhook("cltest").complete())
+												.build();
+									}
+								});
+								processor.register(new MatchBasedCommand("avatar") {
+
+									@Override
+									public void exec(CommandInvocation inv) {
+										avatar = inv.args.length == 0 ? null : inv.args[0];
+									}
+								});
+								processor.register(new MatchBasedCommand("name") {
+
+									@Override
+									public void exec(CommandInvocation inv) {
+										name = inv.args.length == 0 ? null : inv.args[0];
+									}
+								});
+							}
+
+							private void handle(String in) {
+								System.out.println("Test.");
+								if (in.startsWith("/"))
+									processor.run(clover.getCommandParser().parse(Matching.build("/"), in, null));
+								else {
+									WebhookMessageBuilder msg = new WebhookMessageBuilder().setContent(in);
+									if (avatar != null)
+										msg.setAvatarUrl(avatar);
+									if (name != null)
+										msg.setUsername(name);
+									channel.send(msg.build());
+								}
+							}
+						});
+						t.setDaemon(true);
+						t.start();
+					}
+				};
 			}
 
 			@Override
@@ -2444,22 +2531,6 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 								inv.event.getAuthor().getEffectiveAvatarUrl())
 						.setImage("attachment://creature.png").appendDescription("Health: FULL [100/100]").build())
 						.addFile(new File("E:\\Images\\Artt\\Clover\\Pets/nymph.png"), "creature.png").queue();
-			}
-		});
-
-		register(new MatchBasedCommand("health") {
-
-			@Override
-			public void exec(CommandInvocation inv) {
-				for (int j = 0; j < 10; j++) {
-					StringBuilder sb = new StringBuilder();
-					for (int i = 0; i < 10; i++) {
-						sb.append("Health: `").append(j * 10 + i).append("` / `100` ").append(calcHealthbar(j * 10 + i))
-								.append('\n');
-					}
-					inv.event.getChannel().sendMessage(sb.toString()).queue();
-				}
-				inv.event.getChannel().sendMessage("Health: `FULL` " + calcHealthbar(100)).queue();
 			}
 		});
 
