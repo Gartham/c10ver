@@ -11,10 +11,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.function.Consumer;
 
 import gartham.c10ver.Clover;
+import gartham.c10ver.commands.consumers.MessageReactionInputConsumer;
 import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.Rewards;
+import gartham.c10ver.economy.Server;
 import gartham.c10ver.economy.items.ItemBunch;
 import gartham.c10ver.economy.items.utility.crates.DailyCrate;
 import gartham.c10ver.economy.items.utility.crates.MonthlyCrate;
@@ -29,8 +32,9 @@ import gartham.c10ver.economy.users.User;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
 public class VoteManager {
 
@@ -44,6 +48,7 @@ public class VoteManager {
 	}
 
 	public void handleVoteRoleAdded(Member member) {
+		Instant voteTime = Instant.now();
 		List<ItemBunch<?>> items = new ArrayList<>();
 		items.add(new ItemBunch<>(new WeeklyCrate(), Math.random() > 0.5 ? 3 : 2));
 		if (Math.random() > 0.5)
@@ -72,46 +77,68 @@ public class VoteManager {
 		u.save();
 		var s = clover.getEconomy().getServer(member.getGuild().getId());
 
-		EmbedBuilder eb = new EmbedBuilder();
-
-		MessageEmbed embed = eb
+		EmbedBuilder embed = new EmbedBuilder()
 				.setAuthor(member.getUser().getAsTag() + " just voted!", null, member.getUser().getEffectiveAvatarUrl())
 				.setDescription(
 						member.getUser().getAsMention() + " just voted and received:\n" + Utilities.listRewards(rec)
 								+ "\n\nYou can [vote on top.gg by clicking me](https://top.gg/servers/"
-								+ member.getGuild().getId() + "/vote).")
-				.build();
+								+ member.getGuild().getId() + "/vote).");
 
-		if (u.getSettings().isVoteRemindersEnabled()) {
-			TimerTask task = new TimerTask() {
-
-				@Override
-				public void run() {
-					remove(member.getId(), s.getServerID());
-					MessageChannel channel = s.getGeneralChannel() != null
-							? member.getGuild().getTextChannelById(s.getGeneralChannel())
-							: member.getUser().openPrivateChannel().complete();
-					channel.sendMessage("Hey there " + member.getAsMention() + "! It's time to vote for **"
-							+ member.getGuild().getName() + "**! Here's the vote link: https://top.gg/servers/"
-							+ member.getGuild().getId()
-							+ "/vote\n\n(You can disable this using the command: `~settings vr false`.)").queue();
-				}
-			};
-			timer.schedule(task, Date.from(Instant.now().plus(12, ChronoUnit.HOURS)));
-
-			var o = put(member.getId(), s.getServerID(), task);
-			if (o != null)
-				o.cancel();
-		}
-
+		Consumer<? super Message> action;
 		MessageChannel channel = s.getGeneralChannel() != null
 				? member.getGuild().getTextChannelById(s.getGeneralChannel())
 				: member.getUser().openPrivateChannel().complete();
-		channel.sendMessage(embed).queue(
-//				t -> {
-//					t.addReaction("\u274C").queue(t2 -> t.addReaction("\u2611").queue());
-//				}
-		);
+
+		if (u.getSettings().isVoteRemindersEnabled()) {
+			scheduleReminder(member, s, voteTime);
+			channel.sendMessage(embed.setFooter(
+					"----> You currently have vote reminders enabled. Disable them with: ~settings vr false <----")
+					.build()).queue();
+		} else {
+			action = t -> {
+				t.addReaction("\u23F0").queue();
+				clover.getEventHandler().getReactionAdditionProcessor().registerInputConsumer(
+						((MessageReactionInputConsumer<MessageReactionAddEvent>) (event, b, consumer) -> {
+							if (event.getReactionEmote().isEmoji()
+									&& event.getReactionEmote().getEmoji().equals("\u23F0")) {
+								clover.getEventHandler().getReactionAdditionProcessor().removeInputConsumer(consumer);
+								channel.sendMessage(member.getAsMention()
+										+ " vote reminders are now enabled for you! To turn them off, run the command: `~settings vr false`.")
+										.queue();
+								scheduleReminder(member, s, voteTime);
+								setVotingRemindersEnabled(u, s.getServerID(), true);
+								return true;
+							} else
+								return false;
+						}).expires(Instant.now().plusSeconds(180)).filter(member.getUser(), channel));
+			};
+			channel.sendMessage(embed.setFooter(
+					"You can automatically be reminded when it's time to vote by reacting to this message! (Click the alarm clock.)")
+					.build()).queue(action);
+		}
+
+	}
+
+	private void scheduleReminder(Member member, Server server, Instant from) {
+		TimerTask task = new TimerTask() {
+
+			@Override
+			public void run() {
+				remove(member.getId(), server.getServerID());
+				MessageChannel channel = server.getGeneralChannel() != null
+						? member.getGuild().getTextChannelById(server.getGeneralChannel())
+						: member.getUser().openPrivateChannel().complete();
+				channel.sendMessage("Hey there " + member.getAsMention() + "! It's time to vote for **"
+						+ member.getGuild().getName() + "**! Here's the vote link: https://top.gg/servers/"
+						+ member.getGuild().getId()
+						+ "/vote\n\n(REMEMBER: You can disable this using the command: `~settings vr false`.)").queue();
+			}
+		};
+		timer.schedule(task, Date.from(from.plus(12, ChronoUnit.HOURS)));
+
+		var o = put(member.getId(), server.getServerID(), task);
+		if (o != null)
+			o.cancel();
 	}
 
 	public TimerTask put(String user, String server, TimerTask task) {
@@ -145,8 +172,11 @@ public class VoteManager {
 	}
 
 	public void setVotingRemindersEnabled(User user, String server, boolean b) {
-		if (!b)
-			remove(user.getUserID(), server).cancel();
+		if (!b) {
+			var x = remove(user.getUserID(), server);
+			if (x != null)
+				x.cancel();
+		}
 		user.getSettings().setVoteRemindersEnabled(b);
 		user.getSettings().save();
 	}
