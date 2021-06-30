@@ -1,11 +1,14 @@
 package gartham.c10ver.games.rpg.creatures;
 
+import java.math.BigInteger;
+
 import gartham.c10ver.data.PropertyObject;
 
 public class Creature extends PropertyObject {
 
 	private final Property<Integer> hp = intProperty("hp"), attack = intProperty("attack"),
-			speed = intProperty("speed"), defense = intProperty("defense"), level = intProperty("level");
+			speed = intProperty("speed"), defense = intProperty("defense"), level = intProperty("level", 1);
+	private final Property<BigInteger> xp = bigIntegerProperty("xp");
 
 	public Property<Integer> getHPProperty() {
 		return hp;
@@ -27,6 +30,10 @@ public class Creature extends PropertyObject {
 		return level;
 	}
 
+	public Property<BigInteger> getXPProperty() {
+		return xp;
+	}
+
 	public int getHp() {
 		return hp.get();
 	}
@@ -45,6 +52,10 @@ public class Creature extends PropertyObject {
 
 	public int getLevel() {
 		return level.get();
+	}
+
+	public BigInteger getXP() {
+		return xp.get();
 	}
 
 }
