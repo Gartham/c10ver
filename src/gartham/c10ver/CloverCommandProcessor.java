@@ -2499,7 +2499,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 									@Override
 									public void exec(CommandInvocation inv) {
-										name = inv.args.length == 0 ? null : inv.args[0];
+										name = String.join(" ", inv.args);
 									}
 								});
 							}
