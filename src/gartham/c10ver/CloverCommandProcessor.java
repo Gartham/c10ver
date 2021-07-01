@@ -702,10 +702,9 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						}
 					}
 					inv.event.getChannel().sendMessage("There are no color roles set up for this server yet.").queue();
-				} else {
+				} else
 					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
-							+ " there are no color roles set up for this server yet.").queue();
-				}
+							+ " please provide only one argument. E.g., `~color Red`.").queue();
 			}
 		});
 		// TODO pay askdjflaskjhfd@Bob12987u1kmfdlskjflds 500
