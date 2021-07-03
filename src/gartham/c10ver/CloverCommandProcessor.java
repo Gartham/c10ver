@@ -566,11 +566,10 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 								return;
 							}
 						}
-					}
-				inv.event.getChannel()
-						.sendMessage(inv.event.getAuthor().getAsMention()
-								+ " you can't use that item! Either you don't have any of it, or it doesn't exist.")
-						.queue();
+					} else
+						inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+								+ " too many arguments specified. That item either doesn't exist, or you ran this command wrong.")
+								.queue();
 			}
 		});
 
