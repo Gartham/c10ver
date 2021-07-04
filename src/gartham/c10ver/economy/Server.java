@@ -18,7 +18,8 @@ public class Server extends SavablePropertyObject {
 	private final Property<HashSet<String>> ignoredInvites = setProperty("ignored-invites", new HashSet<>(),
 			JSON_STRING_GATEWAY);
 	private final Property<String> generalChannel = stringProperty("general-channel"),
-			spamChannel = stringProperty("spam-channel"), gamblingChannel = stringProperty("gambling-channel");
+			spamChannel = stringProperty("spam-channel"), gamblingChannel = stringProperty("gambling-channel"),
+			voteChannel = stringProperty("vote-channel");
 	private final Property<String> voteRole = stringProperty("vote-role");
 	private final Property<ArrayList<Multiplier>> multipliers = listProperty("multipliers",
 			toObjectGateway(Multiplier::new));
@@ -30,6 +31,10 @@ public class Server extends SavablePropertyObject {
 
 	public String getVoteRole() {
 		return voteRole.get();
+	}
+
+	public String getVoteChannel() {
+		return voteChannel.get();
 	}
 
 	public void setVoteRole(String role) {
@@ -69,6 +74,10 @@ public class Server extends SavablePropertyObject {
 
 	public void setGeneralChannel(String channelID) {
 		generalChannel.set(channelID);
+	}
+
+	public void setVoteChannel(String channelID) {
+		voteChannel.set(channelID);
 	}
 
 	public String getSpamChannel() {
