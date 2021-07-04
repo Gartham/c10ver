@@ -2524,6 +2524,30 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						t.start();
 					}
 				};
+
+				new Subcommand("battle") {
+
+					@Override
+					protected void tailed(SubcommandInvocation inv) {
+//						if (false)
+						inv.event.getChannel().sendMessage(new EmbedBuilder()
+								.setAuthor(inv.event.getAuthor().getName() + " Initiated a BATTLE!", null,
+										inv.event.getAuthor().getEffectiveAvatarUrl())
+								.addField("<:nymph_emoji:854622804514832384> Nymph [Wild]",
+										"HP: \\\u2764\uFE0F `50/50`\nAttack: \\\u2694\uFE0F `12`\nDefense: \\\uD83D\uDEE1\uFE0F `5`\nSpeed: \\\uD83D\uDCA8\uFE0F `7`",
+										true)
+								.build()).queue();
+//						else {
+//							inv.event.getChannel().sendMessage(new EmbedBuilder()
+//									.setAuthor(inv.event.getAuthor().getName() + " Initiated a BATTLE!", null,
+//											inv.event.getAuthor().getEffectiveAvatarUrl())
+//									.addField("<:nymph_emoji:854622804514832384> Nymph [Wild]",
+//											"HP: \u2764 `50/50`\nAttack: \u2694 `12`\nDefense: \uD83D\uDEE1 `5`\nSpeed: \uD83D\uDCA8 `7`",
+//											true)
+//									.build()).queue();
+//						}
+					}
+				};
 			}
 
 			@Override
