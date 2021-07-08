@@ -14,14 +14,18 @@ public class SimpleActionMessage extends ActionMessage {
 	public SimpleActionMessage(EmbedBuilder builder, Action... actions) {
 		super(actions);
 		this.builder = builder;
-		StringBuilder sb = new StringBuilder();
+		builder.appendDescription("\n");
 		for (int i = 0; i < actions.length; i++)
-			sb.append(ActionMessage.EMOJIS[i]).append(' ').append(actions[i].getDescription());
-		builder.setDescription(sb);
+			builder.appendDescription(ActionMessage.EMOJIS[i]).appendDescription(" ")
+					.appendDescription(actions[i].getDescription());
 	}
 
 	public SimpleActionMessage(Action... actions) {
 		this(new EmbedBuilder(), actions);
+	}
+
+	public SimpleActionMessage(String desc, Action... actions) {
+		this(new EmbedBuilder().setDescription(desc), actions);
 	}
 
 	@Override
