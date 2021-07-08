@@ -128,4 +128,14 @@ public interface MessageInputConsumer extends InputConsumer<MessageReceivedEvent
 		};
 	}
 
+	@Override
+	default MessageInputConsumer oneTime() {
+		return (event, processor, consumer) -> {
+			var res = consume(event, processor, consumer);
+			if (res)
+				processor.removeInputConsumer(consumer);
+			return res;
+		};
+	}
+
 }

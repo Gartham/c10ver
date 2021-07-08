@@ -124,4 +124,14 @@ public interface MessageReactionInputConsumer<E extends GenericMessageReactionEv
 		};
 	}
 
+	@Override
+	default MessageReactionInputConsumer<E> oneTime() {
+		return (event, processor, consumer) -> {
+			var res = consume(event, processor, consumer);
+			if (res)
+				processor.removeInputConsumer(consumer);
+			return res;
+		};
+	}
+
 }
