@@ -3,6 +3,15 @@ package gartham.c10ver.actions;
 import java.util.function.Consumer;
 
 public interface Action extends Consumer<ActionInvocation> {
+
+	public static Action msg(Action... actionMessage) {
+		return msg(new SimpleActionMessage(actionMessage));
+	}
+
+	public static Action msg(Consumer<ActionInvocation> action, Action... actionMessage) {
+		return msg(new SimpleActionMessage(actionMessage), action);
+	}
+
 	public static Action msg(ActionMessage msg) {
 		return t -> msg.send(t.getClover(), t.getEvent().getChannel());
 	}
