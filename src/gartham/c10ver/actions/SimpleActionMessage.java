@@ -25,7 +25,7 @@ public class SimpleActionMessage extends ActionMessage {
 	}
 
 	public SimpleActionMessage(String desc, Action... actions) {
-		this(new EmbedBuilder().setDescription(desc), actions);
+		this(new EmbedBuilder().setAuthor(desc), actions);
 	}
 
 	@Override
