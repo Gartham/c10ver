@@ -81,6 +81,7 @@ import gartham.c10ver.processing.commands.InventoryCommand;
 import gartham.c10ver.processing.trading.TradeManager;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
@@ -2528,11 +2529,10 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 			@Override
 			public void tailed(CommandInvocation inv) {
-				inv.event.getChannel().sendMessage(new EmbedBuilder()
-						.setAuthor(inv.event.getAuthor().getAsTag() + "'s Nymph", null,
-								inv.event.getAuthor().getEffectiveAvatarUrl())
-						.setImage("attachment://creature.png").appendDescription("Health: FULL [100/100]").build())
-						.addFile(new File("E:\\Images\\Artt\\Clover\\Pets/nymph.png"), "creature.png").queue();
+				inv.event.getChannel()
+						.sendMessage(new EmbedBuilder().setDescription("You don't have any monsters yet.")
+								.addField("Options", ":one: Begin your journey!", true).build())
+						.queue(a -> a.addReaction("\u0031\uFE0F\u20E3").queue());
 			}
 		});
 
