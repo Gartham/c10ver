@@ -2,6 +2,7 @@ package gartham.c10ver.games.rpg.creatures;
 
 import java.math.BigInteger;
 
+import org.alixia.javalibrary.json.JSONObject;
 import org.alixia.javalibrary.util.Gateway;
 
 import gartham.apps.garthchat.api.communication.common.gids.GID;
@@ -24,8 +25,13 @@ public class Creature extends PropertyObject implements Comparable<Creature> {
 			return value.getHex();
 		}
 	});
-	{
+
+	protected Creature() {
 		id.set(GID.newGID());
+	}
+
+	protected Creature(JSONObject json) {
+		load(json);
 	}
 
 	public Property<Integer> getHPProperty() {
