@@ -14,6 +14,10 @@ public class SimpleActionMessage extends ActionMessage {
 	public SimpleActionMessage(EmbedBuilder builder, Action... actions) {
 		super(actions);
 		this.builder = builder;
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < actions.length; i++)
+			sb.append(ActionMessage.EMOJIS[i]).append(' ').append(actions[i].getDescription());
+		builder.setDescription(sb);
 	}
 
 	public SimpleActionMessage(Action... actions) {
