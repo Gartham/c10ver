@@ -33,7 +33,7 @@ public class Action {
 	}
 
 	public static Action msg(String desc, ActionMessage msg) {
-		return new Action(desc, t -> msg.send(t.getClover(), t.getEvent().getChannel()));
+		return new Action(desc, t -> msg.send(t.getClover(), t.getEvent().getChannel(), t.getEvent().getUser()));
 	}
 
 	/**
@@ -48,7 +48,7 @@ public class Action {
 	public static Action msg(String desc, ActionMessage msg, Consumer<ActionInvocation> action) {
 		return new Action(desc, t -> {
 			action.accept(t);
-			msg.send(t.getClover(), t.getEvent().getChannel());
+			msg.send(t.getClover(), t.getEvent().getChannel(), t.getEvent().getUser());
 		});
 	}
 }

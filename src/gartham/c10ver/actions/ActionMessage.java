@@ -9,10 +9,11 @@ import gartham.c10ver.Clover;
 import gartham.c10ver.commands.consumers.MessageReactionInputConsumer;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
 public abstract class ActionMessage {
-	static final String[] EMOJIS = { "\u0030\\uFE0F\u20E3", "\u0031\uFE0F\u20E3", "\u0032\uFE0F\u20E3",
+	static final String[] EMOJIS = { "\u0030\uFE0F\u20E3", "\u0031\uFE0F\u20E3", "\u0032\uFE0F\u20E3",
 			"\u0033\uFE0F\u20E3", "\u0034\uFE0F\u20E3", "\u0035\uFE0F\u20E3", "\u0036\uFE0F\u20E3",
 			"\u0037\uFE0F\u20E3", "\u0038\uFE0F\u20E3", "\u0039\uFE0F\u20E3", "\u0040\uFE0F\u20E3" };
 
@@ -37,7 +38,7 @@ public abstract class ActionMessage {
 
 	public abstract MessageEmbed embed();
 
-	public void send(Clover clover, MessageChannel msg) {
+	public void send(Clover clover, MessageChannel msg, User target) {
 		msg.sendMessage(embed()).queue(t -> {
 			if (!actions.isEmpty()) {
 				for (int i1 = 0; i1 < actions.size(); i1++)
@@ -50,7 +51,7 @@ public abstract class ActionMessage {
 									return true;
 								}
 							return false;
-						}).filter(t.getAuthor(), t.getChannel()).oneTime());
+						}).filter(target, t.getChannel()).oneTime());
 			}
 
 		});
