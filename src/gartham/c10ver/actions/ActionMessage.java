@@ -46,7 +46,7 @@ public abstract class ActionMessage {
 						((MessageReactionInputConsumer<MessageReactionAddEvent>) (event, processor, consumer) -> {
 							for (int i2 = 0; i2 < actions.size(); i2++)
 								if (event.getReactionEmote().getEmoji().equals(EMOJIS[i2])) {
-									actions.get(i2).accept(new ActionInvocation(event, this));
+									actions.get(i2).accept(new ActionInvocation(event, this, clover));
 									return true;
 								}
 							return false;
