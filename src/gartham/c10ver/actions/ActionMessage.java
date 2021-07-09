@@ -51,7 +51,7 @@ public abstract class ActionMessage {
 									return true;
 								}
 							return false;
-						}).filter(target, t.getChannel()).oneTime());
+						}).filter(target, t).oneTime());
 			}
 
 		});
