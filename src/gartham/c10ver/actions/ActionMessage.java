@@ -41,15 +41,20 @@ public abstract class ActionMessage {
 	public void send(Clover clover, MessageChannel msg, User target) {
 		msg.sendMessage(embed()).queue(t -> {
 			if (!actions.isEmpty()) {
-				for (int i1 = 0; i1 < actions.size(); i1++)
-					t.addReaction(EMOJIS[i1]).queue();
+				for (int i = 0; i < actions.size(); i++) {
+					String customEmoji = actions.get(i).getEmoji();
+					t.addReaction(customEmoji == null ? EMOJIS[i] : customEmoji).queue();
+				}
 				clover.getEventHandler().getReactionAdditionProcessor().registerInputConsumer(
 						((MessageReactionInputConsumer<MessageReactionAddEvent>) (event, processor, consumer) -> {
-							for (int i2 = 0; i2 < actions.size(); i2++)
-								if (event.getReactionEmote().getEmoji().equals(EMOJIS[i2])) {
-									actions.get(i2).accept(new ActionInvocation(event, this, clover));
+							for (int i = 0; i < actions.size(); i++) {
+								String customEmoji = actions.get(i).getEmoji();
+								if (event.getReactionEmote().getEmoji()
+										.equals(customEmoji == null ? EMOJIS[i] : customEmoji)) {
+									actions.get(i).accept(new ActionInvocation(event, this, clover));
 									return true;
 								}
+							}
 							return false;
 						}).filter(target, t).oneTime());
 			}
