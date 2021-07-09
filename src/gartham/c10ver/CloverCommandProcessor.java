@@ -7,6 +7,7 @@ import static gartham.c10ver.utils.Utilities.maxPage;
 import static gartham.c10ver.utils.Utilities.paginate;
 
 import java.awt.Color;
+import java.io.File;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.NumberFormat;
@@ -20,6 +21,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -28,9 +30,13 @@ import java.util.function.Supplier;
 
 import org.alixia.javalibrary.JavaTools;
 import org.alixia.javalibrary.strings.StringTools;
+import org.alixia.javalibrary.strings.matching.Matching;
 import org.alixia.javalibrary.util.Box;
 import org.alixia.javalibrary.util.MultidimensionalMap;
 
+import club.minnced.discord.webhook.WebhookClient;
+import club.minnced.discord.webhook.WebhookClientBuilder;
+import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import gartham.c10ver.changelog.Changelog.Version;
 import gartham.c10ver.commands.CommandHelpBook.ParentCommandHelp;
 import gartham.c10ver.commands.CommandInvocation;
@@ -69,10 +75,13 @@ import gartham.c10ver.games.math.MathProblem;
 import gartham.c10ver.games.math.MathProblem.AttemptResult;
 import gartham.c10ver.games.math.MathProblemGenerator;
 import gartham.c10ver.games.math.simple.SimpleMathProblemGenerator;
+import gartham.c10ver.games.rpg.rooms.RectangularRoom;
+import gartham.c10ver.games.rpg.rooms.RectangularRoom.Side;
 import gartham.c10ver.processing.commands.InventoryCommand;
 import gartham.c10ver.processing.trading.TradeManager;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
@@ -84,6 +93,14 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 	private final Clover clover;
 	private final TradeManager tradeManager;
+
+	private static final String BARS[][] = { { "<:HealthFront:856774887379959818>" },
+			{ "<:HealthSectionEmpty:856778113206452254>", "<:HealthSection12_5p:856774887296991253>",
+					"<:HealthSection25p:856774887423344660>", "<:HealthSection37_5p:856774887388610561>",
+					"<:HealthSection50p:856774886998409268>", "<:HealthSection62_5p:856774887103266847>",
+					"<:HealthSection75p:856774887179943937>", "<:HealthSection87_5p:856774887565033482>",
+					"<:HealthSectionFull:856774887439990834>" },
+			{ "<:HealthBackEmpty:856774887377076274>", "<:HealthBackFull:856774887137345547>" } };
 
 	public CloverCommandProcessor(Clover clover) {
 		this.clover = clover;
@@ -2397,6 +2414,146 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 			}
 		});
 
+		register(new ParentCommand("rpg") {
+
+			{
+				new Subcommand("wh") {
+
+					@Override
+					protected void tailed(SubcommandInvocation inv) {
+						if (inv.event.isFromGuild()) {
+							inv.event.getTextChannel().retrieveWebhooks().queue(t -> {
+								for (var w : t)
+									if (w.getName().equalsIgnoreCase("clover-rpg")) {
+										var x = WebhookClientBuilder.fromJDA(w).build();
+										x.send(new WebhookMessageBuilder()
+												.setContent("I like grass. Do you have any grass?")
+												.setUsername("[Wild] Nymph")
+												.setAvatarUrl(
+														"https://cdn.discordapp.com/attachments/807401695944507411/857495452097576970/nymph_emoji.png")
+												.build());
+										return;
+									}
+							});
+						} else
+							inv.event.getChannel().sendMessage("You need to be in a server to do that!").queue();
+					}
+				};
+
+				new Subcommand("room") {
+
+					@Override
+					protected void tailed(SubcommandInvocation inv) {
+						int size = (int) (Math.random() * 20 + 6);
+						var sq = new RectangularRoom(Math.round(2.28f * size), size);
+						Side side = Math.random() > 0.5 ? Side.RIGHT : Side.LEFT;
+						sq.createOpening(side, (int) (Math.random() * (sq.getHeight())) + 3,
+								(int) (Math.random() * (sq.getHeight() - 4)));
+						if (Math.random() > 0.5)
+							sq.createOpening(side.opposite(), (int) (Math.random() * (sq.getHeight())) + 3,
+									(int) (Math.random() * (sq.getHeight())));
+						inv.event.getChannel().sendMessage("```\n" + sq.layoutString() + "\n```").queue();
+					}
+				};
+
+				new Subcommand("health") {
+
+					@Override
+					public void tailed(SubcommandInvocation inv) {
+						for (int j = 0; j < 10; j++) {
+							StringBuilder sb = new StringBuilder();
+							for (int i = 0; i < 10; i++) {
+								sb.append("Health: `").append(j * 10 + i).append("` / `100` ")
+										.append(calcHealthbar(j * 10 + i)).append('\n');
+							}
+							inv.event.getChannel().sendMessage(sb.toString()).queue();
+						}
+						inv.event.getChannel().sendMessage("Health: `FULL` " + calcHealthbar(100)).queue();
+					}
+				};
+
+				new Subcommand("enb-wh") {
+
+					@Override
+					protected void tailed(SubcommandInvocation inv) {
+						var t = new Thread(new Runnable() {
+
+							@Override
+							public void run() {
+								@SuppressWarnings("resource")
+								var sc = new Scanner(System.in);
+								while (sc.hasNextLine())
+									try {
+										handle(sc.nextLine());
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
+							}
+
+							private final SimpleCommandProcessor processor = new SimpleCommandProcessor();
+							private WebhookClient channel;
+							private String avatar, name;
+							{
+								processor.register(new MatchBasedCommand("sc") {
+
+									@Override
+									public void exec(CommandInvocation inv) {
+										var x = clover.getBot().getTextChannelById(inv.args[0]);
+										var whs = x.retrieveWebhooks().complete();
+										for (var e : whs)
+											if (e.getName().equalsIgnoreCase("cltest")) {
+												channel = WebhookClientBuilder.fromJDA(e).build();
+												return;
+											}
+										channel = WebhookClientBuilder.fromJDA(x.createWebhook("cltest").complete())
+												.build();
+									}
+								});
+								processor.register(new MatchBasedCommand("avatar") {
+
+									@Override
+									public void exec(CommandInvocation inv) {
+										avatar = inv.args.length == 0 ? null : inv.args[0];
+									}
+								});
+								processor.register(new MatchBasedCommand("name") {
+
+									@Override
+									public void exec(CommandInvocation inv) {
+										name = String.join(" ", inv.args);
+									}
+								});
+							}
+
+							private void handle(String in) {
+								System.out.println("Test.");
+								if (in.startsWith("/"))
+									processor.run(clover.getCommandParser().parse(Matching.build("/"), in, null));
+								else {
+									WebhookMessageBuilder msg = new WebhookMessageBuilder().setContent(in);
+									if (avatar != null)
+										msg.setAvatarUrl(avatar);
+									if (name != null)
+										msg.setUsername(name);
+									channel.send(msg.build());
+								}
+							}
+						});
+						t.setDaemon(true);
+						t.start();
+					}
+				};
+			}
+
+			@Override
+			public void tailed(CommandInvocation inv) {
+				inv.event.getChannel()
+						.sendMessage(new EmbedBuilder().setDescription("You don't have any monsters yet.")
+								.addField("Options", ":one: Begin your journey!", true).build())
+						.queue(a -> a.addReaction("\u0031\uFE0F\u20E3").queue());
+			}
+		});
+
 		help.addCommand("settings",
 				"Allows you to view and change your settings. For a list of settings (and values), run the command with no arguments.",
 				"setting", "options", "option");
@@ -2491,6 +2648,19 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 		var x = rank.subtract(BigInteger.ONE).divideAndRemainder(BigInteger.valueOf(3));
 		return BigInteger.valueOf(1000).multiply(BigInteger.TEN.pow(x[0].intValue()))
 				.multiply(x[1].add(BigInteger.ONE).pow(2));
+	}
+
+	private static String calcHealthbar(int health) {
+		StringBuilder bar = new StringBuilder(BARS[0][0]);
+		if (health == 100) {
+			bar.append(BARS[1][BARS[1].length - 1]);
+			bar.append(BARS[2][1]);
+		} else {
+			bar.append(BARS[1][health == 0 ? 0 : Math.round(health * (BARS[1].length - 1) / 100f)]);
+			bar.append(BARS[2][0]);
+		}
+
+		return bar.toString();
 	}
 
 }
