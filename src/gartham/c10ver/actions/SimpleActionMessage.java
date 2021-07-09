@@ -16,8 +16,8 @@ public class SimpleActionMessage extends ActionMessage {
 		this.builder = builder;
 		builder.appendDescription("\n");
 		for (int i = 0; i < actions.length; i++)
-			builder.appendDescription(ActionMessage.EMOJIS[i]).appendDescription(" ")
-					.appendDescription(actions[i].getDescription());
+			builder.appendDescription(actions[i].getEmoji() == null ? ActionMessage.EMOJIS[i] : actions[i].getEmoji())
+					.appendDescription(" ").appendDescription(actions[i].getDescription());
 	}
 
 	public SimpleActionMessage(Action... actions) {
