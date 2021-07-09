@@ -5,6 +5,7 @@ import java.time.Instant;
 import org.alixia.javalibrary.strings.StringTools;
 import org.alixia.javalibrary.util.Box;
 
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
@@ -44,6 +45,11 @@ public interface MessageReactionInputConsumer<E extends GenericMessageReactionEv
 				consumer) -> event.getChannel().getId().equals(channel.getId())
 						&& event.getUser().getId().equals(user.getId()) ? consume(event, eventHandler, consumer)
 								: false;
+	}
+
+	default MessageReactionInputConsumer<E> filter(User user, Message message) {
+		return (event, processor, consumer) -> event.getUserId().equals(user.getId())
+				&& event.getMessageId().equals(message.getId()) ? consume(event, processor, consumer) : false;
 	}
 
 	default MessageReactionInputConsumer<E> withTTL(long millis) {
