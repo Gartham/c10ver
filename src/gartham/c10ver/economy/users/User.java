@@ -20,6 +20,7 @@ import gartham.c10ver.economy.Server;
 import gartham.c10ver.economy.accolades.AccoladeList;
 import gartham.c10ver.economy.items.UserInventory;
 import gartham.c10ver.economy.questions.Question;
+import gartham.c10ver.games.rpg.creatures.CreatureBox;
 import net.dv8tion.jda.api.entities.Guild;
 
 public class User extends SavablePropertyObject {
@@ -102,6 +103,7 @@ public class User extends SavablePropertyObject {
 	private final Economy economy;
 	private final AccoladeList accolades;
 	private final UserSettings settings;
+	private final CreatureBox creatures;
 	private final String userID;
 
 	public net.dv8tion.jda.api.entities.User getUser() {
@@ -293,6 +295,7 @@ public class User extends SavablePropertyObject {
 		account = new UserAccount(userDirectory, this);
 		inventory = new UserInventory(userDirectory);
 		accolades = new AccoladeList(new File(userDirectory, "accolades.txt"));
+		creatures = new CreatureBox(new File(userDirectory, "creatures.txt"));
 		settings = new UserSettings(userDirectory, this);
 		if (load)
 			load();

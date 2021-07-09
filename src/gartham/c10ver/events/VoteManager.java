@@ -84,9 +84,7 @@ public class VoteManager {
 								+ "\n\nYou can [vote on top.gg by clicking me](https://top.gg/servers/"
 								+ member.getGuild().getId() + "/vote).");
 
-		Consumer<? super Message> action;
-		MessageChannel channel = s.getGeneralChannel() != null
-				? member.getGuild().getTextChannelById(s.getGeneralChannel())
+		MessageChannel channel = s.getVoteChannel() != null ? member.getGuild().getTextChannelById(s.getVoteChannel())
 				: member.getUser().openPrivateChannel().complete();
 
 		if (u.getSettings().isVoteRemindersEnabled()) {
@@ -94,28 +92,27 @@ public class VoteManager {
 			channel.sendMessage(embed.setFooter(
 					"----> You currently have vote reminders enabled. Disable them with: ~settings vr false <----")
 					.build()).queue();
-		} else {
-			action = t -> {
-				t.addReaction("\u23F0").queue();
-				clover.getEventHandler().getReactionAdditionProcessor().registerInputConsumer(
-						((MessageReactionInputConsumer<MessageReactionAddEvent>) (event, b, consumer) -> {
-							if (event.getReactionEmote().isEmoji()
-									&& event.getReactionEmote().getEmoji().equals("\u23F0")) {
-								clover.getEventHandler().getReactionAdditionProcessor().removeInputConsumer(consumer);
-								channel.sendMessage(member.getAsMention()
-										+ " vote reminders are now enabled for you! To turn them off, run the command: `~settings vr false`.")
-										.queue();
-								scheduleReminder(member, s, voteTime);
-								setVotingRemindersEnabled(u, s.getServerID(), true);
-								return true;
-							} else
-								return false;
-						}).expires(Instant.now().plusSeconds(180)).filter(member.getUser(), channel));
-			};
+		} else
 			channel.sendMessage(embed.setFooter(
 					"You can automatically be reminded when it's time to vote by reacting to this message! (Click the alarm clock.)")
-					.build()).queue(action);
-		}
+					.build()).queue((Consumer<? super Message>) t -> {
+						t.addReaction("\u23F0").queue();
+						clover.getEventHandler().getReactionAdditionProcessor().registerInputConsumer(
+								((MessageReactionInputConsumer<MessageReactionAddEvent>) (event, b, consumer) -> {
+									if (event.getReactionEmote().isEmoji()
+											&& event.getReactionEmote().getEmoji().equals("\u23F0")) {
+										clover.getEventHandler().getReactionAdditionProcessor()
+												.removeInputConsumer(consumer);
+										channel.sendMessage(member.getAsMention()
+												+ " vote reminders are now enabled for you! To turn them off, run the command: `~settings vr false`.")
+												.queue();
+										scheduleReminder(member, s, voteTime);
+										setVotingRemindersEnabled(u, s.getServerID(), true);
+										return true;
+									} else
+										return false;
+								}).expires(Instant.now().plusSeconds(180)).filter(member.getUser(), channel));
+					});
 
 	}
 

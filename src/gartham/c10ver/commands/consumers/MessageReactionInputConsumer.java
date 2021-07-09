@@ -5,6 +5,7 @@ import java.time.Instant;
 import org.alixia.javalibrary.strings.StringTools;
 import org.alixia.javalibrary.util.Box;
 
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
@@ -44,6 +45,11 @@ public interface MessageReactionInputConsumer<E extends GenericMessageReactionEv
 				consumer) -> event.getChannel().getId().equals(channel.getId())
 						&& event.getUser().getId().equals(user.getId()) ? consume(event, eventHandler, consumer)
 								: false;
+	}
+
+	default MessageReactionInputConsumer<E> filter(User user, Message message) {
+		return (event, processor, consumer) -> event.getUserId().equals(user.getId())
+				&& event.getMessageId().equals(message.getId()) ? consume(event, processor, consumer) : false;
 	}
 
 	default MessageReactionInputConsumer<E> withTTL(long millis) {
@@ -91,6 +97,15 @@ public interface MessageReactionInputConsumer<E extends GenericMessageReactionEv
 		return expires(Instant.now().plusMillis(millis), action);
 	}
 
+	default MessageReactionInputConsumer<E> anyOf(String... emojis) {
+		return (event, processor, consumer) -> {
+			for (var s : emojis)
+				if (event.getReactionEmote().getEmoji().equals(s))
+					return consume(event, processor, consumer);
+			return false;
+		};
+	}
+
 	/**
 	 * Returns an {@link InputConsumer} that invokes this {@link InputConsumer}
 	 * unless the current time is after the specified {@link Instant}. If the
@@ -112,6 +127,16 @@ public interface MessageReactionInputConsumer<E extends GenericMessageReactionEv
 			} else
 				return consume(a, b, c);
 			return false;
+		};
+	}
+
+	@Override
+	default MessageReactionInputConsumer<E> oneTime() {
+		return (event, processor, consumer) -> {
+			var res = consume(event, processor, consumer);
+			if (res)
+				processor.removeInputConsumer(consumer);
+			return res;
 		};
 	}
 

@@ -2,6 +2,10 @@ package gartham.c10ver.games.rpg.creatures;
 
 import java.math.BigInteger;
 
+import org.alixia.javalibrary.json.JSONObject;
+import org.alixia.javalibrary.util.Gateway;
+
+import gartham.apps.garthchat.api.communication.common.gids.GID;
 import gartham.c10ver.data.PropertyObject;
 
 public class Creature extends PropertyObject implements Comparable<Creature> {
@@ -9,6 +13,26 @@ public class Creature extends PropertyObject implements Comparable<Creature> {
 	private final Property<Integer> hp = intProperty("hp"), attack = intProperty("attack"),
 			speed = intProperty("speed"), defense = intProperty("defense"), level = intProperty("level", 1);
 	private final Property<BigInteger> xp = bigIntegerProperty("xp");
+	private final Property<GID> id = toStringProperty("id", new Gateway<>() {
+
+		@Override
+		public GID to(String value) {
+			return GID.fromHex(value);
+		}
+
+		@Override
+		public String from(GID value) {
+			return value.getHex();
+		}
+	});
+
+	protected Creature() {
+		id.set(GID.newGID());
+	}
+
+	protected Creature(JSONObject json) {
+		load(json);
+	}
 
 	public Property<Integer> getHPProperty() {
 		return hp;
@@ -56,6 +80,10 @@ public class Creature extends PropertyObject implements Comparable<Creature> {
 
 	public BigInteger getXP() {
 		return xp.get();
+	}
+
+	public GID getID() {
+		return id.get();
 	}
 
 	@Override

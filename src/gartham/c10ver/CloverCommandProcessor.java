@@ -81,6 +81,7 @@ import gartham.c10ver.processing.commands.InventoryCommand;
 import gartham.c10ver.processing.trading.TradeManager;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
@@ -1385,6 +1386,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 								StringBuilder sb = new StringBuilder();
 								Server s = clover.getEconomy().getServer(inv.event.getGuild().getId());
 								sb.append("**Server Info:**");
+								if (s.getVoteChannel() != null)
+									sb.append("\nVote Channel: <#").append(s.getVoteChannel()).append('>');
 								if (s.getGeneralChannel() != null)
 									sb.append("\nGeneral Channel: <#").append(s.getGeneralChannel()).append('>');
 								if (s.getSpamChannel() != null)
@@ -1407,8 +1410,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 								} else if (s.getIgnoredInvites().isEmpty() && s.getGeneralChannel() == null
 										&& s.getSpamChannel() == null && s.getGamblingChannel() == null)
 									sb.append("\nNothing has been configured for this server yet.");
-								EmbedBuilder eb = new EmbedBuilder().setDescription(sb.toString());
-								inv.event.getChannel().sendMessage(eb.build()).queue();
+								inv.event.getChannel()
+										.sendMessage(new EmbedBuilder().setDescription(sb.toString()).build()).queue();
 							} else
 								inv.event.getChannel().sendMessage("This server is not yet registered with me.")
 										.queue();
@@ -1451,8 +1454,27 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 								} else if (inv.args.length == 2) {
 									Server s = clover.getEconomy().getServer(inv.event.getGuild().getId());
 									switch (inv.args[0]) {
+									case "vote-channel":
+										CHANP: {
+											String cm = Utilities.parseChannelMention(inv.args[1]);
+											if (cm == null)
+												break CHANP;
+											try {
+												if (inv.event.getGuild().getTextChannelById(cm) == null)
+													break CHANP;
+											} catch (NumberFormatException e) {
+												break CHANP;
+											}
+											s.setVoteChannel(cm);
+											inv.event.getChannel().sendMessage("Vote channel set to <#" + cm + ">.")
+													.queue();
+											break;
+										}
+										inv.event.getChannel().sendMessage(
+												inv.event.getAuthor().getAsMention() + " that's not a valid channel.")
+												.queue();
+										return;
 									case "general-channel":
-									case "general":
 										CHANP: {
 											String cm = Utilities.parseChannelMention(inv.args[1]);
 											if (cm == null)
@@ -1473,7 +1495,6 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 												.queue();
 										return;
 									case "gambling-channel":
-									case "gambling":
 										CHANP: {
 											String cm = Utilities.parseChannelMention(inv.args[1]);
 											if (cm == null)
@@ -1494,7 +1515,6 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 												.queue();
 										return;
 									case "spam-channel":
-									case "spam":
 										CHANP: {
 											String cm = Utilities.parseChannelMention(inv.args[1]);
 											if (cm == null)
@@ -1515,7 +1535,6 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 												.queue();
 										return;
 									case "vote-role":
-									case "vote":
 										ROLEP: {
 											String cm = Utilities.parseRoleMention(inv.args[1]);
 											if (cm == null)
@@ -1561,24 +1580,24 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 								else if (inv.args.length == 1) {
 									Server s = clover.getEconomy().getServer(inv.event.getGuild().getId());
 									switch (inv.args[0]) {
+									case "vote-channel":
+										s.setVoteChannel(null);
+										inv.event.getChannel().sendMessage("Unregistered the vote channel.").queue();
+										break;
 									case "general-channel":
-									case "general":
 										s.setGeneralChannel(null);
 										inv.event.getChannel().sendMessage("Unregistered the general channel.").queue();
 										break;
 									case "gambling-channel":
-									case "gambling":
 										s.setGamblingChannel(null);
 										inv.event.getChannel().sendMessage("Unregistered the gambling channel.")
 												.queue();
 										break;
 									case "spam-channel":
-									case "spam":
 										s.setSpamChannel(null);
 										inv.event.getChannel().sendMessage("Unregistered the spam channel.").queue();
 										break;
 									case "vote-role":
-									case "vote":
 										s.setVoteRole(null);
 										inv.event.getChannel().sendMessage("Unregistered the vote role.").queue();
 										break;
@@ -2552,11 +2571,10 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 			@Override
 			public void tailed(CommandInvocation inv) {
-				inv.event.getChannel().sendMessage(new EmbedBuilder()
-						.setAuthor(inv.event.getAuthor().getAsTag() + "'s Nymph", null,
-								inv.event.getAuthor().getEffectiveAvatarUrl())
-						.setImage("attachment://creature.png").appendDescription("Health: FULL [100/100]").build())
-						.addFile(new File("E:\\Images\\Artt\\Clover\\Pets/nymph.png"), "creature.png").queue();
+				inv.event.getChannel()
+						.sendMessage(new EmbedBuilder().setDescription("You don't have any monsters yet.")
+								.addField("Options", ":one: Begin your journey!", true).build())
+						.queue(a -> a.addReaction("\u0031\uFE0F\u20E3").queue());
 			}
 		});
 
