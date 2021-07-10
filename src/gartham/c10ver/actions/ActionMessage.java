@@ -12,7 +12,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
-public abstract class ActionMessage {
+public abstract class ActionMessage<A extends Action> {
 	static final String[] EMOJIS = { "\u0030\uFE0F\u20E3", "\u0031\uFE0F\u20E3", "\u0032\uFE0F\u20E3",
 			"\u0033\uFE0F\u20E3", "\u0034\uFE0F\u20E3", "\u0035\uFE0F\u20E3", "\u0036\uFE0F\u20E3",
 			"\u0037\uFE0F\u20E3", "\u0038\uFE0F\u20E3", "\u0039\uFE0F\u20E3", "\u0040\uFE0F\u20E3" };
@@ -25,14 +25,15 @@ public abstract class ActionMessage {
 		return JavaTools.iterable(EMOJIS);
 	}
 
-	private final List<Action> actions = new ArrayList<>();
+	private final List<A> actions = new ArrayList<>();
 
-	public ActionMessage(Action... actions) {
+	@SafeVarargs
+	public ActionMessage(A... actions) {
 		for (var a : actions)
 			this.actions.add(a);
 	}
 
-	public List<Action> getActions() {
+	public List<A> getActions() {
 		return actions;
 	}
 
