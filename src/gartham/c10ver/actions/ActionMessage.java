@@ -25,6 +25,10 @@ public abstract class ActionMessage<A extends Action> {
 		return JavaTools.iterable(EMOJIS);
 	}
 
+	public static String getNumericEmoji(int index) {
+		return EMOJIS[index];
+	}
+
 	private final List<A> actions = new ArrayList<>();
 
 	@SafeVarargs
