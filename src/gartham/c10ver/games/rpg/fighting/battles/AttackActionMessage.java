@@ -2,7 +2,6 @@ package gartham.c10ver.games.rpg.fighting.battles;
 
 import java.util.List;
 
-import gartham.c10ver.actions.Action;
 import gartham.c10ver.actions.ActionMessage;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -31,9 +30,8 @@ public class AttackActionMessage extends ActionMessage<AttackAction> {
 				.setThumbnail(creatureIcon);
 		List<AttackAction> actions = getActions();
 		for (int i = 0; i < actions.size(); i++) {
-			
 			var a = actions.get(i);
-			String emoji = a.getEmoji();
+			String emoji = a.getEmoji() == null ? getNumericEmoji(i) : a.getEmoji();
 			e.addField(emoji + ' ' + a.getDescription(), a.getOptionDescription(), true);
 		}
 		return e.build();
