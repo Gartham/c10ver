@@ -21,7 +21,7 @@ public class AttackAction extends Action {
 		this(null, name, action, description, handler);
 	}
 
-	public String getDescription() {
+	public String getOptionDescription() {
 		return description;
 	}
 
