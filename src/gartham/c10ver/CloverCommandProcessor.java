@@ -7,7 +7,6 @@ import static gartham.c10ver.utils.Utilities.maxPage;
 import static gartham.c10ver.utils.Utilities.paginate;
 
 import java.awt.Color;
-import java.io.File;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.NumberFormat;
@@ -81,7 +80,6 @@ import gartham.c10ver.processing.commands.InventoryCommand;
 import gartham.c10ver.processing.trading.TradeManager;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
@@ -167,8 +165,10 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 							var g = u.getJDA().getGuildById(a);
 							return g == null ? "`[" + a + "]`" : g.getName();
 						}), true)).append('\n');
-				sb.append("Prestige: **").append(Utilities.toRomanNumerals(ua.getPrestige())).append("** (`")
-						.append(NumberFormat.getInstance().format(ua.getPrestige())).append("`)\n");
+				sb.append("Prestige: **")
+						.append(ua.getPrestige().equals(BigInteger.ZERO) ? "0"
+								: Utilities.toRomanNumerals(ua.getPrestige()))
+						.append("** (`").append(NumberFormat.getInstance().format(ua.getPrestige())).append("`)\n");
 				eb.setDescription(sb.toString());
 				inv.event.getChannel().sendMessage(eb.build()).queue();
 			}
@@ -823,6 +823,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 		});
 		register(new MatchBasedCommand("baltop", "leaderboard") {
 
+			private final Set<String> servers = new HashSet<>();
+
 			private BigInteger getBal(Member member) {
 				return clover.getEconomy().hasAccount(member.getId())
 						? clover.getEconomy().getAccount(member.getId()).getBalance()
@@ -836,53 +838,64 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						inv.event.getChannel().sendMessage("Too many arguments.").queue();
 						return;
 					}
-					List<Member> users = new ArrayList<>();
-					inv.event.getGuild().findMembers(t -> !t.getUser().isBot()).onSuccess(t -> {
-						for (Member m : t) {
-							int search = Collections.binarySearch(users, m,
-									((Comparator<Member>) (o1, o2) -> getBal(o1).compareTo(getBal(o2))).reversed());
-							users.add(search < 0 ? -search - 1 : search, m);
-						}
-					});
-					int page;
-					PAGE_PARSER: if (inv.args.length == 1) {
-						try {
-							if ((page = Integer.parseInt(inv.args[0])) > 0)
-								break PAGE_PARSER;
-						} catch (NumberFormatException e) {
-						}
-						inv.event.getChannel()
-								.sendMessage(inv.event.getAuthor().getAsMention() + ", that's not a valid page!")
-								.queue();
-						return;
-					} else
-						page = 1;
 
-					int maxpage = maxPage(10, users);
-					if (page > maxpage) {
-						inv.event.getChannel()
-								.sendMessage(inv.event.getAuthor().getAsMention() + " there "
-										+ (maxpage == 1 ? "is only `1` page" : "are only `" + maxpage + "` pages")
-										+ " of people in the leaderboard!")
-								.queue();
-						return;
+					inv.event.getChannel().sendMessage("Sorting all members! (This may take a moment.)");
+					if (!servers.contains(inv.event.getGuild().getId())) {
+						servers.add(inv.event.getGuild().getId());
+						inv.event.getGuild().findMembers(t -> !t.getUser().isBot()).onSuccess(t -> {
+							try {
+
+								List<Member> users = new ArrayList<>();
+								for (Member m : t) {
+									int search = Collections.binarySearch(users, m,
+											((Comparator<Member>) (o1, o2) -> getBal(o1).compareTo(getBal(o2)))
+													.reversed());
+									users.add(search < 0 ? -search - 1 : search, m);
+								}
+
+								int page;
+								PAGE_PARSER: if (inv.args.length == 1) {
+									try {
+										if ((page = Integer.parseInt(inv.args[0])) > 0)
+											break PAGE_PARSER;
+									} catch (NumberFormatException e) {
+									}
+									inv.event.getChannel()
+											.sendMessage(
+													inv.event.getAuthor().getAsMention() + ", that's not a valid page!")
+											.queue();
+									return;
+								} else
+									page = 1;
+
+								int maxpage = maxPage(10, users);
+								if (page > maxpage) {
+									inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention() + " there "
+											+ (maxpage == 1 ? "is only `1` page" : "are only `" + maxpage + "` pages")
+											+ " of people in the leaderboard!").queue();
+									return;
+								}
+
+								EmbedBuilder eb = new EmbedBuilder();
+								eb.setAuthor("Server Leaderboard", null, inv.event.getGuild().getIconUrl());
+								StringBuilder sb = new StringBuilder();
+
+								List<Member> paginate = paginate(page, 10, users);
+								for (int i = 0; i < paginate.size(); i++) {
+									var u = paginate.get(i);
+									sb.append("`#" + (page * 10 - 9 + i) + "` " + u.getUser().getName() + "#"
+											+ u.getUser().getDiscriminator() + ": "
+											+ format(clover.getEconomy().getAccount(u.getId()).getBalance()) + "\n");
+								}
+								eb.addField("Page " + page + " Ranking", sb.toString(), false);
+								eb.setFooter("Showing page " + page + " in the server leaderboard.");
+
+								inv.event.getChannel().sendMessage(eb.build()).queue();
+							} finally {
+								servers.remove(inv.event.getGuild().getId());
+							}
+						});
 					}
-
-					EmbedBuilder eb = new EmbedBuilder();
-					eb.setAuthor("Server Leaderboard", null, inv.event.getGuild().getIconUrl());
-					StringBuilder sb = new StringBuilder();
-
-					List<Member> paginate = paginate(page, 10, users);
-					for (int i = 0; i < paginate.size(); i++) {
-						var u = paginate.get(i);
-						sb.append("`#" + (page * 10 - 9 + i) + "` " + u.getUser().getName() + "#"
-								+ u.getUser().getDiscriminator() + ": "
-								+ format(clover.getEconomy().getAccount(u.getId()).getBalance()) + "\n");
-					}
-					eb.addField("Page " + page + " Ranking", sb.toString(), false);
-					eb.setFooter("Showing page " + page + " in the server leaderboard.");
-
-					inv.event.getChannel().sendMessage(eb.build()).queue();
 				} else
 					inv.event.getChannel().sendMessage("Please run this command in a server.").queue();
 			}
