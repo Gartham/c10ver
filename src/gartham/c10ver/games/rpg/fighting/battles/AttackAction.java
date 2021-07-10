@@ -7,26 +7,18 @@ import gartham.c10ver.actions.ActionInvocation;
 
 public class AttackAction extends Action {
 	private final String description;
-	private final Consumer<ActionInvocation> handler;
 
-	public AttackAction(String emoji, String name, Consumer<ActionInvocation> action, String description,
-			Consumer<ActionInvocation> handler) {
+	public AttackAction(String emoji, String name, Consumer<ActionInvocation> action, String description) {
 		super(emoji, name, action);
 		this.description = description;
-		this.handler = handler;
 	}
 
-	public AttackAction(String name, Consumer<ActionInvocation> action, String description,
-			Consumer<ActionInvocation> handler) {
-		this(null, name, action, description, handler);
+	public AttackAction(String name, Consumer<ActionInvocation> action, String description) {
+		this(null, name, action, description);
 	}
 
 	public String getOptionDescription() {
 		return description;
-	}
-
-	public Consumer<ActionInvocation> getHandler() {
-		return handler;
 	}
 
 }
