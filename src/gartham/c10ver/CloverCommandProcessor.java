@@ -37,7 +37,6 @@ import org.alixia.javalibrary.util.MultidimensionalMap;
 import club.minnced.discord.webhook.WebhookClient;
 import club.minnced.discord.webhook.WebhookClientBuilder;
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
-import gartham.c10ver.actions.Action;
 import gartham.c10ver.changelog.Changelog.Version;
 import gartham.c10ver.commands.CommandHelpBook.ParentCommandHelp;
 import gartham.c10ver.commands.CommandInvocation;
@@ -76,6 +75,7 @@ import gartham.c10ver.games.math.MathProblem;
 import gartham.c10ver.games.math.MathProblem.AttemptResult;
 import gartham.c10ver.games.math.MathProblemGenerator;
 import gartham.c10ver.games.math.simple.SimpleMathProblemGenerator;
+import gartham.c10ver.games.rpg.fighting.battles.AttackAction;
 import gartham.c10ver.games.rpg.fighting.battles.AttackActionMessage;
 import gartham.c10ver.games.rpg.rooms.RectangularRoom;
 import gartham.c10ver.games.rpg.rooms.RectangularRoom.Side;
@@ -2592,8 +2592,10 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						AttackActionMessage aam = new AttackActionMessage(inv.event.getAuthor().getName() + "'s Team",
 								"[Wild] Nymph", "Tamed Nymph",
 								"https://media.discordapp.net/attachments/807401695688261639/862522787319382046/nymph.png?width=632&height=676",
-								new Random().nextInt(rand), rand, new Action("Run Away",
-										t -> inv.event.getChannel().sendMessage("You successfully ran away!").queue()));
+								new Random().nextInt(rand), rand,
+								new AttackAction("\uD83D\uDCA8","Run Away",
+										t -> inv.event.getChannel().sendMessage("You successfully ran away!").queue(),
+										"Cowardly flee from the fight."));
 						aam.send(clover, inv.event.getChannel(), inv.event.getAuthor());
 					}
 				};
