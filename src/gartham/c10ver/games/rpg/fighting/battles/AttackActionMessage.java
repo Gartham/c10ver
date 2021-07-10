@@ -1,17 +1,19 @@
 package gartham.c10ver.games.rpg.fighting.battles;
 
+import java.util.List;
+
 import gartham.c10ver.actions.Action;
 import gartham.c10ver.actions.ActionMessage;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
-public class AttackActionMessage extends ActionMessage {
+public class AttackActionMessage extends ActionMessage<AttackAction> {
 
 	private final String attackerTeam, opponentTeam, currentlyAttackingCreature, creatureIcon;
 	private final int health, maxHealth;
 
 	public AttackActionMessage(String attackerTeam, String opponentTeam, String currentlyAttackingCreature,
-			String creatureIcon, int health, int maxHealth, Action... actions) {
+			String creatureIcon, int health, int maxHealth, AttackAction... actions) {
 		super(actions);
 		this.attackerTeam = attackerTeam;
 		this.opponentTeam = opponentTeam;
@@ -23,10 +25,18 @@ public class AttackActionMessage extends ActionMessage {
 
 	@Override
 	public MessageEmbed embed() {
-		return new EmbedBuilder().setTitle('`' + attackerTeam + "` vs `" + opponentTeam + '`')
+		EmbedBuilder e = new EmbedBuilder().setTitle('`' + attackerTeam + "` vs `" + opponentTeam + '`')
 				.setDescription("**" + currentlyAttackingCreature + "**\nHealth: " + health + " / " + maxHealth
 						+ calcHealthbar(health, maxHealth))
-				.setImage(creatureIcon).build();
+				.setThumbnail(creatureIcon);
+		List<AttackAction> actions = getActions();
+		for (int i = 0; i < actions.size(); i++) {
+			
+			var a = actions.get(i);
+			String emoji = a.getEmoji();
+			e.addField(emoji + ' ' + a.getDescription(), a.getOptionDescription(), true);
+		}
+		return e.build();
 	}
 
 	private static final String[][] BARS = { { "<:HealthFront:856774887379959818>" },
