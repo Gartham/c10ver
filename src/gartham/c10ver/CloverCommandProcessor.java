@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.Timer;
@@ -36,6 +37,7 @@ import org.alixia.javalibrary.util.MultidimensionalMap;
 import club.minnced.discord.webhook.WebhookClient;
 import club.minnced.discord.webhook.WebhookClientBuilder;
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
+import gartham.c10ver.actions.Action;
 import gartham.c10ver.changelog.Changelog.Version;
 import gartham.c10ver.commands.CommandHelpBook.ParentCommandHelp;
 import gartham.c10ver.commands.CommandInvocation;
@@ -74,6 +76,7 @@ import gartham.c10ver.games.math.MathProblem;
 import gartham.c10ver.games.math.MathProblem.AttemptResult;
 import gartham.c10ver.games.math.MathProblemGenerator;
 import gartham.c10ver.games.math.simple.SimpleMathProblemGenerator;
+import gartham.c10ver.games.rpg.fighting.battles.AttackActionMessage;
 import gartham.c10ver.games.rpg.rooms.RectangularRoom;
 import gartham.c10ver.games.rpg.rooms.RectangularRoom.Side;
 import gartham.c10ver.processing.commands.InventoryCommand;
@@ -2578,6 +2581,20 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 //											true)
 //									.build()).queue();
 //						}
+					}
+				};
+
+				new Subcommand("attack") {
+
+					@Override
+					protected void tailed(SubcommandInvocation inv) {
+						int rand = new Random().nextInt(800) + 200;
+						AttackActionMessage aam = new AttackActionMessage(inv.event.getAuthor().getName() + "'s Team",
+								"[Wild] Nymph", "Tamed Nymph",
+								"https://media.discordapp.net/attachments/807401695688261639/862522787319382046/nymph.png?width=632&height=676",
+								new Random().nextInt(rand), rand, new Action("Run Away",
+										t -> inv.event.getChannel().sendMessage("You successfully ran away!").queue()));
+						aam.send(clover, inv.event.getChannel(), inv.event.getAuthor());
 					}
 				};
 			}
