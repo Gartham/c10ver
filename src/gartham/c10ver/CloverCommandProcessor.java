@@ -7,7 +7,6 @@ import static gartham.c10ver.utils.Utilities.maxPage;
 import static gartham.c10ver.utils.Utilities.paginate;
 
 import java.awt.Color;
-import java.io.File;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.NumberFormat;
@@ -81,7 +80,6 @@ import gartham.c10ver.processing.commands.InventoryCommand;
 import gartham.c10ver.processing.trading.TradeManager;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
@@ -167,8 +165,10 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 							var g = u.getJDA().getGuildById(a);
 							return g == null ? "`[" + a + "]`" : g.getName();
 						}), true)).append('\n');
-				sb.append("Prestige: **").append(Utilities.toRomanNumerals(ua.getPrestige())).append("** (`")
-						.append(NumberFormat.getInstance().format(ua.getPrestige())).append("`)\n");
+				sb.append("Prestige: **")
+						.append(ua.getPrestige().equals(BigInteger.ZERO) ? "0"
+								: Utilities.toRomanNumerals(ua.getPrestige()))
+						.append("** (`").append(NumberFormat.getInstance().format(ua.getPrestige())).append("`)\n");
 				eb.setDescription(sb.toString());
 				inv.event.getChannel().sendMessage(eb.build()).queue();
 			}
