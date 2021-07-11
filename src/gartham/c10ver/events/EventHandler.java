@@ -79,14 +79,10 @@ public class EventHandler implements EventListener {
 
 			var ranCmd = false;
 			CommandInvocation commandInvoc = null;
-			if (!messageProcessor.runInputHandlers(mre)) {
-				commandInvoc = clover.getCommandParser().parse(mre.getMessage().getContentRaw(), mre);
-				if (commandInvoc != null) {
-					clover.getCommandProcessor().run(commandInvoc);
-					ranCmd = true;// TODO Go off of run method.
-				}
-			} else
-				ranCmd = true;
+			if (!messageProcessor.runInputHandlers(mre))
+			 if ((commandInvoc = clover.getCommandParser().parse(mre.getMessage().getContentRaw(), mre)) != null)
+					if (clover.getCommandProcessor().run(commandInvoc))
+						ranCmd = true;
 
 			if (mre.isFromGuild() && clover.getEconomy().hasServer(mre.getGuild().getId())) {
 				User user = clover.getEconomy().getUser(mre.getAuthor().getId());
