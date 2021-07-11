@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import gartham.c10ver.commands.consumers.InputConsumer;
-import gartham.c10ver.events.EventHandler;
-import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -32,7 +30,7 @@ public class InputProcessor<E extends GenericEvent> {
 	 * {@link InputConsumer}s, so none can be removed while they're running.
 	 * Problematically, one may be considered "dead" and will need to be removed
 	 * although not consume the event, so it can be scheduled for removal by this
-	 * method. At the end of a {@link #runInputHandlers()}'s execution, all of the
+	 * method. At the end of a {@link #runInputHandlers(GenericEvent)}'s execution, all of the
 	 * {@link InputConsumer}s that have been scheduled to be removed until, will be
 	 * removed from the {@link Iterable}.
 	 * </p>

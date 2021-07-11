@@ -897,6 +897,11 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 							} finally {
 								servers.remove(inv.event.getGuild().getId());
 							}
+						}).onError(t -> {
+							servers.remove(inv.event.getGuild().getId());
+							inv.event.getChannel()
+									.sendMessage("An error occurred while querying discord for server members.")
+									.queue();
 						});
 					}
 				} else
