@@ -2,6 +2,35 @@ package gartham.c10ver.games.rpg.fighting;
 
 public class Fighter implements Comparable<Fighter> {
 	private int speed, maxHealth, health, attack, defense;
+	private FighterController controller;
+
+	public FighterController getController() {
+		return controller;
+	}
+
+	/**
+	 * Sets this {@link Fighter}'s controller.
+	 * 
+	 * @param controller The new controller.
+	 * @return Returns this object for chaining.
+	 */
+	public Fighter setController(FighterController controller) {
+		this.controller = controller;
+		return this;
+	}
+
+	public Fighter(int speed, int maxHealth, int attack, int defense, FighterController controller) {
+		this(speed, maxHealth, maxHealth, attack, defense, controller);
+	}
+
+	public Fighter(int speed, int maxHealth, int health, int attack, int defense, FighterController controller) {
+		this.speed = speed;
+		this.maxHealth = maxHealth;
+		this.health = health;
+		this.attack = attack;
+		this.defense = defense;
+		this.controller = controller;
+	}
 
 	public Fighter(int speed, int maxHealth, int attack, int defense) {
 		this(speed, maxHealth, maxHealth, attack, defense);
