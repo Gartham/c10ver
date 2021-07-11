@@ -2593,9 +2593,12 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 								"[Wild] Nymph", "Tamed Nymph",
 								"https://media.discordapp.net/attachments/807401695688261639/862522787319382046/nymph.png?width=632&height=676",
 								new Random().nextInt(rand), rand,
-								new AttackAction("\uD83D\uDCA8","Run Away",
+								new AttackAction("\uD83D\uDCA8", "Run Away",
 										t -> inv.event.getChannel().sendMessage("You successfully ran away!").queue(),
-										"Cowardly flee from the fight."));
+										"Cowardly flee from the fight."),
+								new AttackAction("\u2694\uFE0F", "Attack", t -> inv.event.getChannel()
+										.sendMessage("You attack your opponent for 15 \\\u2694\uFE0F damage.").queue(),
+										"Have at your opponent."));
 						aam.send(clover, inv.event.getChannel(), inv.event.getAuthor());
 					}
 				};
