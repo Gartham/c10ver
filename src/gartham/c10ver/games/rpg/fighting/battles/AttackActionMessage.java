@@ -26,7 +26,7 @@ public class AttackActionMessage extends ActionMessage<AttackAction> {
 	public MessageEmbed embed() {
 		EmbedBuilder e = new EmbedBuilder().setTitle('`' + attackerTeam + "` vs `" + opponentTeam + '`')
 				.setDescription("**" + currentlyAttackingCreature + "**\nHealth: " + health + " / " + maxHealth
-						+ calcHealthbar(health, maxHealth))
+						+ calcHealthbar(health, maxHealth)+"\n\u200b")
 				.setThumbnail(creatureIcon);
 		List<AttackAction> actions = getActions();
 		for (int i = 0; i < actions.size(); i++) {
