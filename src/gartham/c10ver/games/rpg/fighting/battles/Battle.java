@@ -1,31 +1,25 @@
 package gartham.c10ver.games.rpg.fighting.battles;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import gartham.c10ver.games.rpg.fighting.Fighter;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 public class Battle {
 	private final TextChannel channel;
-	private final List<BattleEntity> battleQueue = new ArrayList<>();
 
-	private final static class BattleEntity {
-		private final Fighter fighter;
-		private final int ticksTillTurn, health;
+	private final Map<Fighter, Integer> ticksTillTurn = new HashMap<>();
+	private final List<Fighter> battleQueue = new ArrayList<>();
 
-		public BattleEntity(Fighter fighter, int ticksTillTurn) {
-			health = (this.fighter = fighter).health();
-			this.ticksTillTurn = ticksTillTurn;
-		}
+	private int getTTT(Fighter fighter) {
+		return ticksTillTurn.get(fighter);
+	}
 
-		public Fighter getFighter() {
-			return fighter;
-		}
-
-		public int getTicksTillTurn() {
-			return ticksTillTurn;
-		}
+	private void setTTT(Fighter fighter, int ticks) {
+		ticksTillTurn.put(fighter, ticks);
 	}
 
 	public Battle(TextChannel channel) {
