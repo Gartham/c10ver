@@ -2,6 +2,7 @@ package gartham.c10ver.processing.commands;
 
 import java.util.List;
 
+import org.alixia.javalibrary.JavaTools;
 import org.alixia.javalibrary.strings.matching.Matching;
 
 import gartham.c10ver.Clover;
@@ -110,13 +111,13 @@ public class InventoryCommand extends MatchBasedCommand {
 					inv.event.getAuthor().getEffectiveAvatarUrl());
 			eb.setDescription('*' + inv.event.getAuthor().getAsMention() + " has `" + entry.getTotalCount()
 					+ "` of this item.*\n\u200B");
-			int maxPage = Utilities.maxPage(9, entry.getStacks());
+			int maxPage = JavaTools.maxPage(9, entry.getStacks());
 			if (page > maxPage) {
 				inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention() + " you only have `" + maxPage
 						+ (maxPage == 1 ? "` page" : "` pages") + " of that item in your inventory!").queue();
 				return;
 			}
-			List<? extends Entry<?>.ItemStack> list = Utilities.paginate(page, 9, entry.getStacks());
+			List<? extends Entry<?>.ItemStack> list = JavaTools.paginate(page, 9, entry.getStacks());
 			printStacks(list, eb);
 			eb.addField("", "You have **" + maxPage + "** page" + (maxPage == 1 ? "" : "s")
 					+ " of this item in your inventory.", false);

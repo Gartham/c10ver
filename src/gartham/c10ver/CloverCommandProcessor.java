@@ -3,8 +3,7 @@ package gartham.c10ver;
 import static gartham.c10ver.economy.items.ItemBunch.of;
 import static gartham.c10ver.utils.Utilities.format;
 import static gartham.c10ver.utils.Utilities.listRewards;
-import static gartham.c10ver.utils.Utilities.maxPage;
-import static gartham.c10ver.utils.Utilities.paginate;
+import static org.alixia.javalibrary.JavaTools.maxPage;
 
 import java.awt.Color;
 import java.math.BigDecimal;
@@ -880,7 +879,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 								eb.setAuthor("Server Leaderboard", null, inv.event.getGuild().getIconUrl());
 								StringBuilder sb = new StringBuilder();
 
-								List<Member> paginate = paginate(page, 10, users);
+								List<Member> paginate = JavaTools.paginate(page, 10, users);
 								for (int i = 0; i < paginate.size(); i++) {
 									var u = paginate.get(i);
 									sb.append("`#" + (page * 10 - 9 + i) + "` " + u.getUser().getName() + "#"
@@ -963,7 +962,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 									return;
 								}
 							}
-							List<Question> questions = paginate(page, 5, u.getQuestions());
+							List<Question> questions = JavaTools.paginate(page, 5, u.getQuestions());
 							int mp = maxPage(5, u.getQuestions());
 							if (questions == null) {
 								inv.event.getChannel()
@@ -1978,7 +1977,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 								+ ", no version or page found: " + Utilities.strip(inv.args[0]) + '.').queue();
 						return;
 					}
-					var vers = Utilities.paginate(page, 10, cl.getVersions());
+					var vers = JavaTools.paginate(page, 10, cl.getVersions());
 					if (vers == null) {
 						inv.event.getChannel()
 								.sendMessage(inv.event.getAuthor().getAsMention() + " that's not a valid page.")
