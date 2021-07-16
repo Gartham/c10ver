@@ -4,6 +4,15 @@ public class Fighter implements Comparable<Fighter> {
 	private int speed, maxHealth, health, attack, defense;
 	private String fullImage, pfp;
 	private FighterController controller;
+	private Team team;
+
+	void setTeam(Team team) {
+		this.team = team;
+	}
+
+	public Team getTeam() {
+		return team;
+	}
 
 	public FighterController getController() {
 		return controller;
@@ -16,6 +25,8 @@ public class Fighter implements Comparable<Fighter> {
 	 * @return Returns this object for chaining.
 	 */
 	public Fighter setController(FighterController controller) {
+		if (controller == null)
+			throw null;
 		this.controller = controller;
 		return this;
 	}
