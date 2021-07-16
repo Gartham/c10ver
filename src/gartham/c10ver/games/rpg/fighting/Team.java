@@ -14,6 +14,21 @@ public class Team implements Iterable<Fighter> {
 
 	public Team(Collection<? extends Fighter> members) {
 		this.members = new HashSet<>(members);
+		for (var f : members) {
+			if (f.getTeam() != null)
+				f.getTeam().remove(f);
+			f.setTeam(this);
+		}
+	}
+
+	/**
+	 * Removes the specified {@link Fighter} from this {@link Team}'s {@link Set} of
+	 * {@link Fighter}s.
+	 * 
+	 * @param fighter The {@link Fighter} to remove.
+	 */
+	void remove(Fighter fighter) {
+		members.remove(fighter);
 	}
 
 	/**
