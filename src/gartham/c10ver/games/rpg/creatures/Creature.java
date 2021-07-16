@@ -7,12 +7,16 @@ import org.alixia.javalibrary.util.Gateway;
 
 import gartham.apps.garthchat.api.communication.common.gids.GID;
 import gartham.c10ver.data.PropertyObject;
+import gartham.c10ver.games.rpg.fighting.Fighter;
+import gartham.c10ver.games.rpg.fighting.FighterController;
 
 public class Creature extends PropertyObject implements Comparable<Creature> {
 
 	private final Property<Integer> hp = intProperty("hp"), attack = intProperty("attack"),
 			speed = intProperty("speed"), defense = intProperty("defense"), level = intProperty("level", 1);
 	private final Property<BigInteger> xp = bigIntegerProperty("xp");
+
+	private final Property<String> fullImage = stringProperty("full-image"), pfp = stringProperty("pfp");
 	private final Property<GID> id = toStringProperty("id", new Gateway<>() {
 
 		@Override
@@ -25,6 +29,30 @@ public class Creature extends PropertyObject implements Comparable<Creature> {
 			return value.getHex();
 		}
 	});
+
+	protected void setFullImage(String imageURL) {
+		fullImage.set(imageURL);
+	}
+
+	protected void setPFP(String url) {
+		pfp.set(url);
+	}
+
+	public String getFullImage() {
+		return fullImage.get();
+	}
+
+	public String getPFP() {
+		return pfp.get();
+	}
+
+	public Fighter makeFighter() {
+		return new Fighter(getSpeed(), getHp(), getAttack(), getDefense(), getFullImage(), getPFP());
+	}
+
+	public Fighter makeFighter(FighterController controller) {
+		return new Fighter(getSpeed(), getHp(), getAttack(), getDefense(), getFullImage(), getPFP(), controller);
+	}
 
 	protected Creature() {
 		id.set(GID.newGID());

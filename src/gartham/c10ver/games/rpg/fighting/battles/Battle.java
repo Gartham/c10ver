@@ -1,35 +1,44 @@
 package gartham.c10ver.games.rpg.fighting.battles;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import gartham.c10ver.games.rpg.fighting.Fighter;
+import gartham.c10ver.games.rpg.fighting.Team;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 public class Battle {
 	private final TextChannel channel;
-	private final List<BattleEntity> battleQueue = new ArrayList<>();
 
-	private final static class BattleEntity {
-		private final Fighter fighter;
-		private final int ticksTillTurn, health;
+	private final Map<Fighter, Integer> ticksTillTurn = new HashMap<>();
+	private final List<Fighter> battleQueue = new ArrayList<>();
+	private final List<Team> teams;
 
-		public BattleEntity(Fighter fighter, int ticksTillTurn) {
-			health = (this.fighter = fighter).health();
-			this.ticksTillTurn = ticksTillTurn;
-		}
-
-		public Fighter getFighter() {
-			return fighter;
-		}
-
-		public int getTicksTillTurn() {
-			return ticksTillTurn;
-		}
+	public void start() {
+		// TODO
 	}
 
-	public Battle(TextChannel channel) {
+	private int getTTT(Fighter fighter) {
+		return ticksTillTurn.get(fighter);
+	}
+
+	private void setTTT(Fighter fighter, int ticks) {
+		ticksTillTurn.put(fighter, ticks);
+	}
+
+	public Battle(TextChannel channel, Team... teams) {
 		this.channel = channel;
+		this.teams = new ArrayList<>();
+		for (var t : teams)
+			this.teams.add(t);
+	}
+
+	public Battle(TextChannel channel, Collection<Team> teams) {
+		this.channel = channel;
+		this.teams = new ArrayList<>(teams);
 	}
 
 }
