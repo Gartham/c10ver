@@ -2547,7 +2547,6 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 							}
 
 							private void handle(String in) {
-								System.out.println("Test.");
 								if (in.startsWith("/"))
 									processor.run(clover.getCommandParser().parse(Matching.build("/"), in, null));
 								else {
@@ -2574,7 +2573,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 								.setAuthor(inv.event.getAuthor().getName() + " Initiated a BATTLE!", null,
 										inv.event.getAuthor().getEffectiveAvatarUrl())
 								.addField("<:nymph_emoji:854622804514832384> Nymph [Wild]",
-										"HP: \\\u2764\uFE0F `50/50`\nAttack: \\\u2694\uFE0F `12`\nDefense: \\\uD83D\uDEE1\uFE0F `5`\nSpeed: \\\uD83D\uDCA8\uFE0F `7`",
+										"\\\u2764\uFE0F `50/50`   \\\u2694\uFE0F `12`   \\\uD83D\uDEE1\uFE0F \u200b `5`   \\\uD83D\uDCA8\uFE0F `7`",
 										true)
 								.build()).queue();
 //						else {
