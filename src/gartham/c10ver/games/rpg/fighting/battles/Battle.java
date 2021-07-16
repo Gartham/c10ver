@@ -1,11 +1,13 @@
 package gartham.c10ver.games.rpg.fighting.battles;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import gartham.c10ver.games.rpg.fighting.Fighter;
+import gartham.c10ver.games.rpg.fighting.Team;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 public class Battle {
@@ -13,6 +15,11 @@ public class Battle {
 
 	private final Map<Fighter, Integer> ticksTillTurn = new HashMap<>();
 	private final List<Fighter> battleQueue = new ArrayList<>();
+	private final List<Team> teams;
+
+	public void start() {
+		// TODO
+	}
 
 	private int getTTT(Fighter fighter) {
 		return ticksTillTurn.get(fighter);
@@ -22,8 +29,16 @@ public class Battle {
 		ticksTillTurn.put(fighter, ticks);
 	}
 
-	public Battle(TextChannel channel) {
+	public Battle(TextChannel channel, Team... teams) {
 		this.channel = channel;
+		this.teams = new ArrayList<>();
+		for (var t : teams)
+			this.teams.add(t);
+	}
+
+	public Battle(TextChannel channel, Collection<Team> teams) {
+		this.channel = channel;
+		this.teams = new ArrayList<>(teams);
 	}
 
 }
