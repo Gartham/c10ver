@@ -11,10 +11,27 @@ import org.alixia.javalibrary.JavaTools;
 
 public class Team implements Iterable<Fighter> {
 	private final Set<Fighter> members;
+	private final String name;
 
-	public Team(Collection<? extends Fighter> members) {
+	public String getName() {
+		return name;
+	}
+
+	public Team(String name, Collection<? extends Fighter> members) {
+		this.name = name;
 		this.members = new HashSet<>(members);
 		for (var f : members) {
+			if (f.getTeam() != null)
+				f.getTeam().remove(f);
+			f.setTeam(this);
+		}
+	}
+
+	public Team(String name, Fighter... members) {
+		this.name = name;
+		this.members = new HashSet<>();
+		for (var f : members) {
+			this.members.add(f);
 			if (f.getTeam() != null)
 				f.getTeam().remove(f);
 			f.setTeam(this);
