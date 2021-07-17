@@ -30,11 +30,35 @@ public class Creature extends PropertyObject implements Comparable<Creature> {
 		}
 	});
 
-	protected void setFullImage(String imageURL) {
+	public void setHP(int hp) {
+		this.hp.set(hp);
+	}
+
+	public void setAttack(int attack) {
+		this.attack.set(attack);
+	}
+
+	public void setSpeed(int speed) {
+		this.speed.set(speed);
+	}
+
+	public void setDefense(int def) {
+		defense.set(def);
+	}
+
+	public void setLevel(int level) {
+		this.level.set(level);
+	}
+
+	public void setXP(BigInteger xp) {
+		this.xp.set(xp);
+	}
+
+	public void setFullImage(String imageURL) {
 		fullImage.set(imageURL);
 	}
 
-	protected void setPFP(String url) {
+	public void setPFP(String url) {
 		pfp.set(url);
 	}
 
@@ -54,11 +78,11 @@ public class Creature extends PropertyObject implements Comparable<Creature> {
 		return new Fighter(getSpeed(), getHp(), getAttack(), getDefense(), getFullImage(), getPFP(), controller);
 	}
 
-	protected Creature() {
+	public Creature() {
 		id.set(GID.newGID());
 	}
 
-	protected Creature(JSONObject json) {
+	public Creature(JSONObject json) {
 		load(json);
 	}
 
