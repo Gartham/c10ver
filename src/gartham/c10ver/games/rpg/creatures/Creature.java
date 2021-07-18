@@ -105,7 +105,7 @@ public abstract class Creature extends PropertyObject implements Comparable<Crea
 
 	@Override
 	public int compareTo(Creature o) {
-		return getSpeed() - o.getSpeed();
+		return getSpeed().compareTo(o.getSpeed());
 	}
 
 }
