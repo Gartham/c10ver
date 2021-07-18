@@ -14,6 +14,7 @@ public abstract class Creature extends PropertyObject implements Comparable<Crea
 
 	private final Property<String> fullImage = stringProperty("full-image"), pfp = stringProperty("pfp"),
 			type = stringProperty("type");
+	private final Property<BigInteger> xp = bigIntegerProperty("xp"), level = bigIntegerProperty("level");
 	private final Property<GID> id = toStringProperty("id", new Gateway<>() {
 
 		@Override
@@ -82,17 +83,21 @@ public abstract class Creature extends PropertyObject implements Comparable<Crea
 		load(json);
 	}
 
-	public abstract int getHp();
+	public abstract BigInteger getHp();
 
-	public abstract int getAttack();
+	public abstract BigInteger getAttack();
 
-	public abstract int getSpeed();
+	public abstract BigInteger getSpeed();
 
-	public abstract int getDefense();
+	public abstract BigInteger getDefense();
 
-	public abstract int getLevel();
+	public final BigInteger getLevel() {
+		return level.get();
+	}
 
-	public abstract BigInteger getXP();
+	public final BigInteger getXP() {
+		return xp.get();
+	}
 
 	public GID getID() {
 		return id.get();

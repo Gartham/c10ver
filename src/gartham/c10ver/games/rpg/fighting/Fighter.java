@@ -1,7 +1,9 @@
 package gartham.c10ver.games.rpg.fighting;
 
+import java.math.BigInteger;
+
 public class Fighter implements Comparable<Fighter> {
-	private int speed, maxHealth, health, attack, defense;
+	private BigInteger speed, maxHealth, health, attack, defense;
 	private String fullImage, pfp;
 	private FighterController controller;
 	private Team team;
@@ -31,7 +33,7 @@ public class Fighter implements Comparable<Fighter> {
 		return this;
 	}
 
-	public int getSpeed() {
+	public BigInteger getSpeed() {
 		return speed;
 	}
 
@@ -43,8 +45,8 @@ public class Fighter implements Comparable<Fighter> {
 		return pfp;
 	}
 
-	public Fighter(int speed, int maxHealth, int health, int attack, int defense, String fullImage, String pfp,
-			FighterController controller) {
+	public Fighter(BigInteger speed, BigInteger maxHealth, BigInteger health, BigInteger attack, BigInteger defense,
+			String fullImage, String pfp, FighterController controller) {
 		this.speed = speed;
 		this.maxHealth = maxHealth;
 		this.health = health;
@@ -55,49 +57,59 @@ public class Fighter implements Comparable<Fighter> {
 		this.controller = controller;
 	}
 
-	public Fighter(int speed, int maxHealth, int attack, int defense, String fullImage, String pfp,
-			FighterController controller) {
+	public Fighter(BigInteger speed, BigInteger maxHealth, BigInteger attack, BigInteger defense, String fullImage,
+			String pfp, FighterController controller) {
 		this(speed, maxHealth, maxHealth, attack, defense, fullImage, pfp, controller);
 	}
 
-	public Fighter(int speed, int maxHealth, int health, int attack, int defense, String fullImage, String pfp) {
+	public Fighter(BigInteger speed, BigInteger maxHealth, BigInteger health, BigInteger attack, BigInteger defense,
+			String fullImage, String pfp) {
 		this(speed, maxHealth, health, attack, defense, fullImage, pfp, null);
 	}
 
-	public Fighter(int speed, int maxHealth, int attack, int defense, String fullImage, String pfp) {
+	public Fighter(BigInteger speed, BigInteger maxHealth, BigInteger attack, BigInteger defense, String fullImage,
+			String pfp) {
 		this(speed, maxHealth, maxHealth, attack, defense, fullImage, pfp);
 	}
 
-	public int getMaxHealth() {
+	public BigInteger getMaxHealth() {
 		return maxHealth;
 	}
 
-	public int getHealth() {
+	public BigInteger getHealth() {
 		return health;
 	}
 
-	public int getAttack() {
+	public BigInteger getAttack() {
 		return attack;
 	}
 
-	public int getDefense() {
+	public BigInteger getDefense() {
 		return defense;
 	}
 
-	public void heal(int amount) {
-		if (amount == 0)
+	public void heal(BigInteger amount) {
+		if (amount.equals(BigInteger.ZERO))
 			return;
-		else if (amount < 0)
-			damage(-amount);
+		else if (amount.compareTo(BigInteger.ZERO) < 0)
+			damage(amount.negate());
 		else {
-			health += amount;
-			if (health >= maxHealth)
+			health = health.add(amount);
+			if (health.compareTo(maxHealth) >= 0)
 				health = maxHealth;
 		}
 	}
 
+	public void heal(long amount) {
+		heal(BigInteger.valueOf(amount));
+	}
+
 	public boolean isFainted() {
-		return health == 0;
+		return health.equals(BigInteger.ZERO);
+	}
+
+	public boolean damage(long amount) {
+		return damage(BigInteger.valueOf(amount));
 	}
 
 	/**
@@ -106,22 +118,22 @@ public class Fighter implements Comparable<Fighter> {
 	 * 
 	 * @param amount The amount of damage to do. If zero, this method returns
 	 *               {@link #isFainted()}. If negative, calls
-	 *               <code>{@link #heal(int) heal(-amount)}</code> and then returns
-	 *               <code>false</code>.
+	 *               <code>{@link #heal(BigInteger) heal(-amount)}</code> and then
+	 *               returns <code>false</code>.
 	 * @return If this fighter is fainted after processing of this method.
 	 */
-	public boolean damage(int amount) {
-		if (amount == 0)
+	public boolean damage(BigInteger amount) {
+		if (amount.equals(BigInteger.ZERO))
 			return isFainted();
-		else if (amount < 0) {
-			heal(-amount);
+		else if (amount.compareTo(BigInteger.ZERO) < 0) {
+			heal(amount.negate());
 			return false;
 		}
-		if ((health -= amount) < 0) {
-			health = 0;
+		if ((health = health.subtract(amount)).compareTo(BigInteger.ZERO) < 0) {
+			health = BigInteger.ZERO;
 			return true;
 		}
-		return health == 0;
+		return health.equals(BigInteger.ZERO);
 	}
 
 	public String getHealthString() {
@@ -130,6 +142,6 @@ public class Fighter implements Comparable<Fighter> {
 
 	@Override
 	public final int compareTo(Fighter o) {
-		return speed - o.speed;
+		return speed.compareTo(o.speed);
 	}
 }
