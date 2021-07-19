@@ -13,60 +13,83 @@ import org.alixia.javalibrary.json.JSONObject;
  */
 public class SimpleCreature extends Creature {
 
+	private static final BigInteger BI_THREE = BigInteger.valueOf(3);
+	private static final BigDecimal BD_ONE_POINT_EIGHT = valueOf(1.8), BD_POINT_FIVE = valueOf(.5),
+			BD_THREE = valueOf(3), BD_FOUR = valueOf(4);
+
 	/**
 	 * Factors representing how intrinsically strong this type of creature is in the
 	 * respective stats.
 	 */
 	private final double hpf, attackf, speedf, deff;
 
-	private static final double C1 = 1152 * 2.44948974278 / 1118.03398875, C2 = 361 * 4.35889894354 / 1118.03398875,
-			C3 = 196 * 3.74165738677 / 1118.03398875, C4 = 243 / 1118.03398875;
+	private static final double C1 = 2.52390554498, C2 = 1.40743710339, C3 = 0.6559414608, C4 = 0.21734580741;
 
-	private static BigInteger evalstat(BigInteger level, double factor) {
-		var t1 = new BigDecimal(level.subtract(BigInteger.valueOf(3))).divide(valueOf(4), RoundingMode.FLOOR)
-				.setScale(0, RoundingMode.FLOOR).multiply(valueOf(C1));
-		var t2 = new BigDecimal(level.subtract(BigInteger.TWO)).divide(valueOf(4), RoundingMode.FLOOR)
-				.setScale(0, RoundingMode.FLOOR).multiply(valueOf(C2));
-		var t3 = new BigDecimal(level.subtract(BigInteger.ONE)).divide(valueOf(4), RoundingMode.FLOOR)
-				.setScale(0, RoundingMode.FLOOR).multiply(valueOf(C3));
-		var t4 = new BigDecimal(level).divide(valueOf(4), RoundingMode.FLOOR).setScale(0, RoundingMode.FLOOR)
-				.multiply(valueOf(C4));
-		var t5 = valueOf(C1 + C2 + C3);
-		var tmerge = t1.add(t2).add(t3).add(t4).add(t5);
-
-		var u1 = new BigDecimal(level.subtract(BigInteger.TWO)).divide(valueOf(3), RoundingMode.FLOOR).setScale(0,
-				RoundingMode.FLOOR);
-		var u2 = new BigDecimal(level.subtract(BigInteger.ONE)).divide(valueOf(3), RoundingMode.FLOOR).setScale(0,
-				RoundingMode.FLOOR);
-		var u3 = new BigDecimal(level).divide(valueOf(3), RoundingMode.FLOOR).setScale(0, RoundingMode.FLOOR);
-		var umerge = u1.multiply(u1.add(ONE)).add(u2.multiply(u2.add(ONE))).add(u3.multiply(u3.add(ONE)))
-				.multiply(valueOf(.5));
-		var v = new BigDecimal(level).multiply(valueOf(1.8));
-		return tmerge.add(umerge).add(v).setScale(0, RoundingMode.CEILING).toBigInteger();
+	public static BigInteger evalstat(BigInteger level, double factor) {
+		BigInteger lm2 = level.subtract(BigInteger.TWO);
+		var u1 = new BigDecimal(lm2).divide(BD_THREE, RoundingMode.FLOOR).setScale(0, RoundingMode.FLOOR);
+		BigInteger lm1 = level.subtract(BigInteger.ONE);
+		var u2 = new BigDecimal(lm1).divide(BD_THREE, RoundingMode.FLOOR).setScale(0, RoundingMode.FLOOR);
+		var u3 = new BigDecimal(level).divide(BD_THREE, RoundingMode.FLOOR).setScale(0, RoundingMode.FLOOR);
+		return new BigDecimal(level.subtract(BI_THREE)).divide(BD_FOUR, RoundingMode.FLOOR)
+				.setScale(0, RoundingMode.FLOOR).multiply(valueOf(C1))
+				.add(new BigDecimal(lm2).divide(BD_FOUR, RoundingMode.FLOOR).setScale(0, RoundingMode.FLOOR)
+						.multiply(valueOf(C2)))
+				.add(new BigDecimal(lm1).divide(BD_FOUR, RoundingMode.FLOOR).setScale(0, RoundingMode.FLOOR)
+						.multiply(valueOf(C3)))
+				.add(new BigDecimal(level)
+						.divide(BD_FOUR, RoundingMode.FLOOR).setScale(0, RoundingMode.FLOOR).multiply(valueOf(C4)))
+				.add(valueOf(C1 + C2 + C3))
+				.add(u1.multiply(u1.add(ONE)).add(u2.multiply(u2.add(ONE))).add(u3.multiply(u3.add(ONE)))
+						.multiply(BD_POINT_FIVE))
+				.add(new BigDecimal(level).multiply(BD_ONE_POINT_EIGHT)).setScale(0, RoundingMode.CEILING)
+				.toBigInteger();
 	}
 
 	@Override
 	public BigInteger getHp() {
-		// TODO Auto-generated method stub
-		return null;
+		return evalstat(getLevel(), hpf);
 	}
 
 	@Override
 	public BigInteger getAttack() {
-		// TODO Auto-generated method stub
-		return null;
+		return evalstat(getLevel(), attackf);
 	}
 
 	@Override
 	public BigInteger getSpeed() {
-		// TODO Auto-generated method stub
-		return null;
+		return evalstat(getLevel(), speedf);
 	}
 
 	@Override
 	public BigInteger getDefense() {
-		// TODO Auto-generated method stub
-		return null;
+		return evalstat(getLevel(), deff);
+	}
+
+	public SimpleCreature(String type, double hpf, double attackf, double speedf, double deff) {
+		super(type);
+		this.hpf = hpf;
+		this.attackf = attackf;
+		this.speedf = speedf;
+		this.deff = deff;
+	}
+
+	public SimpleCreature(String type, String fullImage, String pfp, double hpf, double attackf, double speedf,
+			double deff) {
+		super(type, fullImage, pfp);
+		this.hpf = hpf;
+		this.attackf = attackf;
+		this.speedf = speedf;
+		this.deff = deff;
+	}
+
+	public SimpleCreature(JSONObject data, String expectedType, double hpf, double attackf, double speedf,
+			double deff) {
+		super(data, expectedType);
+		this.hpf = hpf;
+		this.attackf = attackf;
+		this.speedf = speedf;
+		this.deff = deff;
 	}
 
 }
