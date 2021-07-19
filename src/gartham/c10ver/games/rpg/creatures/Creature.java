@@ -56,6 +56,7 @@ public abstract class Creature extends PropertyObject implements Comparable<Crea
 	protected Creature(String type, String fullImage, String pfp) {
 		id.set(GID.newGID());
 		this.type.set(type);
+		setPFP(pfp).setFullImage(fullImage);
 	}
 
 	protected Creature setPFP(String pfp) {
@@ -76,11 +77,11 @@ public abstract class Creature extends PropertyObject implements Comparable<Crea
 		}
 	}
 
-	protected Creature(JSONObject json, String type) {
-		if (!json.getString("type").equals(type))
-			throw new IllegalArgumentException("Invalid type for a creature data file (stored: " + json.getString(type)
-					+ ", expected: " + type + ").");
-		load(json);
+	protected Creature(JSONObject data, String expectedType) {
+		if (!data.getString("type").equals(expectedType))
+			throw new IllegalArgumentException("Invalid type for a creature data file (stored: "
+					+ data.getString(expectedType) + ", expected: " + expectedType + ").");
+		load(data);
 	}
 
 	public abstract BigInteger getHp();
