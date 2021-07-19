@@ -75,8 +75,13 @@ import gartham.c10ver.games.math.MathProblem;
 import gartham.c10ver.games.math.MathProblem.AttemptResult;
 import gartham.c10ver.games.math.MathProblemGenerator;
 import gartham.c10ver.games.math.simple.SimpleMathProblemGenerator;
+import gartham.c10ver.games.rpg.creatures.Creature;
+import gartham.c10ver.games.rpg.creatures.NymphCreature;
+import gartham.c10ver.games.rpg.fighting.Fighter;
+import gartham.c10ver.games.rpg.fighting.Team;
 import gartham.c10ver.games.rpg.fighting.battles.AttackAction;
 import gartham.c10ver.games.rpg.fighting.battles.AttackActionMessage;
+import gartham.c10ver.games.rpg.fighting.battles.Battle;
 import gartham.c10ver.games.rpg.rooms.RectangularRoom;
 import gartham.c10ver.games.rpg.rooms.RectangularRoom.Side;
 import gartham.c10ver.processing.commands.InventoryCommand;
@@ -2604,6 +2609,22 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 										.sendMessage("You attack your opponent for 15 \\\u2694\uFE0F damage.").queue(),
 										"Have at your opponent."));
 						aam.send(clover, inv.event.getChannel(), inv.event.getAuthor());
+					}
+				};
+
+				new Subcommand("battle2") {
+
+					@Override
+					protected void tailed(SubcommandInvocation inv) {
+						Creature creature = new NymphCreature();
+						Battle battle = new Battle(inv.event.getTextChannel(), new Team(
+								inv.event.getAuthor().getName() + "'s Team",
+								new Fighter(BigInteger.valueOf(7), BigInteger.valueOf(45), BigInteger.valueOf(7),
+										BigInteger.valueOf(3), inv.event.getAuthor().getEffectiveAvatarUrl(),
+										inv.event.getAuthor().getEffectiveAvatarUrl(), ":slight_smile:")),
+								new Team("[Wild] Nymph", creature.makeFighter()));
+						battle.start();
+
 					}
 				};
 			}
