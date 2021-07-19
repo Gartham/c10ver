@@ -12,9 +12,10 @@ import gartham.c10ver.games.rpg.fighting.FighterController;
 
 public abstract class Creature extends PropertyObject implements Comparable<Creature> {
 
-	private final Property<String> fullImage = stringProperty("full-image"), pfp = stringProperty("pfp"),
-			emoji = stringProperty("emoji"), type = stringProperty("type");
-	private final Property<BigInteger> xp = bigIntegerProperty("xp"), level = bigIntegerProperty("level");
+	protected String fullImage, pfp, emoji;
+	private final Property<String> type = stringProperty("type");
+	private final Property<BigInteger> xp = bigIntegerProperty("xp"),
+			level = bigIntegerProperty("level", BigInteger.ONE);
 	private final Property<GID> id = toStringProperty("id", new Gateway<>() {
 
 		@Override
@@ -32,16 +33,16 @@ public abstract class Creature extends PropertyObject implements Comparable<Crea
 		return type.get();
 	}
 
+	public String getPFP() {
+		return pfp;
+	}
+
 	public String getFullImage() {
-		return fullImage.get();
+		return fullImage;
 	}
 
 	public String getEmoji() {
-		return emoji.get();
-	}
-
-	public String getPFP() {
-		return pfp.get();
+		return emoji;
 	}
 
 	public Fighter makeFighter() {
@@ -65,17 +66,17 @@ public abstract class Creature extends PropertyObject implements Comparable<Crea
 	}
 
 	protected Creature setPFP(String pfp) {
-		this.pfp.set(pfp);
+		this.pfp = pfp;
 		return this;
 	}
 
 	protected Creature setFullImage(String fullImage) {
-		this.fullImage.set(fullImage);
+		this.fullImage = fullImage;
 		return this;
 	}
 
 	protected Creature setEmoji(String emoji) {
-		this.emoji.set(emoji);
+		this.emoji = emoji;
 		return this;
 	}
 
