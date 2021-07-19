@@ -13,7 +13,7 @@ import gartham.c10ver.games.rpg.fighting.FighterController;
 public abstract class Creature extends PropertyObject implements Comparable<Creature> {
 
 	private final Property<String> fullImage = stringProperty("full-image"), pfp = stringProperty("pfp"),
-			type = stringProperty("type");
+			emoji = stringProperty("emoji"), type = stringProperty("type");
 	private final Property<BigInteger> xp = bigIntegerProperty("xp"), level = bigIntegerProperty("level");
 	private final Property<GID> id = toStringProperty("id", new Gateway<>() {
 
@@ -36,16 +36,21 @@ public abstract class Creature extends PropertyObject implements Comparable<Crea
 		return fullImage.get();
 	}
 
+	public String getEmoji() {
+		return emoji.get();
+	}
+
 	public String getPFP() {
 		return pfp.get();
 	}
 
 	public Fighter makeFighter() {
-		return new Fighter(getSpeed(), getHp(), getAttack(), getDefense(), getFullImage(), getPFP());
+		return new Fighter(getSpeed(), getHp(), getAttack(), getDefense(), getFullImage(), getPFP(), getEmoji());
 	}
 
 	public Fighter makeFighter(FighterController controller) {
-		return new Fighter(getSpeed(), getHp(), getAttack(), getDefense(), getFullImage(), getPFP(), controller);
+		return new Fighter(getSpeed(), getHp(), getAttack(), getDefense(), getFullImage(), getPFP(), getEmoji(),
+				controller);
 	}
 
 	protected Creature(String type) {
@@ -53,10 +58,10 @@ public abstract class Creature extends PropertyObject implements Comparable<Crea
 		this.type.set(type);
 	}
 
-	protected Creature(String type, String fullImage, String pfp) {
+	protected Creature(String type, String fullImage, String pfp, String emoji) {
 		id.set(GID.newGID());
 		this.type.set(type);
-		setPFP(pfp).setFullImage(fullImage);
+		setPFP(pfp).setFullImage(fullImage).setEmoji(emoji);
 	}
 
 	protected Creature setPFP(String pfp) {
@@ -69,12 +74,17 @@ public abstract class Creature extends PropertyObject implements Comparable<Crea
 		return this;
 	}
 
+	protected Creature setEmoji(String emoji) {
+		this.emoji.set(emoji);
+		return this;
+	}
+
 	public static Creature from(JSONObject json) {
-		switch (json.getString("type")) {
-		// TODO Add creatures.
-		default:
-			throw new IllegalArgumentException("Unexpected value: " + ((JSONObject) json).getString("type"));
-		}
+		return switch (json.getString("type")) {
+		case NymphCreature.TYPE -> new NymphCreature();
+
+		default -> throw new IllegalArgumentException("Unexpected value: " + json.getString("type"));
+		};
 	}
 
 	protected Creature(JSONObject data, String expectedType) {

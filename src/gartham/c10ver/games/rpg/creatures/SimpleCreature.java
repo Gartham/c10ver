@@ -74,9 +74,9 @@ public class SimpleCreature extends Creature {
 		this.deff = deff;
 	}
 
-	public SimpleCreature(String type, String fullImage, String pfp, double hpf, double attackf, double speedf,
-			double deff) {
-		super(type, fullImage, pfp);
+	public SimpleCreature(String type, String fullImage, String pfp, String emoji, double hpf, double attackf,
+			double speedf, double deff) {
+		super(type, fullImage, pfp, emoji);
 		this.hpf = hpf;
 		this.attackf = attackf;
 		this.speedf = speedf;

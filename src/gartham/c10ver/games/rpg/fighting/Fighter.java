@@ -4,7 +4,7 @@ import java.math.BigInteger;
 
 public class Fighter implements Comparable<Fighter> {
 	private BigInteger speed, maxHealth, health, attack, defense;
-	private String fullImage, pfp;
+	private String fullImage, pfp, emoji;
 	private FighterController controller;
 	private Team team;
 
@@ -45,8 +45,12 @@ public class Fighter implements Comparable<Fighter> {
 		return pfp;
 	}
 
+	public String getEmoji() {
+		return emoji;
+	}
+
 	public Fighter(BigInteger speed, BigInteger maxHealth, BigInteger health, BigInteger attack, BigInteger defense,
-			String fullImage, String pfp, FighterController controller) {
+			String fullImage, String pfp, String emoji, FighterController controller) {
 		this.speed = speed;
 		this.maxHealth = maxHealth;
 		this.health = health;
@@ -54,22 +58,23 @@ public class Fighter implements Comparable<Fighter> {
 		this.defense = defense;
 		this.fullImage = fullImage;
 		this.pfp = pfp;
+		this.emoji = emoji;
 		this.controller = controller;
 	}
 
 	public Fighter(BigInteger speed, BigInteger maxHealth, BigInteger attack, BigInteger defense, String fullImage,
-			String pfp, FighterController controller) {
-		this(speed, maxHealth, maxHealth, attack, defense, fullImage, pfp, controller);
+			String pfp, String emoji, FighterController controller) {
+		this(speed, maxHealth, maxHealth, attack, defense, fullImage, pfp, emoji, controller);
 	}
 
 	public Fighter(BigInteger speed, BigInteger maxHealth, BigInteger health, BigInteger attack, BigInteger defense,
-			String fullImage, String pfp) {
-		this(speed, maxHealth, health, attack, defense, fullImage, pfp, null);
+			String fullImage, String pfp, String emoji) {
+		this(speed, maxHealth, health, attack, defense, fullImage, pfp, emoji, null);
 	}
 
 	public Fighter(BigInteger speed, BigInteger maxHealth, BigInteger attack, BigInteger defense, String fullImage,
-			String pfp) {
-		this(speed, maxHealth, maxHealth, attack, defense, fullImage, pfp);
+			String pfp, String emoji) {
+		this(speed, maxHealth, maxHealth, attack, defense, fullImage, pfp, emoji);
 	}
 
 	public BigInteger getMaxHealth() {
