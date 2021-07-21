@@ -2254,9 +2254,13 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 									.add(BigInteger.ONE)) {
 								var cst = cost(u.getPrestige().add(bi)).add(cost);
 								if (cst.compareTo(u.getAccount().getBalance()) > 0) {
-									inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
-											+ " you don't have enough cloves to prestige that many times. The maximum amount of times you can prestige is `"
-											+ pamount.subtract(BigInteger.ONE) + "`.").queue();
+									if (bi.equals(BigInteger.ONE))
+										inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+												+ " you don't have enough cloves to prestige.").queue();
+									else
+										inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+												+ " you don't have enough cloves to prestige that many times. The maximum amount of times you can prestige is `"
+												+ bi.subtract(BigInteger.ONE) + "`.").queue();
 									return;
 								}
 								cost = cst;
