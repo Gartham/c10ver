@@ -23,7 +23,8 @@ public class SimpleCreature extends Creature {
 	 */
 	private final double hpf, attackf, speedf, deff;
 
-	private static final double C1 = 2.52390554498, C2 = 1.40743710339, C3 = 0.6559414608, C4 = 0.21734580741;
+	private static final BigDecimal BC1 = valueOf(2.52390554498), BC2 = valueOf(1.40743710339),
+			BC3 = valueOf(0.6559414608), BC4 = valueOf(0.21734580741), BC5 = valueOf(4.58728410917);
 
 	public static BigInteger evalstat(BigInteger level, double factor) {
 		BigInteger lm2 = level.subtract(BigInteger.TWO);
@@ -32,18 +33,18 @@ public class SimpleCreature extends Creature {
 		var u2 = new BigDecimal(lm1).divide(BD_THREE, RoundingMode.FLOOR).setScale(0, RoundingMode.FLOOR);
 		var u3 = new BigDecimal(level).divide(BD_THREE, RoundingMode.FLOOR).setScale(0, RoundingMode.FLOOR);
 		return new BigDecimal(level.subtract(BI_THREE)).divide(BD_FOUR, RoundingMode.FLOOR)
-				.setScale(0, RoundingMode.FLOOR).multiply(valueOf(C1))
+				.setScale(0, RoundingMode.FLOOR).multiply(BC1)
 				.add(new BigDecimal(lm2).divide(BD_FOUR, RoundingMode.FLOOR).setScale(0, RoundingMode.FLOOR)
-						.multiply(valueOf(C2)))
+						.multiply(BC2))
 				.add(new BigDecimal(lm1).divide(BD_FOUR, RoundingMode.FLOOR).setScale(0, RoundingMode.FLOOR)
-						.multiply(valueOf(C3)))
-				.add(new BigDecimal(level)
-						.divide(BD_FOUR, RoundingMode.FLOOR).setScale(0, RoundingMode.FLOOR).multiply(valueOf(C4)))
-				.add(valueOf(C1 + C2 + C3))
+						.multiply(BC3))
+				.add(new BigDecimal(level).divide(BD_FOUR, RoundingMode.FLOOR).setScale(0, RoundingMode.FLOOR)
+						.multiply(BC4))
+				.add(BC5)
 				.add(u1.multiply(u1.add(ONE)).add(u2.multiply(u2.add(ONE))).add(u3.multiply(u3.add(ONE)))
 						.multiply(BD_POINT_FIVE))
-				.add(new BigDecimal(level).multiply(BD_ONE_POINT_EIGHT)).setScale(0, RoundingMode.CEILING)
-				.toBigInteger();
+				.add(new BigDecimal(level).multiply(BD_ONE_POINT_EIGHT)).multiply(valueOf(factor))
+				.setScale(0, RoundingMode.CEILING).toBigInteger();
 	}
 
 	@Override
