@@ -2245,6 +2245,10 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 										.queue();
 								return;
 							}
+							if (pamount.compareTo(BigInteger.ZERO) <= 0) {
+								inv.event.getChannel().sendMessage("Invalid argument.").queue();
+								return;
+							}
 							cost = BigInteger.ZERO;
 							for (BigInteger bi = BigInteger.ONE; bi.compareTo(pamount) <= 0; bi = bi
 									.add(BigInteger.ONE)) {
