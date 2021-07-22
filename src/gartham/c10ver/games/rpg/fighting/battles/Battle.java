@@ -13,7 +13,6 @@ import org.alixia.javalibrary.JavaTools;
 
 import gartham.c10ver.games.rpg.fighting.Fighter;
 import gartham.c10ver.games.rpg.fighting.Team;
-import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
 
@@ -30,8 +29,8 @@ public class Battle {
 
 	public void start() {
 
-		debug("Speeds: ["
-				+ String.join(", ", JavaTools.mask(battleQueue, a -> a.getName() + "(`" + a.getSpeed() + "`)")) + ']');
+//		debug("Speeds: ["
+//				+ String.join(", ", JavaTools.mask(battleQueue, a -> a.getName() + "(`" + a.getSpeed() + "`)")) + ']');
 
 		// Assign initial ticks.
 		var max = battleQueue.get(0).getSpeed();
@@ -42,10 +41,25 @@ public class Battle {
 
 		Collections.sort(battleQueue, (o1, o2) -> Integer.compare(getTTT(o1), getTTT(o2)));
 
-		EmbedBuilder builder = new EmbedBuilder().setTitle(
-				String.join(" vs ", JavaTools.mask(teams, t -> '`' + Utilities.stripBackticks(t.getName()) + '`')));
-		for (var f : battleQueue)
-			builder.addField(f.getEmoji() + ' ' + f.getTeam().getName(), "\uD83D\uDD50\uFE0F " + getTTT(f), false);
+		EmbedBuilder builder = new EmbedBuilder().setTitle(String.join(" vs ", JavaTools.mask(teams, Team::getName)));
+		if (!battleQueue.isEmpty()) {
+			for (int i = 0; i < battleQueue.size() - 1; i++) {
+				var f = battleQueue.get(i);
+				builder.addField(f.getEmoji() + ' ' + f.getName(),
+						"\\\u2764\uFE0F `" + f.getHealth() + "/" + f.getMaxHealth() + "`   \\\u2694\uFE0F `"
+								+ f.getAttack() + "`   \\\uD83D\uDEE1\uFE0F \u200b `" + f.getDefense()
+								+ "`   \\\uD83D\uDCA8\uFE0F `" + f.getSpeed() + "`\n\uD83D\uDD50\uFE0F **" + getTTT(f)
+								+ "**\n\u200b",
+						false);
+			}
+			var f = battleQueue.get(battleQueue.size() - 1);
+			builder.addField(f.getEmoji() + ' ' + f.getName(),
+					"\\\u2764\uFE0F `" + f.getHealth() + "/" + f.getMaxHealth() + "`   \\\u2694\uFE0F `" + f.getAttack()
+							+ "`   \\\uD83D\uDEE1\uFE0F \u200b `" + f.getDefense() + "`   \\\uD83D\uDCA8\uFE0F `"
+							+ f.getSpeed() + "`\n\uD83D\uDD50\uFE0F **" + getTTT(f) + "**",
+					false);
+
+		}
 		channel.sendMessage(builder.build()).queue();
 	}
 
