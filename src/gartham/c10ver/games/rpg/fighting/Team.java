@@ -9,6 +9,8 @@ import java.util.Set;
 
 import org.alixia.javalibrary.JavaTools;
 
+import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
+
 public class Team implements Iterable<Fighter> {
 	private final Set<Fighter> members;
 	private final String name;

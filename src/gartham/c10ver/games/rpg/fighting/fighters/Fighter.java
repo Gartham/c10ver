@@ -1,7 +1,8 @@
-package gartham.c10ver.games.rpg.fighting;
+package gartham.c10ver.games.rpg.fighting.fighters;
 
 import java.math.BigInteger;
 
+import gartham.c10ver.games.rpg.fighting.Team;
 import gartham.c10ver.games.rpg.fighting.fighters.controllers.FighterController;
 
 public class Fighter implements Comparable<Fighter> {

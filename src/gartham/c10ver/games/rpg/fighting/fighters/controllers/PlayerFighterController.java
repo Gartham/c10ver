@@ -1,9 +1,9 @@
 package gartham.c10ver.games.rpg.fighting.fighters.controllers;
 
 import gartham.c10ver.Clover;
-import gartham.c10ver.games.rpg.fighting.Fighter;
 import gartham.c10ver.games.rpg.fighting.battles.AttackActionMessage;
 import gartham.c10ver.games.rpg.fighting.battles.Battle;
+import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
 import net.dv8tion.jda.api.entities.User;
 
 public class PlayerFighterController implements FighterController {
