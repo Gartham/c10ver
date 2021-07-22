@@ -11,7 +11,7 @@ public class Fighter implements Comparable<Fighter> {
 	private FighterController controller;
 	private Team team;
 
-	void setTeam(Team team) {
+	public void setTeam(Team team) {
 		this.team = team;
 	}
 
