@@ -1,5 +1,8 @@
 package gartham.c10ver.games.rpg.fighting.battles;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.List;
 
 import gartham.c10ver.actions.ActionMessage;
@@ -9,10 +12,10 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 public class AttackActionMessage extends ActionMessage<AttackAction> {
 
 	private final String attackerTeam, opponentTeam, currentlyAttackingCreature, creatureIcon;
-	private final int health, maxHealth;
+	private final BigInteger health, maxHealth;
 
 	public AttackActionMessage(String attackerTeam, String opponentTeam, String currentlyAttackingCreature,
-			String creatureIcon, int health, int maxHealth, AttackAction... actions) {
+			String creatureIcon, BigInteger health, BigInteger maxHealth, AttackAction... actions) {
 		super(actions);
 		this.attackerTeam = attackerTeam;
 		this.opponentTeam = opponentTeam;
@@ -26,7 +29,7 @@ public class AttackActionMessage extends ActionMessage<AttackAction> {
 	public MessageEmbed embed() {
 		EmbedBuilder e = new EmbedBuilder().setTitle('`' + attackerTeam + "` vs `" + opponentTeam + '`')
 				.setDescription("**" + currentlyAttackingCreature + "**\nHealth: " + health + " / " + maxHealth
-						+ calcHealthbar(health, maxHealth)+"\n\u200b")
+						+ calcHealthbar(health, maxHealth) + "\n\u200b")
 				.setThumbnail(creatureIcon);
 		List<AttackAction> actions = getActions();
 		for (int i = 0; i < actions.size(); i++) {
@@ -52,14 +55,15 @@ public class AttackActionMessage extends ActionMessage<AttackAction> {
 					"<:HealthSectionFullMedium:863306492949823488>" },
 					{ "<:HealthBackEmptyMedium:863306492941565982>", "<:HealthBackFullMedium:863306492714156053>" } };
 
-	private static String calcHealthbar(int health, int maxHealth) {
+	private static String calcHealthbar(BigInteger health, BigInteger maxHealth) {
 		StringBuilder bar = new StringBuilder(LARGE_BARS[0][0]);
-		if (health == maxHealth) {
+		if (health.equals(maxHealth)) {
 			bar.append(LARGE_BARS[1][LARGE_BARS[1].length - 1]);
 			bar.append(LARGE_BARS[2][1]);
 		} else {
-			bar.append(LARGE_BARS[1][health == 0 ? 0
-					: Math.round(health * (LARGE_BARS[1].length - 1) / (float) maxHealth)]);
+			bar.append(LARGE_BARS[1][health.equals(BigInteger.ZERO) ? 0
+					: new BigDecimal(health.multiply(BigInteger.valueOf(LARGE_BARS[1].length - 1)))
+							.divide(new BigDecimal(maxHealth)).setScale(0, RoundingMode.HALF_UP).intValue()]);
 			bar.append(LARGE_BARS[2][0]);
 		}
 
