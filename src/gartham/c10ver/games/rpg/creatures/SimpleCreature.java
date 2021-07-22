@@ -13,7 +13,7 @@ import org.alixia.javalibrary.json.JSONObject;
  */
 public class SimpleCreature extends Creature {
 
-	private static final BigInteger BI_THREE = BigInteger.valueOf(3);
+	private static final BigInteger BI_THREE = BigInteger.valueOf(3), BI_FIFTEEN = BigInteger.valueOf(15);
 	private static final BigDecimal BD_ONE_POINT_EIGHT = valueOf(1.8), BD_POINT_FIVE = valueOf(.5),
 			BD_THREE = valueOf(3), BD_FOUR = valueOf(4);
 
@@ -49,7 +49,7 @@ public class SimpleCreature extends Creature {
 
 	@Override
 	public BigInteger getHp() {
-		return evalstat(getLevel(), hpf);
+		return evalstat(getLevel(), hpf).add(BI_FIFTEEN);
 	}
 
 	@Override
