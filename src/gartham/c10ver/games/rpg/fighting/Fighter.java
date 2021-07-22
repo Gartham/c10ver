@@ -154,4 +154,49 @@ public class Fighter implements Comparable<Fighter> {
 	public final int compareTo(Fighter o) {
 		return speed.compareTo(o.speed);
 	}
+
+	public Fighter setSpeed(BigInteger speed) {
+		this.speed = speed;
+		return this;
+	}
+
+	public Fighter setMaxHealth(BigInteger maxHealth) {
+		this.maxHealth = maxHealth;
+		return this;
+	}
+
+	public Fighter setHealth(BigInteger health) {
+		this.health = health;
+		return this;
+	}
+
+	public Fighter setAttack(BigInteger attack) {
+		this.attack = attack;
+		return this;
+	}
+
+	public Fighter setDefense(BigInteger defense) {
+		this.defense = defense;
+		return this;
+	}
+
+	public Fighter setFullImage(String fullImage) {
+		this.fullImage = fullImage;
+		return this;
+	}
+
+	public Fighter setPfp(String pfp) {
+		this.pfp = pfp;
+		return this;
+	}
+
+	public Fighter setEmoji(String emoji) {
+		this.emoji = emoji;
+		return this;
+	}
+
+	public Fighter setName(String name) {
+		this.name = name;
+		return this;
+	}
 }
