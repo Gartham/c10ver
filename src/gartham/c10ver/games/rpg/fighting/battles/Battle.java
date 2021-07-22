@@ -12,6 +12,7 @@ import java.util.Map;
 import org.alixia.javalibrary.JavaTools;
 
 import gartham.c10ver.games.rpg.fighting.Fighter;
+import gartham.c10ver.games.rpg.fighting.FighterController;
 import gartham.c10ver.games.rpg.fighting.Team;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -27,11 +28,13 @@ public class Battle {
 		channel.sendMessage("[DEBUG]: " + msg).queue();
 	}
 
+	private String getField(Fighter f) {
+		return "\\\u2764\uFE0F `" + f.getHealth() + "/" + f.getMaxHealth() + "`   \\\u2694\uFE0F `" + f.getAttack()
+				+ "`   \\\uD83D\uDEE1\uFE0F \u200b `" + f.getDefense() + "`   \\\uD83D\uDCA8\uFE0F `" + f.getSpeed()
+				+ "`\n\uD83D\uDD50\uFE0F **" + getTTT(f) + "**\nTeam: " + f.getTeam().getName();
+	}
+
 	public void start() {
-
-//		debug("Speeds: ["
-//				+ String.join(", ", JavaTools.mask(battleQueue, a -> a.getName() + "(`" + a.getSpeed() + "`)")) + ']');
-
 		// Assign initial ticks.
 		var max = battleQueue.get(0).getSpeed();
 
@@ -45,22 +48,24 @@ public class Battle {
 		if (!battleQueue.isEmpty()) {
 			for (int i = 0; i < battleQueue.size() - 1; i++) {
 				var f = battleQueue.get(i);
-				builder.addField(f.getEmoji() + ' ' + f.getName(),
-						"\\\u2764\uFE0F `" + f.getHealth() + "/" + f.getMaxHealth() + "`   \\\u2694\uFE0F `"
-								+ f.getAttack() + "`   \\\uD83D\uDEE1\uFE0F \u200b `" + f.getDefense()
-								+ "`   \\\uD83D\uDCA8\uFE0F `" + f.getSpeed() + "`\n\uD83D\uDD50\uFE0F **" + getTTT(f)
-								+ "**\n\u200b",
-						false);
+				builder.addField(f.getEmoji() + ' ' + f.getName(), getField(f) + "\n\u200b", false);
 			}
 			var f = battleQueue.get(battleQueue.size() - 1);
-			builder.addField(f.getEmoji() + ' ' + f.getName(),
-					"\\\u2764\uFE0F `" + f.getHealth() + "/" + f.getMaxHealth() + "`   \\\u2694\uFE0F `" + f.getAttack()
-							+ "`   \\\uD83D\uDEE1\uFE0F \u200b `" + f.getDefense() + "`   \\\uD83D\uDCA8\uFE0F `"
-							+ f.getSpeed() + "`\n\uD83D\uDD50\uFE0F **" + getTTT(f) + "**",
-					false);
+			builder.addField(f.getEmoji() + ' ' + f.getName(), getField(f), false);
 
 		}
 		channel.sendMessage(builder.build()).queue();
+
+	}
+
+	/**
+	 * Continues this {@link Battle} by invoking the next {@link Fighter} in the
+	 * queue. This is normally called by a {@link FighterController} after it has
+	 * finished acting.
+	 */
+	public void nextTurn() {
+		Collections.sort(battleQueue, (o1, o2) -> Integer.compare(getTTT(o1), getTTT(o2)));
+		battleQueue.get(0).getController().act();
 	}
 
 	private int getTTT(Fighter fighter) {
@@ -69,6 +74,18 @@ public class Battle {
 
 	private void setTTT(Fighter fighter, int ticks) {
 		ticksTillTurn.put(fighter, ticks);
+	}
+
+	public void addTicks(Fighter fighter, int ticks) {
+		setTTT(fighter, getTTT(fighter) + ticks);
+	}
+
+	public void setTicks(Fighter fighter, int ticks) {
+		setTicks(fighter, ticks);
+	}
+
+	public int getTicks(Fighter fighter, int ticks) {
+		return getTTT(fighter);
 	}
 
 	public Battle(TextChannel channel, Team... teams) {

@@ -1,11 +1,11 @@
 package gartham.c10ver.games.rpg.fighting;
 
+import gartham.c10ver.games.rpg.fighting.battles.Battle;
+
 public interface FighterController {
 	/**
-	 * Controlls the {@link Fighter} linked to this {@link FighterController} for
-	 * its turn, and returns the number of ticks that the action taken takes.
-	 * 
-	 * @return The number of ticks taken by the action.
+	 * Controls the {@link Fighter} linked to this {@link FighterController} for its
+	 * turn and then invokes {@link Battle#nextTurn()} when finished.
 	 */
-	int act();
+	void act();
 }
