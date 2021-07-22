@@ -12,7 +12,7 @@ import gartham.c10ver.games.rpg.fighting.FighterController;
 
 public abstract class Creature extends PropertyObject implements Comparable<Creature> {
 
-	protected String fullImage, pfp, emoji;
+	protected String fullImage, pfp, emoji, name;
 	private final Property<String> type = stringProperty("type");
 	private final Property<BigInteger> xp = bigIntegerProperty("xp"),
 			level = bigIntegerProperty("level", BigInteger.ONE);
@@ -28,6 +28,10 @@ public abstract class Creature extends PropertyObject implements Comparable<Crea
 			return value.getHex();
 		}
 	});
+
+	public String getName() {
+		return name;
+	}
 
 	public String getType() {
 		return type.get();
@@ -46,23 +50,28 @@ public abstract class Creature extends PropertyObject implements Comparable<Crea
 	}
 
 	public Fighter makeFighter() {
-		return new Fighter(getSpeed(), getHp(), getAttack(), getDefense(), getFullImage(), getPFP(), getEmoji());
+		return new Fighter(getSpeed(), getHp(), getAttack(), getDefense(), getFullImage(), getPFP(), getEmoji(),
+				getName());
 	}
 
 	public Fighter makeFighter(FighterController controller) {
 		return new Fighter(getSpeed(), getHp(), getAttack(), getDefense(), getFullImage(), getPFP(), getEmoji(),
-				controller);
+				getName(), controller);
 	}
 
 	protected Creature(String type) {
 		id.set(GID.newGID());
 		this.type.set(type);
+		level.set(BigInteger.ONE);
 	}
 
-	protected Creature(String type, String fullImage, String pfp, String emoji) {
+	protected Creature(String type, String fullImage, String pfp, String emoji, String name) {
 		id.set(GID.newGID());
 		this.type.set(type);
 		setPFP(pfp).setFullImage(fullImage).setEmoji(emoji);
+		level.set(BigInteger.ONE);
+		this.name = name;
+
 	}
 
 	protected Creature setPFP(String pfp) {
@@ -77,6 +86,11 @@ public abstract class Creature extends PropertyObject implements Comparable<Crea
 
 	protected Creature setEmoji(String emoji) {
 		this.emoji = emoji;
+		return this;
+	}
+
+	protected Creature setName(String name) {
+		this.name = name;
 		return this;
 	}
 
