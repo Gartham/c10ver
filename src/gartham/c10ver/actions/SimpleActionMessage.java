@@ -3,7 +3,7 @@ package gartham.c10ver.actions;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
-public class SimpleActionMessage extends ActionMessage {
+public class SimpleActionMessage<A extends Action> extends ActionMessage<A> {
 
 	private final EmbedBuilder builder;
 
@@ -11,7 +11,8 @@ public class SimpleActionMessage extends ActionMessage {
 		return builder;
 	}
 
-	public SimpleActionMessage(EmbedBuilder builder, Action... actions) {
+	@SafeVarargs
+	public SimpleActionMessage(EmbedBuilder builder, A... actions) {
 		super(actions);
 		this.builder = builder;
 		builder.appendDescription("\n");
@@ -20,11 +21,13 @@ public class SimpleActionMessage extends ActionMessage {
 					.appendDescription(" ").appendDescription(actions[i].getDescription()).appendDescription("\n");
 	}
 
-	public SimpleActionMessage(Action... actions) {
+	@SafeVarargs
+	public SimpleActionMessage(A... actions) {
 		this(new EmbedBuilder(), actions);
 	}
 
-	public SimpleActionMessage(String desc, Action... actions) {
+	@SafeVarargs
+	public SimpleActionMessage(String desc, A... actions) {
 		this(new EmbedBuilder().setAuthor(desc), actions);
 	}
 
