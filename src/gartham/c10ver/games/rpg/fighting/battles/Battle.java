@@ -24,6 +24,10 @@ public class Battle {
 	private final List<Fighter> battleQueue = new ArrayList<>();
 	private final List<Team> teams;
 
+	public TextChannel getChannel() {
+		return channel;
+	}
+
 	private void debug(String msg) {
 		channel.sendMessage("[DEBUG]: " + msg).queue();
 	}
