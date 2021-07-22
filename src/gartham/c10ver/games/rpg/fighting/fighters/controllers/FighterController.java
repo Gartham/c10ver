@@ -1,4 +1,4 @@
-package gartham.c10ver.games.rpg.fighting.controllers;
+package gartham.c10ver.games.rpg.fighting.fighters.controllers;
 
 import gartham.c10ver.games.rpg.fighting.Fighter;
 import gartham.c10ver.games.rpg.fighting.battles.Battle;

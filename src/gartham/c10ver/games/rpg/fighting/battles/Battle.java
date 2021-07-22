@@ -13,7 +13,7 @@ import org.alixia.javalibrary.JavaTools;
 
 import gartham.c10ver.games.rpg.fighting.Fighter;
 import gartham.c10ver.games.rpg.fighting.Team;
-import gartham.c10ver.games.rpg.fighting.controllers.FighterController;
+import gartham.c10ver.games.rpg.fighting.fighters.controllers.FighterController;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
 
