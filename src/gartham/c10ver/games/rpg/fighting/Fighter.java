@@ -2,6 +2,8 @@ package gartham.c10ver.games.rpg.fighting;
 
 import java.math.BigInteger;
 
+import gartham.c10ver.games.rpg.fighting.controllers.FighterController;
+
 public class Fighter implements Comparable<Fighter> {
 	private BigInteger speed, maxHealth, health, attack, defense;
 	private String fullImage, pfp, emoji, name;

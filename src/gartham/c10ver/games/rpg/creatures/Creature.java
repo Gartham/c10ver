@@ -8,7 +8,7 @@ import org.alixia.javalibrary.util.Gateway;
 import gartham.apps.garthchat.api.communication.common.gids.GID;
 import gartham.c10ver.data.PropertyObject;
 import gartham.c10ver.games.rpg.fighting.Fighter;
-import gartham.c10ver.games.rpg.fighting.FighterController;
+import gartham.c10ver.games.rpg.fighting.controllers.FighterController;
 
 public abstract class Creature extends PropertyObject implements Comparable<Creature> {
 
