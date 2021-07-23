@@ -15,6 +15,7 @@ import gartham.c10ver.games.rpg.fighting.Team;
 import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
 import gartham.c10ver.games.rpg.fighting.fighters.controllers.FighterController;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 public class Battle {
@@ -48,6 +49,15 @@ public class Battle {
 
 		Collections.sort(battleQueue, (o1, o2) -> Integer.compare(getTTT(o1), getTTT(o2)));
 
+		channel.sendMessage(printBattleQueue()).queue();
+
+	}
+
+	private void next() {
+
+	}
+
+	private MessageEmbed printBattleQueue() {
 		EmbedBuilder builder = new EmbedBuilder().setTitle(String.join(" vs ", JavaTools.mask(teams, Team::getName)));
 		if (!battleQueue.isEmpty()) {
 			for (int i = 0; i < battleQueue.size() - 1; i++) {
@@ -56,10 +66,8 @@ public class Battle {
 			}
 			var f = battleQueue.get(battleQueue.size() - 1);
 			builder.addField(f.getEmoji() + ' ' + f.getName(), getField(f), false);
-
 		}
-		channel.sendMessage(builder.build()).queue();
-
+		return builder.build();
 	}
 
 	/**
@@ -68,8 +76,11 @@ public class Battle {
 	 * finished acting.
 	 */
 	public void nextTurn() {
-		Collections.sort(battleQueue, (o1, o2) -> Integer.compare(getTTT(o1), getTTT(o2)));
 		battleQueue.get(0).getController().act();
+	}
+
+	public void sortQueue() {
+		Collections.sort(battleQueue, (o1, o2) -> Integer.compare(getTTT(o1), getTTT(o2)));
 	}
 
 	private int getTTT(Fighter fighter) {
