@@ -63,7 +63,8 @@ public class AttackActionMessage extends ActionMessage<AttackAction> {
 		} else {
 			bar.append(LARGE_BARS[1][health.equals(BigInteger.ZERO) ? 0
 					: new BigDecimal(health.multiply(BigInteger.valueOf(LARGE_BARS[1].length - 1)))
-							.divide(new BigDecimal(maxHealth)).setScale(0, RoundingMode.HALF_UP).intValue()]);
+							.divide(new BigDecimal(maxHealth), RoundingMode.HALF_UP).setScale(0, RoundingMode.HALF_UP)
+							.intValue()]);
 			bar.append(LARGE_BARS[2][0]);
 		}
 
