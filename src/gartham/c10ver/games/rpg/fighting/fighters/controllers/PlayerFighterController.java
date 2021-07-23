@@ -1,6 +1,7 @@
 package gartham.c10ver.games.rpg.fighting.fighters.controllers;
 
 import gartham.c10ver.Clover;
+import gartham.c10ver.games.rpg.fighting.battles.AttackAction;
 import gartham.c10ver.games.rpg.fighting.battles.AttackActionMessage;
 import gartham.c10ver.games.rpg.fighting.battles.Battle;
 import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
@@ -23,7 +24,8 @@ public class PlayerFighterController implements FighterController {
 	@Override
 	public void act() {
 		AttackActionMessage aam = new AttackActionMessage(fighter.getTeam().getName(), "???", fighter.getName(),
-				fighter.getPfp(), fighter.getHealth(), fighter.getMaxHealth());
+				fighter.getPfp(), fighter.getHealth(), fighter.getMaxHealth(),
+				new AttackAction(null, "Attack", null, "Attack an oponent."));
 	}
 
 }
