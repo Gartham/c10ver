@@ -2,20 +2,9 @@ package gartham.c10ver.games.rpg.fighting.fighters;
 
 import java.math.BigInteger;
 
-import gartham.c10ver.games.rpg.fighting.battles.Team;
-
 public class Fighter implements Comparable<Fighter> {
 	private BigInteger speed, maxHealth, health, attack, defense;
 	private String fullImage, pfp, emoji, name;
-	private Team team;
-
-	public void setTeam(Team team) {
-		this.team = team;
-	}
-
-	public Team getTeam() {
-		return team;
-	}
 
 	public BigInteger getSpeed() {
 		return speed;
