@@ -13,31 +13,36 @@ import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
 
 public class Team implements Iterable<Fighter> {
 	private final Set<Fighter> members;
-	private final String name;
 
-	public String getName() {
-		return name;
-	}
-
-	public Team(String name, Collection<? extends Fighter> members) {
-		this.name = name;
+	public Team(Collection<? extends Fighter> members) {
+		if (members.isEmpty())
+			throw new IllegalArgumentException();
+		for (Fighter f : members)
+			if (f == null)
+				throw null;
 		this.members = new HashSet<>(members);
-		for (var f : members) {
-			if (f.getTeam() != null)
-				f.getTeam().remove(f);
-			f.setTeam(this);
-		}
 	}
 
-	public Team(String name, Fighter... members) {
-		this.name = name;
+	public Team(Fighter... members) {
+		if (members.length == 0)
+			throw new IllegalArgumentException();
 		this.members = new HashSet<>();
-		for (var f : members) {
-			this.members.add(f);
-			if (f.getTeam() != null)
-				f.getTeam().remove(f);
-			f.setTeam(this);
-		}
+		for (Fighter f : members)
+			if (f == null)
+				throw null;
+			else
+				this.members.add(f);
+	}
+
+	public Team(Iterable<? extends Fighter> members) {
+		this.members = new HashSet<>();
+		for (Fighter f : members)
+			if (f == null)
+				throw null;
+			else
+				this.members.add(f);
+		if (this.members.isEmpty())
+			throw new IllegalArgumentException();
 	}
 
 	/**
