@@ -54,11 +54,6 @@ public abstract class Creature extends PropertyObject implements Comparable<Crea
 				getName());
 	}
 
-	public Fighter makeFighter(FighterController controller) {
-		return new Fighter(getSpeed(), getHp(), getAttack(), getDefense(), getFullImage(), getPFP(), getEmoji(),
-				getName(), controller);
-	}
-
 	protected Creature(String type) {
 		id.set(GID.newGID());
 		this.type.set(type);

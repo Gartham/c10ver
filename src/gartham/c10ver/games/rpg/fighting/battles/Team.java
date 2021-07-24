@@ -1,4 +1,4 @@
-package gartham.c10ver.games.rpg.fighting;
+package gartham.c10ver.games.rpg.fighting.battles;
 
 import java.util.Collection;
 import java.util.Collections;
