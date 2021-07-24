@@ -56,7 +56,17 @@ public class Team implements Iterable<Fighter> {
 	}
 
 	/**
-	 * Returns a read-only view of the members of this {@link Team}.
+	 * Adds the specified {@link Fighter} to this {@link Team}.
+	 * 
+	 * @param fighter The {@link Fighter} to add.
+	 */
+	void add(Fighter fighter) {
+		members.add(fighter);
+	}
+
+	/**
+	 * Returns a read-only view of the members of this {@link Team}. The view is in
+	 * no particular order.
 	 * 
 	 * @return {@link Collections#unmodifiableList(List)} of the members of this
 	 *         {@link Team}.
