@@ -82,14 +82,43 @@ public abstract class Battle<A> {
 		if (state != State.UNSTARTED)
 			throw new IllegalStateException("Battles cannot be started more than once.");
 		state = State.RUNNING;
+
+		assignInitialTicks(battleQueue);
+
+		Collections.sort(battleQueue, (o1, o2) -> Integer.compare(ticksTillTurn.get(o1), ticksTillTurn.get(o2)));
+	}
+
+	/**
+	 * <p>
+	 * This is the method that assigns <b>initial ticks</b> to each {@link Fighter}.
+	 * Upon a call to this method by {@link #start()}, the provided
+	 * <code>queue</code> of {@link Fighter}s (1) contains all of the
+	 * {@link Fighter}s participating in the {@link Battle} and (2) is sorted, in
+	 * descending order, by {@link Fighter#getSpeed() speed}. This means that the
+	 * {@link Fighter} with the highest speed is positioned at index <code>0</code>.
+	 * </p>
+	 * <p>
+	 * This method is <b>only</b> tasked with setting the number of ticks for each
+	 * {@link Fighter} through the {@link #setTicks(Fighter, int)} method. The
+	 * provided {@link List} is unmodifiable, as the {@link #battleQueue battle
+	 * queue} used by {@link Battle} is sorted according to ticks immediately after
+	 * this method is called by {@link #start()}.
+	 */
+	protected void assignInitialTicks(List<Fighter> queue) {
 		// Assign initial ticks.
 		var max = battleQueue.get(0).getSpeed();
 
-		for (Fighter f : battleQueue)
+		for (Fighter f : queue)
 			ticksTillTurn.put(f, new BigDecimal(max.subtract(f.getSpeed()))
 					.multiply(BigDecimal.valueOf(Math.random() / 5 + 0.9)).intValue());
+	}
 
-		Collections.sort(battleQueue, (o1, o2) -> Integer.compare(ticksTillTurn.get(o1), ticksTillTurn.get(o2)));
+	protected final void setTicks(Fighter fighter, int ticks) {
+		ticksTillTurn.put(fighter, ticks);
+	}
+
+	protected final int getTicks(Fighter fighter) {
+		return ticksTillTurn.get(fighter);
 	}
 
 	/**
