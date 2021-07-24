@@ -184,4 +184,8 @@ public abstract class Battle<A> {
 						f);
 	}
 
+	public void stop() {
+		state = State.STOPPED;
+	}
+
 }
