@@ -60,7 +60,7 @@ public abstract class Battle<A> {
 		/**
 		 * Denotes that a battle has been started via {@link Battle#start()}.
 		 */
-		STARTED,
+		RUNNING,
 		/**
 		 * Denotes that a {@link Battle} has been stopped, meaning fighting has
 		 * concluded. This can either be through its {@link Battle#stop()} method or
@@ -75,13 +75,13 @@ public abstract class Battle<A> {
 
 	/**
 	 * Starts this {@link Battle} by setting the {@link #state} to
-	 * {@link State#STARTED} and assigning <b>initial ticks</b> to each
+	 * {@link State#RUNNING} and assigning <b>initial ticks</b> to each
 	 * {@link Fighter}.
 	 */
 	public void start() {
 		if (state != State.UNSTARTED)
 			throw new IllegalStateException("Battles cannot be started more than once.");
-		state = State.STARTED;
+		state = State.RUNNING;
 		// Assign initial ticks.
 		var max = battleQueue.get(0).getSpeed();
 
@@ -98,6 +98,8 @@ public abstract class Battle<A> {
 	 * @param action The action to take.
 	 */
 	public final void act(A action) {
+		if (state != State.RUNNING)
+			throw new IllegalStateException("Battles must be in a running state for actions to be taken.");
 		var fighter = battleQueue.get(0);
 		var t = handleAction(action, fighter);
 		ticksTillTurn.put(fighter, ticksTillTurn.get(fighter) + t);// We get the ticks for our fighter because the
