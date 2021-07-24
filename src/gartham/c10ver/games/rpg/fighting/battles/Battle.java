@@ -54,11 +54,36 @@ public abstract class Battle<A> {
 	private final Map<Fighter, Integer> ticksTillTurn = new HashMap<>();
 	private final List<Fighter> battleQueue = new ArrayList<>();
 	private final List<Team> teams;
+	private State state = State.UNSTARTED;
+
+	public enum State {
+		/**
+		 * Denotes that a {@link Battle} is yet to be started.
+		 */
+		UNSTARTED,
+		/**
+		 * Denotes that a battle has been started via {@link Battle#start()}.
+		 */
+		STARTED,
+		/**
+		 * Denotes that a {@link Battle} has been stopped, meaning fighting has
+		 * concluded. This can either be through its {@link Battle#stop()} method or
+		 * through a {@link Team} naturally winning.
+		 */
+		STOPPED;
+	}
+
+	public final State getState() {
+		return state;
+	}
 
 	/**
 	 * Starts this {@link Battle} by
 	 */
 	public void start() {
+		if (state != State.UNSTARTED)
+			throw new IllegalStateException("Battles cannot be started more than once.");
+		state = State.STARTED;
 		// Assign initial ticks.
 		var max = battleQueue.get(0).getSpeed();
 
