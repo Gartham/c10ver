@@ -9,11 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.alixia.javalibrary.JavaTools;
-
 import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 
 /**
  * <p>
@@ -78,7 +74,9 @@ public abstract class Battle<A> {
 	}
 
 	/**
-	 * Starts this {@link Battle} by
+	 * Starts this {@link Battle} by setting the {@link #state} to
+	 * {@link State#STARTED} and assigning <b>initial ticks</b> to each
+	 * {@link Fighter}.
 	 */
 	public void start() {
 		if (state != State.UNSTARTED)
@@ -88,62 +86,51 @@ public abstract class Battle<A> {
 		var max = battleQueue.get(0).getSpeed();
 
 		for (Fighter f : battleQueue)
-			setTTT(f, new BigDecimal(max.subtract(f.getSpeed())).multiply(BigDecimal.valueOf(Math.random() / 5 + 0.9))
-					.intValue());
+			ticksTillTurn.put(f, new BigDecimal(max.subtract(f.getSpeed()))
+					.multiply(BigDecimal.valueOf(Math.random() / 5 + 0.9)).intValue());
 
-		Collections.sort(battleQueue, (o1, o2) -> Integer.compare(getTTT(o1), getTTT(o2)));
-
-//		channel.sendMessage(printBattleQueue()).queue();
-	}
-
-	private String getField(Fighter f) {
-		return "\\\u2764\uFE0F `" + f.getHealth() + "/" + f.getMaxHealth() + "`   \\\u2694\uFE0F `" + f.getAttack()
-				+ "`   \\\uD83D\uDEE1\uFE0F \u200b `" + f.getDefense() + "`   \\\uD83D\uDCA8\uFE0F `" + f.getSpeed()
-				+ "`\n\uD83D\uDD50\uFE0F **" + getTTT(f) + "**\nTeam: " + f.getTeam().getName();
-	}
-
-	private MessageEmbed printBattleQueue() {
-		EmbedBuilder builder = new EmbedBuilder().setTitle(String.join(" vs ", JavaTools.mask(teams, Team::getName)));
-		if (!battleQueue.isEmpty()) {
-			for (int i = 0; i < battleQueue.size() - 1; i++) {
-				var f = battleQueue.get(i);
-				builder.addField(f.getEmoji() + ' ' + f.getName(), getField(f) + "\n\u200b", false);
-			}
-			var f = battleQueue.get(battleQueue.size() - 1);
-			builder.addField(f.getEmoji() + ' ' + f.getName(), getField(f), false);
-		}
-		return builder.build();
+		Collections.sort(battleQueue, (o1, o2) -> Integer.compare(ticksTillTurn.get(o1), ticksTillTurn.get(o2)));
 	}
 
 	/**
-	 * Acts as the current
+	 * Acts as the current {@link Fighter}.
 	 * 
-	 * @param action
+	 * @param action The action to take.
 	 */
-	public abstract void act(A action);
+	public final void act(A action) {
+		var fighter = battleQueue.get(0);
+		var t = handleAction(action, fighter);
+		ticksTillTurn.put(fighter, ticksTillTurn.get(fighter) + t);// We get the ticks for our fighter because the
+																	// action taken my have modified its ticks via
+																	// side-effect.
+		// Finally we re-sort the battle queue.
+		sortQueue();
 
-	public void sortQueue() {
-		Collections.sort(battleQueue, (o1, o2) -> Integer.compare(getTTT(o1), getTTT(o2)));
 	}
 
-	private int getTTT(Fighter fighter) {
-		return ticksTillTurn.get(fighter);
-	}
+	/**
+	 * Performs any unique behavior specified by the provided <code>action</code>,
+	 * and returns the number of ticks that the action has taken. This method should
+	 * <b>not</b> add said number of ticks to the {@link Fighter} that performed the
+	 * action. That is handled by {@link #act(Object)} in the {@link Battle} class.
+	 * 
+	 * @param action  The action taken.
+	 * @param fighter The {@link Fighter} that took the action (i.e. the current
+	 *                fighter). At the beginning of this method call, (as per normal
+	 *                {@link Battle} behavior), this argument should be exactly the
+	 *                same as the {@link Fighter} in the front (position
+	 *                <code>0</code>) of the {@link #battleQueue battle queue}.
+	 * @return The number of ticks that the action has taken.
+	 */
+	protected abstract int handleAction(A action, Fighter fighter);
 
-	private void setTTT(Fighter fighter, int ticks) {
-		ticksTillTurn.put(fighter, ticks);
-	}
-
-	public void addTicks(Fighter fighter, int ticks) {
-		setTTT(fighter, getTTT(fighter) + ticks);
-	}
-
-	public void setTicks(Fighter fighter, int ticks) {
-		setTicks(fighter, ticks);
-	}
-
-	public int getTicks(Fighter fighter, int ticks) {
-		return getTTT(fighter);
+	/**
+	 * Sorts the battle queue according to ticks. This is automatically done at the
+	 * conclusion of every turn, specifically after the ticks to the {@link Fighter}
+	 * that has just performed its action have been applied to it.
+	 */
+	protected final void sortQueue() {
+		Collections.sort(battleQueue, (o1, o2) -> Integer.compare(ticksTillTurn.get(o1), ticksTillTurn.get(o2)));
 	}
 
 	public Battle(Team... teams) {
@@ -159,7 +146,11 @@ public abstract class Battle<A> {
 
 	public Battle(Collection<Team> teams) {
 		this.teams = new ArrayList<>(teams);
-
+		for (var t : teams)
+			for (var f : t)
+				battleQueue.add(
+						-Collections.binarySearch(battleQueue, f, Comparator.<Fighter>naturalOrder().reversed()) - 1,
+						f);
 	}
 
 }
