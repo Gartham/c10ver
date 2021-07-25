@@ -7,12 +7,14 @@ import org.alixia.javalibrary.util.Gateway;
 
 import gartham.apps.garthchat.api.communication.common.gids.GID;
 import gartham.c10ver.data.PropertyObject;
+import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
 
-public class Creature extends PropertyObject implements Comparable<Creature> {
+public abstract class Creature extends PropertyObject implements Comparable<Creature> {
 
-	private final Property<Integer> hp = intProperty("hp"), attack = intProperty("attack"),
-			speed = intProperty("speed"), defense = intProperty("defense"), level = intProperty("level", 1);
-	private final Property<BigInteger> xp = bigIntegerProperty("xp");
+	protected String fullImage, pfp, emoji, name;
+	private final Property<String> type = stringProperty("type");
+	private final Property<BigInteger> xp = bigIntegerProperty("xp"),
+			level = bigIntegerProperty("level", BigInteger.ONE);
 	private final Property<GID> id = toStringProperty("id", new Gateway<>() {
 
 		@Override
@@ -26,59 +28,94 @@ public class Creature extends PropertyObject implements Comparable<Creature> {
 		}
 	});
 
-	protected Creature() {
+	public String getName() {
+		return name;
+	}
+
+	public String getType() {
+		return type.get();
+	}
+
+	public String getPFP() {
+		return pfp;
+	}
+
+	public String getFullImage() {
+		return fullImage;
+	}
+
+	public String getEmoji() {
+		return emoji;
+	}
+
+	public Fighter makeFighter() {
+		return new Fighter(getSpeed(), getHp(), getAttack(), getDefense(), getFullImage(), getPFP(), getEmoji(),
+				getName());
+	}
+
+	protected Creature(String type) {
 		id.set(GID.newGID());
+		this.type.set(type);
+		level.set(BigInteger.ONE);
 	}
 
-	protected Creature(JSONObject json) {
-		load(json);
+	protected Creature(String type, String fullImage, String pfp, String emoji, String name) {
+		id.set(GID.newGID());
+		this.type.set(type);
+		setPFP(pfp).setFullImage(fullImage).setEmoji(emoji);
+		level.set(BigInteger.ONE);
+		this.name = name;
+
 	}
 
-	public Property<Integer> getHPProperty() {
-		return hp;
+	protected Creature setPFP(String pfp) {
+		this.pfp = pfp;
+		return this;
 	}
 
-	public Property<Integer> getAttackProperty() {
-		return attack;
+	protected Creature setFullImage(String fullImage) {
+		this.fullImage = fullImage;
+		return this;
 	}
 
-	public Property<Integer> getSpeedProperty() {
-		return speed;
+	protected Creature setEmoji(String emoji) {
+		this.emoji = emoji;
+		return this;
 	}
 
-	public Property<Integer> getDefenseProperty() {
-		return defense;
+	protected Creature setName(String name) {
+		this.name = name;
+		return this;
 	}
 
-	public Property<Integer> getLevelProperty() {
-		return level;
+	public static Creature from(JSONObject json) {
+		return switch (json.getString("type")) {
+		case NymphCreature.TYPE -> new NymphCreature();
+
+		default -> throw new IllegalArgumentException("Unexpected value: " + json.getString("type"));
+		};
 	}
 
-	public Property<BigInteger> getXPProperty() {
-		return xp;
+	protected Creature(JSONObject data, String expectedType) {
+		if (!data.getString("type").equals(expectedType))
+			throw new IllegalArgumentException("Invalid type for a creature data file (stored: "
+					+ data.getString(expectedType) + ", expected: " + expectedType + ").");
+		load(data);
 	}
 
-	public int getHp() {
-		return hp.get();
-	}
+	public abstract BigInteger getHp();
 
-	public int getAttack() {
-		return attack.get();
-	}
+	public abstract BigInteger getAttack();
 
-	public int getSpeed() {
-		return speed.get();
-	}
+	public abstract BigInteger getSpeed();
 
-	public int getDefense() {
-		return defense.get();
-	}
+	public abstract BigInteger getDefense();
 
-	public int getLevel() {
+	public final BigInteger getLevel() {
 		return level.get();
 	}
 
-	public BigInteger getXP() {
+	public final BigInteger getXP() {
 		return xp.get();
 	}
 
@@ -88,7 +125,7 @@ public class Creature extends PropertyObject implements Comparable<Creature> {
 
 	@Override
 	public int compareTo(Creature o) {
-		return getSpeed() - o.getSpeed();
+		return getSpeed().compareTo(o.getSpeed());
 	}
 
 }
