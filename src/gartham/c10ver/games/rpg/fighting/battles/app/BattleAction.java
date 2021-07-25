@@ -1,4 +1,4 @@
-package gartham.c10ver.games.rpg.fighting.battles;
+package gartham.c10ver.games.rpg.fighting.battles.app;
 
 public class BattleAction {
 	public enum ActionType {

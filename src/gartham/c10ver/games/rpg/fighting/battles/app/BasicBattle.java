@@ -1,5 +1,6 @@
-package gartham.c10ver.games.rpg.fighting.battles;
+package gartham.c10ver.games.rpg.fighting.battles.app;
 
+import gartham.c10ver.games.rpg.fighting.battles.api.Battle;
 import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
 
 public class BasicBattle extends Battle<BattleAction> {
