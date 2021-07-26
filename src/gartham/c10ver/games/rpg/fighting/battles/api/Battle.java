@@ -45,11 +45,11 @@ import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
  * @param <A> The type representing the actions that can be taken by
  *            {@link Fighter}s tracked by this {@link Battle}.
  */
-public abstract class Battle<A> {
+public abstract class Battle<A, F extends Fighter, T extends Team<F>> {
 
-	private final Map<Fighter, Integer> ticksTillTurn = new HashMap<>();
-	private final List<Fighter> battleQueue = new ArrayList<>();
-	private final List<Team> teams;
+	private final Map<F, Integer> ticksTillTurn = new HashMap<>();
+	private final List<F> battleQueue = new ArrayList<>();
+	private final List<T> teams;
 	private State state = State.UNSTARTED;
 
 	public enum State {
@@ -104,20 +104,20 @@ public abstract class Battle<A> {
 	 * queue} used by {@link Battle} is sorted according to ticks immediately after
 	 * this method is called by {@link #start()}.
 	 */
-	protected void assignInitialTicks(List<Fighter> queue) {
+	protected void assignInitialTicks(List<F> queue) {
 		// Assign initial ticks.
 		var max = battleQueue.get(0).getSpeed();
 
-		for (Fighter f : queue)
+		for (F f : queue)
 			ticksTillTurn.put(f, new BigDecimal(max.subtract(f.getSpeed()))
 					.multiply(BigDecimal.valueOf(Math.random() / 5 + 0.9)).intValue());
 	}
 
-	protected final void setTicks(Fighter fighter, int ticks) {
+	protected final void setTicks(F fighter, int ticks) {
 		ticksTillTurn.put(fighter, ticks);
 	}
 
-	protected final int getTicks(Fighter fighter) {
+	protected final int getTicks(F fighter) {
 		return ticksTillTurn.get(fighter);
 	}
 
@@ -153,7 +153,7 @@ public abstract class Battle<A> {
 	 *                <code>0</code>) of the {@link #battleQueue battle queue}.
 	 * @return The number of ticks that the action has taken.
 	 */
-	protected abstract int handleAction(A action, Fighter fighter);
+	protected abstract int handleAction(A action, F fighter);
 
 	/**
 	 * Sorts the battle queue according to ticks. This is automatically done at the
@@ -164,23 +164,22 @@ public abstract class Battle<A> {
 		Collections.sort(battleQueue, (o1, o2) -> Integer.compare(ticksTillTurn.get(o1), ticksTillTurn.get(o2)));
 	}
 
-	public Battle(Team... teams) {
+	@SafeVarargs
+	public Battle(T... teams) {
 		this.teams = new ArrayList<>();
 		for (var t : teams) {
 			this.teams.add(t);
 			for (var f : t)
-				battleQueue.add(
-						-Collections.binarySearch(battleQueue, f, Comparator.<Fighter>naturalOrder().reversed()) - 1,
+				battleQueue.add(-Collections.binarySearch(battleQueue, f, Comparator.<F>naturalOrder().reversed()) - 1,
 						f);
 		}
 	}
 
-	public Battle(Collection<Team> teams) {
+	public Battle(Collection<T> teams) {
 		this.teams = new ArrayList<>(teams);
 		for (var t : teams)
 			for (var f : t)
-				battleQueue.add(
-						-Collections.binarySearch(battleQueue, f, Comparator.<Fighter>naturalOrder().reversed()) - 1,
+				battleQueue.add(-Collections.binarySearch(battleQueue, f, Comparator.<F>naturalOrder().reversed()) - 1,
 						f);
 	}
 
