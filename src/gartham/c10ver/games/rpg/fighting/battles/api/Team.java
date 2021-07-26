@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.alixia.javalibrary.JavaTools;
 
+import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
 import gartham.c10ver.games.rpg.fighting.fighters.SimpleFighter;
 
 public class Team implements Iterable<SimpleFighter> {
@@ -17,7 +18,7 @@ public class Team implements Iterable<SimpleFighter> {
 	public Team(Collection<? extends SimpleFighter> members) {
 		if (members.isEmpty())
 			throw new IllegalArgumentException();
-		for (SimpleFighter f : members)
+		for (Fighter f : members)
 			if (f == null)
 				throw null;
 		this.members = new HashSet<>(members);
@@ -51,7 +52,7 @@ public class Team implements Iterable<SimpleFighter> {
 	 * 
 	 * @param fighter The {@link SimpleFighter} to remove.
 	 */
-	void remove(SimpleFighter fighter) {
+	void remove(Fighter fighter) {
 		members.remove(fighter);
 	}
 

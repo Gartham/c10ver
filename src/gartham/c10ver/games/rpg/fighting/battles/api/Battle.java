@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
 import gartham.c10ver.games.rpg.fighting.fighters.SimpleFighter;
 
 /**
@@ -117,7 +118,7 @@ public abstract class Battle<A> {
 		ticksTillTurn.put(fighter, ticks);
 	}
 
-	protected final int getTicks(SimpleFighter fighter) {
+	protected final int getTicks(Fighter fighter) {
 		return ticksTillTurn.get(fighter);
 	}
 
@@ -153,7 +154,7 @@ public abstract class Battle<A> {
 	 *                <code>0</code>) of the {@link #battleQueue battle queue}.
 	 * @return The number of ticks that the action has taken.
 	 */
-	protected abstract int handleAction(A action, SimpleFighter fighter);
+	protected abstract int handleAction(A action, Fighter fighter);
 
 	/**
 	 * Sorts the battle queue according to ticks. This is automatically done at the
@@ -170,7 +171,7 @@ public abstract class Battle<A> {
 			this.teams.add(t);
 			for (var f : t)
 				battleQueue.add(
-						-Collections.binarySearch(battleQueue, f, Comparator.<SimpleFighter>naturalOrder().reversed()) - 1,
+						-Collections.binarySearch(battleQueue, f, Comparator.<Fighter>naturalOrder().reversed()) - 1,
 						f);
 		}
 	}
@@ -180,7 +181,7 @@ public abstract class Battle<A> {
 		for (var t : teams)
 			for (var f : t)
 				battleQueue.add(
-						-Collections.binarySearch(battleQueue, f, Comparator.<SimpleFighter>naturalOrder().reversed()) - 1,
+						-Collections.binarySearch(battleQueue, f, Comparator.<Fighter>naturalOrder().reversed()) - 1,
 						f);
 	}
 
