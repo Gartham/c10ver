@@ -89,10 +89,6 @@ public class SimpleFighter implements Fighter {
 		heal(BigInteger.valueOf(amount));
 	}
 
-	public boolean isFainted() {
-		return health.equals(BigInteger.ZERO);
-	}
-
 	public boolean damage(long amount) {
 		return damage(BigInteger.valueOf(amount));
 	}

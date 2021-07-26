@@ -22,6 +22,17 @@ public interface Fighter extends Comparable<Fighter> {
 
 	BigInteger getDefense();
 
+	/**
+	 * Returns whether this {@link Fighter}'s {@link #getHealth() health} is
+	 * {@link BigInteger#ZERO zero} or not.
+	 * 
+	 * @return <code>true</code> if this {@link Fighter}'s {@link #getHealth()
+	 *         health} is zero, <code>false</code> otherwise.
+	 */
+	default boolean isFainted() {
+		return getHealth().equals(BigInteger.ZERO);
+	}
+
 	@Override
 	default int compareTo(Fighter o) {
 		return getSpeed().compareTo(o.getSpeed());
