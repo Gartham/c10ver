@@ -2,39 +2,9 @@ package gartham.c10ver.games.rpg.fighting.fighters;
 
 import java.math.BigInteger;
 
-import gartham.c10ver.games.rpg.fighting.Team;
-import gartham.c10ver.games.rpg.fighting.fighters.controllers.FighterController;
-
 public class Fighter implements Comparable<Fighter> {
 	private BigInteger speed, maxHealth, health, attack, defense;
 	private String fullImage, pfp, emoji, name;
-	private FighterController controller;
-	private Team team;
-
-	public void setTeam(Team team) {
-		this.team = team;
-	}
-
-	public Team getTeam() {
-		return team;
-	}
-
-	public FighterController getController() {
-		return controller;
-	}
-
-	/**
-	 * Sets this {@link Fighter}'s controller.
-	 * 
-	 * @param controller The new controller.
-	 * @return Returns this object for chaining.
-	 */
-	public Fighter setController(FighterController controller) {
-		if (controller == null)
-			throw null;
-		this.controller = controller;
-		return this;
-	}
 
 	public BigInteger getSpeed() {
 		return speed;
@@ -57,7 +27,7 @@ public class Fighter implements Comparable<Fighter> {
 	}
 
 	public Fighter(BigInteger speed, BigInteger maxHealth, BigInteger health, BigInteger attack, BigInteger defense,
-			String fullImage, String pfp, String emoji, String name, FighterController controller) {
+			String fullImage, String pfp, String emoji, String name) {
 		this.speed = speed;
 		this.maxHealth = maxHealth;
 		this.health = health;
@@ -67,17 +37,6 @@ public class Fighter implements Comparable<Fighter> {
 		this.pfp = pfp;
 		this.emoji = emoji;
 		this.name = name;
-		this.controller = controller;
-	}
-
-	public Fighter(BigInteger speed, BigInteger maxHealth, BigInteger attack, BigInteger defense, String fullImage,
-			String pfp, String emoji, String name, FighterController controller) {
-		this(speed, maxHealth, maxHealth, attack, defense, fullImage, pfp, emoji, name, controller);
-	}
-
-	public Fighter(BigInteger speed, BigInteger maxHealth, BigInteger health, BigInteger attack, BigInteger defense,
-			String fullImage, String pfp, String emoji, String name) {
-		this(speed, maxHealth, health, attack, defense, fullImage, pfp, emoji, name, null);
 	}
 
 	public Fighter(BigInteger speed, BigInteger maxHealth, BigInteger attack, BigInteger defense, String fullImage,
