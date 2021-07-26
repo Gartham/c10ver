@@ -5,12 +5,12 @@ import java.math.BigInteger;
 public interface Fighter extends Comparable<Fighter> {
 
 	/**
-	 * Returns this {@link SimpleFighter}'s speed. The speed of a
-	 * {@link SimpleFighter} canonically determines how many ticks it begins a
-	 * battle with. (A speed higher than other {@link SimpleFighter}s' results in a
+	 * Returns this {@link CustomFighter}'s speed. The speed of a
+	 * {@link CustomFighter} canonically determines how many ticks it begins a
+	 * battle with. (A speed higher than other {@link CustomFighter}s' results in a
 	 * lower initial tick).
 	 * 
-	 * @return This {@link SimpleFighter}'s speed.
+	 * @return This {@link CustomFighter}'s speed.
 	 */
 	BigInteger getSpeed();
 

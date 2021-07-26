@@ -2,17 +2,17 @@ package gartham.c10ver.games.rpg.fighting.fighters;
 
 import java.math.BigInteger;
 
-public class SimpleFighter implements Fighter {
+public class CustomFighter implements Fighter {
 	private BigInteger speed, maxHealth, health, attack, defense;
 	private String fullImage, pfp, emoji, name;
 
 	/**
-	 * Returns this {@link SimpleFighter}'s speed. The speed of a
-	 * {@link SimpleFighter} canonically determines how many ticks it begins a
-	 * battle with. (A speed higher than other {@link SimpleFighter}s' results in a
+	 * Returns this {@link CustomFighter}'s speed. The speed of a
+	 * {@link CustomFighter} canonically determines how many ticks it begins a
+	 * battle with. (A speed higher than other {@link CustomFighter}s' results in a
 	 * lower initial tick).
 	 * 
-	 * @return This {@link SimpleFighter}'s speed.
+	 * @return This {@link CustomFighter}'s speed.
 	 */
 	@Override
 	public BigInteger getSpeed() {
@@ -35,7 +35,7 @@ public class SimpleFighter implements Fighter {
 		return name;
 	}
 
-	public SimpleFighter(BigInteger speed, BigInteger maxHealth, BigInteger health, BigInteger attack,
+	public CustomFighter(BigInteger speed, BigInteger maxHealth, BigInteger health, BigInteger attack,
 			BigInteger defense, String fullImage, String pfp, String emoji, String name) {
 		this.speed = speed;
 		this.maxHealth = maxHealth;
@@ -48,7 +48,7 @@ public class SimpleFighter implements Fighter {
 		this.name = name;
 	}
 
-	public SimpleFighter(BigInteger speed, BigInteger maxHealth, BigInteger attack, BigInteger defense,
+	public CustomFighter(BigInteger speed, BigInteger maxHealth, BigInteger attack, BigInteger defense,
 			String fullImage, String pfp, String emoji, String name) {
 		this(speed, maxHealth, maxHealth, attack, defense, fullImage, pfp, emoji, name);
 	}
