@@ -6,6 +6,13 @@ public class Fighter implements Comparable<Fighter> {
 	private BigInteger speed, maxHealth, health, attack, defense;
 	private String fullImage, pfp, emoji, name;
 
+	/**
+	 * Returns this {@link Fighter}'s speed. The speed of a {@link Fighter}
+	 * canonically determines how many ticks it begins a battle with. (A speed
+	 * higher than other {@link Fighter}s' results in a lower initial tick).
+	 * 
+	 * @return This {@link Fighter}'s speed.
+	 */
 	public BigInteger getSpeed() {
 		return speed;
 	}
