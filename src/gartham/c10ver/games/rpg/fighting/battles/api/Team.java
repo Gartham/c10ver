@@ -9,34 +9,34 @@ import java.util.Set;
 
 import org.alixia.javalibrary.JavaTools;
 
-import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
+import gartham.c10ver.games.rpg.fighting.fighters.SimpleFighter;
 
-public class Team implements Iterable<Fighter> {
-	private final Set<Fighter> members;
+public class Team implements Iterable<SimpleFighter> {
+	private final Set<SimpleFighter> members;
 
-	public Team(Collection<? extends Fighter> members) {
+	public Team(Collection<? extends SimpleFighter> members) {
 		if (members.isEmpty())
 			throw new IllegalArgumentException();
-		for (Fighter f : members)
+		for (SimpleFighter f : members)
 			if (f == null)
 				throw null;
 		this.members = new HashSet<>(members);
 	}
 
-	public Team(Fighter... members) {
+	public Team(SimpleFighter... members) {
 		if (members.length == 0)
 			throw new IllegalArgumentException();
 		this.members = new HashSet<>();
-		for (Fighter f : members)
+		for (SimpleFighter f : members)
 			if (f == null)
 				throw null;
 			else
 				this.members.add(f);
 	}
 
-	public Team(Iterable<? extends Fighter> members) {
+	public Team(Iterable<? extends SimpleFighter> members) {
 		this.members = new HashSet<>();
-		for (Fighter f : members)
+		for (SimpleFighter f : members)
 			if (f == null)
 				throw null;
 			else
@@ -46,21 +46,21 @@ public class Team implements Iterable<Fighter> {
 	}
 
 	/**
-	 * Removes the specified {@link Fighter} from this {@link Team}'s {@link Set} of
-	 * {@link Fighter}s.
+	 * Removes the specified {@link SimpleFighter} from this {@link Team}'s {@link Set} of
+	 * {@link SimpleFighter}s.
 	 * 
-	 * @param fighter The {@link Fighter} to remove.
+	 * @param fighter The {@link SimpleFighter} to remove.
 	 */
-	void remove(Fighter fighter) {
+	void remove(SimpleFighter fighter) {
 		members.remove(fighter);
 	}
 
 	/**
-	 * Adds the specified {@link Fighter} to this {@link Team}.
+	 * Adds the specified {@link SimpleFighter} to this {@link Team}.
 	 * 
-	 * @param fighter The {@link Fighter} to add.
+	 * @param fighter The {@link SimpleFighter} to add.
 	 */
-	void add(Fighter fighter) {
+	void add(SimpleFighter fighter) {
 		members.add(fighter);
 	}
 
@@ -71,12 +71,12 @@ public class Team implements Iterable<Fighter> {
 	 * @return {@link Collections#unmodifiableList(List)} of the members of this
 	 *         {@link Team}.
 	 */
-	public Set<Fighter> viewMembers() {
+	public Set<SimpleFighter> viewMembers() {
 		return Collections.unmodifiableSet(members);
 	}
 
 	@Override
-	public Iterator<Fighter> iterator() {
+	public Iterator<SimpleFighter> iterator() {
 		return JavaTools.unmodifyingIterator(members.iterator());
 	}
 

@@ -2612,21 +2612,21 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					}
 				};
 
-				new Subcommand("battle2") {
-
-					@Override
-					protected void tailed(SubcommandInvocation inv) {
-						Creature creature = new NymphCreature();
-						Battle battle = new Battle(inv.event.getTextChannel(), new Team(
-								inv.event.getAuthor().getName() + "'s Team",
-								new Fighter(BigInteger.valueOf(7), BigInteger.valueOf(45), BigInteger.valueOf(7),
-										BigInteger.valueOf(3), inv.event.getAuthor().getEffectiveAvatarUrl(),
-										inv.event.getAuthor().getEffectiveAvatarUrl(), ":slight_smile:")),
-								new Team("[Wild] Nymph", creature.makeFighter()));
-						battle.start();
-
-					}
-				};
+//				new Subcommand("battle2") {
+//
+//					@Override
+//					protected void tailed(SubcommandInvocation inv) {
+//						Creature creature = new NymphCreature();
+//						Battle battle = new Battle(inv.event.getTextChannel(), new Team(
+//								inv.event.getAuthor().getName() + "'s Team",
+//								new Fighter(BigInteger.valueOf(7), BigInteger.valueOf(45), BigInteger.valueOf(7),
+//										BigInteger.valueOf(3), inv.event.getAuthor().getEffectiveAvatarUrl(),
+//										inv.event.getAuthor().getEffectiveAvatarUrl(), ":slight_smile:")),
+//								new Team("[Wild] Nymph", creature.makeFighter()));
+//						battle.start();
+//
+//					}
+//				};
 			}
 
 			@Override

@@ -2,16 +2,16 @@ package gartham.c10ver.games.rpg.fighting.fighters;
 
 import java.math.BigInteger;
 
-public class Fighter implements Comparable<Fighter> {
+public class SimpleFighter implements Comparable<SimpleFighter> {
 	private BigInteger speed, maxHealth, health, attack, defense;
 	private String fullImage, pfp, emoji, name;
 
 	/**
-	 * Returns this {@link Fighter}'s speed. The speed of a {@link Fighter}
+	 * Returns this {@link SimpleFighter}'s speed. The speed of a {@link SimpleFighter}
 	 * canonically determines how many ticks it begins a battle with. (A speed
-	 * higher than other {@link Fighter}s' results in a lower initial tick).
+	 * higher than other {@link SimpleFighter}s' results in a lower initial tick).
 	 * 
-	 * @return This {@link Fighter}'s speed.
+	 * @return This {@link SimpleFighter}'s speed.
 	 */
 	public BigInteger getSpeed() {
 		return speed;
@@ -33,7 +33,7 @@ public class Fighter implements Comparable<Fighter> {
 		return name;
 	}
 
-	public Fighter(BigInteger speed, BigInteger maxHealth, BigInteger health, BigInteger attack, BigInteger defense,
+	public SimpleFighter(BigInteger speed, BigInteger maxHealth, BigInteger health, BigInteger attack, BigInteger defense,
 			String fullImage, String pfp, String emoji, String name) {
 		this.speed = speed;
 		this.maxHealth = maxHealth;
@@ -46,7 +46,7 @@ public class Fighter implements Comparable<Fighter> {
 		this.name = name;
 	}
 
-	public Fighter(BigInteger speed, BigInteger maxHealth, BigInteger attack, BigInteger defense, String fullImage,
+	public SimpleFighter(BigInteger speed, BigInteger maxHealth, BigInteger attack, BigInteger defense, String fullImage,
 			String pfp, String emoji, String name) {
 		this(speed, maxHealth, maxHealth, attack, defense, fullImage, pfp, emoji, name);
 	}
@@ -120,51 +120,51 @@ public class Fighter implements Comparable<Fighter> {
 	}
 
 	@Override
-	public final int compareTo(Fighter o) {
+	public final int compareTo(SimpleFighter o) {
 		return speed.compareTo(o.speed);
 	}
 
-	public Fighter setSpeed(BigInteger speed) {
+	public SimpleFighter setSpeed(BigInteger speed) {
 		this.speed = speed;
 		return this;
 	}
 
-	public Fighter setMaxHealth(BigInteger maxHealth) {
+	public SimpleFighter setMaxHealth(BigInteger maxHealth) {
 		this.maxHealth = maxHealth;
 		return this;
 	}
 
-	public Fighter setHealth(BigInteger health) {
+	public SimpleFighter setHealth(BigInteger health) {
 		this.health = health;
 		return this;
 	}
 
-	public Fighter setAttack(BigInteger attack) {
+	public SimpleFighter setAttack(BigInteger attack) {
 		this.attack = attack;
 		return this;
 	}
 
-	public Fighter setDefense(BigInteger defense) {
+	public SimpleFighter setDefense(BigInteger defense) {
 		this.defense = defense;
 		return this;
 	}
 
-	public Fighter setFullImage(String fullImage) {
+	public SimpleFighter setFullImage(String fullImage) {
 		this.fullImage = fullImage;
 		return this;
 	}
 
-	public Fighter setPfp(String pfp) {
+	public SimpleFighter setPfp(String pfp) {
 		this.pfp = pfp;
 		return this;
 	}
 
-	public Fighter setEmoji(String emoji) {
+	public SimpleFighter setEmoji(String emoji) {
 		this.emoji = emoji;
 		return this;
 	}
 
-	public Fighter setName(String name) {
+	public SimpleFighter setName(String name) {
 		this.name = name;
 		return this;
 	}

@@ -7,7 +7,7 @@ import org.alixia.javalibrary.util.Gateway;
 
 import gartham.apps.garthchat.api.communication.common.gids.GID;
 import gartham.c10ver.data.PropertyObject;
-import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
+import gartham.c10ver.games.rpg.fighting.fighters.SimpleFighter;
 
 public abstract class Creature extends PropertyObject implements Comparable<Creature> {
 
@@ -48,8 +48,8 @@ public abstract class Creature extends PropertyObject implements Comparable<Crea
 		return emoji;
 	}
 
-	public Fighter makeFighter() {
-		return new Fighter(getSpeed(), getHp(), getAttack(), getDefense(), getFullImage(), getPFP(), getEmoji(),
+	public SimpleFighter makeFighter() {
+		return new SimpleFighter(getSpeed(), getHp(), getAttack(), getDefense(), getFullImage(), getPFP(), getEmoji(),
 				getName());
 	}
 
