@@ -78,7 +78,7 @@ public class CreatureBox extends SavablePropertyObject {
 		if (creatureDir.isDirectory())
 			for (File f : creatureDir.listFiles())
 				if (f.getName().startsWith("crtr-") && f.isFile())
-					add(Creature.from(Utilities.loadObj(f)));
+					add(new Creature(Utilities.loadObj(f)));
 		super.load();
 	}
 
