@@ -2,8 +2,6 @@ package gartham.c10ver.games.rpg.fighting.battles.app;
 
 import java.math.BigInteger;
 
-import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
-
 public class GarmonAttack {
 	private final BigInteger damage, defDrain, attackDrain;
 	private final GarmonFighter target;

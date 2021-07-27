@@ -12,6 +12,8 @@ public class SimpleFighter implements Fighter {
 
 	protected void setMaxHealth(BigInteger maxHealth) {
 		this.maxHealth = maxHealth;
+		if (health.compareTo(maxHealth) > 0)
+			health = maxHealth;
 	}
 
 	protected void setHealth(BigInteger health) {

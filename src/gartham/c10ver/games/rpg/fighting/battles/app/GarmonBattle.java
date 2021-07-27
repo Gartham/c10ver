@@ -2,7 +2,6 @@ package gartham.c10ver.games.rpg.fighting.battles.app;
 
 import gartham.c10ver.games.rpg.fighting.battles.api.Battle;
 import gartham.c10ver.games.rpg.fighting.battles.api.Team;
-import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
 
 public class GarmonBattle extends Battle<GarmonBattleAction, GarmonFighter, Team<GarmonFighter>> {
 
@@ -17,6 +16,14 @@ public class GarmonBattle extends Battle<GarmonBattleAction, GarmonFighter, Team
 		case SKIP_TURN:
 			// Set ticks to be equal to the next OPPONENT in line + 1.
 			// We need some way to get the next opponent.
+			var ticks = getTicks(getNextNthOpponent(0, fighter));
+			setTicks(fighter, ticks);
+			break;
+			
+		case SPECIAL_ATTACK:
+			var attack = action.getSpecialAttack();
+			attack.getTarget().damage(attack.getDamage());
+			break;
 
 		default:
 			break;
