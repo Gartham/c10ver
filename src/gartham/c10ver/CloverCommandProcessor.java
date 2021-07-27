@@ -2144,17 +2144,21 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						ms.problem = mpg.generate(ms.diff);
 						ms.inst = Instant.now().plusSeconds(30);
 						var ms2 = ms;
-						timer.schedule(ms.ts = new TimerTask() {
+						try {
+							timer.schedule(ms.ts = new TimerTask() {
 
-							@Override
-							public void run() {
-								end(inv.event.getChannel().getId());
-								inv.event.getChannel()
-										.sendMessage(
-												"**Time's Up!** No one answered the math problem correctly in time!")
-										.embed(printStateOver(ms2, inv)).queue();
-							}
-						}, 30000);
+								@Override
+								public void run() {
+									end(inv.event.getChannel().getId());
+									inv.event.getChannel().sendMessage(
+											"**Time's Up!** No one answered the math problem correctly in time!")
+											.embed(printStateOver(ms2, inv)).queue();
+								}
+							}, 30000);
+						} catch (IllegalStateException e) {
+							timer = new Timer(true);
+							timer.schedule(ms.ts, 30000);
+						}
 
 						ms.mic = new MessageInputConsumer() {
 
@@ -2169,16 +2173,21 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 									if (!ms2.players.contains(event.getAuthor().getId()))
 										ms2.players.add(event.getAuthor().getId());
 									ms2.ts.cancel();
-									timer.schedule(ms2.ts = new TimerTask() {
+									try {
+										timer.schedule(ms2.ts = new TimerTask() {
 
-										@Override
-										public void run() {
-											end(inv.event.getChannel().getId());
-											inv.event.getChannel().sendMessage(
-													"**Time's Up!** No one answered the math problem correctly in time!")
-													.embed(printStateOver(ms2, inv)).queue();
-										}
-									}, 30000);
+											@Override
+											public void run() {
+												end(inv.event.getChannel().getId());
+												inv.event.getChannel().sendMessage(
+														"**Time's Up!** No one answered the math problem correctly in time!")
+														.embed(printStateOver(ms2, inv)).queue();
+											}
+										}, 30000);
+									} catch (IllegalStateException e) {
+										timer = new Timer(true);
+										timer.schedule(ms2.ts, 30000);
+									}
 									ms2.inst = Instant.now().plusSeconds(30);
 									BigInteger amt = ms2.value;
 									ms2.upgrade();
