@@ -1,6 +1,6 @@
 package gartham.c10ver.games.rpg.fighting.battles.app;
 
-public class BattleAction {
+public class GarmonBattleAction {
 	public enum ActionType {
 		SURRENDER, SKIP_TURN, ATTACK, SPECIAL_ATTACK;
 	}
@@ -8,12 +8,12 @@ public class BattleAction {
 	private final ActionType type;
 	private final Attack specialAttack;
 
-	private BattleAction(ActionType type) {
+	private GarmonBattleAction(ActionType type) {
 		this.type = type;
 		specialAttack = null;
 	}
 
-	private BattleAction(Attack specialAttack) {
+	private GarmonBattleAction(Attack specialAttack) {
 		this.specialAttack = specialAttack;
 		type = ActionType.SPECIAL_ATTACK;
 	}
