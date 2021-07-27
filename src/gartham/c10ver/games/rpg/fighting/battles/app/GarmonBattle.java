@@ -1,5 +1,8 @@
 package gartham.c10ver.games.rpg.fighting.battles.app;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.Collection;
 
 import gartham.c10ver.games.rpg.fighting.battles.api.Battle;
@@ -16,12 +19,15 @@ public class GarmonBattle extends Battle<GarmonBattleAction, GarmonFighter, Team
 		super(teams);
 	}
 
+	private static final BigInteger max(BigInteger first, BigInteger second) {
+		return first.compareTo(second) > 0 ? first : second;
+	}
+
 	@Override
 	protected int handleAction(GarmonBattleAction action, GarmonFighter fighter) {
 		switch (action.getType()) {
 		case ATTACK:
-			var att = action.getSpecialAttack();
-			att.getTarget().damage(att.getDamage());
+			// TODO
 			break;
 
 		case SKIP_TURN:
@@ -32,8 +38,12 @@ public class GarmonBattle extends Battle<GarmonBattleAction, GarmonFighter, Team
 			break;
 
 		case SPECIAL_ATTACK:
-			var attack = action.getSpecialAttack();
-			attack.getTarget().damage(attack.getDamage());
+			var att = action.getSpecialAttack();
+			att.getTarget()
+					.damage(max(BigInteger.ZERO,
+							att.getPower().multiply(new BigDecimal(fighter.getAttack()))
+									.subtract(new BigDecimal(att.getTarget().getDefense()))
+									.setScale(0, RoundingMode.HALF_UP).toBigInteger()));
 			break;
 
 		default:
