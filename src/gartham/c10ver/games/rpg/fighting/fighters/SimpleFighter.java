@@ -28,7 +28,13 @@ public class SimpleFighter implements Fighter {
 		this.defense = defense;
 	}
 
-	public SimpleFighter() {
+	public SimpleFighter(BigInteger speed, BigInteger maxHealth, BigInteger health, BigInteger attack,
+			BigInteger defense) {
+		this.speed = speed;
+		this.maxHealth = maxHealth;
+		this.health = health;
+		this.attack = attack;
+		this.defense = defense;
 	}
 
 	/**
