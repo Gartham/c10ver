@@ -10,8 +10,23 @@ public class SimpleFighter implements Fighter {
 	protected BigInteger attack;
 	protected BigInteger defense;
 
+	protected void setMaxHealth(BigInteger maxHealth) {
+		this.maxHealth = maxHealth;
+	}
+
+	protected void setHealth(BigInteger health) {
+		this.health = health;
+	}
+
+	protected void setAttack(BigInteger attack) {
+		this.attack = attack;
+	}
+
+	protected void setDefense(BigInteger defense) {
+		this.defense = defense;
+	}
+
 	public SimpleFighter() {
-		super();
 	}
 
 	/**
