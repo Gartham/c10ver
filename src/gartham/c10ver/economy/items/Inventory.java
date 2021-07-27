@@ -88,12 +88,12 @@ public class Inventory implements Cloneable, Iterable<Entry<?>> {
 	 *         specified page.
 	 */
 	public List<? extends Entry<?>> getPage(int page, int pagesize) {
-		List<Entry<?>> res = Utilities.paginate(page, pagesize, entryList);
+		List<Entry<?>> res = JavaTools.paginate(page, pagesize, entryList);
 		return res == null ? null : Collections.unmodifiableList(res);
 	}
 
 	public int maxPage(int pagesize) {
-		return Utilities.maxPage(pagesize, entryList);
+		return JavaTools.maxPage(pagesize, entryList);
 	}
 
 	private static String res(Object o) {
@@ -215,7 +215,7 @@ public class Inventory implements Cloneable, Iterable<Entry<?>> {
 		}
 
 		public List<? extends ItemStack> getPage(int page, int pagesize) {
-			return Utilities.paginate(page, pagesize, stacks);
+			return JavaTools.paginate(page, pagesize, stacks);
 		}
 
 		/**
