@@ -91,7 +91,7 @@ public abstract class Creature extends PropertyObject implements Comparable<Crea
 
 	public static Creature from(JSONObject json) {
 		return switch (json.getString("type")) {
-		case NymphCreature.TYPE -> new NymphCreature();
+		case Nymph.TYPE -> new Nymph();
 
 		default -> throw new IllegalArgumentException("Unexpected value: " + json.getString("type"));
 		};
