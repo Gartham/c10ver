@@ -11,32 +11,33 @@ import org.alixia.javalibrary.JavaTools;
 
 import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
 
-public class Team implements Iterable<Fighter> {
-	private final Set<Fighter> members;
+public class Team<F extends Fighter> implements Iterable<F> {
+	private final Set<F> members;
 
-	public Team(Collection<? extends Fighter> members) {
+	public Team(Collection<? extends F> members) {
 		if (members.isEmpty())
 			throw new IllegalArgumentException();
-		for (Fighter f : members)
+		for (F f : members)
 			if (f == null)
 				throw null;
 		this.members = new HashSet<>(members);
 	}
 
-	public Team(Fighter... members) {
+	@SafeVarargs
+	public Team(F... members) {
 		if (members.length == 0)
 			throw new IllegalArgumentException();
 		this.members = new HashSet<>();
-		for (Fighter f : members)
+		for (F f : members)
 			if (f == null)
 				throw null;
 			else
 				this.members.add(f);
 	}
 
-	public Team(Iterable<? extends Fighter> members) {
+	public Team(Iterable<? extends F> members) {
 		this.members = new HashSet<>();
-		for (Fighter f : members)
+		for (F f : members)
 			if (f == null)
 				throw null;
 			else
@@ -51,7 +52,7 @@ public class Team implements Iterable<Fighter> {
 	 * 
 	 * @param fighter The {@link Fighter} to remove.
 	 */
-	void remove(Fighter fighter) {
+	void remove(F fighter) {
 		members.remove(fighter);
 	}
 
@@ -60,7 +61,7 @@ public class Team implements Iterable<Fighter> {
 	 * 
 	 * @param fighter The {@link Fighter} to add.
 	 */
-	void add(Fighter fighter) {
+	void add(F fighter) {
 		members.add(fighter);
 	}
 
@@ -71,12 +72,12 @@ public class Team implements Iterable<Fighter> {
 	 * @return {@link Collections#unmodifiableList(List)} of the members of this
 	 *         {@link Team}.
 	 */
-	public Set<Fighter> viewMembers() {
+	public Set<F> viewMembers() {
 		return Collections.unmodifiableSet(members);
 	}
 
 	@Override
-	public Iterator<Fighter> iterator() {
+	public Iterator<F> iterator() {
 		return JavaTools.unmodifyingIterator(members.iterator());
 	}
 
