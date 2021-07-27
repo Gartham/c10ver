@@ -129,7 +129,7 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>> {
 	public final void act(A action) {
 		if (state != State.RUNNING)
 			throw new IllegalStateException("Battles must be in a running state for actions to be taken.");
-		var fighter = battleQueue.get(0);
+		var fighter = getActingFighter();
 		var t = handleAction(action, fighter);
 		ticksTillTurn.put(fighter, ticksTillTurn.get(fighter) + t);// We get the ticks for our fighter because the
 																	// action taken my have modified its ticks via
@@ -194,23 +194,92 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>> {
 	public void stop() {
 		state = State.STOPPED;
 	}
-	
-    /**
-     * <p>
-     * The order that this documentation refers to and that this method conforms to
-     * is the order of the battle queue, i.e., the list of remaining
-     * {@link Fighter}s ordered by ticks, (in ascending order: fewer ticks means
-     * closer to index <code>0</code>).
-     * </p>
-     * <p>
-     * This method returns the <code>n</code><sup>th</sup> {@link Fighter} that is
-     * (1) not in the {@link Team} of the provided {@link Fighter} and (2) is
-     * 
-     * @param n
-     * @return
-     */
-    public F getNextNthOpponent(int n, F targ) {
 
-    }
+	public final F getActingFighter() {
+		return battleQueue.get(0);
+	}
+
+	/**
+	 * Gets the {@link Team} that the provided {@link Fighter} belongs to.
+	 * 
+	 * @param f0 The {@link Fighter} to get the {@link Team} of.
+	 * @return The {@link Team} that the provided {@link Fighter} belongs to.
+	 */
+	public T getTeam(F f0) {
+		for (var t : teams)
+			if (t.contains(f0))
+				return t;
+		return null;
+	}
+
+	/**
+	 * <p>
+	 * The order that this documentation refers to and that this method conforms to
+	 * is the order of the battle queue, i.e., the list of remaining
+	 * {@link Fighter}s ordered by ticks, (in ascending order: fewer ticks means
+	 * closer to index <code>0</code>).
+	 * </p>
+	 * <p>
+	 * This method returns the {@link Fighter} that is the
+	 * <code>n</code><sup>th</sup> {@link Fighter}, sorted ascendingly by ticks, of
+	 * the {@link Fighter}s that are not in the same {@link Team} as the target
+	 * {@link Fighter}.
+	 * </p>
+	 * <p>
+	 * Simply put, this method returns the nth opponent (this does not include
+	 * {@link Fighter}s on the same {@link Team}) {@link Fighter} in the battle
+	 * queue.
+	 * </p>
+	 * 
+	 * @param n    The indexing parameter, used to specify which opponent should be
+	 *             selected.
+	 * @param targ The target {@link Fighter}.
+	 * @return The selected {@link Fighter}.
+	 */
+	public F getNextNthOpponent(int n, F targ) {
+		return getNextNthOpponent(n, getTeam(targ));
+	}
+
+	/**
+	 * <p>
+	 * The order that this documentation refers to and that this method conforms to
+	 * is the order of the battle queue, i.e., the list of remaining
+	 * {@link Fighter}s ordered by ticks, (in ascending order: fewer ticks means
+	 * closer to index <code>0</code>).
+	 * </p>
+	 * <p>
+	 * This method returns the {@link Fighter} that is the
+	 * <code>n</code><sup>th</sup> {@link Fighter}, sorted ascendingly by ticks, of
+	 * the {@link Fighter}s that are not in the provided {@link Team}.
+	 * </p>
+	 * <p>
+	 * Simply put, this method returns the nth opponent (meaning exclusive of
+	 * {@link Fighter}s in the provided {@link Team}) {@link Fighter} of the
+	 * provided {@link Team}, in the battle queue.
+	 * </p>
+	 * 
+	 * @param n    The indexing parameter, used to specify which opponent should be
+	 *             selected.
+	 * @param targ The targeted {@link Team}.
+	 * @return The selected {@link Fighter}, or <code>null</code> if no matching
+	 *         {@link Fighter} is found for some reason.
+	 */
+	public F getNextNthOpponent(int n, T targ) {
+		for (var f : battleQueue)
+			if (!targ.contains(f))
+				if (n-- == 0)
+					return f;
+		return null;
+	}
+
+	/**
+	 * Returns the number of living {@link Fighter}s still participating in this
+	 * {@link Battle}.
+	 * 
+	 * @return The number of {@link Fighter}s in this {@link Battle}.
+	 */
+	public int getFighterCount() {
+		return battleQueue.size();
+	}
 
 }

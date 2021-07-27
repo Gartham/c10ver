@@ -65,6 +65,10 @@ public class Team<F extends Fighter> implements Iterable<F> {
 		members.add(fighter);
 	}
 
+	public boolean contains(Fighter f) {
+		return members.contains(f);
+	}
+
 	/**
 	 * Returns a read-only view of the members of this {@link Team}. The view is in
 	 * no particular order.
@@ -72,7 +76,7 @@ public class Team<F extends Fighter> implements Iterable<F> {
 	 * @return {@link Collections#unmodifiableList(List)} of the members of this
 	 *         {@link Team}.
 	 */
-	public Set<F> viewMembers() {
+	public Set<F> memberView() {
 		return Collections.unmodifiableSet(members);
 	}
 
