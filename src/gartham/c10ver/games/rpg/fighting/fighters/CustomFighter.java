@@ -23,11 +23,7 @@ public class CustomFighter extends SimpleFighter {
 
 	public CustomFighter(BigInteger speed, BigInteger maxHealth, BigInteger health, BigInteger attack,
 			BigInteger defense, String fullImage, String pfp, String emoji, String name) {
-		this.speed = speed;
-		this.maxHealth = maxHealth;
-		this.health = health;
-		this.attack = attack;
-		this.defense = defense;
+		super(speed, maxHealth, health, attack, defense);
 		this.fullImage = fullImage;
 		this.pfp = pfp;
 		this.emoji = emoji;
