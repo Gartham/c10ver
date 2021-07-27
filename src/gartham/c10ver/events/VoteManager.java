@@ -122,8 +122,8 @@ public class VoteManager {
 			@Override
 			public void run() {
 				remove(member.getId(), server.getServerID());
-				MessageChannel channel = server.getGeneralChannel() != null
-						? member.getGuild().getTextChannelById(server.getGeneralChannel())
+				MessageChannel channel = server.getVoteChannel() != null
+						? member.getGuild().getTextChannelById(server.getVoteChannel())
 						: member.getUser().openPrivateChannel().complete();
 				channel.sendMessage("Hey there " + member.getAsMention() + "! It's time to vote for **"
 						+ member.getGuild().getName() + "**! Here's the vote link: https://top.gg/servers/"
