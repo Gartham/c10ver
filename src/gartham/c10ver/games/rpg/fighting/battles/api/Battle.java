@@ -136,6 +136,7 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>> {
 																	// side-effect.
 		// Finally we re-sort the battle queue.
 		sortQueue();
+		shiftQueue();
 
 	}
 
@@ -162,6 +163,13 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>> {
 	 */
 	protected final void sortQueue() {
 		Collections.sort(battleQueue, (o1, o2) -> Integer.compare(ticksTillTurn.get(o1), ticksTillTurn.get(o2)));
+	}
+
+	protected final void shiftQueue() {
+		var ticks = getTicks(getActingFighter());
+		if (ticks != 0)
+			for (var e : ticksTillTurn.entrySet())
+				e.setValue(e.getValue() - ticks);
 	}
 
 	@SafeVarargs
