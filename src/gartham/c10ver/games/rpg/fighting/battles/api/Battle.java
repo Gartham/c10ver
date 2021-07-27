@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -205,7 +206,7 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>> {
 	 * @param f0 The {@link Fighter} to get the {@link Team} of.
 	 * @return The {@link Team} that the provided {@link Fighter} belongs to.
 	 */
-	public T getTeam(F f0) {
+	protected final T getTeam(F f0) {
 		for (var t : teams)
 			if (t.contains(f0))
 				return t;
@@ -236,7 +237,7 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>> {
 	 * @param targ The target {@link Fighter}.
 	 * @return The selected {@link Fighter}.
 	 */
-	public F getNextNthOpponent(int n, F targ) {
+	protected final F getNextNthOpponent(int n, F targ) {
 		return getNextNthOpponent(n, getTeam(targ));
 	}
 
@@ -264,7 +265,7 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>> {
 	 * @return The selected {@link Fighter}, or <code>null</code> if no matching
 	 *         {@link Fighter} is found for some reason.
 	 */
-	public F getNextNthOpponent(int n, T targ) {
+	protected final F getNextNthOpponent(int n, T targ) {
 		for (var f : battleQueue)
 			if (!targ.contains(f))
 				if (n-- == 0)
@@ -280,6 +281,33 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>> {
 	 */
 	public int getFighterCount() {
 		return battleQueue.size();
+	}
+
+	/**
+	 * Causes the specified {@link Team} to forfeit the battle. This will result in
+	 * a win for the opposing {@link Team}, if there is only one opposing
+	 * {@link Team} remaining. Otherwise, any remaining {@link Team}s will continue
+	 * battle.
+	 * 
+	 * @param team The {@link Team} to surrender.
+	 */
+	public void surrender(T team) {
+		for (Iterator<F> iterator = battleQueue.iterator(); iterator.hasNext();)
+			if (team.contains(iterator.next()))
+				iterator.remove();
+	}
+
+	/**
+	 * Removes the specified {@link Fighter} from this {@link Battle}. This is done
+	 * whenever a {@link Fighter} "faints" or otherwise loses and can no longer
+	 * participate in {@link Battle}. Removal from a {@link Battle} is signified by
+	 * a lack of the {@link Fighter}'s presence in the battle queue. The
+	 * {@link Fighter} will still remain in its {@link Team}.
+	 * 
+	 * @param fighter The {@link Fighter} to remove.
+	 */
+	protected final void remove(F fighter) {
+		battleQueue.remove(fighter);
 	}
 
 }
