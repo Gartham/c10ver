@@ -820,7 +820,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				}
 			}
 		});
-		register(new MatchBasedCommand("baltop", "leaderboard") {
+		register(new MatchBasedCommand("baltop", "leaderboard", "lb", "top") {
 
 			private final Set<String> servers = new HashSet<>();
 
