@@ -6,14 +6,14 @@ public class GarmonBattleAction {
 	}
 
 	private final ActionType type;
-	private final Attack specialAttack;
+	private final GarmonAttack specialAttack;
 
 	private GarmonBattleAction(ActionType type) {
 		this.type = type;
 		specialAttack = null;
 	}
 
-	private GarmonBattleAction(Attack specialAttack) {
+	private GarmonBattleAction(GarmonAttack specialAttack) {
 		this.specialAttack = specialAttack;
 		type = ActionType.SPECIAL_ATTACK;
 	}
@@ -22,7 +22,7 @@ public class GarmonBattleAction {
 		return type;
 	}
 
-	public Attack getSpecialAttack() {
+	public GarmonAttack getSpecialAttack() {
 		return specialAttack;
 	}
 

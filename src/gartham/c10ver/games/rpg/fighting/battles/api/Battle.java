@@ -186,5 +186,23 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>> {
 	public void stop() {
 		state = State.STOPPED;
 	}
+	
+    /**
+     * <p>
+     * The order that this documentation refers to and that this method conforms to
+     * is the order of the battle queue, i.e., the list of remaining
+     * {@link Fighter}s ordered by ticks, (in ascending order: fewer ticks means
+     * closer to index <code>0</code>).
+     * </p>
+     * <p>
+     * This method returns the <code>n</code><sup>th</sup> {@link Fighter} that is
+     * (1) not in the {@link Team} of the provided {@link Fighter} and (2) is
+     * 
+     * @param n
+     * @return
+     */
+    public F getNextNthOpponent(int n, F targ) {
+
+    }
 
 }

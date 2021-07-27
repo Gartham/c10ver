@@ -39,43 +39,35 @@ public class CustomFighter extends SimpleFighter {
 		this(speed, maxHealth, maxHealth, attack, defense, fullImage, pfp, emoji, name);
 	}
 
-	public Fighter setMaxHealth(BigInteger maxHealth) {
+	public void setMaxHealth(BigInteger maxHealth) {
 		this.maxHealth = maxHealth;
-		return this;
 	}
 
-	public Fighter setHealth(BigInteger health) {
+	public void setHealth(BigInteger health) {
 		this.health = health;
-		return this;
 	}
 
-	public Fighter setAttack(BigInteger attack) {
+	public void setAttack(BigInteger attack) {
 		this.attack = attack;
-		return this;
 	}
 
-	public Fighter setDefense(BigInteger defense) {
+	public void setDefense(BigInteger defense) {
 		this.defense = defense;
-		return this;
 	}
 
-	public Fighter setFullImage(String fullImage) {
+	public void setFullImage(String fullImage) {
 		this.fullImage = fullImage;
-		return this;
 	}
 
-	public Fighter setPfp(String pfp) {
+	public void setPfp(String pfp) {
 		this.pfp = pfp;
-		return this;
 	}
 
-	public Fighter setEmoji(String emoji) {
+	public void setEmoji(String emoji) {
 		this.emoji = emoji;
-		return this;
 	}
 
-	public Fighter setName(String name) {
+	public void setName(String name) {
 		this.name = name;
-		return this;
 	}
 }
