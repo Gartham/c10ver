@@ -47,6 +47,11 @@ public class GarmonFighter extends SimpleFighter {
 				creature.getAttack(), creature.getDefense());
 	}
 
+	public GarmonFighter(String namePrefix, Creature creature) {
+		this(namePrefix + ' ' + creature.getName(), creature.getEmoji(), creature.getSpeed(), creature.getHp(),
+				creature.getHp(), creature.getAttack(), creature.getDefense());
+	}
+
 	public void modDef(BigInteger amount) {
 		setDefense(getDefense().add(amount));
 	}
