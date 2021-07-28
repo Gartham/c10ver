@@ -161,8 +161,17 @@ public abstract class Creature extends PropertyObject implements Comparable<Crea
 		this.xp.set(xp);
 	}
 
+	/**
+	 * Adds the specified amount of xp to this {@link Creature} and levels up the
+	 * {@link Creature} as appropriate.
+	 * 
+	 * @param xp The amount of experience to add.
+	 */
 	public void rewardXP(BigInteger xp) {
 		setXP(this.xp.get().add(xp));
+		BigInteger xp2nl;
+		while ((xp2nl = xpToNextLevel()).signum() < 1)
+			setXP(xp2nl.negate());
 	}
 
 	public GID getID() {
