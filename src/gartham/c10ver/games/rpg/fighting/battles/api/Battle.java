@@ -6,9 +6,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
 
@@ -25,8 +27,8 @@ import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
  * their health is <code>0</code>), that {@link Team} is considered dead. Once
  * all but one {@link Team} is considered dead, that {@link Team} wins the
  * {@link Battle}. If, upon the conclusion of a turn, all {@link Team}s are
- * dead, the battle is a considered to have been won by the {@link Team} whose
- * {@link Fighter} had the last turn.
+ * dead, the battle is considered a draw between <b>all participating
+ * {@link Team}s</b>.
  * </p>
  * <p>
  * Each turn, a {@link Fighter} takes an <b>action</b>. Actions take a certain
@@ -50,7 +52,7 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>> {
 
 	private final Map<F, Integer> ticksTillTurn = new HashMap<>();
 	private final List<F> battleQueue = new ArrayList<>();
-	private final List<T> teams;
+	private final Set<T> teams, remainingTeams = new HashSet<>();
 	private State state = State.UNSTARTED;
 
 	public enum State {
@@ -83,6 +85,8 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>> {
 		if (state != State.UNSTARTED)
 			throw new IllegalStateException("Battles cannot be started more than once.");
 		state = State.RUNNING;
+		remainingTeams.clear();
+		remainingTeams.addAll(teams);
 
 		assignInitialTicks(battleQueue);
 
@@ -126,8 +130,9 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>> {
 	 * Acts as the current {@link Fighter}.
 	 * 
 	 * @param action The action to take.
+	 * @return <code>true</code> if the {@link Battle} is over.
 	 */
-	public final void act(A action) {
+	public final boolean act(A action) {
 		if (state != State.RUNNING)
 			throw new IllegalStateException("Battles must be in a running state for actions to be taken.");
 		var fighter = getActingFighter();
@@ -135,9 +140,13 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>> {
 		ticksTillTurn.put(fighter, ticksTillTurn.get(fighter) + t);// We get the ticks for our fighter because the
 																	// action taken my have modified its ticks via
 																	// side-effect.
+		if (state == State.STOPPED)
+			return true;
+
 		// Finally we re-sort the battle queue.
 		sortQueue();
 		shiftQueue();
+		return false;
 
 	}
 
@@ -175,7 +184,7 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>> {
 
 	@SafeVarargs
 	public Battle(T... teams) {
-		this.teams = new ArrayList<>();
+		this.teams = new HashSet<>();
 		for (var t : teams) {
 			this.teams.add(t);
 			for (var f : t)
@@ -185,7 +194,7 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>> {
 	}
 
 	public Battle(Collection<T> teams) {
-		this.teams = new ArrayList<>(teams);
+		this.teams = new HashSet<>(teams);
 		for (var t : teams)
 			for (var f : t)
 				battleQueue.add(-Collections.binarySearch(battleQueue, f, Comparator.<F>naturalOrder().reversed()) - 1,
@@ -295,19 +304,57 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>> {
 		for (Iterator<F> iterator = battleQueue.iterator(); iterator.hasNext();)
 			if (team.contains(iterator.next()))
 				iterator.remove();
+		teamLose(team);
 	}
 
 	/**
+	 * Returns the winning {@link Team} if this {@link Battle} is over and is not a
+	 * draw. Otherwise, returns <code>null</code>.
+	 * 
+	 * @return The winning {@link Team}, if there is one.
+	 */
+	public T getWinningTeam() {
+		return remainingTeams.size() == 1 ? remainingTeams.iterator().next() : null;
+	}
+
+	/**
+	 * Returns <code>true</code> if this {@link Battle} is over and is a draw.
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return if this {@link Battle} is over and is a draw.
+	 */
+	public boolean isDraw() {
+		return remainingTeams.isEmpty();
+	}
+
+	private void checkForNaturalTerm() {
+		if (remainingTeams.size() <= 1)
+			state = State.STOPPED;
+	}
+
+	private void teamLose(T team) {
+		remainingTeams.remove(team);
+		checkForNaturalTerm();
+	}
+
+	/**
+	 * <p>
 	 * Removes the specified {@link Fighter} from this {@link Battle}. This is done
 	 * whenever a {@link Fighter} "faints" or otherwise loses and can no longer
 	 * participate in {@link Battle}. Removal from a {@link Battle} is signified by
 	 * a lack of the {@link Fighter}'s presence in the battle queue. The
-	 * {@link Fighter} will still remain in its {@link Team}.
+	 * {@link Fighter} will still remain in its {@link Team}, as {@link Team}s are
+	 * immutable, however if all the {@link Fighter}s in a {@link Team} are
 	 * 
 	 * @param fighter The {@link Fighter} to remove.
 	 */
 	protected final void remove(F fighter) {
 		battleQueue.remove(fighter);
+		T team = getTeam(fighter);
+		for (F f : team)
+			if (!f.isFainted())
+				return;
+		teamLose(team);
 	}
 
 }
