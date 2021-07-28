@@ -1,16 +1,49 @@
 package gartham.c10ver.games.rpg.creatures;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 
 import org.alixia.javalibrary.json.JSONObject;
 import org.alixia.javalibrary.util.Gateway;
 
 import gartham.apps.garthchat.api.communication.common.gids.GID;
 import gartham.c10ver.data.PropertyObject;
-import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
 import gartham.c10ver.games.rpg.fighting.fighters.CustomFighter;
+import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
 
 public abstract class Creature extends PropertyObject implements Comparable<Creature> {
+
+	private static final BigInteger BI_FIFTY = BigInteger.valueOf(50);
+	private static final BigDecimal BI_TWO = BigDecimal.valueOf(2), C1 = BigDecimal.valueOf(5.48481),
+			NATURAL_LOG_OF_TEN = BigDecimal.valueOf(2.302585092994);
+
+	private static final BigDecimal ln(BigDecimal value, int itrc, int rprec) {
+		if (value.signum() == 0)
+			throw new ArithmeticException("Negative infinity.");
+		int digits = value.precision() - value.scale() - 1;
+
+		var shrunk = value.movePointLeft(digits);
+		var frac = shrunk.subtract(BigDecimal.ONE).divide(shrunk.add(BigDecimal.ONE), RoundingMode.HALF_UP);
+
+		BigDecimal bd = BigDecimal.ZERO;
+		for (int i = 0; i < itrc; i++) {
+			int q = 2 * i + 1;
+			bd = bd.add(frac.pow(q).divide(BigDecimal.valueOf(q), RoundingMode.HALF_UP));
+		}
+		bd.setScale(rprec, RoundingMode.HALF_UP);
+
+		return bd.multiply(BI_TWO).add(NATURAL_LOG_OF_TEN.multiply(BigDecimal.valueOf(digits)));
+	}
+
+	private static BigInteger xpForLevel(BigInteger level) {
+		return C1.multiply(new BigDecimal(level)).multiply(ln(new BigDecimal(level), 5, 5))
+				.setScale(0, RoundingMode.HALF_UP).toBigInteger().add(BI_FIFTY);
+	}
+
+	public BigInteger xpToNextLevel() {
+		return xpForLevel(getLevel()).subtract(getXP());
+	}
 
 	protected String fullImage, pfp, emoji, name;
 	private final Property<String> type = stringProperty("type");
@@ -118,6 +151,18 @@ public abstract class Creature extends PropertyObject implements Comparable<Crea
 
 	public final BigInteger getXP() {
 		return xp.get();
+	}
+
+	public void setLevel(BigInteger level) {
+		this.level.set(level);
+	}
+
+	public void setXP(BigInteger xp) {
+		this.xp.set(xp);
+	}
+
+	public void rewardXP(BigInteger xp) {
+		setXP(this.xp.get().add(xp));
 	}
 
 	public GID getID() {
