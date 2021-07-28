@@ -172,7 +172,10 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>> {
 	 * that has just performed its action have been applied to it.
 	 */
 	protected final void sortQueue() {
-		Collections.sort(battleQueue, (o1, o2) -> Integer.compare(ticksTillTurn.get(o1), ticksTillTurn.get(o2)));
+		Collections.sort(battleQueue, (o1, o2) -> {
+			int tickcomp = Integer.compare(ticksTillTurn.get(o1), ticksTillTurn.get(o2));
+			return tickcomp == 0 ? o1.compareTo(o2) : tickcomp;
+		});
 	}
 
 	protected final void shiftQueue() {
