@@ -19,7 +19,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.Timer;
@@ -36,6 +35,8 @@ import org.alixia.javalibrary.util.MultidimensionalMap;
 import club.minnced.discord.webhook.WebhookClient;
 import club.minnced.discord.webhook.WebhookClientBuilder;
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
+import gartham.c10ver.actions.Action;
+import gartham.c10ver.actions.SimpleActionMessage;
 import gartham.c10ver.changelog.Changelog.Version;
 import gartham.c10ver.commands.CommandHelpBook.ParentCommandHelp;
 import gartham.c10ver.commands.CommandInvocation;
@@ -74,13 +75,13 @@ import gartham.c10ver.games.math.MathProblem;
 import gartham.c10ver.games.math.MathProblem.AttemptResult;
 import gartham.c10ver.games.math.MathProblemGenerator;
 import gartham.c10ver.games.math.simple.SimpleMathProblemGenerator;
+import gartham.c10ver.games.rpg.GarmonUtils;
 import gartham.c10ver.games.rpg.creatures.Creature;
-import gartham.c10ver.games.rpg.creatures.NymphCreature;
-import gartham.c10ver.games.rpg.fighting.Fighter;
-import gartham.c10ver.games.rpg.fighting.Team;
-import gartham.c10ver.games.rpg.fighting.battles.AttackAction;
-import gartham.c10ver.games.rpg.fighting.battles.AttackActionMessage;
-import gartham.c10ver.games.rpg.fighting.battles.Battle;
+import gartham.c10ver.games.rpg.creatures.Nymph;
+import gartham.c10ver.games.rpg.fighting.battles.app.GarmonBattle;
+import gartham.c10ver.games.rpg.fighting.battles.app.GarmonBattleAction;
+import gartham.c10ver.games.rpg.fighting.battles.app.GarmonFighter;
+import gartham.c10ver.games.rpg.fighting.battles.app.GarmonTeam;
 import gartham.c10ver.games.rpg.rooms.RectangularRoom;
 import gartham.c10ver.games.rpg.rooms.RectangularRoom.Side;
 import gartham.c10ver.processing.commands.InventoryCommand;
@@ -2589,14 +2590,63 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 					@Override
 					protected void tailed(SubcommandInvocation inv) {
+						Creature wildNymph = new Nymph();
+						wildNymph.setLevel(BigInteger.valueOf(7));
+						GarmonFighter garf = new GarmonFighter("[Wild]", wildNymph),
+								playerFighter = new GarmonFighter(inv.event.getAuthor().getName(),
+										BigInteger.valueOf(23), BigInteger.valueOf(125), BigInteger.valueOf(125),
+										BigInteger.valueOf(13), BigInteger.valueOf(7));
+						GarmonTeam playerTeam = new GarmonTeam(inv.event.getAuthor().getName(), playerFighter);
+						GarmonTeam wildTeam = new GarmonTeam("Wild Monsters", garf);
+						GarmonBattle battle = new GarmonBattle(playerTeam, wildTeam);
+						battle.start();
+						inv.event.getChannel()
+								.sendMessage("A new battle has been started between "
+										+ inv.event.getAuthor().getAsMention() + " and a wild Nymph!")
+								.embed(GarmonUtils.printBattleQueue(battle)
+										.setFooter("!!DISPLAY TEST!! This is a test message. It has no function.")
+										.build())
+								.queue();
+
+						GarmonFighter a = battle.getActingFighter();
+						var team = battle.getTeam(a);
+						GarmonFighter opponent = battle.getNextNthOpponent(0, a);
+						var opponentTeam = battle.getTeam(opponent);
+						if (team == playerTeam) {
+							var am = new SimpleActionMessage<>(
+									new EmbedBuilder().setThumbnail(wildNymph.getFullImage())
+											.setDescription("**" + inv.event.getAuthor().getName()
+													+ "**'s move against **" + opponent.getName() + "**."),
+									Action.msg("\u2694", "Attack", JavaTools.convert(b -> {
+										return new Action(b.getEmoji() + " " + b.getHealthString(), t -> {
+											battle.act(new GarmonBattleAction(b));
+											inv.event.getChannel().sendMessage("You successfully attacked")
+													.embed(GarmonUtils.printBattleQueue(battle).build()).queue();
+										});
+									}, opponentTeam.memberView()
+											.toArray(new GarmonFighter[opponentTeam.memberView().size()]))));
+							am.send(clover, inv.event.getChannel(), inv.event.getAuthor());
+						} else {
+
+						}
+
+//						battle.
+
+					}
+				};
+
+//				new Subcommand("battle") {
+//
+//					@Override
+//					protected void tailed(SubcommandInvocation inv) {
 //						if (false)
-						inv.event.getChannel().sendMessage(new EmbedBuilder()
-								.setAuthor(inv.event.getAuthor().getName() + " Initiated a BATTLE!", null,
-										inv.event.getAuthor().getEffectiveAvatarUrl())
-								.addField("<:nymph_emoji:854622804514832384> Nymph [Wild]",
-										"\\\u2764\uFE0F `50/50`   \\\u2694\uFE0F `12`   \\\uD83D\uDEE1\uFE0F \u200b `5`   \\\uD83D\uDCA8\uFE0F `7`",
-										true)
-								.build()).queue();
+//						inv.event.getChannel().sendMessage(new EmbedBuilder()
+//								.setAuthor(inv.event.getAuthor().getName() + " Initiated a BATTLE!", null,
+//										inv.event.getAuthor().getEffectiveAvatarUrl())
+//								.addField("<:nymph_emoji:854622804514832384> Nymph [Wild]",
+//										"\\\u2764\uFE0F `50/50`   \\\u2694\uFE0F `12`   \\\uD83D\uDEE1\uFE0F \u200b `5`   \\\uD83D\uDCA8\uFE0F `7`",
+//										true)
+//								.build()).queue();
 //						else {
 //							inv.event.getChannel().sendMessage(new EmbedBuilder()
 //									.setAuthor(inv.event.getAuthor().getName() + " Initiated a BATTLE!", null,
@@ -2606,27 +2656,27 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 //											true)
 //									.build()).queue();
 //						}
-					}
-				};
+//					}
+//				};
 
-				new Subcommand("attack") {
-
-					@Override
-					protected void tailed(SubcommandInvocation inv) {
-						int rand = new Random().nextInt(800) + 200;
-						AttackActionMessage aam = new AttackActionMessage(inv.event.getAuthor().getName() + "'s Team",
-								"[Wild] Nymph", "Tamed Nymph",
-								"https://media.discordapp.net/attachments/807401695688261639/862522787319382046/nymph.png?width=632&height=676",
-								new Random().nextInt(rand), rand,
-								new AttackAction("\uD83D\uDCA8", "Run Away",
-										t -> inv.event.getChannel().sendMessage("You successfully ran away!").queue(),
-										"Cowardly flee from the fight."),
-								new AttackAction("\u2694\uFE0F", "Attack", t -> inv.event.getChannel()
-										.sendMessage("You attack your opponent for 15 \\\u2694\uFE0F damage.").queue(),
-										"Have at your opponent."));
-						aam.send(clover, inv.event.getChannel(), inv.event.getAuthor());
-					}
-				};
+//				new Subcommand("attack") {
+//
+//					@Override
+//					protected void tailed(SubcommandInvocation inv) {
+//						int rand = new Random().nextInt(800) + 200;
+//						AttackActionMessage aam = new AttackActionMessage(inv.event.getAuthor().getName() + "'s Team",
+//								"[Wild] Nymph", "Tamed Nymph",
+//								"https://media.discordapp.net/attachments/807401695688261639/862522787319382046/nymph.png?width=632&height=676",
+//								new Random().nextInt(rand), rand,
+//								new AttackAction("\uD83D\uDCA8", "Run Away",
+//										t -> inv.event.getChannel().sendMessage("You successfully ran away!").queue(),
+//										"Cowardly flee from the fight."),
+//								new AttackAction("\u2694\uFE0F", "Attack", t -> inv.event.getChannel()
+//										.sendMessage("You attack your opponent for 15 \\\u2694\uFE0F damage.").queue(),
+//										"Have at your opponent."));
+//						aam.send(clover, inv.event.getChannel(), inv.event.getAuthor());
+//					}
+//				};
 
 //				new Subcommand("battle2") {
 //
