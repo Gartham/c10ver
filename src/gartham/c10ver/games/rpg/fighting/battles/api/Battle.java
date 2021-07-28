@@ -303,7 +303,7 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>> {
 	 * 
 	 * @param team The {@link Team} to surrender.
 	 */
-	public void surrender(T team) {
+	protected final void surrender(T team) {
 		for (Iterator<F> iterator = battleQueue.iterator(); iterator.hasNext();)
 			if (team.contains(iterator.next()))
 				iterator.remove();
