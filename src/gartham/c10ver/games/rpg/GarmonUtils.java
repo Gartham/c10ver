@@ -1,12 +1,17 @@
 package gartham.c10ver.games.rpg;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import org.alixia.javalibrary.JavaTools;
 import org.alixia.javalibrary.strings.StringTools;
+import org.jetbrains.annotations.NotNull;
 
 import club.minnced.discord.webhook.WebhookClientBuilder;
+import club.minnced.discord.webhook.external.JDAWebhookClient;
 import club.minnced.discord.webhook.send.WebhookEmbedBuilder;
+import club.minnced.discord.webhook.send.WebhookMessage;
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import gartham.c10ver.games.rpg.creatures.Creature;
 import gartham.c10ver.games.rpg.fighting.battles.app.GarmonBattle;
@@ -17,6 +22,9 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.Webhook;
 
 public class GarmonUtils {
+
+	private static final Map<String, JDAWebhookClient> clients = new HashMap<>();
+
 	private GarmonUtils() {
 	}
 
@@ -63,12 +71,19 @@ public class GarmonUtils {
 		return channel.createWebhook(StringTools.toHexString(b)).complete();
 	}
 
+	public static JDAWebhookClient getClient(TextChannel channel) {
+		if (clients.containsKey(channel.getId()))
+			return clients.get(channel.getId());
+		else {
+			var cl = WebhookClientBuilder.fromJDA(getFeasibleWebhook(channel)).buildJDA();
+			clients.put(channel.getId(), cl);
+			return cl;
+		}
+	}
+
 	public static void sendAsCreature(Creature creature, String message, EmbedBuilder embed, TextChannel channel) {
 		if (message == null && embed == null)
 			throw null;
-		var wb = getFeasibleWebhook(channel);
-		WebhookClientBuilder wcb = WebhookClientBuilder.fromJDA(wb);
-		var hook = wcb.buildJDA();
 
 		var wmb = new WebhookMessageBuilder();
 		wmb.setAvatarUrl(creature.getPFP());
@@ -77,7 +92,17 @@ public class GarmonUtils {
 			wmb.setContent(message);
 		if (embed != null)
 			wmb.addEmbeds(WebhookEmbedBuilder.fromJDA(embed.build()).build());
-		hook.send(wmb.build());
+		JDAWebhookClient client = getClient(channel);
+		@NotNull
+		WebhookMessage builtmsg = wmb.build();
+		client.send(builtmsg).exceptionally(t -> {
+			System.err.println(
+					"An error occurred while sending a webhook message over a webhook (hook URL: " + client.getUrl()
+							+ ").\nPerhaps the webhook was deleted. Retrying with a refreshed webhook client.");
+			t.printStackTrace();
+			clients.remove(channel.getId());
+			return getClient(channel).send(builtmsg).join();
+		});
 	}
 
 	public static void sendAsCreature(Creature creature, EmbedBuilder embed, TextChannel channel) {
