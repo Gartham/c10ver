@@ -40,7 +40,8 @@ public class GarmonBattle extends Battle<GarmonBattleAction, GarmonFighter, Garm
 			BigInteger attack = fighter.getAttack();
 			for (int i = 2; i < 13; i++)
 				if (rand.nextInt(i) == 0)
-					attack = attack.add(fighter.getAttack().divide(BigInteger.valueOf(i)));
+					attack = attack.add(fighter.getAttack().divide(BigInteger.valueOf(i + 1)));
+			action.getTarget().damage(max(BigInteger.ZERO, attack.subtract(action.getTarget().getDefense())));
 			return 50;
 
 		case SKIP_TURN:
@@ -50,10 +51,10 @@ public class GarmonBattle extends Battle<GarmonBattleAction, GarmonFighter, Garm
 
 		case SPECIAL_ATTACK:
 			var att = action.getSpecialAttack();
-			att.getTarget()
+			action.getTarget()
 					.damage(max(BigInteger.ZERO,
 							att.getPower().multiply(new BigDecimal(fighter.getAttack()))
-									.subtract(new BigDecimal(att.getTarget().getDefense()))
+									.subtract(new BigDecimal(action.getTarget().getDefense()))
 									.setScale(0, RoundingMode.HALF_UP).toBigInteger()));
 			return att.getTicks();
 
