@@ -55,6 +55,26 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>> {
 	private final Set<T> teams, remainingTeams = new HashSet<>();
 	private State state = State.UNSTARTED;
 
+	private final Map<F, Integer> ticksTillTurnUnmodifiable = Collections.unmodifiableMap(ticksTillTurn);
+	private final List<F> battleQueueUnmodifiable = Collections.unmodifiableList(battleQueue);
+	private final Set<T> teamsUnmodifiable, remainingTeamsUnmodifiable = Collections.unmodifiableSet(remainingTeams);
+
+	public final Map<F, Integer> getTicksTillTurnUnmodifiable() {
+		return ticksTillTurnUnmodifiable;
+	}
+
+	public final List<F> getBattleQueueUnmodifiable() {
+		return battleQueueUnmodifiable;
+	}
+
+	public final Set<T> getTeamsUnmodifiable() {
+		return teamsUnmodifiable;
+	}
+
+	public final Set<T> getRemainingTeamsUnmodifiable() {
+		return remainingTeamsUnmodifiable;
+	}
+
 	public enum State {
 		/**
 		 * Denotes that a {@link Battle} is yet to be started.
@@ -187,7 +207,7 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>> {
 
 	@SafeVarargs
 	public Battle(T... teams) {
-		this.teams = new HashSet<>();
+		teamsUnmodifiable = Collections.unmodifiableSet(this.teams = new HashSet<>());
 		for (var t : teams) {
 			this.teams.add(t);
 			for (var f : t)
@@ -197,7 +217,7 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>> {
 	}
 
 	public Battle(Collection<T> teams) {
-		this.teams = new HashSet<>(teams);
+		teamsUnmodifiable = Collections.unmodifiableSet(this.teams = new HashSet<>(teams));
 		for (var t : teams)
 			for (var f : t)
 				battleQueue.add(-Collections.binarySearch(battleQueue, f, Comparator.<F>naturalOrder().reversed()) - 1,
@@ -218,7 +238,7 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>> {
 	 * @param f0 The {@link Fighter} to get the {@link Team} of.
 	 * @return The {@link Team} that the provided {@link Fighter} belongs to.
 	 */
-	protected final T getTeam(F f0) {
+	public final T getTeam(F f0) {
 		for (var t : teams)
 			if (t.contains(f0))
 				return t;
@@ -249,7 +269,7 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>> {
 	 * @param targ The target {@link Fighter}.
 	 * @return The selected {@link Fighter}.
 	 */
-	protected final F getNextNthOpponent(int n, F targ) {
+	public final F getNextNthOpponent(int n, F targ) {
 		return getNextNthOpponent(n, getTeam(targ));
 	}
 
@@ -277,7 +297,7 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>> {
 	 * @return The selected {@link Fighter}, or <code>null</code> if no matching
 	 *         {@link Fighter} is found for some reason.
 	 */
-	protected final F getNextNthOpponent(int n, T targ) {
+	public final F getNextNthOpponent(int n, T targ) {
 		for (var f : battleQueue)
 			if (!targ.contains(f))
 				if (n-- == 0)
@@ -291,7 +311,7 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>> {
 	 * 
 	 * @return The number of {@link Fighter}s in this {@link Battle}.
 	 */
-	public int getFighterCount() {
+	public final int getFighterCount() {
 		return battleQueue.size();
 	}
 
@@ -316,7 +336,7 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>> {
 	 * 
 	 * @return The winning {@link Team}, if there is one.
 	 */
-	public T getWinningTeam() {
+	public final T getWinningTeam() {
 		return remainingTeams.size() == 1 ? remainingTeams.iterator().next() : null;
 	}
 
@@ -326,7 +346,7 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>> {
 	 * 
 	 * @return if this {@link Battle} is over and is a draw.
 	 */
-	public boolean isDraw() {
+	public final boolean isDraw() {
 		return remainingTeams.isEmpty();
 	}
 
