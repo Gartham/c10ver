@@ -7,23 +7,30 @@ import java.util.Collection;
 import java.util.Random;
 
 import gartham.c10ver.games.rpg.fighting.battles.api.Battle;
-import gartham.c10ver.games.rpg.fighting.battles.api.Team;
 
-public class GarmonBattle extends Battle<GarmonBattleAction, GarmonFighter, Team<GarmonFighter>> {
+public class GarmonBattle extends Battle<GarmonBattleAction, GarmonFighter, GarmonTeam> {
+
+	public GarmonTeam getFighterTeam(GarmonFighter fighter) {
+		return getTeam(fighter);
+	}
 
 	private static final Random rand = new Random();
 
-	public GarmonBattle(Collection<Team<GarmonFighter>> teams) {
+	public GarmonBattle(Collection<GarmonTeam> teams) {
 		super(teams);
 	}
 
 	@SafeVarargs
-	public GarmonBattle(Team<GarmonFighter>... teams) {
+	public GarmonBattle(GarmonTeam... teams) {
 		super(teams);
 	}
 
 	private static final BigInteger max(BigInteger first, BigInteger second) {
 		return first.compareTo(second) > 0 ? first : second;
+	}
+
+	public int getFighterTicks(GarmonFighter fighter) {
+		return getTicks(fighter);
 	}
 
 	@Override
