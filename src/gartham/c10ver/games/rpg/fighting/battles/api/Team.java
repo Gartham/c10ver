@@ -46,25 +46,6 @@ public class Team<F extends Fighter> implements Iterable<F> {
 			throw new IllegalArgumentException();
 	}
 
-	/**
-	 * Removes the specified {@link Fighter} from this {@link Team}'s {@link Set} of
-	 * {@link Fighter}s.
-	 * 
-	 * @param fighter The {@link Fighter} to remove.
-	 */
-	void remove(F fighter) {
-		members.remove(fighter);
-	}
-
-	/**
-	 * Adds the specified {@link Fighter} to this {@link Team}.
-	 * 
-	 * @param fighter The {@link Fighter} to add.
-	 */
-	void add(F fighter) {
-		members.add(fighter);
-	}
-
 	public boolean contains(Fighter f) {
 		return members.contains(f);
 	}
