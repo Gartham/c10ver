@@ -4,21 +4,21 @@ import java.util.function.Consumer;
 
 public class Action {
 
-	private final String emoji, description;
+	private final String emoji, name;
 	private final Consumer<ActionInvocation> action;
 
-	public Action(String emoji, String description, Consumer<ActionInvocation> action) {
+	public Action(String emoji, String name, Consumer<ActionInvocation> action) {
 		this.emoji = emoji;
-		this.description = description;
+		this.name = name;
 		this.action = action;
 	}
 
-	public Action(String description, Consumer<ActionInvocation> action) {
-		this(null, description, action);
+	public Action(String name, Consumer<ActionInvocation> action) {
+		this(null, name, action);
 	}
 
-	public String getDescription() {
-		return description;
+	public String getName() {
+		return name;
 	}
 
 	public Consumer<ActionInvocation> getAction() {
