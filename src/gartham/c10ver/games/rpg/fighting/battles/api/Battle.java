@@ -48,7 +48,7 @@ import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
  * @param <A> The type representing the actions that can be taken by
  *            {@link Fighter}s tracked by this {@link Battle}.
  */
-public abstract class Battle<A, F extends Fighter, T extends Team<F>> {
+public abstract class Battle<A, F extends Fighter, T extends Team<F>, R extends ActionResult> {
 
 	private final Map<F, Integer> ticksTillTurn = new HashMap<>();
 	private final List<F> battleQueue = new ArrayList<>();
@@ -152,21 +152,22 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>> {
 	 * @param action The action to take.
 	 * @return <code>true</code> if the {@link Battle} is over.
 	 */
-	public final boolean act(A action) {
+	public final ActionCompletion<R> act(A action) {
 		if (state != State.RUNNING)
 			throw new IllegalStateException("Battles must be in a running state for actions to be taken.");
 		var fighter = getActingFighter();
 		var t = handleAction(action, fighter);
-		ticksTillTurn.put(fighter, ticksTillTurn.get(fighter) + t);// We get the ticks for our fighter because the
-																	// action taken my have modified its ticks via
-																	// side-effect.
+		ticksTillTurn.put(fighter, ticksTillTurn.get(fighter) + t.getTicks());// We get the ticks for our fighter
+																				// because the
+		// action taken my have modified its ticks via
+		// side-effect.
 		if (state == State.STOPPED)
-			return true;
+			return new ActionCompletion<>(true, t);
 
 		// Finally we re-sort the battle queue.
 		sortQueue();
 		shiftQueue();
-		return false;
+		return new ActionCompletion<>(false, t);
 
 	}
 
@@ -182,9 +183,10 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>> {
 	 *                {@link Battle} behavior), this argument should be exactly the
 	 *                same as the {@link Fighter} in the front (position
 	 *                <code>0</code>) of the {@link #battleQueue battle queue}.
-	 * @return The number of ticks that the action has taken.
+	 * @return An {@link ActionResult} object containing the number of ticks that
+	 *         the action took as well as any other information used by this battle.
 	 */
-	protected abstract int handleAction(A action, F fighter);
+	protected abstract R handleAction(A action, F fighter);
 
 	/**
 	 * Sorts the battle queue according to ticks. This is automatically done at the
