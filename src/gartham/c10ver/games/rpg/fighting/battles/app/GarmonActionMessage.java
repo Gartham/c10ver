@@ -19,9 +19,6 @@ public class GarmonActionMessage extends DetailedActionMessage<DetailedAction> {
 		eb.setTitle(creature.getName() + "'s Turn").setThumbnail(creature.getHeadshot());
 		eb.setDescription("**" + creature.getName() + "**\nHealth: " + creature.getHealthString()
 				+ RPGUtils.calcHealthbar(creature.getHealth(), creature.getMaxHealth()));
-
-		for (var ga : getActions())
-			eb.addField(ga.getEmoji() + ' ' + ga.getName(), ga.getDetails(), true);
 	}
 
 }
