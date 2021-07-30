@@ -45,41 +45,16 @@ public class Action {
 		this.action.accept(invoc);
 	}
 
-	public static Action msg(String name, Action... actionMessage) {
-		return msg(name, new SimpleActionMessage<>(name, actionMessage));
-	}
-
-	public static Action msg(String name, Consumer<ActionInvocation> action, Action... actionMessage) {
-		return msg(name, new SimpleActionMessage<>(name, actionMessage), action);
-	}
-
 	public static Action msg(String name, ActionMessage<? extends Action> msg) {
 		return new Action(null, name, t -> msg.send(t.getClover(), t.getEvent().getChannel(), t.getEvent().getUser()));
-	}
-
-	public static Action msg(String emoji, String name, Action... actionMessage) {
-		return msg(emoji, name, new SimpleActionMessage<>(name, actionMessage));
-	}
-
-	public static Action msg(String emoji, String name, Consumer<ActionInvocation> action, Action... actionMessage) {
-		return msg(emoji, name, new SimpleActionMessage<>(name, actionMessage), action);
 	}
 
 	public static Action msg(String emoji, String name, ActionMessage<? extends Action> msg) {
 		return new Action(emoji, name, t -> msg.send(t.getClover(), t.getEvent().getChannel(), t.getEvent().getUser()));
 	}
 
-	public static Consumer<ActionInvocation> actionMessageAction(String desc, Action... actionMessage) {
-		return actionMessageAction(new SimpleActionMessage<>(desc, actionMessage));
-	}
-
 	public static Consumer<ActionInvocation> actionMessageAction(Action... actionMessages) {
 		return actionMessageAction(new SimpleActionMessage<>(actionMessages));
-	}
-
-	public static Consumer<ActionInvocation> actionMessageAction(String actionMessageDescription,
-			Consumer<ActionInvocation> action, Action... actionMessage) {
-		return actionMessageAction(new SimpleActionMessage<>(actionMessageDescription, actionMessage), action);
 	}
 
 	public static Consumer<ActionInvocation> actionMessageAction(ActionMessage<? extends Action> msg) {
