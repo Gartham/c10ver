@@ -319,6 +319,14 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>> {
 		return battleQueue.size();
 	}
 
+	public List<F> getRemainingFighters(T team) {
+		List<F> fighters = new ArrayList<>();
+		for (F f : battleQueue)
+			if (!f.isFainted() && team.contains(f))
+				fighters.add(f);
+		return fighters;
+	}
+
 	/**
 	 * Causes the specified {@link Team} to forfeit the battle. This will result in
 	 * a win for the opposing {@link Team}, if there is only one opposing
