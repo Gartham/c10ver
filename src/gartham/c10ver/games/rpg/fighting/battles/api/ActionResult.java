@@ -1,13 +1,20 @@
 package gartham.c10ver.games.rpg.fighting.battles.api;
 
 public class ActionResult {
-	private final boolean battleOver;
+	private final int ticks;
 
-	public ActionResult(boolean battleOver) {
-		this.battleOver = battleOver;
+	public ActionResult(int ticks) {
+		this.ticks = ticks;
 	}
 
-	public boolean isBattleOver() {
-		return battleOver;
+	/**
+	 * Returns the number of ticks that the action that this {@link ActionResult}
+	 * represents the result of took.
+	 * 
+	 * @return The number of ticks taken by the action.
+	 */
+	public int getTicks() {
+		return ticks;
 	}
+
 }
