@@ -3,6 +3,7 @@ package gartham.c10ver.games.rpg;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.function.Consumer;
 
 import org.alixia.javalibrary.JavaTools;
 import org.alixia.javalibrary.strings.StringTools;
@@ -69,6 +70,31 @@ public class GarmonUtils {
 		byte[] b = new byte[5];
 		new Random().nextBytes(b);// 1/2^40 collision chance.
 		return channel.createWebhook(StringTools.toHexString(b)).complete();
+	}
+
+	public static void queueWithFeasibleWebhook(TextChannel channel, Consumer<Webhook> consumer) {
+		channel.retrieveWebhooks().queue(t -> {
+			for (Webhook wb : t)
+				if (wb.getOwner().getId().equals(channel.getJDA().getSelfUser().getId())) {
+					consumer.accept(wb);
+					return;
+				}
+			byte[] b = new byte[5];
+			new Random().nextBytes(b);// 1/2^40 collision chance.
+			channel.createWebhook(StringTools.toHexString(b)).queue(t1 -> consumer.accept(t1));
+		});
+	}
+
+	public static void queueWithClient(TextChannel channel, Consumer<JDAWebhookClient> consumer) {
+		if (clients.containsKey(channel.getId()))
+			consumer.accept(clients.get(channel.getId()));
+		else {
+			queueWithFeasibleWebhook(channel, t -> {
+				var cl = WebhookClientBuilder.fromJDA(t).buildJDA();
+				clients.put(channel.getId(), cl);
+				consumer.accept(cl);
+			});
+		}
 	}
 
 	public static JDAWebhookClient getClient(TextChannel channel) {
