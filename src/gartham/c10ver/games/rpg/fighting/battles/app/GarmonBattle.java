@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 import gartham.c10ver.games.rpg.fighting.battles.api.Battle;
@@ -62,6 +64,19 @@ public class GarmonBattle extends Battle<GarmonBattleAction, GarmonFighter, Garm
 			surrender(getTeam(fighter));
 			return 100;
 		}
+	}
+
+	/**
+	 * Sorts the fighters according to their order in the battle queue.
+	 * 
+	 * @param fighters The list of {@link GarmonFighter}s to sort.
+	 */
+	public void sort(List<GarmonFighter> fighters) {
+		Collections.sort(fighters, (o1, o2) -> {
+			int c = sortingComparator().compare(o1, o2);
+			return c == 0 ? Integer.compare(Collections.binarySearch(fighters, o1, sortingComparator()),
+					Collections.binarySearch(fighters, o2, sortingComparator())) : c;
+		});
 	}
 
 }
