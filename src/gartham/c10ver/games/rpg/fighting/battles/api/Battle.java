@@ -152,7 +152,7 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>, R extends 
 	 * @param action The action to take.
 	 * @return <code>true</code> if the {@link Battle} is over.
 	 */
-	public final ActionCompletion<R> act(A action) {
+	public final ActionCompletion<R, F> act(A action) {
 		if (state != State.RUNNING)
 			throw new IllegalStateException("Battles must be in a running state for actions to be taken.");
 		var fighter = getActingFighter();
@@ -162,12 +162,12 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>, R extends 
 		// action taken my have modified its ticks via
 		// side-effect.
 		if (state == State.STOPPED)
-			return new ActionCompletion<>(true, t);
+			return new ActionCompletion<>(true, fighter, t);
 
 		// Finally we re-sort the battle queue.
 		sortQueue();
 		shiftQueue();
-		return new ActionCompletion<>(false, t);
+		return new ActionCompletion<>(false, fighter, t);
 
 	}
 
