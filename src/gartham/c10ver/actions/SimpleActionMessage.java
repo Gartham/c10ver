@@ -1,39 +1,30 @@
 package gartham.c10ver.actions;
 
+import java.util.Iterator;
+
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 
 public class SimpleActionMessage<A extends Action> extends ActionMessage<A> {
 
-	private final EmbedBuilder builder;
-
-	public EmbedBuilder getBuilder() {
-		return builder;
-	}
-
-	@SafeVarargs
-	public SimpleActionMessage(EmbedBuilder builder, A... actions) {
-		super(actions);
-		this.builder = builder;
-		builder.appendDescription("\n\n");
-		for (int i = 0; i < actions.length; i++)
-			builder.appendDescription(actions[i].getEmoji() == null ? ActionMessage.EMOJIS[i] : actions[i].getEmoji())
-					.appendDescription(" ").appendDescription(actions[i].getName()).appendDescription("\n");
-	}
-
 	@SafeVarargs
 	public SimpleActionMessage(A... actions) {
-		this(new EmbedBuilder(), actions);
+		super(actions);
 	}
 
-	@SafeVarargs
-	public SimpleActionMessage(String desc, A... actions) {
-		this(new EmbedBuilder().setAuthor(desc), actions);
+	public SimpleActionMessage(Iterable<A> actions) {
+		super(actions);
+	}
+
+	public SimpleActionMessage(Iterator<A> actions) {
+		super(actions);
 	}
 
 	@Override
-	public MessageEmbed embed() {
-		return builder.build();
+	protected void buildEmbed(EmbedBuilder builder) {
+		for (int i = 0; i < getActions().size(); i++)
+			builder.appendDescription(
+					getActions().get(i).getEmoji() == null ? ActionMessage.EMOJIS[i] : getActions().get(i).getEmoji())
+					.appendDescription(" ").appendDescription(getActions().get(i).getName()).appendDescription("\n");
 	}
 
 }

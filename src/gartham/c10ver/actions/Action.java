@@ -4,8 +4,20 @@ import java.util.function.Consumer;
 
 public class Action {
 
-	private final String emoji, name;
-	private final Consumer<ActionInvocation> action;
+	public void setEmoji(String emoji) {
+		this.emoji = emoji;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setAction(Consumer<ActionInvocation> action) {
+		this.action = action;
+	}
+
+	private String emoji, name;
+	private Consumer<ActionInvocation> action;
 
 	public Action(String emoji, String name, Consumer<ActionInvocation> action) {
 		this.emoji = emoji;
@@ -33,28 +45,28 @@ public class Action {
 		this.action.accept(invoc);
 	}
 
-	public static Action msg(String desc, Action... actionMessage) {
-		return msg(desc, new SimpleActionMessage<>(desc, actionMessage));
+	public static Action msg(String name, ActionMessage<? extends Action> msg) {
+		return new Action(null, name, t -> msg.send(t.getClover(), t.getEvent().getChannel(), t.getEvent().getUser()));
 	}
 
-	public static Action msg(String desc, Consumer<ActionInvocation> action, Action... actionMessage) {
-		return msg(desc, new SimpleActionMessage<>(desc, actionMessage), action);
+	public static Action msg(String emoji, String name, ActionMessage<? extends Action> msg) {
+		return new Action(emoji, name, t -> msg.send(t.getClover(), t.getEvent().getChannel(), t.getEvent().getUser()));
 	}
 
-	public static Action msg(String desc, ActionMessage<? extends Action> msg) {
-		return new Action(null, desc, t -> msg.send(t.getClover(), t.getEvent().getChannel(), t.getEvent().getUser()));
+	public static Consumer<ActionInvocation> actionMessageAction(Action... actionMessages) {
+		return actionMessageAction(new SimpleActionMessage<>(actionMessages));
 	}
 
-	public static Action msg(String emoji, String desc, Action... actionMessage) {
-		return msg(emoji, desc, new SimpleActionMessage<>(desc, actionMessage));
+	public static Consumer<ActionInvocation> actionMessageAction(ActionMessage<? extends Action> msg) {
+		return t -> msg.send(t.getClover(), t.getEvent().getChannel(), t.getEvent().getUser());
 	}
 
-	public static Action msg(String emoji, String desc, Consumer<ActionInvocation> action, Action... actionMessage) {
-		return msg(emoji, desc, new SimpleActionMessage<>(desc, actionMessage), action);
-	}
-
-	public static Action msg(String emoji, String desc, ActionMessage<? extends Action> msg) {
-		return new Action(emoji, desc, t -> msg.send(t.getClover(), t.getEvent().getChannel(), t.getEvent().getUser()));
+	public static Consumer<ActionInvocation> actionMessageAction(ActionMessage<?> msg,
+			Consumer<ActionInvocation> action) {
+		return t -> {
+			action.accept(t);
+			msg.send(t.getClover(), t.getEvent().getChannel(), t.getEvent().getUser());
+		};
 	}
 
 	/**

@@ -1,12 +1,14 @@
 package gartham.c10ver.actions;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.alixia.javalibrary.JavaTools;
 
 import gartham.c10ver.Clover;
 import gartham.c10ver.commands.consumers.MessageReactionInputConsumer;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
@@ -33,15 +35,30 @@ public abstract class ActionMessage<A extends Action> {
 
 	@SafeVarargs
 	public ActionMessage(A... actions) {
-		for (var a : actions)
+		this(JavaTools.iterable(actions));
+	}
+
+	public ActionMessage(Iterable<A> actions) {
+		for (A a : actions)
 			this.actions.add(a);
+	}
+
+	public ActionMessage(Iterator<A> actions) {
+		while (actions.hasNext())
+			this.actions.add(actions.next());
 	}
 
 	public List<A> getActions() {
 		return actions;
 	}
 
-	public abstract MessageEmbed embed();
+	protected abstract void buildEmbed(EmbedBuilder builder);
+
+	public final MessageEmbed embed() {
+		var e = new EmbedBuilder();
+		buildEmbed(e);
+		return e.build();
+	}
 
 	public void send(Clover clover, MessageChannel msg, User target) {
 		msg.sendMessage(embed()).queue(t -> {
