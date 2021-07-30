@@ -1,6 +1,6 @@
 package gartham.c10ver.games.rpg.fighting.battles.app;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import gartham.c10ver.Clover;
 import gartham.c10ver.actions.DetailedAction;
@@ -43,6 +43,9 @@ public final class GarmonBattleManager {
 		if (playerTeam.contains(actor)) {
 			userTurnMessage().send(clover, chan, player);
 		} else {
+			List<GarmonFighter> list = battle.getRemainingFighters(playerTeam);
+			battle.act(new GarmonBattleAction(list.get((int) (Math.random() * list.size()))));// Make this return a new
+																								// ActionResult type.
 			// Non-player-controlled turn.
 		}
 	}
@@ -79,9 +82,8 @@ public final class GarmonBattleManager {
 					next();
 			else {
 				var dam = new DetailedActionMessage<>();
-				var oplist = new ArrayList<>(opponentTeam.memberView());
-				battle.sort(oplist);
-				for (var v : opponentTeam.memberView())
+				var oplist = battle.getRemainingFighters(opponentTeam);
+				for (var v : oplist)
 					dam.getActions().add(
 							new DetailedAction(v.getName(), "\uD83D\uDD50\uFE0F " + battle.getFighterTicks(v), t1 -> {
 								if (battle.act(new GarmonBattleAction(v)))
