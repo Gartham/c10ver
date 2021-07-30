@@ -1,15 +1,15 @@
 package gartham.c10ver.games.rpg.fighting.battles.app;
 
 import gartham.c10ver.actions.ActionMessage;
+import gartham.c10ver.actions.DetailedAction;
+import gartham.c10ver.actions.DetailedActionMessage;
 import gartham.c10ver.games.rpg.RPGUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
-public class GarmonActionMessage extends ActionMessage<GarmonAction> {
+public class GarmonActionMessage extends DetailedActionMessage<DetailedAction> {
 
-	private final EmbedBuilder eb = new EmbedBuilder();
-
-	public GarmonActionMessage(GarmonFighter creature, GarmonAction... actions) {
+	public GarmonActionMessage(GarmonFighter creature, DetailedAction... actions) {
 		super(actions);
 		eb.setTitle(creature.getName() + "'s Turn").setThumbnail(creature.getHeadshot());
 		eb.setDescription("**" + creature.getName() + "**\nHealth: " + creature.getHealthString()
