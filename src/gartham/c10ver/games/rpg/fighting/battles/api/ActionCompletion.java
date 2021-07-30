@@ -1,12 +1,16 @@
 package gartham.c10ver.games.rpg.fighting.battles.api;
 
-public class ActionCompletion<R extends ActionResult> {
+import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
+
+public class ActionCompletion<R extends ActionResult, F extends Fighter> {
 
 	private final boolean battleOver;
+	private final F fighter;
 	private final R result;
 
-	public ActionCompletion(boolean battleOver, R result) {
+	public ActionCompletion(boolean battleOver, F fighter, R result) {
 		this.battleOver = battleOver;
+		this.fighter = fighter;
 		this.result = result;
 	}
 
@@ -20,6 +24,10 @@ public class ActionCompletion<R extends ActionResult> {
 
 	public int getTicks() {
 		return result.getTicks();
+	}
+
+	public F getFighter() {
+		return fighter;
 	}
 
 }
