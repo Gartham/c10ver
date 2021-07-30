@@ -2,10 +2,12 @@ package gartham.c10ver.games.rpg.fighting.battles.app;
 
 import java.util.List;
 
+import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import gartham.c10ver.Clover;
 import gartham.c10ver.actions.DetailedAction;
 import gartham.c10ver.actions.DetailedActionMessage;
 import gartham.c10ver.games.rpg.GarmonUtils;
+import gartham.c10ver.games.rpg.fighting.battles.api.ActionCompletion;
 import gartham.c10ver.games.rpg.fighting.battles.app.GarmonBattleAction.ActionType;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -58,7 +60,7 @@ public final class GarmonBattleManager {
 
 	private DetailedAction surrender() {
 		return new DetailedAction("\uD83C\uDFF3", "Surrender", "Give up and take the L.", t -> {
-			if (battle.act(new GarmonBattleAction(ActionType.SURRENDER))) {
+			if (battle.act(new GarmonBattleAction(ActionType.SURRENDER)).isBattleOver()) {
 				chan.sendMessage("**Battle Lost!**\n" + player.getAsMention()
 						+ " surrendered. No cloves were gained, but you still got some experience!").queue();
 			} else
@@ -73,20 +75,36 @@ public final class GarmonBattleManager {
 		});
 	}
 
+	private void sendAttackMessage(ActionCompletion<GarmonActionResult, GarmonFighter> act) {
+		var wh = GarmonUtils.getClient(chan);
+		var whm = new WebhookMessageBuilder();
+		GarmonFighter fighter = act.getFighter();
+		whm.setUsername(fighter.getName());
+		whm.setAvatarUrl(fighter.getHeadshot());
+		whm.setContent("*Attacks " + act.getResult().getTarget().getName() + " for \u2694 `"
+				+ act.getResult().getDamage() + "`.");
+		wh.send(whm.build());
+	}
+
 	private DetailedAction attack(DetailedActionMessage<DetailedAction> source) {
 		return new DetailedAction("\u2694", "Attack", "Pow pow pow!\nTakes: \uD83D\uDD50\uFE0F 50", t -> {
-			if (opponentTeam.memberView().size() == 1)
-				if (battle.act(new GarmonBattleAction(opponentTeam.iterator().next()/* TODO Fix */)))
+			if (opponentTeam.memberView().size() == 1) {
+				ActionCompletion<GarmonActionResult, GarmonFighter> act = battle
+						.act(new GarmonBattleAction(opponentTeam.iterator().next()/* TODO Fix */));
+				sendAttackMessage(act);
+				if (act.isBattleOver())
 					printWin();
 				else
 					next();
-			else {
+			} else {
 				var dam = new DetailedActionMessage<>();
 				var oplist = battle.getRemainingFighters(opponentTeam);
 				for (var v : oplist)
 					dam.getActions().add(
 							new DetailedAction(v.getName(), "\uD83D\uDD50\uFE0F " + battle.getFighterTicks(v), t1 -> {
-								if (battle.act(new GarmonBattleAction(v)))
+								var act = battle.act(new GarmonBattleAction(v));
+								sendAttackMessage(act);
+								if (act.isBattleOver())
 									printWin();
 								else
 									next();
