@@ -1,6 +1,8 @@
 package gartham.c10ver.games.rpg.fighting.battles.app;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import gartham.c10ver.Clover;
@@ -35,20 +37,26 @@ public final class GarmonBattleManager {
 		next();
 	}
 
-	private void printWin() {
-		// TODO Code
+	private void printBattleOver() {
+		chan.sendMessage("**Battle Finished!**\n" + battle.getWinningTeam().getName() + " has won the battle!").queue();
 	}
 
 	private void next() {
-		chan.sendMessage("Battle Queue:").embed(GarmonUtils.printBattleQueue(battle).build()).queue();
+//		chan.sendMessage("Battle Queue:").embed(GarmonUtils.printBattleQueue(battle).build()).queue();
 		var actor = battle.getActingFighter();
 		if (playerTeam.contains(actor)) {
 			userTurnMessage().send(clover, chan, player);
 		} else {
-			List<GarmonFighter> list = battle.getRemainingFighters(playerTeam);
-			battle.act(new GarmonBattleAction(list.get((int) (Math.random() * list.size()))));// Make this return a new
-																								// ActionResult type.
-			// Non-player-controlled turn.
+			var c = (Consumer<Object>) t -> {
+				List<GarmonFighter> list = battle.getRemainingFighters(playerTeam);
+				var act = battle.act(new GarmonBattleAction(list.get((int) (Math.random() * list.size()))));
+				sendAttackMessage(act);
+				if (act.isBattleOver())
+					printBattleOver();
+				else
+					next();
+			};
+			chan.sendTyping().queueAfter((int) (Math.random() * 2400 + 1200), TimeUnit.MILLISECONDS, c, c);
 		}
 	}
 
@@ -60,10 +68,10 @@ public final class GarmonBattleManager {
 
 	private DetailedAction surrender() {
 		return new DetailedAction("\uD83C\uDFF3", "Surrender", "Give up and take the L.", t -> {
-			if (battle.act(new GarmonBattleAction(ActionType.SURRENDER)).isBattleOver()) {
-				chan.sendMessage("**Battle Lost!**\n" + player.getAsMention()
-						+ " surrendered. No cloves were gained, but you still got some experience!").queue();
-			} else
+			if (battle.act(new GarmonBattleAction(ActionType.SURRENDER)).isBattleOver())
+				chan.sendMessage("**Battle Lost!**\n" + player.getAsMention() + " surrendered. Better luck next time.")
+						.queue();
+			else
 				next();
 		});
 	}
@@ -82,7 +90,7 @@ public final class GarmonBattleManager {
 		whm.setUsername(fighter.getName());
 		whm.setAvatarUrl(fighter.getHeadshot());
 		whm.setContent("*Attacks " + act.getResult().getTarget().getName() + " for \u2694 `"
-				+ act.getResult().getDamage() + "`.");
+				+ act.getResult().getDamage() + "`.*");
 		wh.send(whm.build());
 	}
 
@@ -93,7 +101,7 @@ public final class GarmonBattleManager {
 						.act(new GarmonBattleAction(opponentTeam.iterator().next()/* TODO Fix */));
 				sendAttackMessage(act);
 				if (act.isBattleOver())
-					printWin();
+					printBattleOver();
 				else
 					next();
 			} else {
@@ -105,7 +113,7 @@ public final class GarmonBattleManager {
 								var act = battle.act(new GarmonBattleAction(v));
 								sendAttackMessage(act);
 								if (act.isBattleOver())
-									printWin();
+									printBattleOver();
 								else
 									next();
 							}));
