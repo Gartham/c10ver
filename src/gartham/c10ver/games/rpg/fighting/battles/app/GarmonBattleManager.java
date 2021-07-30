@@ -13,6 +13,7 @@ import gartham.c10ver.games.rpg.fighting.battles.api.ActionCompletion;
 import gartham.c10ver.games.rpg.fighting.battles.app.GarmonBattleAction.ActionType;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.Webhook;
 
 public final class GarmonBattleManager {
 	private final GarmonBattle battle;
@@ -42,7 +43,6 @@ public final class GarmonBattleManager {
 	}
 
 	private void next() {
-//		chan.sendMessage("Battle Queue:").embed(GarmonUtils.printBattleQueue(battle).build()).queue();
 		var actor = battle.getActingFighter();
 		if (playerTeam.contains(actor)) {
 			userTurnMessage().send(clover, chan, player);
@@ -63,6 +63,7 @@ public final class GarmonBattleManager {
 	private GarmonActionMessage userTurnMessage() {
 		GarmonActionMessage m = new GarmonActionMessage(battle.getActingFighter(), surrender(), skipTurn());
 		m.getActions().add(1, attack(m));
+		m.getActions().add(info(m));
 		return m;
 	}
 
@@ -84,14 +85,13 @@ public final class GarmonBattleManager {
 	}
 
 	private void sendAttackMessage(ActionCompletion<GarmonActionResult, GarmonFighter> act) {
-		var wh = GarmonUtils.getClient(chan);
 		var whm = new WebhookMessageBuilder();
 		GarmonFighter fighter = act.getFighter();
 		whm.setUsername(fighter.getName());
 		whm.setAvatarUrl(fighter.getHeadshot());
 		whm.setContent("*Attacks " + act.getResult().getTarget().getName() + " for \u2694 `"
 				+ act.getResult().getDamage() + "`.*");
-		wh.send(whm.build());
+		GarmonUtils.queueWithClient(chan, t -> t.send(whm.build()));
 	}
 
 	private DetailedAction attack(DetailedActionMessage<DetailedAction> source) {
@@ -121,6 +121,20 @@ public final class GarmonBattleManager {
 						DetailedAction.actionMessageAction(source)));
 				dam.send(t.getClover(), t.getEvent().getChannel(), t.getEvent().getUser());
 			}
+		});
+	}
+
+	private DetailedAction info(DetailedActionMessage<DetailedAction> source) {
+		return new DetailedAction("\u2139", "Info", "Check battle queue or enemy stats.", t -> {
+			var dam = new DetailedActionMessage<>();
+			DetailedAction battleQueue = new DetailedAction("Battle Queue",
+					"Check the time until each creature's turn.", DetailedAction.actionMessageAction(dam, t1 -> chan
+							.sendMessage("Battle Queue:").embed(GarmonUtils.printBattleQueue(battle).build()).queue()));
+			DetailedAction back = new DetailedAction("\u2B05", "Back", "Go back to attack menu.",
+					DetailedAction.actionMessageAction(source));
+			dam.getActions().add(battleQueue);
+			dam.getActions().add(back);
+			dam.send(clover, chan, player);
 		});
 	}
 
