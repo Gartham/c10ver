@@ -10,7 +10,7 @@ import java.util.Random;
 
 import gartham.c10ver.games.rpg.fighting.battles.api.Battle;
 
-public class GarmonBattle extends Battle<GarmonBattleAction, GarmonFighter, GarmonTeam> {
+public class GarmonBattle extends Battle<GarmonBattleAction, GarmonFighter, GarmonTeam, GarmonActionResult> {
 
 	public GarmonTeam getFighterTeam(GarmonFighter fighter) {
 		return getTeam(fighter);
@@ -36,33 +36,35 @@ public class GarmonBattle extends Battle<GarmonBattleAction, GarmonFighter, Garm
 	}
 
 	@Override
-	protected int handleAction(GarmonBattleAction action, GarmonFighter fighter) {
+	protected GarmonActionResult handleAction(GarmonBattleAction action, GarmonFighter fighter) {
 		switch (action.getType()) {
 		case ATTACK:
 			BigInteger attack = fighter.getAttack();
 			for (int i = 2; i < 13; i++)
 				if (rand.nextInt(i) == 0)
 					attack = attack.add(fighter.getAttack().divide(BigInteger.valueOf(i + 1)));
-			action.getTarget().damage(max(BigInteger.ZERO, attack.subtract(action.getTarget().getDefense())));
-			return 50;
+			BigInteger dmg = max(BigInteger.ZERO, attack.subtract(action.getTarget().getDefense()));
+			action.getTarget().damage(dmg);
+			return new GarmonActionResult(50, action.getType(), dmg, action.getTarget());
 
 		case SKIP_TURN:
 			// Set ticks to be equal to the next OPPONENT in line + 1.
 			// We need some way to get the next opponent.
-			return getTicks(getNextNthOpponent(0, fighter)) + 1;
+			return new GarmonActionResult(getTicks(getNextNthOpponent(0, fighter)) + 1, action.getType(),
+					BigInteger.ZERO, null);
 
 		case SPECIAL_ATTACK:
 			var att = action.getSpecialAttack();
-			action.getTarget()
-					.damage(max(BigInteger.ZERO,
-							att.getPower().multiply(new BigDecimal(fighter.getAttack()))
-									.subtract(new BigDecimal(action.getTarget().getDefense()))
-									.setScale(0, RoundingMode.HALF_UP).toBigInteger()));
-			return att.getTicks();
+			dmg = max(BigInteger.ZERO,
+					att.getPower().multiply(new BigDecimal(fighter.getAttack()))
+							.subtract(new BigDecimal(action.getTarget().getDefense())).setScale(0, RoundingMode.HALF_UP)
+							.toBigInteger());
+			action.getTarget().damage(dmg);
+			return new GarmonActionResult(att.getTicks(), action.getType(), dmg, action.getTarget());
 
 		default:
 			surrender(getTeam(fighter));
-			return 100;
+			return new GarmonActionResult(100, action.getType(), BigInteger.ZERO, null);
 		}
 	}
 
