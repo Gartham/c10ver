@@ -1,6 +1,7 @@
 package gartham.c10ver.actions;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.alixia.javalibrary.JavaTools;
@@ -33,8 +34,17 @@ public abstract class ActionMessage<A extends Action> {
 
 	@SafeVarargs
 	public ActionMessage(A... actions) {
-		for (var a : actions)
+		this(JavaTools.iterable(actions));
+	}
+
+	public ActionMessage(Iterable<A> actions) {
+		for (A a : actions)
 			this.actions.add(a);
+	}
+
+	public ActionMessage(Iterator<A> actions) {
+		while (actions.hasNext())
+			this.actions.add(actions.next());
 	}
 
 	public List<A> getActions() {
