@@ -10,6 +10,10 @@ public class DetailedAction extends Action {
 		this.details = details;
 	}
 
+	public DetailedAction(String name, String details, Consumer<ActionInvocation> action) {
+		this(null, name, details, action);
+	}
+
 	public String getDetails() {
 		return details;
 	}
