@@ -1,7 +1,10 @@
 package gartham.c10ver.games.rpg.fighting.battles.app;
 
+import java.util.ArrayList;
+
 import gartham.c10ver.Clover;
 import gartham.c10ver.actions.DetailedAction;
+import gartham.c10ver.actions.DetailedActionMessage;
 import gartham.c10ver.games.rpg.GarmonUtils;
 import gartham.c10ver.games.rpg.fighting.battles.app.GarmonBattleAction.ActionType;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -31,7 +34,7 @@ public final class GarmonBattleManager {
 	}
 
 	private void printWin() {
-
+		// TODO Code
 	}
 
 	private void next() {
@@ -45,14 +48,16 @@ public final class GarmonBattleManager {
 	}
 
 	private GarmonActionMessage userTurnMessage() {
-		return new GarmonActionMessage(battle.getActingFighter(), attack(), surrender(), skipTurn());
+		GarmonActionMessage m = new GarmonActionMessage(battle.getActingFighter(), surrender(), skipTurn());
+		m.getActions().add(1, attack(m));
+		return m;
 	}
 
 	private DetailedAction surrender() {
 		return new DetailedAction("\uD83C\uDFF3", "Surrender", "Give up and take the L.", t -> {
 			if (battle.act(new GarmonBattleAction(ActionType.SURRENDER))) {
 				chan.sendMessage("**Battle Lost!**\n" + player.getAsMention()
-						+ " surrendered. No cloves were gained, but you still got some experience.").queue();
+						+ " surrendered. No cloves were gained, but you still got some experience!").queue();
 			} else
 				next();
 		});
@@ -65,7 +70,7 @@ public final class GarmonBattleManager {
 		});
 	}
 
-	private DetailedAction attack() {
+	private DetailedAction attack(DetailedActionMessage<DetailedAction> source) {
 		return new DetailedAction("\u2694", "Attack", "Pow pow pow!\nTakes: \uD83D\uDD50\uFE0F 50", t -> {
 			if (opponentTeam.memberView().size() == 1)
 				if (battle.act(new GarmonBattleAction(opponentTeam.iterator().next()/* TODO Fix */)))
@@ -73,7 +78,20 @@ public final class GarmonBattleManager {
 				else
 					next();
 			else {
-
+				var dam = new DetailedActionMessage<>();
+				var oplist = new ArrayList<>(opponentTeam.memberView());
+				battle.sort(oplist);
+				for (var v : opponentTeam.memberView())
+					dam.getActions().add(
+							new DetailedAction(v.getName(), "\uD83D\uDD50\uFE0F " + battle.getFighterTicks(v), t1 -> {
+								if (battle.act(new GarmonBattleAction(v)))
+									printWin();
+								else
+									next();
+							}));
+				dam.getActions().add(new DetailedAction("Back", "Return to the previous menu.",
+						DetailedAction.actionMessageAction(source)));
+				dam.send(t.getClover(), t.getEvent().getChannel(), t.getEvent().getUser());
 			}
 		});
 	}
