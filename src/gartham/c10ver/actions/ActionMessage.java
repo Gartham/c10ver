@@ -8,6 +8,7 @@ import org.alixia.javalibrary.JavaTools;
 
 import gartham.c10ver.Clover;
 import gartham.c10ver.commands.consumers.MessageReactionInputConsumer;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
@@ -51,7 +52,13 @@ public abstract class ActionMessage<A extends Action> {
 		return actions;
 	}
 
-	public abstract MessageEmbed embed();
+	protected abstract void buildEmbed(EmbedBuilder builder);
+
+	public final MessageEmbed embed() {
+		var e = new EmbedBuilder();
+		buildEmbed(e);
+		return e.build();
+	}
 
 	public void send(Clover clover, MessageChannel msg, User target) {
 		msg.sendMessage(embed()).queue(t -> {
