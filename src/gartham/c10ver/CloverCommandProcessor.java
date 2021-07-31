@@ -35,8 +35,6 @@ import org.alixia.javalibrary.util.MultidimensionalMap;
 import club.minnced.discord.webhook.WebhookClient;
 import club.minnced.discord.webhook.WebhookClientBuilder;
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
-import gartham.c10ver.actions.Action;
-import gartham.c10ver.actions.SimpleActionMessage;
 import gartham.c10ver.changelog.Changelog.Version;
 import gartham.c10ver.commands.CommandHelpBook.ParentCommandHelp;
 import gartham.c10ver.commands.CommandInvocation;
@@ -79,7 +77,7 @@ import gartham.c10ver.games.rpg.GarmonUtils;
 import gartham.c10ver.games.rpg.creatures.Creature;
 import gartham.c10ver.games.rpg.creatures.Nymph;
 import gartham.c10ver.games.rpg.fighting.battles.app.GarmonBattle;
-import gartham.c10ver.games.rpg.fighting.battles.app.GarmonBattleAction;
+import gartham.c10ver.games.rpg.fighting.battles.app.GarmonBattleManager;
 import gartham.c10ver.games.rpg.fighting.battles.app.GarmonFighter;
 import gartham.c10ver.games.rpg.fighting.battles.app.GarmonTeam;
 import gartham.c10ver.games.rpg.rooms.RectangularRoom;
@@ -239,7 +237,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 							var entry = u.getAccolades().get(pos);
 							inv.event.getChannel()
 									.sendMessage(entry.type.getIcon() + " **" + entry.type.getName() + "** - *"
-											+ entry.type.getDescription() + "*\n\nYou own `" + entry.count
+											+ entry.type.getName() + "*\n\nYou own `" + entry.count
 											+ "` of these.\nReward: +" + Utilities.format(entry.type.getValue()))
 									.queue();
 						}
@@ -2591,47 +2589,41 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					@Override
 					protected void tailed(SubcommandInvocation inv) {
 						Creature wildNymph = new Nymph();
-						wildNymph.setLevel(BigInteger.valueOf(7));
+						wildNymph.setLevel(BigInteger.valueOf(3));
 						GarmonFighter garf = new GarmonFighter("[Wild]", wildNymph),
 								playerFighter = new GarmonFighter(inv.event.getAuthor().getName(),
-										BigInteger.valueOf(23), BigInteger.valueOf(125), BigInteger.valueOf(125),
-										BigInteger.valueOf(13), BigInteger.valueOf(7));
+										inv.event.getAuthor().getEffectiveAvatarUrl(), BigInteger.valueOf(23),
+										BigInteger.valueOf(125), BigInteger.valueOf(125), BigInteger.valueOf(13),
+										BigInteger.valueOf(7));
 						GarmonTeam playerTeam = new GarmonTeam(inv.event.getAuthor().getName(), playerFighter);
 						GarmonTeam wildTeam = new GarmonTeam("Wild Monsters", garf);
 						GarmonBattle battle = new GarmonBattle(playerTeam, wildTeam);
-						battle.start();
-						inv.event.getChannel()
-								.sendMessage("A new battle has been started between "
-										+ inv.event.getAuthor().getAsMention() + " and a wild Nymph!")
-								.embed(GarmonUtils.printBattleQueue(battle)
-										.setFooter("!!DISPLAY TEST!! This is a test message. It has no function.")
-										.build())
-								.queue();
+						GarmonBattleManager gba = new GarmonBattleManager(battle, wildTeam, playerTeam, clover,
+								inv.event.getAuthor(), inv.event.getTextChannel());
+						gba.start();
 
-						GarmonFighter a = battle.getActingFighter();
-						var team = battle.getTeam(a);
-						GarmonFighter opponent = battle.getNextNthOpponent(0, a);
-						var opponentTeam = battle.getTeam(opponent);
-						if (team == playerTeam) {
-							var am = new SimpleActionMessage<>(
-									new EmbedBuilder().setThumbnail(wildNymph.getFullImage())
-											.setDescription("**" + inv.event.getAuthor().getName()
-													+ "**'s move against **" + opponent.getName() + "**."),
-									Action.msg("\u2694", "Attack", JavaTools.convert(b -> {
-										return new Action(b.getEmoji() + " " + b.getHealthString(), t -> {
-											battle.act(new GarmonBattleAction(b));
-											inv.event.getChannel().sendMessage("You successfully attacked")
-													.embed(GarmonUtils.printBattleQueue(battle).build()).queue();
-										});
-									}, opponentTeam.memberView()
-											.toArray(new GarmonFighter[opponentTeam.memberView().size()]))));
-							am.send(clover, inv.event.getChannel(), inv.event.getAuthor());
-						} else {
+					}
+				};
 
-						}
+				new Subcommand("webhook") {
 
-//						battle.
+					@Override
+					protected void tailed(SubcommandInvocation inv) {
+						Creature wildNymph = new Nymph();
 
+						var msg = "You wouldn't happen to have a pickaxe on you... Would you?";
+//								switch (new Random().nextInt(4)) {
+//						case 0 -> "You wouldn't happen to have a pickaxe on you... Would you?";
+//						case 1 -> "";
+//						case 2 -> "";
+//						
+//						
+//						
+//						default ->
+//						throw new IllegalArgumentException("Unexpected value.");
+//						};
+
+						GarmonUtils.sendAsCreature(wildNymph, msg, inv.event.getTextChannel());
 					}
 				};
 
