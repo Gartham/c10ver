@@ -45,6 +45,8 @@ public class GarmonBattle extends Battle<GarmonBattleAction, GarmonFighter, Garm
 					attack = attack.add(fighter.getAttack().divide(BigInteger.valueOf(i + 1)));
 			BigInteger dmg = max(BigInteger.ZERO, attack.subtract(action.getTarget().getDefense()));
 			action.getTarget().damage(dmg);
+			if (action.getTarget().isFainted())
+				remove(action.getTarget());
 			return new GarmonActionResult(50, action.getType(), dmg, action.getTarget());
 
 		case SKIP_TURN:
@@ -60,6 +62,8 @@ public class GarmonBattle extends Battle<GarmonBattleAction, GarmonFighter, Garm
 							.subtract(new BigDecimal(action.getTarget().getDefense())).setScale(0, RoundingMode.HALF_UP)
 							.toBigInteger());
 			action.getTarget().damage(dmg);
+			if (action.getTarget().isFainted())
+				remove(action.getTarget());
 			return new GarmonActionResult(att.getTicks(), action.getType(), dmg, action.getTarget());
 
 		default:
