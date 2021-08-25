@@ -73,6 +73,13 @@ import gartham.c10ver.games.math.MathProblem;
 import gartham.c10ver.games.math.MathProblem.AttemptResult;
 import gartham.c10ver.games.math.MathProblemGenerator;
 import gartham.c10ver.games.math.simple.SimpleMathProblemGenerator;
+import gartham.c10ver.games.rpg.GarmonUtils;
+import gartham.c10ver.games.rpg.creatures.Creature;
+import gartham.c10ver.games.rpg.creatures.Nymph;
+import gartham.c10ver.games.rpg.fighting.battles.app.GarmonBattle;
+import gartham.c10ver.games.rpg.fighting.battles.app.GarmonBattleManager;
+import gartham.c10ver.games.rpg.fighting.battles.app.GarmonFighter;
+import gartham.c10ver.games.rpg.fighting.battles.app.GarmonTeam;
 import gartham.c10ver.games.rpg.rooms.RectangularRoom;
 import gartham.c10ver.games.rpg.rooms.RectangularRoom.Side;
 import gartham.c10ver.processing.commands.InventoryCommand;
@@ -230,7 +237,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 							var entry = u.getAccolades().get(pos);
 							inv.event.getChannel()
 									.sendMessage(entry.type.getIcon() + " **" + entry.type.getName() + "** - *"
-											+ entry.type.getDescription() + "*\n\nYou own `" + entry.count
+											+ entry.type.getName() + "*\n\nYou own `" + entry.count
 											+ "` of these.\nReward: +" + Utilities.format(entry.type.getValue()))
 									.queue();
 						}
@@ -2560,7 +2567,6 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 							}
 
 							private void handle(String in) {
-								System.out.println("Test.");
 								if (in.startsWith("/"))
 									processor.run(clover.getCommandParser().parse(Matching.build("/"), in, null));
 								else {
@@ -2577,6 +2583,108 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						t.start();
 					}
 				};
+
+				new Subcommand("battle") {
+
+					@Override
+					protected void tailed(SubcommandInvocation inv) {
+						Creature wildNymph = new Nymph();
+						wildNymph.setLevel(BigInteger.valueOf(3));
+						GarmonFighter garf = new GarmonFighter("[Wild]", wildNymph),
+								playerFighter = new GarmonFighter(inv.event.getAuthor().getName(),
+										inv.event.getAuthor().getEffectiveAvatarUrl(), BigInteger.valueOf(23),
+										BigInteger.valueOf(125), BigInteger.valueOf(125), BigInteger.valueOf(13),
+										BigInteger.valueOf(7));
+						GarmonTeam playerTeam = new GarmonTeam(inv.event.getAuthor().getName(), playerFighter);
+						GarmonTeam wildTeam = new GarmonTeam("Wild Monsters", garf);
+						GarmonBattle battle = new GarmonBattle(playerTeam, wildTeam);
+						GarmonBattleManager gba = new GarmonBattleManager(battle, wildTeam, playerTeam, clover,
+								inv.event.getAuthor(), inv.event.getTextChannel());
+						gba.start();
+
+					}
+				};
+
+				new Subcommand("webhook") {
+
+					@Override
+					protected void tailed(SubcommandInvocation inv) {
+						Creature wildNymph = new Nymph();
+
+						var msg = "You wouldn't happen to have a pickaxe on you... Would you?";
+//								switch (new Random().nextInt(4)) {
+//						case 0 -> "You wouldn't happen to have a pickaxe on you... Would you?";
+//						case 1 -> "";
+//						case 2 -> "";
+//						
+//						
+//						
+//						default ->
+//						throw new IllegalArgumentException("Unexpected value.");
+//						};
+
+						GarmonUtils.sendAsCreature(wildNymph, msg, inv.event.getTextChannel());
+					}
+				};
+
+//				new Subcommand("battle") {
+//
+//					@Override
+//					protected void tailed(SubcommandInvocation inv) {
+//						if (false)
+//						inv.event.getChannel().sendMessage(new EmbedBuilder()
+//								.setAuthor(inv.event.getAuthor().getName() + " Initiated a BATTLE!", null,
+//										inv.event.getAuthor().getEffectiveAvatarUrl())
+//								.addField("<:nymph_emoji:854622804514832384> Nymph [Wild]",
+//										"\\\u2764\uFE0F `50/50`   \\\u2694\uFE0F `12`   \\\uD83D\uDEE1\uFE0F \u200b `5`   \\\uD83D\uDCA8\uFE0F `7`",
+//										true)
+//								.build()).queue();
+//						else {
+//							inv.event.getChannel().sendMessage(new EmbedBuilder()
+//									.setAuthor(inv.event.getAuthor().getName() + " Initiated a BATTLE!", null,
+//											inv.event.getAuthor().getEffectiveAvatarUrl())
+//									.addField("<:nymph_emoji:854622804514832384> Nymph [Wild]",
+//											"HP: \u2764 `50/50`\nAttack: \u2694 `12`\nDefense: \uD83D\uDEE1 `5`\nSpeed: \uD83D\uDCA8 `7`",
+//											true)
+//									.build()).queue();
+//						}
+//					}
+//				};
+
+//				new Subcommand("attack") {
+//
+//					@Override
+//					protected void tailed(SubcommandInvocation inv) {
+//						int rand = new Random().nextInt(800) + 200;
+//						AttackActionMessage aam = new AttackActionMessage(inv.event.getAuthor().getName() + "'s Team",
+//								"[Wild] Nymph", "Tamed Nymph",
+//								"https://media.discordapp.net/attachments/807401695688261639/862522787319382046/nymph.png?width=632&height=676",
+//								new Random().nextInt(rand), rand,
+//								new AttackAction("\uD83D\uDCA8", "Run Away",
+//										t -> inv.event.getChannel().sendMessage("You successfully ran away!").queue(),
+//										"Cowardly flee from the fight."),
+//								new AttackAction("\u2694\uFE0F", "Attack", t -> inv.event.getChannel()
+//										.sendMessage("You attack your opponent for 15 \\\u2694\uFE0F damage.").queue(),
+//										"Have at your opponent."));
+//						aam.send(clover, inv.event.getChannel(), inv.event.getAuthor());
+//					}
+//				};
+
+//				new Subcommand("battle2") {
+//
+//					@Override
+//					protected void tailed(SubcommandInvocation inv) {
+//						Creature creature = new NymphCreature();
+//						Battle battle = new Battle(inv.event.getTextChannel(), new Team(
+//								inv.event.getAuthor().getName() + "'s Team",
+//								new Fighter(BigInteger.valueOf(7), BigInteger.valueOf(45), BigInteger.valueOf(7),
+//										BigInteger.valueOf(3), inv.event.getAuthor().getEffectiveAvatarUrl(),
+//										inv.event.getAuthor().getEffectiveAvatarUrl(), ":slight_smile:")),
+//								new Team("[Wild] Nymph", creature.makeFighter()));
+//						battle.start();
+//
+//					}
+//				};
 			}
 
 			@Override

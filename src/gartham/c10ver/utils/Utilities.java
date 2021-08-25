@@ -446,6 +446,10 @@ public final class Utilities {
 		return stripEveryonePings(stripHerePings(msg));
 	}
 
+	public static String stripBackticks(String msg) {
+		return msg.replace("`", "");
+	}
+
 	public static String stripEveryonePings(String msg) {
 		return msg.replace("@everyone", "@\u200Beveryone");
 	}
