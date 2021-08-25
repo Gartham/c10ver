@@ -1420,6 +1420,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 									sb.append("\nGambling Channel: <#").append(s.getGamblingChannel()).append('>');
 								if (s.getVoteRole() != null)
 									sb.append("\nVote Role: <@&").append(s.getVoteRole()).append('>');
+								if (s.getPCCategory() != null)
+									sb.append("\nPrivate Channel Category: <#").append(s.getPCCategory()).append('>');
 								if (!s.getIgnoredInvites().isEmpty()) {
 									sb.append("\nIgnored Invites:");
 									for (var e : s.getIgnoredInvites())
@@ -1558,6 +1560,28 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 												inv.event.getAuthor().getAsMention() + " that's not a valid channel.")
 												.queue();
 										return;
+									case "private-channel-category":
+									case "pcc":
+										CHANP: {
+											String cm = Utilities.parseChannelMention(inv.args[1]);
+											if (cm == null)
+												break CHANP;
+											try {
+												if (inv.event.getGuild().getTextChannelById(cm) == null)
+													break CHANP;
+											} catch (NumberFormatException e) {
+												break CHANP;
+											}
+											s.setPCCategory(cm);
+											inv.event.getChannel()
+													.sendMessage("Private channel category set to <#" + cm + ">.")
+													.queue();
+											break;
+										}
+										inv.event.getChannel().sendMessage(
+												inv.event.getAuthor().getAsMention() + " that's not a valid channel.")
+												.queue();
+										return;
 									case "vote-role":
 										ROLEP: {
 											String cm = Utilities.parseRoleMention(inv.args[1]);
@@ -1615,6 +1639,12 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 									case "gambling-channel":
 										s.setGamblingChannel(null);
 										inv.event.getChannel().sendMessage("Unregistered the gambling channel.")
+												.queue();
+										break;
+									case "private-channel-category":
+									case "pcc":
+										s.setPCCategory(null);
+										inv.event.getChannel().sendMessage("Unregistered the private channel category.")
 												.queue();
 										break;
 									case "spam-channel":
