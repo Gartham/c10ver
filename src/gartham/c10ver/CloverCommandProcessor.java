@@ -74,6 +74,7 @@ import gartham.c10ver.processing.trading.TradeManager;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
@@ -1552,14 +1553,25 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 									case "private-channel-category":
 									case "pcc":
 										CHANP: {
-											String cm = Utilities.parseChannelMention(inv.args[1]);
-											if (cm == null)
-												break CHANP;
-											try {
-												if (inv.event.getGuild().getTextChannelById(cm) == null)
+											String cm;
+											OUTER: {
+												try {
+													Category tbid = inv.event.getGuild().getCategoryById(inv.args[1]);
+													if (tbid != null) {
+														cm = tbid.getId();
+														break OUTER;
+													}
+												} catch (NumberFormatException e) {
+												}
+												cm = Utilities.parseChannelMention(inv.args[1]);
+												if (cm == null)
 													break CHANP;
-											} catch (NumberFormatException e) {
-												break CHANP;
+												try {
+													if (inv.event.getGuild().getCategoryById(cm) == null)
+														break CHANP;
+												} catch (NumberFormatException e) {
+													break CHANP;
+												}
 											}
 											s.setPCCategory(cm);
 											inv.event.getChannel()
