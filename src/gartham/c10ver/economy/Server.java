@@ -19,7 +19,8 @@ public class Server extends SavablePropertyObject {
 			JSON_STRING_GATEWAY);
 	private final Property<String> generalChannel = stringProperty("general-channel"),
 			spamChannel = stringProperty("spam-channel"), gamblingChannel = stringProperty("gambling-channel"),
-			voteChannel = stringProperty("vote-channel");
+			voteChannel = stringProperty("vote-channel"),
+			privateChannelCategory = stringProperty("private-channel-category");
 	private final Property<String> voteRole = stringProperty("vote-role");
 	private final Property<ArrayList<Multiplier>> multipliers = listProperty("multipliers",
 			toObjectGateway(Multiplier::new));
@@ -131,6 +132,14 @@ public class Server extends SavablePropertyObject {
 			load();
 		if (multipliers.get() == null)
 			multipliers.set(new ArrayList<>());
+	}
+
+	public String getPCCategory() {
+		return privateChannelCategory.get();
+	}
+
+	public void setPCCategory(String pcc) {
+		privateChannelCategory.set(pcc);
 	}
 
 }

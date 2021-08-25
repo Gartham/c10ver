@@ -192,8 +192,18 @@ public class Clover {
 	}
 
 	public Clover(JDA jda) {
+		this(jda, false);
+	}
+
+	public Clover(String token, boolean devmode) throws LoginException {
+		this(JDABuilder.create(token, EnumSet.allOf(GatewayIntent.class)).build(), devmode);
+	}
+
+	public Clover(JDA jda, boolean devmode) {
 		bot = jda;
-		commandParser = new CommandParser(Matching.build("~").or(
+		if (devmode)
+			System.out.println("Dev mode enabled!");
+		commandParser = new CommandParser(Matching.build(devmode ? "$" : "~").or(
 				Matching.build("<@").possibly("!").then(bot.getSelfUser().getId() + ">").then(Matching.whitespace())));
 		bot.addEventListener(eventHandler);
 		eventHandler.initialize();
@@ -207,7 +217,7 @@ public class Clover {
 			if (s.equalsIgnoreCase("dev"))
 				devmode = true;
 		try (var s = new Scanner(Clover.class.getResourceAsStream(devmode ? "dev-token.txt" : "token.txt"))) {
-			new Clover(s.nextLine());
+			new Clover(s.nextLine(), devmode);
 		}
 	}
 }

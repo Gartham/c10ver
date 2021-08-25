@@ -12,6 +12,7 @@ import java.text.NumberFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -19,7 +20,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -28,13 +28,9 @@ import java.util.function.Supplier;
 
 import org.alixia.javalibrary.JavaTools;
 import org.alixia.javalibrary.strings.StringTools;
-import org.alixia.javalibrary.strings.matching.Matching;
 import org.alixia.javalibrary.util.Box;
 import org.alixia.javalibrary.util.MultidimensionalMap;
 
-import club.minnced.discord.webhook.WebhookClient;
-import club.minnced.discord.webhook.WebhookClientBuilder;
-import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import gartham.c10ver.changelog.Changelog.Version;
 import gartham.c10ver.commands.CommandHelpBook.ParentCommandHelp;
 import gartham.c10ver.commands.CommandInvocation;
@@ -73,22 +69,16 @@ import gartham.c10ver.games.math.MathProblem;
 import gartham.c10ver.games.math.MathProblem.AttemptResult;
 import gartham.c10ver.games.math.MathProblemGenerator;
 import gartham.c10ver.games.math.simple.SimpleMathProblemGenerator;
-import gartham.c10ver.games.rpg.GarmonUtils;
-import gartham.c10ver.games.rpg.creatures.Creature;
-import gartham.c10ver.games.rpg.creatures.Nymph;
-import gartham.c10ver.games.rpg.fighting.battles.app.GarmonBattle;
-import gartham.c10ver.games.rpg.fighting.battles.app.GarmonBattleManager;
-import gartham.c10ver.games.rpg.fighting.battles.app.GarmonFighter;
-import gartham.c10ver.games.rpg.fighting.battles.app.GarmonTeam;
-import gartham.c10ver.games.rpg.rooms.RectangularRoom;
-import gartham.c10ver.games.rpg.rooms.RectangularRoom.Side;
 import gartham.c10ver.processing.commands.InventoryCommand;
 import gartham.c10ver.processing.trading.TradeManager;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
@@ -1420,6 +1410,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 									sb.append("\nGambling Channel: <#").append(s.getGamblingChannel()).append('>');
 								if (s.getVoteRole() != null)
 									sb.append("\nVote Role: <@&").append(s.getVoteRole()).append('>');
+								if (s.getPCCategory() != null)
+									sb.append("\nPrivate Channel Category: <#").append(s.getPCCategory()).append('>');
 								if (!s.getIgnoredInvites().isEmpty()) {
 									sb.append("\nIgnored Invites:");
 									for (var e : s.getIgnoredInvites())
@@ -1558,6 +1550,39 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 												inv.event.getAuthor().getAsMention() + " that's not a valid channel.")
 												.queue();
 										return;
+									case "private-channel-category":
+									case "pcc":
+										CHANP: {
+											String cm;
+											OUTER: {
+												try {
+													Category tbid = inv.event.getGuild().getCategoryById(inv.args[1]);
+													if (tbid != null) {
+														cm = tbid.getId();
+														break OUTER;
+													}
+												} catch (NumberFormatException e) {
+												}
+												cm = Utilities.parseChannelMention(inv.args[1]);
+												if (cm == null)
+													break CHANP;
+												try {
+													if (inv.event.getGuild().getCategoryById(cm) == null)
+														break CHANP;
+												} catch (NumberFormatException e) {
+													break CHANP;
+												}
+											}
+											s.setPCCategory(cm);
+											inv.event.getChannel()
+													.sendMessage("Private channel category set to <#" + cm + ">.")
+													.queue();
+											break;
+										}
+										inv.event.getChannel().sendMessage(
+												inv.event.getAuthor().getAsMention() + " that's not a valid channel.")
+												.queue();
+										return;
 									case "vote-role":
 										ROLEP: {
 											String cm = Utilities.parseRoleMention(inv.args[1]);
@@ -1615,6 +1640,12 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 									case "gambling-channel":
 										s.setGamblingChannel(null);
 										inv.event.getChannel().sendMessage("Unregistered the gambling channel.")
+												.queue();
+										break;
+									case "private-channel-category":
+									case "pcc":
+										s.setPCCategory(null);
+										inv.event.getChannel().sendMessage("Unregistered the private channel category.")
 												.queue();
 										break;
 									case "spam-channel":
@@ -2368,6 +2399,313 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 			}
 		});
 
+		register(new ParentCommand("pc", "private-channel") {
+
+//			private final Map<TextChannel, User> channels = new HashMap<>();
+
+			class PrivateChannel {
+				private final TextChannel channel;
+				private final Set<String> users = new HashSet<>();
+				private final User owner;
+
+				private PrivateChannel(TextChannel channel, User owner) {
+					this.channel = channel;
+					this.owner = owner;
+				}
+
+				public long cost() {
+					return 25000 + 5000 * users.size();
+				}
+
+				@Override
+				public String toString() {
+					return channel.getAsMention();
+				}
+
+			}
+
+			private final Map<String, List<PrivateChannel>> channels = new HashMap<>();
+			private final List<TextChannel> deletedChannels = new ArrayList<>();
+			private final Timer t = new Timer();
+			{
+				var c = Calendar.getInstance();
+				c.setLenient(true);
+				c.set(Calendar.MINUTE, 0);
+				c.set(Calendar.SECOND, 0);
+				c.set(Calendar.MILLISECOND, 0);
+				c.set(Calendar.HOUR_OF_DAY, c.get(Calendar.HOUR_OF_DAY) + 1);
+				t.schedule(new TimerTask() {
+
+					@Override
+					public void run() {
+						synchronized (channels) {
+							System.out.println("Taxing all private channel customers!");
+							for (Iterator<List<PrivateChannel>> i = channels.values().iterator(); i.hasNext();) {
+								var l = i.next();
+								for (Iterator<PrivateChannel> iterator = l.iterator(); iterator.hasNext();) {
+									var pc = iterator.next();
+									long cost = pc.cost();
+									if (!pc.owner.getAccount().withdraw(cost)) {
+										pc.channel.sendMessage(
+												"The owner of this channel did not have enough money to support it. It has been queued for deletion!!!")
+												.queue();
+										deletedChannels.add(pc.channel);
+										pc.owner.getUser().openPrivateChannel().complete()
+												.sendMessage("Private channel taxes came around ("
+														+ pc.channel.getGuild().getName()
+														+ "), and unfortunately you didn't have enough cloves in your account to support your private channel: <#"
+														+ pc.channel.getId() + ">. I am truly sorry. :pensive:")
+												.queue();
+										pc.channel.getMemberPermissionOverrides().forEach(a -> a.delete().queue());
+										iterator.remove();
+										if (l.isEmpty())
+											i.remove();
+									} else {
+										pc.channel.sendMessage("Tax is being collected! `-" + Utilities.CURRENCY_SYMBOL
+												+ ' ' + cost + "` has been taken from " + pc.owner.getUser().getAsTag()
+												+ "'s account for upkeep and room-size (number of channel members).")
+												.queue();
+									}
+								}
+							}
+						}
+					}
+				}, c.getTime(), 3600000);
+
+				c.set(Calendar.HOUR_OF_DAY, 0);
+				c.set(Calendar.SECOND, 5);
+				t.schedule(new TimerTask() {
+
+					@Override
+					public void run() {
+						synchronized (channels) {
+							for (var tc : deletedChannels)
+								tc.delete().queue();
+						}
+					}
+				}, c.getTime(), 86400000);
+
+				var h = help.addParentCommand("pc",
+						"Allows you to purchase a private channel for you and your friends! Channels have a **tax** of "
+								+ Utilities.CURRENCY_SYMBOL
+								+ " 25K (+5K/invitee) that is charged at every hour. (This cost will be reduced in the future.)",
+						"pc (name)", "private-channel");
+				h.addSubcommand("list", "Shows you which private channels you have available for use.", "list", "show",
+						"view");
+				h.addSubcommand(
+						"buy", "Buy a new private channel. This costs " + Utilities.CURRENCY_SYMBOL
+								+ " 12.5K and incurs a " + Utilities.CURRENCY_SYMBOL + " 25K tax.",
+						"buy (name)", "new");
+				h.addSubcommand("invite",
+						"Adds people to your private channel. Doing this costs " + Utilities.CURRENCY_SYMBOL
+								+ " 2.5K and will incur a " + Utilities.CURRENCY_SYMBOL + " 5K tax.",
+						"add (@user) (#channel)", "register", "add");
+				h.addSubcommand("delete",
+						"Deletes a private channel. This stops it from charging you tax, but deletes the channel so that you'll no longer have access to it.",
+						"delete (#channel)", "remove");
+
+				new Subcommand("delete", "remove") {
+
+					@Override
+					protected void tailed(SubcommandInvocation inv) {
+						if (inv.args.length == 0)
+							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+									+ " you need to ping/mention a private channel you own.").queue();
+						else if (inv.args.length != 1)
+							inv.event.getChannel().sendMessage(
+									inv.event.getAuthor().getAsMention() + " this command only takes one argument.")
+									.queue();
+						else {
+
+							String ment = Utilities.parseChannelMention(inv.args[0]);
+							if (ment == null)
+								inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+										+ " couldn't find any channel by that mention.").queue();
+							else {
+								var l = channels.get(inv.event.getAuthor().getId());
+								if (l == null || l.isEmpty())
+									inv.event.getChannel().sendMessage("You don't have any private channels.").queue();
+								else {
+									for (Iterator<PrivateChannel> iterator = l.iterator(); iterator.hasNext();) {
+										var pc = iterator.next();
+										if (pc.channel.getId().equals(ment)) {
+											deletedChannels.add(pc.channel);
+											pc.channel.getMemberPermissionOverrides().forEach(a -> a.delete().queue());
+											iterator.remove();
+											if (l.isEmpty())
+												channels.remove(inv.event.getAuthor().getId());
+											inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+													+ " you successfully deleted your channel.").queue();
+											return;
+										}
+									}
+									inv.event.getChannel().sendMessage("You don't own that channel.").queue();
+								}
+							}
+						}
+					}
+				};
+
+				new Subcommand("invite", "register", "add") {
+
+					@Override
+					protected void tailed(SubcommandInvocation inv) {
+						var l = channels.get(inv.event.getAuthor().getId());
+
+						if (inv.args.length < 2)
+							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+									+ " you need to provide a user to add and mention a private channel to add them to.")
+									.queue();
+						else if (inv.args.length != 2)
+							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+									+ " this command requires exactly 2 arguments.").queue();
+						else if (l == null || l.isEmpty())
+							inv.event.getChannel().sendMessage("You don't have any private channels.").queue();
+						else {
+							var us = Utilities.parseMention(inv.args[0]);
+							if (us == null)
+								inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+										+ ", couldn't find a user by that ping. (Make sure you're pinging the user in your first argument.)")
+										.queue();
+							else {
+								net.dv8tion.jda.api.entities.User u;
+								try {
+									u = inv.event.getJDA().retrieveUserById(us).complete();
+								} catch (Exception e) {
+									inv.event.getChannel().sendMessage("Failed to find a user by that ping.").queue();
+									return;
+								}
+								var pcid = Utilities.parseChannelMention(inv.args[1]);
+								if (pcid == null)
+									inv.event.getChannel().sendMessage("Couldn't find any channels by that mention.")
+											.queue();
+								else {
+									for (var pc : l) {
+										if (pc.channel.getId().equals(pcid)) {
+											if (pc.users.contains(u.getId()))
+												inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+														+ " that user already has access to that channel. (If they can't access it, contact a staff member!")
+														.queue();
+											else {
+												var acc = clover.getEconomy().getAccount(inv.event.getAuthor().getId());
+												if (acc.withdraw(2500)) {
+													pc.users.add(u.getId());
+													pc.channel
+															.createPermissionOverride(
+																	pc.channel.getGuild().getMember(u))
+															.setAllow(Permission.CREATE_INSTANT_INVITE,
+																	Permission.MESSAGE_ADD_REACTION,
+																	Permission.MESSAGE_ATTACH_FILES,
+																	Permission.MESSAGE_EMBED_LINKS,
+																	Permission.MESSAGE_HISTORY,
+																	Permission.MESSAGE_WRITE, Permission.MESSAGE_READ)
+															.queue();
+													inv.event.getChannel()
+															.sendMessage("That user was added to your private channel!")
+															.queue();
+												} else
+													inv.event.getChannel().sendMessage(inv.event.getAuthor()
+															.getAsMention()
+															+ ", you don't have enough cloves to invite a user to your private channel.")
+															.queue();
+											}
+
+											return;
+										}
+									}
+									inv.event.getChannel()
+											.sendMessage("Couldn't find any private channels by that ping.").queue();
+								}
+							}
+						}
+					}
+				};
+
+				new Subcommand("list", "show") {
+
+					@Override
+					protected void tailed(SubcommandInvocation inv) {
+						var l = channels.get(inv.event.getAuthor().getId());
+						if (l == null || l.isEmpty())
+							inv.event.getChannel().sendMessage("You don't have any private channels.").queue();
+						else {
+							long tt = 0;
+							String res = "Your channels: " + JavaTools.printInEnglish(l.iterator(), true);
+							for (var v : l)
+								tt += v.cost();
+							inv.event.getChannel().sendMessage(
+									res + "\nTotal Hourly Tax: " + Utilities.format(BigInteger.valueOf(tt)));
+						}
+					}
+				};
+
+				new Subcommand("buy", "new") {
+
+					@Override
+					protected void tailed(SubcommandInvocation inv) {
+
+						if (inv.args.length == 0)
+							inv.event.getChannel().sendMessage(
+									inv.event.getAuthor().getAsMention() + " you need to provide a channel name.")
+									.queue();
+						else if (inv.args.length != 1)
+							inv.event.getChannel().sendMessage(
+									inv.event.getAuthor().getAsMention() + " this command only takes one argument.")
+									.queue();
+						else if (inv.args[0].length() > 100)
+							inv.event.getChannel()
+									.sendMessage(inv.event.getAuthor().getAsMention()
+											+ " discord channel names cannot be more than 100 characters long.")
+									.queue();
+						else {
+							if (clover.getEconomy().hasAccount(inv.event.getAuthor().getId())) {
+								UserAccount acc = clover.getEconomy().getAccount(inv.event.getAuthor().getId());
+								var g = inv.event.getGuild();
+								String cg = clover.getEconomy().getServer(g.getId()).getPCCategory();
+								if (cg == null) {
+									inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+											+ ", this server does not have a private channel category set up (talk to an admin to set that up so you can use private channels).");
+									return;
+								}
+								if (acc.withdraw(25000)) {
+									var cat = g.getCategoryById(cg);
+									var tc = cat.createTextChannel(inv.args[0]).complete();
+									tc.createPermissionOverride(g.getMember(inv.event.getAuthor()))
+											.setAllow(Permission.CREATE_INSTANT_INVITE, Permission.MESSAGE_ADD_REACTION,
+													Permission.MESSAGE_ATTACH_FILES, Permission.MESSAGE_EMBED_LINKS,
+													Permission.MANAGE_WEBHOOKS, Permission.MESSAGE_HISTORY,
+													Permission.MESSAGE_MANAGE, Permission.MESSAGE_TTS,
+													Permission.MESSAGE_WRITE, Permission.MESSAGE_READ)
+											.queue();
+									// No mentioning everyone because staff also have access.
+									User owner = acc.getOwner();
+									PrivateChannel pc = new PrivateChannel(tc, owner);
+									var cs = channels.get(owner.getUserID());
+									if (cs == null)
+										channels.put(owner.getUserID(), cs = new ArrayList<>());
+									cs.add(pc);
+									inv.event.getChannel().sendMessage("You now have a new private channel!").queue();
+									return;
+								}
+							}
+							inv.event.getChannel()
+									.sendMessage(inv.event.getAuthor().getAsMention() + " you need "
+											+ Utilities.format(BigInteger.valueOf(25000))
+											+ " to create your own private channel.")
+									.queue();
+						}
+					}
+				};
+
+			}
+
+			@Override
+			protected void tailed(CommandInvocation inv) {
+				// TODO Auto-generated method stub
+
+			}
+		});
+
 		register(new ParentCommand("settings", "setting", "option", "options") {
 
 			private <T> T getValue(CommandInvocation inv, Function<UserSettings, T> grabber, T def) {
@@ -2452,247 +2790,6 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						.append("`\n\n\u2022 **To find out what a setting is or check its value**, run: `~settings (prefix)`, e.g.: `~settings rrn` to view random rewards notifications.\n\u2022 **To change a setting**, run: `~settings (prefix) (new-value)`, e.g.: `~sesttings rrn false` to disable random rewards notifications.");
 				inv.event.getChannel().sendMessage(sb.toString()).queue();
 
-			}
-		});
-
-		register(new ParentCommand("rpg") {
-
-			{
-				new Subcommand("wh") {
-
-					@Override
-					protected void tailed(SubcommandInvocation inv) {
-						if (inv.event.isFromGuild()) {
-							inv.event.getTextChannel().retrieveWebhooks().queue(t -> {
-								for (var w : t)
-									if (w.getName().equalsIgnoreCase("clover-rpg")) {
-										var x = WebhookClientBuilder.fromJDA(w).build();
-										x.send(new WebhookMessageBuilder()
-												.setContent("I like grass. Do you have any grass?")
-												.setUsername("[Wild] Nymph")
-												.setAvatarUrl(
-														"https://cdn.discordapp.com/attachments/807401695944507411/857495452097576970/nymph_emoji.png")
-												.build());
-										return;
-									}
-							});
-						} else
-							inv.event.getChannel().sendMessage("You need to be in a server to do that!").queue();
-					}
-				};
-
-				new Subcommand("room") {
-
-					@Override
-					protected void tailed(SubcommandInvocation inv) {
-						int size = (int) (Math.random() * 20 + 6);
-						var sq = new RectangularRoom(Math.round(2.28f * size), size);
-						Side side = Math.random() > 0.5 ? Side.RIGHT : Side.LEFT;
-						sq.createOpening(side, (int) (Math.random() * (sq.getHeight())) + 3,
-								(int) (Math.random() * (sq.getHeight() - 4)));
-						if (Math.random() > 0.5)
-							sq.createOpening(side.opposite(), (int) (Math.random() * (sq.getHeight())) + 3,
-									(int) (Math.random() * (sq.getHeight())));
-						inv.event.getChannel().sendMessage("```\n" + sq.layoutString() + "\n```").queue();
-					}
-				};
-
-				new Subcommand("health") {
-
-					@Override
-					public void tailed(SubcommandInvocation inv) {
-						for (int j = 0; j < 10; j++) {
-							StringBuilder sb = new StringBuilder();
-							for (int i = 0; i < 10; i++) {
-								sb.append("Health: `").append(j * 10 + i).append("` / `100` ")
-										.append(calcHealthbar(j * 10 + i)).append('\n');
-							}
-							inv.event.getChannel().sendMessage(sb.toString()).queue();
-						}
-						inv.event.getChannel().sendMessage("Health: `FULL` " + calcHealthbar(100)).queue();
-					}
-				};
-
-				new Subcommand("enb-wh") {
-
-					@Override
-					protected void tailed(SubcommandInvocation inv) {
-						var t = new Thread(new Runnable() {
-
-							@Override
-							public void run() {
-								@SuppressWarnings("resource")
-								var sc = new Scanner(System.in);
-								while (sc.hasNextLine())
-									try {
-										handle(sc.nextLine());
-									} catch (Exception e) {
-										e.printStackTrace();
-									}
-							}
-
-							private final SimpleCommandProcessor processor = new SimpleCommandProcessor();
-							private WebhookClient channel;
-							private String avatar, name;
-							{
-								processor.register(new MatchBasedCommand("sc") {
-
-									@Override
-									public void exec(CommandInvocation inv) {
-										var x = clover.getBot().getTextChannelById(inv.args[0]);
-										var whs = x.retrieveWebhooks().complete();
-										for (var e : whs)
-											if (e.getName().equalsIgnoreCase("cltest")) {
-												channel = WebhookClientBuilder.fromJDA(e).build();
-												return;
-											}
-										channel = WebhookClientBuilder.fromJDA(x.createWebhook("cltest").complete())
-												.build();
-									}
-								});
-								processor.register(new MatchBasedCommand("avatar") {
-
-									@Override
-									public void exec(CommandInvocation inv) {
-										avatar = inv.args.length == 0 ? null : inv.args[0];
-									}
-								});
-								processor.register(new MatchBasedCommand("name") {
-
-									@Override
-									public void exec(CommandInvocation inv) {
-										name = String.join(" ", inv.args);
-									}
-								});
-							}
-
-							private void handle(String in) {
-								if (in.startsWith("/"))
-									processor.run(clover.getCommandParser().parse(Matching.build("/"), in, null));
-								else {
-									WebhookMessageBuilder msg = new WebhookMessageBuilder().setContent(in);
-									if (avatar != null)
-										msg.setAvatarUrl(avatar);
-									if (name != null)
-										msg.setUsername(name);
-									channel.send(msg.build());
-								}
-							}
-						});
-						t.setDaemon(true);
-						t.start();
-					}
-				};
-
-				new Subcommand("battle") {
-
-					@Override
-					protected void tailed(SubcommandInvocation inv) {
-						Creature wildNymph = new Nymph();
-						wildNymph.setLevel(BigInteger.valueOf(3));
-						GarmonFighter garf = new GarmonFighter("[Wild]", wildNymph),
-								playerFighter = new GarmonFighter(inv.event.getAuthor().getName(),
-										inv.event.getAuthor().getEffectiveAvatarUrl(), BigInteger.valueOf(23),
-										BigInteger.valueOf(125), BigInteger.valueOf(125), BigInteger.valueOf(13),
-										BigInteger.valueOf(7));
-						GarmonTeam playerTeam = new GarmonTeam(inv.event.getAuthor().getName(), playerFighter);
-						GarmonTeam wildTeam = new GarmonTeam("Wild Monsters", garf);
-						GarmonBattle battle = new GarmonBattle(playerTeam, wildTeam);
-						GarmonBattleManager gba = new GarmonBattleManager(battle, wildTeam, playerTeam, clover,
-								inv.event.getAuthor(), inv.event.getTextChannel());
-						gba.start();
-
-					}
-				};
-
-				new Subcommand("webhook") {
-
-					@Override
-					protected void tailed(SubcommandInvocation inv) {
-						Creature wildNymph = new Nymph();
-
-						var msg = "You wouldn't happen to have a pickaxe on you... Would you?";
-//								switch (new Random().nextInt(4)) {
-//						case 0 -> "You wouldn't happen to have a pickaxe on you... Would you?";
-//						case 1 -> "";
-//						case 2 -> "";
-//						
-//						
-//						
-//						default ->
-//						throw new IllegalArgumentException("Unexpected value.");
-//						};
-
-						GarmonUtils.sendAsCreature(wildNymph, msg, inv.event.getTextChannel());
-					}
-				};
-
-//				new Subcommand("battle") {
-//
-//					@Override
-//					protected void tailed(SubcommandInvocation inv) {
-//						if (false)
-//						inv.event.getChannel().sendMessage(new EmbedBuilder()
-//								.setAuthor(inv.event.getAuthor().getName() + " Initiated a BATTLE!", null,
-//										inv.event.getAuthor().getEffectiveAvatarUrl())
-//								.addField("<:nymph_emoji:854622804514832384> Nymph [Wild]",
-//										"\\\u2764\uFE0F `50/50`   \\\u2694\uFE0F `12`   \\\uD83D\uDEE1\uFE0F \u200b `5`   \\\uD83D\uDCA8\uFE0F `7`",
-//										true)
-//								.build()).queue();
-//						else {
-//							inv.event.getChannel().sendMessage(new EmbedBuilder()
-//									.setAuthor(inv.event.getAuthor().getName() + " Initiated a BATTLE!", null,
-//											inv.event.getAuthor().getEffectiveAvatarUrl())
-//									.addField("<:nymph_emoji:854622804514832384> Nymph [Wild]",
-//											"HP: \u2764 `50/50`\nAttack: \u2694 `12`\nDefense: \uD83D\uDEE1 `5`\nSpeed: \uD83D\uDCA8 `7`",
-//											true)
-//									.build()).queue();
-//						}
-//					}
-//				};
-
-//				new Subcommand("attack") {
-//
-//					@Override
-//					protected void tailed(SubcommandInvocation inv) {
-//						int rand = new Random().nextInt(800) + 200;
-//						AttackActionMessage aam = new AttackActionMessage(inv.event.getAuthor().getName() + "'s Team",
-//								"[Wild] Nymph", "Tamed Nymph",
-//								"https://media.discordapp.net/attachments/807401695688261639/862522787319382046/nymph.png?width=632&height=676",
-//								new Random().nextInt(rand), rand,
-//								new AttackAction("\uD83D\uDCA8", "Run Away",
-//										t -> inv.event.getChannel().sendMessage("You successfully ran away!").queue(),
-//										"Cowardly flee from the fight."),
-//								new AttackAction("\u2694\uFE0F", "Attack", t -> inv.event.getChannel()
-//										.sendMessage("You attack your opponent for 15 \\\u2694\uFE0F damage.").queue(),
-//										"Have at your opponent."));
-//						aam.send(clover, inv.event.getChannel(), inv.event.getAuthor());
-//					}
-//				};
-
-//				new Subcommand("battle2") {
-//
-//					@Override
-//					protected void tailed(SubcommandInvocation inv) {
-//						Creature creature = new NymphCreature();
-//						Battle battle = new Battle(inv.event.getTextChannel(), new Team(
-//								inv.event.getAuthor().getName() + "'s Team",
-//								new Fighter(BigInteger.valueOf(7), BigInteger.valueOf(45), BigInteger.valueOf(7),
-//										BigInteger.valueOf(3), inv.event.getAuthor().getEffectiveAvatarUrl(),
-//										inv.event.getAuthor().getEffectiveAvatarUrl(), ":slight_smile:")),
-//								new Team("[Wild] Nymph", creature.makeFighter()));
-//						battle.start();
-//
-//					}
-//				};
-			}
-
-			@Override
-			public void tailed(CommandInvocation inv) {
-				inv.event.getChannel()
-						.sendMessage(new EmbedBuilder().setDescription("You don't have any monsters yet.")
-								.addField("Options", ":one: Begin your journey!", true).build())
-						.queue(a -> a.addReaction("\u0031\uFE0F\u20E3").queue());
 			}
 		});
 
