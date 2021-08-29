@@ -39,7 +39,6 @@ import gartham.c10ver.commands.MatchBasedCommand;
 import gartham.c10ver.commands.SimpleCommandProcessor;
 import gartham.c10ver.commands.consumers.InputConsumer;
 import gartham.c10ver.commands.consumers.MessageInputConsumer;
-import gartham.c10ver.commands.consumers.MessageReactionInputConsumer;
 import gartham.c10ver.commands.subcommands.ParentCommand;
 import gartham.c10ver.commands.subcommands.SubcommandInvocation;
 import gartham.c10ver.data.PropertyObject.Property;
@@ -2057,29 +2056,25 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 							Game g = new Game();
 
 							clover.getEventHandler().getReactionAdditionProcessor()
-									.registerInputConsumer(new MessageReactionInputConsumer<MessageReactionAddEvent>() {
-
-										@Override
-										public boolean consume(MessageReactionAddEvent event,
-												InputProcessor<? extends MessageReactionAddEvent> processor,
-												InputConsumer<MessageReactionAddEvent> consumer) {
-											if (event.getReactionEmote().isEmote()
-													&& event.getReactionEmote().getIdLong() == 881450957957918741l) {
-												g.players.add(event.getUserId());// Add the user to the game.
-												inv.event.getChannel().sendMessage(new EmbedBuilder()
-														.setAuthor("Russian Roulette!")
-														.setDescription(inv.event.getAuthor().getAsMention()
-																+ " joined the [russian roulette game]("
-																+ inv.event.getMessage().getJumpUrl() + ")!")
-														.addField("Players",
-																String.join("\n", JavaTools.mask(g.players,
-																		a -> inv.event.getJDA().retrieveUserById(a)
-																				.complete().getAsMention())),
-																false)
-														.build()).queue();
-											}
-											return false;
+									.registerInputConsumer((event, processor, consumer) -> {
+										if (event.getReactionEmote().isEmote()
+												&& event.getReactionEmote().getIdLong() == 881450957957918741l
+												&& event.getMessageIdLong() == a.getIdLong()
+												&& !event.getUser().isBot()) {
+											g.players.add(event.getUserId());// Add the user to the game.
+											inv.event.getChannel().sendMessage(new EmbedBuilder()
+													.setAuthor("Russian Roulette!")
+													.setDescription(inv.event.getAuthor().getAsMention()
+															+ " joined the [russian roulette game]("
+															+ inv.event.getMessage().getJumpUrl() + ")!")
+													.addField("Players",
+															String.join("\n", JavaTools.mask(g.players,
+																	a1 -> inv.event.getJDA().retrieveUserById(a1)
+																			.complete().getAsMention())),
+															false)
+													.build()).queue();
 										}
+										return false;
 									});
 						}));
 			}
