@@ -2054,14 +2054,14 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						.queue(a -> a.addReaction(a.getJDA().getEmoteById(881450957957918741l)).queue(b -> {
 
 							Game g = new Game();
+							g.players.add(inv.event.getAuthor().getId());
 
 							clover.getEventHandler().getReactionAdditionProcessor()
 									.registerInputConsumer((event, processor, consumer) -> {
 										if (event.getReactionEmote().isEmote()
 												&& event.getReactionEmote().getIdLong() == 881450957957918741l
-												&& event.getMessageIdLong() == a.getIdLong()
-												&& !event.getUser().isBot()) {
-											g.players.add(event.getUserId());// Add the user to the game.
+												&& event.getMessageIdLong() == a.getIdLong() && !event.getUser().isBot()
+												&& g.players.add(event.getUserId())) {
 											inv.event.getChannel().sendMessage(new EmbedBuilder()
 													.setAuthor("Russian Roulette!")
 													.setDescription(inv.event.getAuthor().getAsMention()
