@@ -50,8 +50,12 @@ public class PrivateChannel extends SavablePropertyObject implements Owned<User>
 		this.owner.set(owner);
 	}
 
-	public void setOwner(String owner) {
+	public void setOwnerID(String owner) {
 		this.owner.set(owner);
+	}
+
+	public String getOwnerID() {
+		return owner.get();
 	}
 
 	public long cost() {
