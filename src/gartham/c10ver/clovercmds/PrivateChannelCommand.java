@@ -33,8 +33,18 @@ public class PrivateChannelCommand extends ParentCommand {
 	public PrivateChannelCommand(Clover clover, CommandHelpBook help) {
 		super("pc", "private-channel");
 		this.clover = clover;
-		for (File f : clover.getEconomy().getRandStorage(PRIVATE_CHANNEL_FILE_NAMESPACE).listFiles()) {
 
+		File channels = clover.getEconomy().getRandStorage(PRIVATE_CHANNEL_FILE_NAMESPACE + "/channels");
+		for (File f : channels.listFiles()) {
+			PrivateChannel pc;
+			try {
+				pc = new PrivateChannel(f, clover);
+			} catch (Exception e) {
+				System.err.println("Failed to load a private channel: " + f);
+				e.printStackTrace();
+				continue;
+			}
+			putChannel(pc);
 		}
 
 		var h = help.addParentCommand("pc",
@@ -59,6 +69,14 @@ public class PrivateChannelCommand extends ParentCommand {
 	private final Map<String, List<PrivateChannel>> channels = new HashMap<>();
 	private final List<TextChannel> deletedChannels = new ArrayList<>();
 	private final Timer t = new Timer();
+
+	private void putChannel(PrivateChannel pc) {
+		var cs = channels.get(pc.getOwnerID());
+		if (cs == null)
+			channels.put(pc.getOwnerID(), cs = new ArrayList<>());
+		cs.add(pc);
+	}
+
 	{
 
 		var c = Calendar.getInstance();
@@ -91,6 +109,7 @@ public class PrivateChannelCommand extends ParentCommand {
 										.queue();
 								pc.getDiscordChannel().getMemberPermissionOverrides().forEach(a -> a.delete().queue());
 								iterator.remove();
+								pc.getSaveLocation().delete();
 								if (l.isEmpty())
 									i.remove();
 							} else {
@@ -150,6 +169,7 @@ public class PrivateChannelCommand extends ParentCommand {
 									pc.getDiscordChannel().getMemberPermissionOverrides()
 											.forEach(a -> a.delete().queue());
 									iterator.remove();
+									pc.getSaveLocation().delete();
 									if (l.isEmpty())
 										channels.remove(inv.event.getAuthor().getId());
 									inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
@@ -217,6 +237,7 @@ public class PrivateChannelCommand extends ParentCommand {
 															Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_HISTORY,
 															Permission.MESSAGE_WRITE, Permission.MESSAGE_READ)
 													.queue();
+											pc.save();
 											inv.event.getChannel()
 													.sendMessage("That user was added to your private channel!")
 													.queue();
@@ -296,14 +317,11 @@ public class PrivateChannelCommand extends ParentCommand {
 							// users.
 							User owner = acc.getOwner();
 							PrivateChannel pc = new PrivateChannel(
-									new File(clover.getEconomy().getRandStorage(PRIVATE_CHANNEL_FILE_NAMESPACE),
-											tc.getId()),
+									new File(clover.getEconomy().getRandStorage(
+											PRIVATE_CHANNEL_FILE_NAMESPACE + "/channels"), tc.getId() + ".txt"),
 									clover, tc.getId(), owner.getUserID());
 							pc.save();
-							var cs = channels.get(owner.getUserID());
-							if (cs == null)
-								channels.put(owner.getUserID(), cs = new ArrayList<>());
-							cs.add(pc);
+							putChannel(pc);
 							inv.event.getChannel().sendMessage("You now have a new private channel!").queue();
 							return;
 						}
