@@ -117,8 +117,8 @@ public class PrivateChannelCommand extends ParentCommand {
 									i.remove();
 							} else {
 								pc.getDiscordChannel()
-										.sendMessage("Tax is being collected! -" + Utilities.CURRENCY_SYMBOL + ' '
-												+ cost + " has been taken from " + pc.getOwner().getUser().getAsTag()
+										.sendMessage("Tax is being collected! **" + Utilities.CURRENCY_SYMBOL + ' '
+												+ cost + "** has been taken from " + pc.getOwner().getUser().getAsTag()
 												+ "'s account for upkeep and room-size (number of channel members).")
 										.queue();
 							}
