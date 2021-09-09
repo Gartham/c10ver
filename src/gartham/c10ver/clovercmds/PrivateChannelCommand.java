@@ -24,6 +24,8 @@ import gartham.c10ver.economy.users.UserAccount;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 
 public class PrivateChannelCommand extends ParentCommand {
 
@@ -134,7 +136,15 @@ public class PrivateChannelCommand extends ParentCommand {
 			public void run() {
 				synchronized (channels) {
 					for (var tc : deletedChannels)
-						tc.delete().queue();
+						try {
+							tc.delete().queue();
+						} catch (ErrorResponseException e) {
+							if (e.getErrorResponse() != ErrorResponse.UNKNOWN_CHANNEL) {
+								System.out.println("Failed to delete a private channel, (Name=" + tc.getName() + ", ID="
+										+ tc.getId() + "), for a reason other than it already being deleted: ");
+								e.printStackTrace();
+							}
+						}
 				}
 			}
 		}, c.getTime(), 86400000);
