@@ -278,7 +278,7 @@ public class PrivateChannelCommand extends ParentCommand {
 			}
 		};
 
-		new Subcommand("buy", "new") {
+		new Subcommand("create", "buy", "new") {
 
 			@Override
 			protected void tailed(SubcommandInvocation inv) {
