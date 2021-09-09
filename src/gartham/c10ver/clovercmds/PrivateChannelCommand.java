@@ -35,17 +35,18 @@ public class PrivateChannelCommand extends ParentCommand {
 		this.clover = clover;
 
 		File channels = clover.getRandStorage(PRIVATE_CHANNEL_FILE_NAMESPACE + "/channels");
-		for (File f : channels.listFiles()) {
-			PrivateChannel pc;
-			try {
-				pc = new PrivateChannel(f, clover);
-			} catch (Exception e) {
-				System.err.println("Failed to load a private channel: " + f);
-				e.printStackTrace();
-				continue;
+		if (channels.isDirectory())
+			for (File f : channels.listFiles()) {
+				PrivateChannel pc;
+				try {
+					pc = new PrivateChannel(f, clover);
+				} catch (Exception e) {
+					System.err.println("Failed to load a private channel: " + f);
+					e.printStackTrace();
+					continue;
+				}
+				putChannel(pc);
 			}
-			putChannel(pc);
-		}
 
 		var h = help.addParentCommand("pc",
 				"Allows you to purchase a private channel for you and your friends! Channels have a **tax** of "
