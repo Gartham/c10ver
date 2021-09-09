@@ -16,6 +16,10 @@ public class Economy {
 	private final File root;
 	private final Clover clover;
 
+	public File getRandStorage(String ns) {
+		return new File(new File(root, "rand-storage"), ns);
+	}
+
 	public Clover getClover() {
 		return clover;
 	}
