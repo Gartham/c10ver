@@ -6,13 +6,16 @@ import java.util.Set;
 
 import org.alixia.javalibrary.util.StringGateway;
 
+import gartham.c10ver.Clover;
 import gartham.c10ver.data.autosave.SavablePropertyObject;
 import gartham.c10ver.economy.Owned;
 import gartham.c10ver.economy.users.User;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 public class PrivateChannel extends SavablePropertyObject implements Owned<User> {
-	private final Property<String> channel = stringProperty("channel");
+	private final Property<String> channel = stringProperty("channel"), owner = stringProperty("owner");
 	private final Property<HashSet<String>> users = setProperty("users", toStringGateway(StringGateway.string()));
+	private final Clover clover;
 
 	public Set<String> getUsers() {
 		return users.get();
@@ -22,20 +25,33 @@ public class PrivateChannel extends SavablePropertyObject implements Owned<User>
 		return channel.get();
 	}
 
-	private final User owner;
+	public TextChannel getDiscordChannel() {
+		return clover.getBot().getTextChannelById(getChannel());
+	}
 
 	@Override
 	public User getOwner() {
-		return owner;
+		return clover.getEconomy().getUser(owner.get());
 	}
 
-	public PrivateChannel(File file, User owner, boolean load) {
+	public PrivateChannel(File file, Clover clover) {
 		super(file);
-		this.owner = owner;
-		if (load)
-			load();
+		this.clover = clover;
+		load();
 		if (users.get() == null)
 			users.set(new HashSet<>());
+	}
+
+	public PrivateChannel(File file, Clover clover, String channel, String owner) {
+		super(file);
+		this.clover = clover;
+		users.set(new HashSet<>());
+		this.channel.set(channel);
+		this.owner.set(owner);
+	}
+
+	public void setOwner(String owner) {
+		this.owner.set(owner);
 	}
 
 	public long cost() {
