@@ -272,7 +272,8 @@ public class PrivateChannelCommand extends ParentCommand {
 					for (var v : l)
 						tt += v.cost();
 					inv.event.getChannel()
-							.sendMessage(res + "\nTotal Hourly Tax: " + Utilities.format(BigInteger.valueOf(tt)));
+							.sendMessage(res + "\nTotal Hourly Tax: " + Utilities.format(BigInteger.valueOf(tt)))
+							.queue();
 				}
 			}
 		};
