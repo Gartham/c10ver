@@ -34,7 +34,7 @@ public class PrivateChannelCommand extends ParentCommand {
 		super("pc", "private-channel");
 		this.clover = clover;
 
-		File channels = clover.getEconomy().getRandStorage(PRIVATE_CHANNEL_FILE_NAMESPACE + "/channels");
+		File channels = clover.getRandStorage(PRIVATE_CHANNEL_FILE_NAMESPACE + "/channels");
 		for (File f : channels.listFiles()) {
 			PrivateChannel pc;
 			try {
@@ -317,8 +317,8 @@ public class PrivateChannelCommand extends ParentCommand {
 							// users.
 							User owner = acc.getOwner();
 							PrivateChannel pc = new PrivateChannel(
-									new File(clover.getEconomy().getRandStorage(
-											PRIVATE_CHANNEL_FILE_NAMESPACE + "/channels"), tc.getId() + ".txt"),
+									new File(clover.getRandStorage(PRIVATE_CHANNEL_FILE_NAMESPACE + "/channels"),
+											tc.getId() + ".txt"),
 									clover, tc.getId(), owner.getUserID());
 							pc.save();
 							putChannel(pc);

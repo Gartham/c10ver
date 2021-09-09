@@ -76,15 +76,32 @@ public class Clover {
 		}
 
 	}
+
+	private final File root = new File("data");
 	private final JDA bot;
 	private final CommandParser commandParser;
 	private final CommandProcessor commandProcessor = new CloverCommandProcessor(this);
 	private final EventHandler eventHandler = new EventHandler(this);
-	private final Economy economy = new Economy(new File("data/economy"), this);
+	private final Economy economy = new Economy(new File(root, "economy"), this);
 	private final Changelog changelog;
 	private final Set<String> devlist;
 	private final List<String> wordlist;
 	private final List<InfoPopup> tiplist;
+
+	/**
+	 * Returns a new {@link File} representing the directory of the random storage
+	 * namespace requested. Any part of Clover (particularly, parts that are not big
+	 * enough to constitute their own, dedicated memory location), can access a
+	 * "random-storage" namespace and store its data there. The random storage
+	 * namespace is for random parts of Clover and is not different upon each
+	 * program execution.
+	 * 
+	 * @param ns The namespace.
+	 * @return A new file that the app can use to store data to.
+	 */
+	public File getRandStorage(String ns) {
+		return new File(new File(root, "random-storage"), ns);
+	}
 
 	public List<InfoPopup> getTiplist() {
 		return tiplist;
