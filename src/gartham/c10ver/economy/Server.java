@@ -20,7 +20,8 @@ public class Server extends SavablePropertyObject {
 	private final Property<String> generalChannel = stringProperty("general-channel"),
 			spamChannel = stringProperty("spam-channel"), gamblingChannel = stringProperty("gambling-channel"),
 			voteChannel = stringProperty("vote-channel"),
-			privateChannelCategory = stringProperty("private-channel-category");
+			privateChannelCategory = stringProperty("private-channel-category"),
+			loggingChannel = stringProperty("logging-channel");
 	private final Property<String> voteRole = stringProperty("vote-role");
 	private final Property<ArrayList<Multiplier>> multipliers = listProperty("multipliers",
 			toObjectGateway(Multiplier::new));
@@ -140,6 +141,14 @@ public class Server extends SavablePropertyObject {
 
 	public void setPCCategory(String pcc) {
 		privateChannelCategory.set(pcc);
+	}
+
+	public String getLoggingChannel() {
+		return loggingChannel.get();
+	}
+
+	public void setLoggingChannel(String channel) {
+		loggingChannel.set(channel);
 	}
 
 }

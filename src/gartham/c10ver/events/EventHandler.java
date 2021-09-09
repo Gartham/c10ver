@@ -80,7 +80,7 @@ public class EventHandler implements EventListener {
 			var ranCmd = false;
 			CommandInvocation commandInvoc = null;
 			if (!messageProcessor.runInputHandlers(mre))
-			 if ((commandInvoc = clover.getCommandParser().parse(mre.getMessage().getContentRaw(), mre)) != null)
+				if ((commandInvoc = clover.getCommandParser().parse(mre.getMessage().getContentRaw(), mre)) != null)
 					if (clover.getCommandProcessor().run(commandInvoc))
 						ranCmd = true;
 
@@ -177,10 +177,12 @@ public class EventHandler implements EventListener {
 			synchronized (this) {
 				var ge = (GuildMemberJoinEvent) event;
 				Invite inviteee = inviteTracker.calcUser(ge);
+				if (inviteee == null)
+					return;
 
 				var u = inviteee.getInviter();
 				if (u == null) {
-					System.err.println(u);
+					u = ((MessageReceivedEvent) event).getGuild().getOwner().getUser();
 					return;
 				} else if (u.isBot())
 					return;
@@ -225,14 +227,12 @@ public class EventHandler implements EventListener {
 					}
 				} else {
 					StringBuilder sb;
-					{
-						var inv = inviter.getUser().getUser();
-						var join = joinee.getUser();
-						sb = new StringBuilder(inv.getAsTag());
-						sb.append('[').append(inv.getId()).append("] has invited ").append(join.getAsTag()).append('[')
-								.append(join.getId()).append("] to ").append(ge.getGuild().getName()).append('[')
-								.append(ge.getGuild().getId()).append(']');
-					}
+					var inv = inviter.getUser().getUser();
+					var join = joinee.getUser();
+					sb = new StringBuilder(inv == null ? "#Deleted Acc" : inv.getAsTag());
+					sb.append('[').append(inv == null ? "#DelUser" : inv.getId()).append("] has invited ")
+							.append(join.getAsTag()).append('[').append(join.getId()).append("] to ")
+							.append(ge.getGuild().getName()).append('[').append(ge.getGuild().getId()).append(']');
 					if (joinee.getJoinedGuilds().contains(ge.getGuild().getId())) {
 						print(sb.append('.').toString());
 
@@ -243,7 +243,7 @@ public class EventHandler implements EventListener {
 								if (gen != null)
 									gen.sendMessage(ge.getUser().getAsMention()
 											+ " welcome back to the server. ^w^\nYou were invited back by: "
-											+ inviter.getUser().getUser().getAsMention() + ".").queue();
+											+ (inv == null ? "a deleted user" : inv.getAsMention()) + ".").queue();
 							}
 						}
 					} else {
