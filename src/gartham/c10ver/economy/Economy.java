@@ -38,17 +38,20 @@ public class Economy {
 	private final Map<String, User> users = new HashedMap<>();
 	private final Map<String, Server> servers = new HashMap<>();
 
-	public synchronized User getUser(String userID) throws RuntimeException {
-		// TODO Synch over user instead.
-		if (!users.containsKey(userID))
-			users.put(userID, new User(new File(getUserDir(), userID), this));
-		return users.get(userID);
+	public User getUser(String userID) throws RuntimeException {
+		synchronized (users) {
+			if (!users.containsKey(userID))
+				users.put(userID, new User(new File(getUserDir(), userID), this));
+			return users.get(userID);
+		}
 	}
 
-	public synchronized Server getServer(String serverID) throws RuntimeException {
-		if (!servers.containsKey(serverID))
-			servers.put(serverID, new Server(new File(getServersDir(), serverID)));
-		return servers.get(serverID);
+	public Server getServer(String serverID) throws RuntimeException {
+		synchronized (servers) {
+			if (!servers.containsKey(serverID))
+				servers.put(serverID, new Server(new File(getServersDir(), serverID)));
+			return servers.get(serverID);
+		}
 	}
 
 	public UserAccount getAccount(String userID) {
