@@ -142,8 +142,8 @@ public final class Utilities {
 			return null;
 		try (var isr = new InputStreamReader(new FileInputStream(file))) {
 			return new JSONParser().parse(CharacterStream.from(isr));
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to load file: " + file, e);
 		}
 	}
 
