@@ -41,7 +41,7 @@ public class PrivateChannelCommand extends ParentCommand {
 			for (File f : channels.listFiles()) {
 				PrivateChannel pc;
 				try {
-					pc = new PrivateChannel(f, clover);
+					pc = PrivateChannel.load(f, clover);
 				} catch (Exception e) {
 					System.err.println("Failed to load a private channel: " + f);
 					e.printStackTrace();
@@ -92,38 +92,59 @@ public class PrivateChannelCommand extends ParentCommand {
 
 			@Override
 			public void run() {
-				synchronized (channels) {
-					System.out.println("Taxing all private channel customers!");
-					for (Iterator<List<PrivateChannel>> i = channels.values().iterator(); i.hasNext();) {
-						var l = i.next();
-						for (Iterator<PrivateChannel> iterator = l.iterator(); iterator.hasNext();) {
-							var pc = iterator.next();
-							long cost = pc.cost();
-							if (!pc.getOwner().getAccount().withdraw(cost)) {
-								pc.getDiscordChannel().sendMessage(
-										"The owner of this channel did not have enough money to support it. It has been queued for deletion!!!")
-										.queue();
-								deletedChannels.add(pc.getDiscordChannel());
-								pc.getOwner().getUser().openPrivateChannel().complete()
-										.sendMessage("Private channel taxes came around ("
-												+ pc.getDiscordChannel().getGuild().getName()
-												+ "), and unfortunately you didn't have enough cloves in your account to support your private channel: <#"
-												+ pc.getDiscordChannel().getId() + ">. I am truly sorry. :pensive:")
-										.queue();
-								pc.getDiscordChannel().getMemberPermissionOverrides().forEach(a -> a.delete().queue());
-								iterator.remove();
-								pc.getSaveLocation().delete();
-								if (l.isEmpty())
-									i.remove();
-							} else {
-								pc.getDiscordChannel()
-										.sendMessage("Tax is being collected! **" + Utilities.CURRENCY_SYMBOL + ' '
-												+ cost + "** has been taken from " + pc.getOwner().getUser().getAsTag()
-												+ "'s account for upkeep and room-size (number of channel members).")
-										.queue();
+				try {
+					synchronized (channels) {
+						System.out.println("Taxing all private channel customers!");
+						LIST: for (Iterator<List<PrivateChannel>> i = channels.values().iterator(); i.hasNext();)
+							try {
+								var l = i.next();
+								for (Iterator<PrivateChannel> iterator = l.iterator(); iterator.hasNext();)
+									try {
+										var pc = iterator.next();
+										TextChannel pcchan = pc.getDiscordChannel();
+										if (pcchan == null) {
+											iterator.remove();
+											pc.getSaveLocation().delete();
+											if (l.isEmpty()) {
+												i.remove();
+												continue LIST;
+											}
+											continue;
+										}
+										long cost = pc.cost();
+										if (!pc.getOwner().getAccount().withdraw(cost)) {
+											pcchan.sendMessage(
+													"The owner of this channel did not have enough money to support it. It has been queued for deletion!!!")
+													.queue();
+											deletedChannels.add(pcchan);
+											pc.getOwner().getUser().openPrivateChannel().complete()
+													.sendMessage("Private channel taxes came around ("
+															+ pcchan.getGuild().getName()
+															+ "), and unfortunately you didn't have enough cloves in your account to support your private channel: <#"
+															+ pcchan.getId() + ">. I am truly sorry. :pensive:")
+													.queue();
+											pcchan.getMemberPermissionOverrides().forEach(a -> a.delete().queue());
+											iterator.remove();
+											pc.getSaveLocation().delete();
+											if (l.isEmpty())
+												i.remove();
+										} else {
+											pcchan.sendMessage("Tax is being collected! **" + Utilities.CURRENCY_SYMBOL
+													+ ' ' + cost + "** has been taken from "
+													+ pc.getOwner().getUser().getAsTag()
+													+ "'s account for upkeep and room-size (number of channel members).")
+													.queue();
+										}
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
+							} catch (Exception e) {
+								e.printStackTrace();
 							}
-						}
+						System.out.println("Finished Taxing!");
 					}
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
 			}
 		}, c.getTime(), 3600000);
@@ -144,6 +165,8 @@ public class PrivateChannelCommand extends ParentCommand {
 										+ tc.getId() + "), for a reason other than it already being deleted: ");
 								e.printStackTrace();
 							}
+						} catch (Exception e) {
+							e.printStackTrace();
 						}
 				}
 			}
@@ -210,7 +233,8 @@ public class PrivateChannelCommand extends ParentCommand {
 							inv.event.getAuthor().getAsMention() + " this command requires exactly 2 arguments.")
 							.queue();
 				else if (l == null || l.isEmpty())
-					inv.event.getChannel().sendMessage("You don't have any private channels.").queue();
+					inv.event.getChannel().sendMessage(inv.event.getAuthor() + ", you don't have any private channels.")
+							.queue();
 				else {
 					var us = Utilities.parseMention(inv.args[0]);
 					if (us == null)
@@ -229,8 +253,12 @@ public class PrivateChannelCommand extends ParentCommand {
 						if (pcid == null)
 							inv.event.getChannel().sendMessage("Couldn't find any channels by that mention.").queue();
 						else {
-							for (var pc : l) {
-								if (pc.getDiscordChannel().getId().equals(pcid)) {
+							for (Iterator<PrivateChannel> iterator = l.iterator(); iterator.hasNext();) {
+								var pc = iterator.next();
+								if (pc.getDiscordChannel() == null) {
+									iterator.remove();
+									pc.getSaveLocation().delete();
+								} else if (pc.getDiscordChannel().getId().equals(pcid)) {
 									if (pc.getUsers().contains(u.getId()))
 										inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
 												+ " that user already has access to that channel. (If they can't access it, contact a staff member!")
@@ -258,6 +286,14 @@ public class PrivateChannelCommand extends ParentCommand {
 													.queue();
 									}
 
+									return;
+								}
+								if (l.isEmpty()) {
+									channels.remove(inv.event.getAuthor().getId());
+									inv.event.getChannel()
+											.sendMessage(
+													inv.event.getAuthor() + ", you don't have any private channels.")
+											.queue();
 									return;
 								}
 							}
@@ -328,6 +364,7 @@ public class PrivateChannelCommand extends ParentCommand {
 							// No mentioning everyone because staff also have access + owner can add random
 							// users.
 							User owner = acc.getOwner();
+							System.out.println("TC ID: " + tc.getId());
 							PrivateChannel pc = new PrivateChannel(
 									new File(clover.getRandStorage(PRIVATE_CHANNEL_FILE_NAMESPACE + "/channels"),
 											tc.getId() + ".txt"),

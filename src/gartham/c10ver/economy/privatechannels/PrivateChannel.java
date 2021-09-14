@@ -34,12 +34,16 @@ public class PrivateChannel extends SavablePropertyObject implements Owned<User>
 		return clover.getEconomy().getUser(owner.get());
 	}
 
-	public PrivateChannel(File file, Clover clover) {
+	private PrivateChannel(File file, Clover clover) {
 		super(file);
 		this.clover = clover;
 		load();
 		if (users.get() == null)
 			users.set(new HashSet<>());
+	}
+
+	public static final PrivateChannel load(File file, Clover clover) {
+		return new PrivateChannel(file, clover);
 	}
 
 	public PrivateChannel(File file, Clover clover, String channel, String owner) {
