@@ -29,14 +29,7 @@ public class NormalCrate extends LootCrateItem {
 	@Override
 	public Rewards open() {
 		List<ItemBunch<?>> items = new ArrayList<>();
-		if (Math.random() < 0.02)
-			items.add(new ItemBunch<>(switch ((int) (Math.random() * 3)) {
-			case 0 -> new DailyCrate();
-			case 1 -> new WeeklyCrate();
-			case 2 -> new MonthlyCrate();
-			default -> throw new IllegalArgumentException("Unexpected value.");
-			}));
-		return new Rewards(items, BigInteger.valueOf(250));
+		return new Rewards(items, BigInteger.valueOf((long) (Math.random() * 50 + 10)));
 	}
 
 }
