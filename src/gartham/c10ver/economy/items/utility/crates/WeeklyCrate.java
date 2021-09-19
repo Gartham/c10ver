@@ -35,16 +35,14 @@ public class WeeklyCrate extends LootCrateItem {
 		List<ItemBunch<?>> items = new ArrayList<>();
 		items.add(new ItemBunch<>(new Sandwich(), BigInteger.valueOf((long) (Math.random() * 4 + 2))));
 		if (Math.random() > 0.8)
-			items.add(new ItemBunch<>(new DailyCrate(), BigInteger.valueOf(10)));
+			items.add(new ItemBunch<>(new DailyCrate(), BigInteger.valueOf((long) (2 + Math.random() * 2))));
 		if (Math.random() > 0.4)
-			items.add(new ItemBunch<>(new Pizza(), BigInteger.valueOf((long) (Math.random() * 3 + 1))));
-		if (Math.random() > 0.6)
-			items.add(new ItemBunch<>(new Spaghetti(), BigInteger.ONE));
-		if (Math.random() > 0.92)
+			items.add(new ItemBunch<>(new Sandwich()));
+		if (Math.random() > 0.98)
 			items.add(new ItemBunch<>(new MonthlyCrate(), BigInteger.ONE));
 		double random = Math.random();
 		return new Rewards(items,
-				BigInteger.valueOf((long) (300 + Math.random() * 200 + random * random * random * random * 1000)));
+				BigInteger.valueOf((long) (20 + Math.random() * 50 + random * random * random * random * 1000)));
 	}
 
 }
