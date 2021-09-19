@@ -42,7 +42,7 @@ public class MonthlyCrate extends LootCrateItem {
 		if (Math.random() < 0.4)
 			items.add(new ItemBunch<>(new MonthlyCrate()));
 		List<AbstractMultiplier> mults = new ArrayList<>();
-		return new Rewards(items, BigInteger.valueOf((long) (Math.random() * 350 + 151)), mults);
+		return new Rewards(items, BigInteger.valueOf((long) (Math.random() * 800 + 450)), mults);
 	}
 
 }

@@ -29,7 +29,7 @@ public class NormalCrate extends LootCrateItem {
 	@Override
 	public Rewards open() {
 		List<ItemBunch<?>> items = new ArrayList<>();
-		return new Rewards(items, BigInteger.valueOf((long) (Math.random() * 50 + 10)));
+		return new Rewards(items, BigInteger.valueOf((long) (Math.random() * 30 + 10)));
 	}
 
 }

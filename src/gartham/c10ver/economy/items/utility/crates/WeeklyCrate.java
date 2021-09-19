@@ -40,9 +40,8 @@ public class WeeklyCrate extends LootCrateItem {
 			items.add(new ItemBunch<>(new Sandwich()));
 		if (Math.random() > 0.98)
 			items.add(new ItemBunch<>(new MonthlyCrate(), BigInteger.ONE));
-		double random = Math.random();
 		return new Rewards(items,
-				BigInteger.valueOf((long) (20 + Math.random() * 50 + random * random * random * random * 1000)));
+				BigInteger.valueOf((long) (350 + Math.random() * 150)));
 	}
 
 }
