@@ -442,6 +442,18 @@ public final class Utilities {
 		return CURRENCY_SYMBOL + ' ' + formatNumber(money);
 	}
 
+	public static double rand(double lower, double upper) {
+		return lower + Math.random() * (upper - lower);
+	}
+
+	public static long rand(long lower, long upper) {
+		return (long) rand(lower, upper + 1d);
+	}
+
+	public static int rand(int lower, int upper) {
+		return (int) rand(lower, upper + 1d);
+	}
+
 	public static String strip(String msg) {
 		return stripEveryonePings(stripHerePings(msg));
 	}
