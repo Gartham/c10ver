@@ -1,13 +1,13 @@
-<a href="https://discord.com/invite/CdNdJmcnFx"><img align="right" src="https://avatars.githubusercontent.com/u/67575219?v=4" width=27%></a>
+<a href="https://discord.com/invite/CdNdJmcnFx"><img align="right" src="https://cdn.discordapp.com/app-icons/807877488046112769/5d3c2e6f569aa15f921502160466aad8.png?size=1024" width=27%></a>
 
 <h1 align="center">Clover</h1>
-<p align="center"># CLOVER
 
 
-# Using the Official Clover Bot
+### Using the Official Clover Bot
 
-**Just one [click](https://discord.com/invite/CdNdJmcnFx) and you can add Clover to your own server and enjoy its full feature set!**
-<p>Clover is a bot that was made for all of us to enjoy, so feel free to contribute to it by making/solving an issue, adding a new feature or a suggestion, or even by pointing out any issues or bugs that you may find.This is the file we use to publish our bots on bot lists, too. You're welcome to use it as a guide for your own. </p>
+<p>Clover is a bot that was made for all of us to enjoy, so feel free to contribute to it by making/solving an issue, adding a new feature or a suggestion, or even by pointing out any issues or bugs that you may find.</p>
+
+**Just one [click](https://discord.com/invite/CdNdJmcnFx) and you can join the server to enjoy its full feature set!**
 
 ------
 
@@ -40,10 +40,3 @@ Here are just listed some of the various functions and >64 commands of the bot.
   - `-music` - Music player with many functions
   - `-scpacer` - Create spacer voice channels which can not be joined
   - `-rand6` - Random operators for rainbow six<br>
-
------
-## License
-
-[MIT](https://choosealicense.com/licenses/mit/)
-
-
