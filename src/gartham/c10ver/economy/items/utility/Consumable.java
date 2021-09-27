@@ -4,9 +4,9 @@ import gartham.c10ver.economy.users.User;
 
 public interface Consumable {
 	/**
-	 * Consumes this {@link Consumable} as the provided {@link User}.
+	 * Consumes this {@link Consumable} as the provided {@link EconomyUser}.
 	 * 
 	 * @param user The user that will consume this item.
 	 */
-	void consume(User user);
+	void consume(EconomyUser user);
 }

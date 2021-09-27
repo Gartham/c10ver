@@ -53,7 +53,7 @@ public class MultiplierTicket extends Item {
 		return durationProperty().get();
 	}
 
-	public void use(Clover clover, Guild guild, User user) {
+	public void use(Clover clover, Guild guild, EconomyUser user) {
 		clover.getEconomy().getServer(guild.getId())
 				.addMultiplier(new Multiplier(Instant.now().plus(getDuration()), getAmount()));
 	}

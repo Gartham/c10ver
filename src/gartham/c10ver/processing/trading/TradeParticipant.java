@@ -12,7 +12,7 @@ import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 public class TradeParticipant {
-	private final User ecouser;
+	private final EconomyUser ecouser;
 	private final ItemList items = new ItemList();
 	private BigInteger cloves = BigInteger.ZERO;
 
@@ -29,7 +29,7 @@ public class TradeParticipant {
 		this.finished = finished;
 	}
 
-	public User getEcouser() {
+	public EconomyUser getEcouser() {
 		return ecouser;
 	}
 
@@ -37,7 +37,7 @@ public class TradeParticipant {
 		return items;
 	}
 
-	public TradeParticipant(User ecouser) {
+	public TradeParticipant(EconomyUser ecouser) {
 		this.ecouser = ecouser;
 	}
 

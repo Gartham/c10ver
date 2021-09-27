@@ -19,7 +19,7 @@ public class TradeManager {
 		return clover;
 	}
 
-	public Trade getTrade(User user) {
+	public Trade getTrade(EconomyUser user) {
 		return trades.get(user.getUserID());
 	}
 
@@ -44,7 +44,7 @@ public class TradeManager {
 	 * @param recipient The person receiving the trade request.
 	 * @return The newly created {@link Trade} object, or <code>null</code>.
 	 */
-	public Trade open(User requester, User recipient, TextChannel channel) {
+	public Trade open(EconomyUser requester, User recipient, TextChannel channel) {
 		if (participating(recipient) || participating(requester))
 			return null;
 		var t = new Trade(new TradeParticipant(requester), new TradeParticipant(recipient), this, channel);

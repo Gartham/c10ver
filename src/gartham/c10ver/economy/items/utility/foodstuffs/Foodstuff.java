@@ -141,7 +141,7 @@ public class Foodstuff extends Item implements Consumable {
 	}
 
 	@Override
-	public final void consume(User user) {
+	public final void consume(EconomyUser user) {
 		user.addMultiplier(new Multiplier(Instant.now().plusMillis(getTTL()), getMultiplier()));
 	}
 

@@ -71,7 +71,7 @@ public class VoteManager {
 
 		Rewards rewards = new Rewards(items, BigInteger.valueOf((long) (Math.random() * 3000 + 5000)));
 
-		User u = clover.getEconomy().getUser(member.getId());
+		EconomyUser u = clover.getEconomy().getUser(member.getId());
 		u.incrementVoteCount();
 		var rec = u.rewardAndSave(rewards, member.getGuild());
 		u.save();
@@ -168,7 +168,7 @@ public class VoteManager {
 		return get(user, server) != null;
 	}
 
-	public void setVotingRemindersEnabled(User user, String server, boolean b) {
+	public void setVotingRemindersEnabled(EconomyUser user, String server, boolean b) {
 		if (!b) {
 			var x = remove(user.getUserID(), server);
 			if (x != null)

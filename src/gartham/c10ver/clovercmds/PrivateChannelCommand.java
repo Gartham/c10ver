@@ -363,7 +363,7 @@ public class PrivateChannelCommand extends ParentCommand {
 									.queue();
 							// No mentioning everyone because staff also have access + owner can add random
 							// users.
-							User owner = acc.getOwner();
+							EconomyUser owner = acc.getOwner();
 							System.out.println("TC ID: " + tc.getId());
 							PrivateChannel pc = new PrivateChannel(
 									new File(clover.getRandStorage(PRIVATE_CHANNEL_FILE_NAMESPACE + "/channels"),
