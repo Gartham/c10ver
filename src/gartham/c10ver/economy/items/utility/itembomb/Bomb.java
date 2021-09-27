@@ -6,7 +6,7 @@ import org.alixia.javalibrary.json.JSONObject;
 
 import gartham.c10ver.Clover;
 import gartham.c10ver.economy.items.Item;
-import gartham.c10ver.economy.users.User;
+import gartham.c10ver.economy.users.EconomyUser;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -26,7 +26,7 @@ public class Bomb extends Item {
 		event.getGuild().findMembers(a -> !a.getUser().isBot()).onSuccess(t -> {
 			BigInteger tot = BigInteger.ZERO;
 			for (var x : t) {
-				User user = clover.getEconomy().getUser(x.getId());
+				EconomyUser user = clover.getEconomy().getUser(x.getId());
 				tot = tot.add(
 						user.rewardAndSave((int) (Math.random() * 200) + 50, user.calcMultiplier(event.getGuild())));
 			}

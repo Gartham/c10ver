@@ -1,7 +1,6 @@
 package gartham.c10ver.commands.subcommands;
 
 import gartham.c10ver.commands.CommandInvocation;
-import gartham.c10ver.utils.Unimplemented;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class SubcommandInvocation extends CommandInvocation {

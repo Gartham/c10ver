@@ -34,7 +34,7 @@ import org.alixia.javalibrary.strings.matching.Matching;
 
 import gartham.c10ver.economy.Rewards;
 import gartham.c10ver.economy.items.ItemBunch;
-import gartham.c10ver.economy.users.User.Receipt;
+import gartham.c10ver.economy.users.EconomyUser.Receipt;
 
 public final class Utilities {
 

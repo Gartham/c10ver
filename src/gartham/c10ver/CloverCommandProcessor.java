@@ -61,7 +61,7 @@ import gartham.c10ver.economy.items.valuables.VoteToken;
 import gartham.c10ver.economy.questions.Question;
 import gartham.c10ver.economy.questions.Question.Difficulty;
 import gartham.c10ver.economy.server.ColorRole;
-import gartham.c10ver.economy.users.User;
+import gartham.c10ver.economy.users.EconomyUser;
 import gartham.c10ver.economy.users.UserAccount;
 import gartham.c10ver.economy.users.UserSettings;
 import gartham.c10ver.games.math.MathProblem;

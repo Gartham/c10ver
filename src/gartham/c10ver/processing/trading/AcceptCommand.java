@@ -6,7 +6,6 @@ import gartham.c10ver.economy.items.Item;
 import gartham.c10ver.economy.items.UserInventory;
 import gartham.c10ver.economy.items.UserInventory.UserEntry;
 import gartham.c10ver.economy.items.utils.ItemList;
-import gartham.c10ver.economy.users.User;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 public class AcceptCommand extends MatchBasedCommand {

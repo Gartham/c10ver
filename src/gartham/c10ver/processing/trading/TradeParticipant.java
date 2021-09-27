@@ -1,13 +1,11 @@
 package gartham.c10ver.processing.trading;
 
 import java.math.BigInteger;
-import java.util.Iterator;
 
 import gartham.c10ver.economy.items.Item;
-import gartham.c10ver.economy.items.ItemBunch;
 import gartham.c10ver.economy.items.utils.ItemList;
 import gartham.c10ver.economy.items.utils.ItemList.Entry;
-import gartham.c10ver.economy.users.User;
+import gartham.c10ver.economy.users.EconomyUser;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 

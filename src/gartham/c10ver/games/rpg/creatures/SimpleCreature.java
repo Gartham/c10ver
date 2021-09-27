@@ -1,9 +1,11 @@
 package gartham.c10ver.games.rpg.creatures;
 
+import static java.math.BigDecimal.ONE;
+import static java.math.BigDecimal.valueOf;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
-import static java.math.BigDecimal.*;
 
 import org.alixia.javalibrary.json.JSONObject;
 

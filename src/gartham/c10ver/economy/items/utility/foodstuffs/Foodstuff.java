@@ -11,7 +11,7 @@ import gartham.c10ver.economy.AbstractMultiplier;
 import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.items.Item;
 import gartham.c10ver.economy.items.utility.Consumable;
-import gartham.c10ver.economy.users.User;
+import gartham.c10ver.economy.users.EconomyUser;
 
 public class Foodstuff extends Item implements Consumable {
 
