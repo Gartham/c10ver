@@ -8,7 +8,7 @@ import org.apache.commons.collections4.map.HashedMap;
 
 import gartham.c10ver.Clover;
 import gartham.c10ver.economy.items.UserInventory;
-import gartham.c10ver.economy.users.User;
+import gartham.c10ver.economy.users.EconomyUser;
 import gartham.c10ver.economy.users.UserAccount;
 
 public class Economy {
@@ -27,7 +27,7 @@ public class Economy {
 		if (userFolder != null)
 			for (File f : userFolder)
 				if (f.isDirectory())
-					users.put(f.getName(), new User(f, this));
+					users.put(f.getName(), new EconomyUser(f, this));
 		File[] serverFolder = getServersDir().listFiles();
 		if (serverFolder != null)
 			for (File f : serverFolder)
@@ -35,13 +35,13 @@ public class Economy {
 					servers.put(f.getName(), new Server(f));
 	}
 
-	private final Map<String, User> users = new HashedMap<>();
+	private final Map<String, EconomyUser> users = new HashedMap<>();
 	private final Map<String, Server> servers = new HashMap<>();
 
-	public User getUser(String userID) throws RuntimeException {
+	public EconomyUser getUser(String userID) throws RuntimeException {
 		synchronized (users) {
 			if (!users.containsKey(userID))
-				users.put(userID, new User(new File(getUserDir(), userID), this));
+				users.put(userID, new EconomyUser(new File(getUserDir(), userID), this));
 			return users.get(userID);
 		}
 	}

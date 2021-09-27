@@ -18,7 +18,7 @@ import gartham.c10ver.economy.Server;
 import gartham.c10ver.economy.items.ItemBunch;
 import gartham.c10ver.economy.items.utility.crates.NormalCrate;
 import gartham.c10ver.economy.items.utility.foodstuffs.Sandwich;
-import gartham.c10ver.economy.users.User;
+import gartham.c10ver.economy.users.EconomyUser;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.entities.Invite;
 import net.dv8tion.jda.api.entities.Role;
@@ -85,7 +85,7 @@ public class EventHandler implements EventListener {
 						ranCmd = true;
 
 			if (mre.isFromGuild() && clover.getEconomy().hasServer(mre.getGuild().getId())) {
-				User user = clover.getEconomy().getUser(mre.getAuthor().getId());
+				EconomyUser user = clover.getEconomy().getUser(mre.getAuthor().getId());
 				user.incrementMessageCount();
 				user.getAccount().deposit((long) (Math.random() * 4 + 2));
 				if (user.getMessageCount().getLowestSetBit() >= 4) {// Save every 16 messages.

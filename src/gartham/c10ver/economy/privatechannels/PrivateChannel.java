@@ -9,10 +9,10 @@ import org.alixia.javalibrary.util.StringGateway;
 import gartham.c10ver.Clover;
 import gartham.c10ver.data.autosave.SavablePropertyObject;
 import gartham.c10ver.economy.Owned;
-import gartham.c10ver.economy.users.User;
+import gartham.c10ver.economy.users.EconomyUser;
 import net.dv8tion.jda.api.entities.TextChannel;
 
-public class PrivateChannel extends SavablePropertyObject implements Owned<User> {
+public class PrivateChannel extends SavablePropertyObject implements Owned<EconomyUser> {
 	private final Property<String> channel = stringProperty("channel"), owner = stringProperty("owner");
 	private final Property<HashSet<String>> users = setProperty("users", toStringGateway(StringGateway.string()));
 	private final Clover clover;
@@ -30,7 +30,7 @@ public class PrivateChannel extends SavablePropertyObject implements Owned<User>
 	}
 
 	@Override
-	public User getOwner() {
+	public EconomyUser getOwner() {
 		return clover.getEconomy().getUser(owner.get());
 	}
 

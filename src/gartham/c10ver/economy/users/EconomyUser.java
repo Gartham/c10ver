@@ -23,7 +23,7 @@ import gartham.c10ver.economy.questions.Question;
 import gartham.c10ver.games.rpg.creatures.CreatureBox;
 import net.dv8tion.jda.api.entities.Guild;
 
-public class User extends SavablePropertyObject {
+public class EconomyUser extends SavablePropertyObject {
 
 	private final Property<Instant> dailyCommand = instantProperty("daily", Instant.MIN),
 			weeklyCommand = instantProperty("weekly", Instant.MIN),
@@ -284,11 +284,11 @@ public class User extends SavablePropertyObject {
 		return reward(BigInteger.valueOf(amount), guild);
 	}
 
-	public User(File userDirectory, Economy economy) {
+	public EconomyUser(File userDirectory, Economy economy) {
 		this(userDirectory, true, economy);
 	}
 
-	protected User(File userDirectory, boolean load, Economy economy) {
+	protected EconomyUser(File userDirectory, boolean load, Economy economy) {
 		super(new File(userDirectory, "user-data.txt"));
 		this.economy = economy;
 		userID = userDirectory.getName();

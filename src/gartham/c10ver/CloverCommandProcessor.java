@@ -61,7 +61,7 @@ import gartham.c10ver.economy.items.valuables.VoteToken;
 import gartham.c10ver.economy.questions.Question;
 import gartham.c10ver.economy.questions.Question.Difficulty;
 import gartham.c10ver.economy.server.ColorRole;
-import gartham.c10ver.economy.users.User;
+import gartham.c10ver.economy.users.EconomyUser;
 import gartham.c10ver.economy.users.UserAccount;
 import gartham.c10ver.economy.users.UserSettings;
 import gartham.c10ver.games.math.MathProblem;
@@ -189,7 +189,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 					if (!clover.getEconomy().hasUser(inv.event.getAuthor().getId()))
 						desc.append("You don't have any accolades...");
 					else {
-						User u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
+						EconomyUser u = clover.getEconomy().getUser(inv.event.getAuthor().getId());
 						if (u.getAccolades().isEmpty())
 							desc.append("You don't have any accolades...");
 						else
@@ -243,7 +243,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 			public void exec(CommandInvocation inv) {
 				String userid = inv.event.getAuthor().getId();
 
-				User u = clover.getEconomy().getUser(userid);
+				EconomyUser u = clover.getEconomy().getUser(userid);
 				if (u.timeSinceLastDaily().toDays() < 1)
 					inv.event.getChannel()
 							.sendMessage(inv.event.getAuthor().getAsMention() + ", you must wait `"
@@ -271,7 +271,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 			@Override
 			public void exec(CommandInvocation inv) {
 				String userid = inv.event.getAuthor().getId();
-				User u = clover.getEconomy().getUser(userid);
+				EconomyUser u = clover.getEconomy().getUser(userid);
 				if (u.timeSinceLastWeekly().toDays() < 7) {
 					inv.event.getChannel()
 							.sendMessage(inv.event.getAuthor().getAsMention() + ", you must wait `"
@@ -298,7 +298,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 			@Override
 			public void exec(CommandInvocation inv) {
 				String userid = inv.event.getAuthor().getId();
-				User u = clover.getEconomy().getUser(userid);
+				EconomyUser u = clover.getEconomy().getUser(userid);
 				if (u.timeSinceLastMonthly().toDays() < 30) {
 					inv.event.getChannel()
 							.sendMessage(inv.event.getAuthor().getAsMention() + ", you must wait `"
@@ -1022,7 +1022,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 										event.getAuthor().getAsMention() + " your question has been registered!")
 										.queue();
 								Question q = new Question(event.getMessage().getContentRaw(), value, difficulty);
-								User user = clover.getEconomy().getUser(event.getAuthor().getId());
+								EconomyUser user = clover.getEconomy().getUser(event.getAuthor().getId());
 								user.getQuestions().add(q);
 								user.save();
 								eventHandler.scheduleForRemoval(ic);

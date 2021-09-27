@@ -19,7 +19,7 @@ import gartham.c10ver.commands.CommandInvocation;
 import gartham.c10ver.commands.subcommands.ParentCommand;
 import gartham.c10ver.commands.subcommands.SubcommandInvocation;
 import gartham.c10ver.economy.privatechannels.PrivateChannel;
-import gartham.c10ver.economy.users.User;
+import gartham.c10ver.economy.users.EconomyUser;
 import gartham.c10ver.economy.users.UserAccount;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.Permission;
@@ -363,7 +363,7 @@ public class PrivateChannelCommand extends ParentCommand {
 									.queue();
 							// No mentioning everyone because staff also have access + owner can add random
 							// users.
-							User owner = acc.getOwner();
+							EconomyUser owner = acc.getOwner();
 							System.out.println("TC ID: " + tc.getId());
 							PrivateChannel pc = new PrivateChannel(
 									new File(clover.getRandStorage(PRIVATE_CHANNEL_FILE_NAMESPACE + "/channels"),

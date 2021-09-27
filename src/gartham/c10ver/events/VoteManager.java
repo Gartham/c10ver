@@ -28,7 +28,7 @@ import gartham.c10ver.economy.items.utility.foodstuffs.Pizza;
 import gartham.c10ver.economy.items.utility.foodstuffs.Sandwich;
 import gartham.c10ver.economy.items.valuables.VoteToken;
 import gartham.c10ver.economy.items.valuables.VoteToken.Type;
-import gartham.c10ver.economy.users.User;
+import gartham.c10ver.economy.users.EconomyUser;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
@@ -71,7 +71,7 @@ public class VoteManager {
 
 		Rewards rewards = new Rewards(items, BigInteger.valueOf((long) (Math.random() * 3000 + 5000)));
 
-		User u = clover.getEconomy().getUser(member.getId());
+		EconomyUser u = clover.getEconomy().getUser(member.getId());
 		u.incrementVoteCount();
 		var rec = u.rewardAndSave(rewards, member.getGuild());
 		u.save();
@@ -168,7 +168,7 @@ public class VoteManager {
 		return get(user, server) != null;
 	}
 
-	public void setVotingRemindersEnabled(User user, String server, boolean b) {
+	public void setVotingRemindersEnabled(EconomyUser user, String server, boolean b) {
 		if (!b) {
 			var x = remove(user.getUserID(), server);
 			if (x != null)

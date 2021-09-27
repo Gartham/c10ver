@@ -9,7 +9,7 @@ import org.alixia.javalibrary.json.JSONObject;
 import gartham.c10ver.Clover;
 import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.items.Item;
-import gartham.c10ver.economy.users.User;
+import gartham.c10ver.economy.users.EconomyUser;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.entities.Guild;
 
@@ -53,7 +53,7 @@ public class MultiplierTicket extends Item {
 		return durationProperty().get();
 	}
 
-	public void use(Clover clover, Guild guild, User user) {
+	public void use(Clover clover, Guild guild, EconomyUser user) {
 		clover.getEconomy().getServer(guild.getId())
 				.addMultiplier(new Multiplier(Instant.now().plus(getDuration()), getAmount()));
 	}

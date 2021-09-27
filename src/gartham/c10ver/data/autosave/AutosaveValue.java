@@ -1,7 +1,5 @@
 package gartham.c10ver.data.autosave;
 
-import java.util.List;
-
 public class AutosaveValue<T> {
 	private T value;
 	private final Changeable saveable;

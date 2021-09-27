@@ -6,7 +6,7 @@ import java.math.BigInteger;
 import gartham.c10ver.economy.Account;
 import gartham.c10ver.economy.Owned;
 
-public class UserAccount extends Account implements Owned<User> {
+public class UserAccount extends Account implements Owned<EconomyUser> {
 	private final Property<BigInteger> totalEarnings = bigIntegerProperty("total-earnings", BigInteger.ZERO);
 
 	public void setTotalEarnings(BigInteger earnings) {
@@ -21,22 +21,22 @@ public class UserAccount extends Account implements Owned<User> {
 		return totalEarnings.set(totalEarnings.get().add(earnings)).get();
 	}
 
-	private final User user;
+	private final EconomyUser user;
 
-	public User getUser() {
+	public EconomyUser getUser() {
 		return user;
 	}
 
 	@Override
-	public User getOwner() {
+	public EconomyUser getOwner() {
 		return getUser();
 	}
 
-	public UserAccount(File userDirectory, User user) {
+	public UserAccount(File userDirectory, EconomyUser user) {
 		this(userDirectory, true, user);
 	}
 
-	protected UserAccount(File userDirectory, boolean load, User user) {
+	protected UserAccount(File userDirectory, boolean load, EconomyUser user) {
 		super(new File(userDirectory, "main-account.txt"));
 		this.user = user;
 		if (load)

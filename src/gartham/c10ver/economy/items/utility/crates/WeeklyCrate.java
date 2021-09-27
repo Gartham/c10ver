@@ -8,9 +8,7 @@ import org.alixia.javalibrary.json.JSONObject;
 
 import gartham.c10ver.economy.Rewards;
 import gartham.c10ver.economy.items.ItemBunch;
-import gartham.c10ver.economy.items.utility.foodstuffs.Pizza;
 import gartham.c10ver.economy.items.utility.foodstuffs.Sandwich;
-import gartham.c10ver.economy.items.utility.foodstuffs.Spaghetti;
 
 public class WeeklyCrate extends LootCrateItem {
 
