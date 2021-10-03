@@ -2,6 +2,21 @@ package gartham.c10ver.actions;
 
 import java.util.function.Consumer;
 
+/**
+ * <p>
+ * Represents an option in an {@link ActionMessage} menu. This class is a part
+ * of the {@link ActionMessage} API which is used to show the user menus
+ * ({@link ActionMessage}s). {@link Action}s contain the basic necessities of an
+ * option, including the emoji that the user clicks to react, the name of an
+ * action, as well as the actual operation to perform when a user reacts
+ * (captured in {@link #action}). This class can be extended to provide
+ * further/custom functionality. An example of this is {@link DetailedAction},
+ * which allows specifying a description for an action.
+ * </p>
+ * 
+ * @author Gartham
+ *
+ */
 public class Action {
 
 	public void setEmoji(String emoji) {
