@@ -1,6 +1,7 @@
 package gartham.c10ver.commands;
 
 import gartham.c10ver.commands.CommandHelpBook.CommandHelp;
+import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
 
@@ -24,8 +25,7 @@ public class SimpleCommandProcessor extends CommandProcessor {
 	}
 
 	{
-		final CommandHelp helpCommandHelp = help.addCommand("help", "Shows help for commands.",
-				"help [page-number|(command [subcommand...])]", "?");
+		help.addCommand("help", "Shows help for commands.", "help [page-number|(command [subcommand...])]", "?");
 		register(new MatchBasedCommand("help", "?") {
 			@Override
 			public void exec(CommandInvocation inv) {
@@ -43,13 +43,13 @@ public class SimpleCommandProcessor extends CommandProcessor {
 					else
 						arg = inv.args[0].substring(1);
 					if (!printHelp(inv.event.getChannel(), arg, true, true))
-						inv.event.getChannel()
-								.sendMessage("No command with the name or alias: \"" + arg + "\" was found.").queue();
+						inv.event.getChannel().sendMessage(
+								"No command with the name or alias: \"" + Utilities.strip(arg) + "\" was found.")
+								.queue();
 				} else if (inv.args.length > 1) {
 					if (!help.print(inv.event.getChannel(), true, true, inv.args))
-						inv.event.getChannel().sendMessage(
-								"No (sub)commands found that matched that: `" + String.join(" ", inv.args) + "`.")
-								.queue();
+						inv.event.getChannel().sendMessage("No (sub)commands found that matched that: `"
+								+ Utilities.strip(String.join(" ", inv.args)) + "`.").queue();
 				} else
 					printHelp(inv.event.getChannel(), 1);
 
