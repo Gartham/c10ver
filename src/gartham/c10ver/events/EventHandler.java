@@ -87,7 +87,8 @@ public class EventHandler implements EventListener {
 			if (mre.isFromGuild() && clover.getEconomy().hasServer(mre.getGuild().getId())) {
 				EconomyUser user = clover.getEconomy().getUser(mre.getAuthor().getId());
 				user.incrementMessageCount();
-				user.getAccount().deposit((long) (Math.random() * 4 + 2));
+				user.getAccount().deposit(BigDecimal.valueOf(Math.random() * 4 + 2)
+						.multiply(new BigDecimal(user.getPrestige())).toBigInteger());
 				if (user.getMessageCount().getLowestSetBit() >= 4) {// Save every 16 messages.
 					user.save();
 					user.getAccount().save();
