@@ -163,6 +163,11 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						.append(ua.getPrestige().equals(BigInteger.ZERO) ? "0"
 								: Utilities.toRomanNumerals(ua.getPrestige()))
 						.append("** (`").append(NumberFormat.getInstance().format(ua.getPrestige())).append("`)\n");
+				sb.append("Cloves/Msg: **").append(Utilities.CURRENCY_SYMBOL).append("** [`")
+						.append(Utilities.formatNumber(BigInteger.valueOf(2).multiply(ua.getPrestige()))).append("` - `")
+						.append(Utilities.formatNumber(BigDecimal.valueOf(5.999999999999999999999999)
+								.multiply(new BigDecimal(ua.getMessageCount())).toBigInteger()))
+						.append("`]\n");
 				eb.setDescription(sb.toString());
 				inv.event.getChannel().sendMessage(eb.build()).queue();
 			}
