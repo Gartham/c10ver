@@ -88,7 +88,7 @@ public class EventHandler implements EventListener {
 				EconomyUser user = clover.getEconomy().getUser(mre.getAuthor().getId());
 				user.incrementMessageCount();
 				user.getAccount().deposit(BigDecimal.valueOf(Math.random() * 4 + 2)
-						.multiply(new BigDecimal(user.getPrestige())).toBigInteger());
+						.multiply(new BigDecimal(user.getPrestige().add(BigInteger.ONE))).toBigInteger());
 				if (user.getMessageCount().getLowestSetBit() >= 4) {// Save every 16 messages.
 					user.save();
 					user.getAccount().save();
