@@ -333,6 +333,12 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						for (var is : crateEntry.getStacks())
 							if (is.getItem().getCrateType().equalsIgnoreCase(cratetype)) {
 
+								if (count.signum() != 1) {
+									inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
+											+ " please specify a positive number of crates to open.").queue();
+									return true;
+								}
+
 								if (!is.has(count)) {
 									inv.event.getChannel()
 											.sendMessage("You can't use that many, you only have `"
