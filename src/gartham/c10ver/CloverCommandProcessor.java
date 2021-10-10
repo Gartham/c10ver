@@ -348,12 +348,11 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 								}
 
 								LootCrateItem lci = is.getItem();
-								;
 								Rewards rew = new Rewards();
 								for (var i = BigInteger.ZERO; i.compareTo(count) < 0; i = i.add(BigInteger.ONE))
 									rew = rew.with(lci.open());
 
-								var rec = u.rewardAndSave(rew, inv.event.getGuild());
+								var rec = u.rewardAndSave(rew, inv.event.isFromGuild() ? inv.event.getGuild() : null);
 
 								is.remove(count);
 
