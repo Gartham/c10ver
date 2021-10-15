@@ -27,6 +27,7 @@ import net.dv8tion.jda.api.events.guild.invite.GuildInviteCreateEvent;
 import net.dv8tion.jda.api.events.guild.invite.GuildInviteDeleteEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
@@ -37,6 +38,7 @@ public class EventHandler implements EventListener {
 	private final Clover clover;
 	private final InputProcessor<MessageReceivedEvent> messageProcessor = new InputProcessor<>();
 	private final InputProcessor<MessageReactionAddEvent> reactionAdditionProcessor = new InputProcessor<>();
+	private final InputProcessor<ButtonClickEvent> buttonClickProcessor = new InputProcessor<>();
 
 	private final Generator<InfoPopup> infoPopupGenerator;
 	private final InviteTracker inviteTracker = new InviteTracker(this);
@@ -60,6 +62,10 @@ public class EventHandler implements EventListener {
 
 	public InputProcessor<MessageReactionAddEvent> getReactionAdditionProcessor() {
 		return reactionAdditionProcessor;
+	}
+
+	public InputProcessor<ButtonClickEvent> getButtonClickProcessor() {
+		return buttonClickProcessor;
 	}
 
 	public EventHandler(Clover clover) {
@@ -174,6 +180,8 @@ public class EventHandler implements EventListener {
 
 		} else if (event instanceof MessageReactionAddEvent)
 			reactionAdditionProcessor.runInputHandlers((MessageReactionAddEvent) event);
+		else if (event instanceof ButtonClickEvent)
+			buttonClickProcessor.runInputHandlers((ButtonClickEvent) event);
 		else if (event instanceof GuildMemberJoinEvent)
 			synchronized (this) {
 				var ge = (GuildMemberJoinEvent) event;
