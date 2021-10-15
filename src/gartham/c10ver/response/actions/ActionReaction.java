@@ -3,7 +3,7 @@ package gartham.c10ver.response.actions;
 import java.util.function.Consumer;
 
 import gartham.c10ver.response.menus.MenuMessage;
-import gartham.c10ver.response.menus.SimpleMenuMessage;
+import gartham.c10ver.response.menus.NameMenuMessage;
 
 public class ActionReaction extends Action {
 
@@ -40,8 +40,8 @@ public class ActionReaction extends Action {
 				t -> msg.send(t.getClover(), t.getEvent().getChannel(), t.getEvent().getUser()));
 	}
 
-	public static Consumer<ActionInvocation> actionMessageAction(ActionReaction... actionMessages) {
-		return actionMessageAction(new SimpleMenuMessage<>(actionMessages));
+	public static Consumer<ActionInvocation> actionMessageAction(NamedActionReaction... actionMessages) {
+		return actionMessageAction(new NameMenuMessage<>(new ActionMessage<>(actionMessages)));
 	}
 
 	public static Consumer<ActionInvocation> actionMessageAction(
