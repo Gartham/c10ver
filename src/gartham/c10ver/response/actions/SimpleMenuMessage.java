@@ -5,7 +5,7 @@ import java.util.Iterator;
 import gartham.c10ver.response.menus.MenuMessage;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-public class SimpleMenuMessage<A extends ActionReaction> extends MenuMessage<A> {
+public class SimpleMenuMessage<A extends Action> extends MenuMessage<A> {
 
 	@SafeVarargs
 	public SimpleMenuMessage(A... actions) {

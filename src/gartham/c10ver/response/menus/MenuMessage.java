@@ -5,6 +5,7 @@ import java.util.List;
 
 import gartham.c10ver.Clover;
 import gartham.c10ver.response.actions.ActionReaction;
+import gartham.c10ver.response.actions.Action;
 import gartham.c10ver.response.actions.ActionMessage;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -26,7 +27,7 @@ import net.dv8tion.jda.api.entities.User;
  * @param <A> The type of {@link ActionReaction} (typically corresponds to the type of
  *            {@link MenuMessage}).
  */
-public abstract class MenuMessage<A extends ActionReaction> {
+public abstract class MenuMessage<A extends Action> {
 
 	protected abstract void buildEmbed(EmbedBuilder builder);
 
@@ -37,7 +38,7 @@ public abstract class MenuMessage<A extends ActionReaction> {
 	}
 
 	public final List<A> getActions() {
-		return am.getActions();
+		return am.getReactions();
 	}
 
 	public MenuMessage(ActionMessage<A> am) {
