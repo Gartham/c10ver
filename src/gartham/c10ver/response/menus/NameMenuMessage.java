@@ -19,6 +19,11 @@ public class NameMenuMessage<R extends NamedActionReaction, B extends NamedActio
 			builder.appendDescription(
 					getButtons().get(i).getEmoji() == null ? EMOJIS[i] : getButtons().get(i).getEmoji())
 					.appendDescription(" ").appendDescription(getButtons().get(i).getName()).appendDescription("\n");
+		for (int i = 0; i < getReactions().size(); i++) {
+			builder.appendDescription(
+					getReactions().get(i).getEmoji() == null ? EMOJIS[i] : getReactions().get(i).getEmoji())
+					.appendDescription(" ").appendDescription(getReactions().get(i).getName()).appendDescription("\n");
+		}
 	}
 
 }
