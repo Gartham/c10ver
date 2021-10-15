@@ -118,8 +118,9 @@ public final class ActionMessage<R extends ActionReaction, B extends ActionButto
 	}
 
 	/**
-	 * Creates a new message (sends the {@link MessageAction} provided) and
-	 * {@link #attach(Clover, Message, User)}es to it.
+	 * Creates a new message (sends the {@link MessageAction} provided) setting the
+	 * stored {@link ActionButton}s in it, and
+	 * {@link #attach(Clover, Message, User)}es the {@link ActionReaction}s to it.
 	 * 
 	 * @param clover Instance of {@link Clover} to use.
 	 * @param ma     The {@link MessageAction} containing the message to be sent.
