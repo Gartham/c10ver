@@ -147,13 +147,16 @@ public final class ActionMessage<R extends ActionReaction, B extends ActionButto
 	 */
 	public final void create(Clover clover, MessageAction ma, User target) {
 		if (!buttons.isEmpty()) {
+			System.out.println("Adding button");
 			List<ActionRow> rows = new ArrayList<>();
 			List<Component> comps = new ArrayList<>();
-			for (int i = 0; i < buttons.size(); i++)
+			for (B b : getButtons()) {
+				comps.add(b.getComponent());
 				if (comps.size() == 5) {
 					rows.add(ActionRow.of(comps));
 					comps.clear();
 				}
+			}
 			if (!comps.isEmpty())
 				rows.add(ActionRow.of(comps));
 			ma.setActionRows(rows);
