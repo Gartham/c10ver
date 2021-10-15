@@ -13,7 +13,7 @@ public class NamedActionReaction extends ActionReaction {
 		this.name = name;
 	}
 
-	public NamedActionReaction(String emoji, Consumer<ActionInvocation> action, String name) {
+	public NamedActionReaction(String emoji, Consumer<ActionReactionInvocation> action, String name) {
 		super(emoji, action);
 		this.name = name;
 	}

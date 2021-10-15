@@ -24,7 +24,7 @@ public class ActionButton extends Action {
 		this.component = component;
 	}
 
-	public ActionButton(Consumer<ActionInvocation> action, Component component) {
+	public ActionButton(Consumer<ActionReactionInvocation> action, Component component) {
 		super(action);
 		this.component = component;
 	}

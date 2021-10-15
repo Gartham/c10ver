@@ -13,12 +13,12 @@ public class ActionReaction extends Action {
 
 	private String emoji;
 
-	public ActionReaction(String emoji, Consumer<ActionInvocation> action) {
+	public ActionReaction(String emoji, Consumer<ActionReactionInvocation> action) {
 		this.emoji = emoji;
 		this.action = action;
 	}
 
-	public ActionReaction(Consumer<ActionInvocation> action) {
+	public ActionReaction(Consumer<ActionReactionInvocation> action) {
 		this(null, action);
 	}
 
@@ -26,7 +26,7 @@ public class ActionReaction extends Action {
 		return emoji;
 	}
 
-	public void accept(ActionInvocation invoc) {
+	public void accept(ActionReactionInvocation invoc) {
 		this.action.accept(invoc);
 	}
 
@@ -40,17 +40,17 @@ public class ActionReaction extends Action {
 				t -> msg.send(t.getClover(), t.getEvent().getChannel(), t.getEvent().getUser()));
 	}
 
-	public static Consumer<ActionInvocation> actionMessageAction(NamedActionReaction... actionMessages) {
+	public static Consumer<ActionReactionInvocation> actionMessageAction(NamedActionReaction... actionMessages) {
 		return actionMessageAction(new NameMenuMessage<>(new ActionMessage<>(actionMessages)));
 	}
 
-	public static Consumer<ActionInvocation> actionMessageAction(
+	public static Consumer<ActionReactionInvocation> actionMessageAction(
 			MenuMessage<? extends ActionReaction, ? extends ActionButton> msg) {
 		return t -> msg.send(t.getClover(), t.getEvent().getChannel(), t.getEvent().getUser());
 	}
 
-	public static Consumer<ActionInvocation> actionMessageAction(MenuMessage<?, ?> msg,
-			Consumer<ActionInvocation> action) {
+	public static Consumer<ActionReactionInvocation> actionMessageAction(MenuMessage<?, ?> msg,
+			Consumer<ActionReactionInvocation> action) {
 		return t -> {
 			action.accept(t);
 			msg.send(t.getClover(), t.getEvent().getChannel(), t.getEvent().getUser());
@@ -66,11 +66,11 @@ public class ActionReaction extends Action {
 	 * @param action The code to run when this {@link ActionReaction} is executed.
 	 * @return A new {@link ActionReaction} wrapping the provided objects.
 	 */
-	public static ActionReaction msg(MenuMessage<?, ?> msg, Consumer<ActionInvocation> action) {
+	public static ActionReaction msg(MenuMessage<?, ?> msg, Consumer<ActionReactionInvocation> action) {
 		return msg(null, msg, action);
 	}
 
-	public static ActionReaction msg(String emoji, MenuMessage<?, ?> msg, Consumer<ActionInvocation> action) {
+	public static ActionReaction msg(String emoji, MenuMessage<?, ?> msg, Consumer<ActionReactionInvocation> action) {
 		return new ActionReaction(emoji, t -> {
 			action.accept(t);
 			msg.send(t.getClover(), t.getEvent().getChannel(), t.getEvent().getUser());

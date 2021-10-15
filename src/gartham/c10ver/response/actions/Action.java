@@ -4,20 +4,20 @@ import java.util.function.Consumer;
 
 public class Action {
 
-	protected Consumer<ActionInvocation> action;
+	protected Consumer<ActionReactionInvocation> action;
 
-	public void setAction(Consumer<ActionInvocation> action) {
+	public void setAction(Consumer<ActionReactionInvocation> action) {
 		this.action = action;
 	}
 
 	public Action() {
 	}
 
-	public Action(Consumer<ActionInvocation> action) {
+	public Action(Consumer<ActionReactionInvocation> action) {
 		this.action = action;
 	}
 
-	public Consumer<ActionInvocation> getAction() {
+	public Consumer<ActionReactionInvocation> getAction() {
 		return action;
 	}
 

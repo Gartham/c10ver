@@ -107,7 +107,7 @@ public final class ActionMessage<R extends ActionReaction, B extends ActionButto
 							String customEmoji = reactions.get(i).getEmoji();
 							if (event.getReactionEmote().getEmoji()
 									.equals(customEmoji == null ? EMOJIS[i] : customEmoji)) {
-								reactions.get(i).accept(new ActionInvocation(event, this, clover));
+								reactions.get(i).accept(new ActionReactionInvocation<R>(event, this, clover));
 								return true;
 							}
 						}
@@ -150,12 +150,15 @@ public final class ActionMessage<R extends ActionReaction, B extends ActionButto
 								String customEmoji = reactions.get(i).getEmoji();
 								if (event.getReactionEmote().getEmoji()
 										.equals(customEmoji == null ? EMOJIS[i] : customEmoji)) {
-									reactions.get(i).accept(new ActionInvocation(event, this, clover));
+									reactions.get(i).accept(new ActionReactionInvocation<R>(event, this, clover));
 									return true;
 								}
 							}
 							return false;
 						}).filter(target, t).oneTime());
+			}
+			if (!buttons.isEmpty()) {
+				clover.getEventHandler().getButtonClickProcessor();// TODO
 			}
 		});
 	}
