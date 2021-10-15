@@ -10,29 +10,20 @@ public class Action {
 		this.emoji = emoji;
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	public void setAction(Consumer<ActionInvocation> action) {
 		this.action = action;
 	}
 
-	private String emoji, name;
+	private String emoji;
 	private Consumer<ActionInvocation> action;
 
 	public Action(String emoji, String name, Consumer<ActionInvocation> action) {
 		this.emoji = emoji;
-		this.name = name;
 		this.action = action;
 	}
 
 	public Action(String name, Consumer<ActionInvocation> action) {
 		this(null, name, action);
-	}
-
-	public String getName() {
-		return name;
 	}
 
 	public Consumer<ActionInvocation> getAction() {
@@ -80,11 +71,11 @@ public class Action {
 	 * @param action The code to run when this {@link Action} is executed.
 	 * @return A new {@link Action} wrapping the provided objects.
 	 */
-	public static Action msg(String desc, ActionMessage<?> msg, Consumer<ActionInvocation> action) {
+	public static Action msg(String desc, MenuMessage<?> msg, Consumer<ActionInvocation> action) {
 		return msg(null, desc, msg, action);
 	}
 
-	public static Action msg(String emoji, String desc, ActionMessage<?> msg, Consumer<ActionInvocation> action) {
+	public static Action msg(String emoji, String desc, MenuMessage<?> msg, Consumer<ActionInvocation> action) {
 		return new Action(emoji, desc, t -> {
 			action.accept(t);
 			msg.send(t.getClover(), t.getEvent().getChannel(), t.getEvent().getUser());
