@@ -3,18 +3,18 @@ package gartham.c10ver.response.actions;
 import gartham.c10ver.Clover;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 
-public class ActionButtonInvocation<B extends ActionButton> {
+public class ActionButtonInvocation {
 	private final ButtonClickEvent event;
-	private final ActionMessage<?, B> message;
+	private final ActionMessage<?, ?> message;
 	private final Clover clover;
 
-	public ActionButtonInvocation(ButtonClickEvent event, ActionMessage<?, B> message, Clover clover) {
+	public ActionButtonInvocation(ButtonClickEvent event, ActionMessage<?, ?> message, Clover clover) {
 		this.event = event;
 		this.message = message;
 		this.clover = clover;
 	}
 
-	public ActionMessage<?, B> getMessage() {
+	public ActionMessage<?, ?> getMessage() {
 		return message;
 	}
 

@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.interactions.components.Component;
 
 public class NamedActionButton extends ActionButton {
 
-	public NamedActionButton(Consumer<ActionReactionInvocation> action, Component component, String name, String emoji) {
+	public NamedActionButton(Consumer<ActionButtonInvocation> action, Component component, String name, String emoji) {
 		super(action, component);
 		this.name = name;
 		this.emoji = emoji;

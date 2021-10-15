@@ -4,7 +4,17 @@ import java.util.function.Consumer;
 
 import net.dv8tion.jda.api.interactions.components.Component;
 
-public class ActionButton extends Action {
+public class ActionButton {
+	protected Consumer<ActionButtonInvocation> action;
+
+	public Consumer<ActionButtonInvocation> getAction() {
+		return action;
+	}
+
+	public void setAction(Consumer<ActionButtonInvocation> action) {
+		this.action = action;
+	}
+
 	private Component component;
 	private String emoji;
 
@@ -24,8 +34,8 @@ public class ActionButton extends Action {
 		this.component = component;
 	}
 
-	public ActionButton(Consumer<ActionReactionInvocation> action, Component component) {
-		super(action);
+	public ActionButton(Consumer<ActionButtonInvocation> action, Component component) {
+		this.action = action;
 		this.component = component;
 	}
 

@@ -12,7 +12,7 @@ public class DetailedActionButton extends NamedActionButton {
 		this.details = details;
 	}
 
-	public DetailedActionButton(Consumer<ActionReactionInvocation> action, Component component, String name, String emoji,
+	public DetailedActionButton(Consumer<ActionButtonInvocation> action, Component component, String name, String emoji,
 			String details) {
 		super(action, component, name, emoji);
 		this.details = details;

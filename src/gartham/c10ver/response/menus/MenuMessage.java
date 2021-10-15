@@ -1,13 +1,11 @@
 package gartham.c10ver.response.menus;
 
-import java.util.Iterator;
 import java.util.List;
 
 import gartham.c10ver.Clover;
-import gartham.c10ver.response.actions.ActionReaction;
-import gartham.c10ver.response.actions.Action;
 import gartham.c10ver.response.actions.ActionButton;
 import gartham.c10ver.response.actions.ActionMessage;
+import gartham.c10ver.response.actions.ActionReaction;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -25,8 +23,6 @@ import net.dv8tion.jda.api.entities.User;
  * 
  * @author Gartham
  *
- * @param <A> The type of {@link ActionReaction} (typically corresponds to the
- *            type of {@link MenuMessage}).
  */
 public abstract class MenuMessage<R extends ActionReaction, B extends ActionButton> {
 

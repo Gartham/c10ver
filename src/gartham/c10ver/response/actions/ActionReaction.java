@@ -5,7 +5,17 @@ import java.util.function.Consumer;
 import gartham.c10ver.response.menus.MenuMessage;
 import gartham.c10ver.response.menus.NameMenuMessage;
 
-public class ActionReaction extends Action {
+public class ActionReaction {
+
+	protected Consumer<ActionReactionInvocation> action;
+
+	public Consumer<ActionReactionInvocation> getAction() {
+		return action;
+	}
+
+	public void setAction(Consumer<ActionReactionInvocation> action) {
+		this.action = action;
+	}
 
 	public void setEmoji(String emoji) {
 		this.emoji = emoji;

@@ -7,9 +7,11 @@ import java.util.List;
 import org.alixia.javalibrary.JavaTools;
 
 import gartham.c10ver.Clover;
+import gartham.c10ver.commands.consumers.InputConsumer;
 import gartham.c10ver.commands.consumers.MessageReactionInputConsumer;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Component;
@@ -107,7 +109,7 @@ public final class ActionMessage<R extends ActionReaction, B extends ActionButto
 							String customEmoji = reactions.get(i).getEmoji();
 							if (event.getReactionEmote().getEmoji()
 									.equals(customEmoji == null ? EMOJIS[i] : customEmoji)) {
-								reactions.get(i).accept(new ActionReactionInvocation<R>(event, this, clover));
+								reactions.get(i).accept(new ActionReactionInvocation(event, this, clover));
 								return true;
 							}
 						}
@@ -150,16 +152,24 @@ public final class ActionMessage<R extends ActionReaction, B extends ActionButto
 								String customEmoji = reactions.get(i).getEmoji();
 								if (event.getReactionEmote().getEmoji()
 										.equals(customEmoji == null ? EMOJIS[i] : customEmoji)) {
-									reactions.get(i).accept(new ActionReactionInvocation<R>(event, this, clover));
+									reactions.get(i).accept(new ActionReactionInvocation(event, this, clover));
 									return true;
 								}
 							}
 							return false;
 						}).filter(target, t).oneTime());
 			}
-			if (!buttons.isEmpty()) {
-				clover.getEventHandler().getButtonClickProcessor();// TODO
-			}
+			if (!buttons.isEmpty())
+				clover.getEventHandler().getButtonClickProcessor()
+						.registerInputConsumer(((InputConsumer<ButtonClickEvent>) (event, processor, consumer) -> {
+							if (event.getMessage().equals(t) && event.getUser().equals(target))
+								for (B b : buttons)
+									if (b.getComponent().getId().equals(event.getComponentId())) {
+										b.getAction().accept(new ActionButtonInvocation(event, this, clover));
+										return true;
+									}
+							return false;
+						}).oneTime());
 		});
 	}
 
