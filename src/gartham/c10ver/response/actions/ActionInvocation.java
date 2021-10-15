@@ -1,4 +1,4 @@
-package gartham.c10ver.actions;
+package gartham.c10ver.response.actions;
 
 import gartham.c10ver.Clover;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;

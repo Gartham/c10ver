@@ -6,11 +6,11 @@ import java.util.function.Consumer;
 
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import gartham.c10ver.Clover;
-import gartham.c10ver.actions.DetailedAction;
-import gartham.c10ver.actions.DetailedActionMessage;
 import gartham.c10ver.games.rpg.GarmonUtils;
 import gartham.c10ver.games.rpg.fighting.battles.api.ActionCompletion;
 import gartham.c10ver.games.rpg.fighting.battles.app.GarmonBattleAction.ActionType;
+import gartham.c10ver.response.actions.DetailedAction;
+import gartham.c10ver.response.actions.DetailedActionMessage;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 
