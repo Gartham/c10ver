@@ -2,11 +2,11 @@ package gartham.c10ver.response.actions;
 
 import java.util.function.Consumer;
 
-public class DetailedActionReaction extends ActionReaction {
+public class DetailedActionReaction extends NamedActionReaction {
 	private String details;
 
 	public DetailedActionReaction(String emoji, String name, String details, Consumer<ActionInvocation> action) {
-		super(emoji, name, action);
+		super(emoji, action, name);
 		this.details = details;
 	}
 
