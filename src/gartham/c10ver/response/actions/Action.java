@@ -2,6 +2,8 @@ package gartham.c10ver.response.actions;
 
 import java.util.function.Consumer;
 
+import gartham.c10ver.response.menus.MenuMessage;
+
 public class Action {
 
 	public void setEmoji(String emoji) {
@@ -45,23 +47,23 @@ public class Action {
 		this.action.accept(invoc);
 	}
 
-	public static Action msg(String name, ActionMessage<? extends Action> msg) {
+	public static Action msg(String name, MenuMessage<? extends Action> msg) {
 		return new Action(null, name, t -> msg.send(t.getClover(), t.getEvent().getChannel(), t.getEvent().getUser()));
 	}
 
-	public static Action msg(String emoji, String name, ActionMessage<? extends Action> msg) {
+	public static Action msg(String emoji, String name, MenuMessage<? extends Action> msg) {
 		return new Action(emoji, name, t -> msg.send(t.getClover(), t.getEvent().getChannel(), t.getEvent().getUser()));
 	}
 
 	public static Consumer<ActionInvocation> actionMessageAction(Action... actionMessages) {
-		return actionMessageAction(new SimpleActionMessage<>(actionMessages));
+		return actionMessageAction(new SimpleMenuMessage<>(actionMessages));
 	}
 
-	public static Consumer<ActionInvocation> actionMessageAction(ActionMessage<? extends Action> msg) {
+	public static Consumer<ActionInvocation> actionMessageAction(MenuMessage<? extends Action> msg) {
 		return t -> msg.send(t.getClover(), t.getEvent().getChannel(), t.getEvent().getUser());
 	}
 
-	public static Consumer<ActionInvocation> actionMessageAction(ActionMessage<?> msg,
+	public static Consumer<ActionInvocation> actionMessageAction(MenuMessage<?> msg,
 			Consumer<ActionInvocation> action) {
 		return t -> {
 			action.accept(t);
