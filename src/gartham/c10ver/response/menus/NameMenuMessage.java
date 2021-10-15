@@ -1,6 +1,7 @@
 package gartham.c10ver.response.menus;
 
 import gartham.c10ver.response.actions.ActionMessage;
+import gartham.c10ver.response.actions.NamedActionButton;
 import gartham.c10ver.response.actions.NamedActionReaction;
 import net.dv8tion.jda.api.EmbedBuilder;
 
