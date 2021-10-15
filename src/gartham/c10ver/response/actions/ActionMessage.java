@@ -54,38 +54,6 @@ public abstract class ActionMessage<A extends Action> {
 		return actions;
 	}
 
-	protected abstract void buildEmbed(EmbedBuilder builder);
-
-	public final MessageEmbed embed() {
-		var e = new EmbedBuilder();
-		buildEmbed(e);
-		return e.build();
-	}
-
-	public void send(Clover clover, MessageChannel msg, User target) {
-		msg.sendMessage(embed()).queue(t -> {
-			if (!actions.isEmpty()) {
-				for (int i = 0; i < actions.size(); i++) {
-					String customEmoji = actions.get(i).getEmoji();
-					t.addReaction(customEmoji == null ? EMOJIS[i] : customEmoji).queue();
-				}
-				clover.getEventHandler().getReactionAdditionProcessor().registerInputConsumer(
-						((MessageReactionInputConsumer<MessageReactionAddEvent>) (event, processor, consumer) -> {
-							for (int i = 0; i < actions.size(); i++) {
-								String customEmoji = actions.get(i).getEmoji();
-								if (event.getReactionEmote().getEmoji()
-										.equals(customEmoji == null ? EMOJIS[i] : customEmoji)) {
-									actions.get(i).accept(new ActionInvocation(event, this, clover));
-									return true;
-								}
-							}
-							return false;
-						}).filter(target, t).oneTime());
-			}
-
-		});
-	}
-
 	public void attach(Clover clover, Message msg, User target) {
 		if (!actions.isEmpty()) {
 			for (int i = 0; i < actions.size(); i++) {
