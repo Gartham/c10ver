@@ -5,18 +5,18 @@ import java.util.Iterator;
 import gartham.c10ver.response.menus.MenuMessage;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-public class SimpleActionMessage<A extends Action> extends MenuMessage<A> {
+public class SimpleMenuMessage<A extends Action> extends MenuMessage<A> {
 
 	@SafeVarargs
-	public SimpleActionMessage(A... actions) {
+	public SimpleMenuMessage(A... actions) {
 		super(new ActionMessage<>(actions));
 	}
 
-	public SimpleActionMessage(Iterable<A> actions) {
+	public SimpleMenuMessage(Iterable<A> actions) {
 		super(new ActionMessage<>(actions));
 	}
 
-	public SimpleActionMessage(Iterator<A> actions) {
+	public SimpleMenuMessage(Iterator<A> actions) {
 		super(new ActionMessage<>(actions));
 	}
 
