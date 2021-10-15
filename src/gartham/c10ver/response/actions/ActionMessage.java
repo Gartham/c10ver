@@ -80,6 +80,22 @@ public final class ActionMessage<R extends ActionReaction, B extends ActionButto
 		buttons = new ArrayList<>();
 	}
 
+	@SafeVarargs
+	public ActionMessage(R... reactions) {
+		(this.reactions = new ArrayList<>()).ensureCapacity(reactions.length);
+		this.buttons = new ArrayList<>();
+		for (R r : reactions)
+			this.reactions.add(r);
+	}
+
+	@SafeVarargs
+	public ActionMessage(B... buttons) {
+		(this.buttons = new ArrayList<>()).ensureCapacity(buttons.length);
+		this.reactions = new ArrayList<>();
+		for (B b : buttons)
+			this.buttons.add(b);
+	}
+
 	public List<R> getReactions() {
 		return reactions;
 	}
