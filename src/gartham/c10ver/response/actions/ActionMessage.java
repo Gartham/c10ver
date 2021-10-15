@@ -51,6 +51,17 @@ public final class ActionMessage<A extends Action> {
 		return actions;
 	}
 
+	/**
+	 * Attaches the actions stored in this {@link ActionMessage} object to the
+	 * specified {@link Message} and sets up the appropriate listeners to wait for
+	 * the target user to "act" on the message.
+	 * 
+	 * @param clover Instance of {@link Clover} to use.
+	 * @param msg    The {@link Message} to attach the buttons (emojis) to.
+	 * @param target The target user. Only this user will be able to "act" on the
+	 *               message (i.e. only this user will trigger the bot when they
+	 *               react).
+	 */
 	public final void attach(Clover clover, Message msg, User target) {
 		if (!actions.isEmpty()) {
 			for (int i = 0; i < actions.size(); i++) {
@@ -72,6 +83,16 @@ public final class ActionMessage<A extends Action> {
 		}
 	}
 
+	/**
+	 * Creates a new message (sends the {@link MessageAction} provided) and
+	 * {@link #attach(Clover, Message, User)}es to it.
+	 * 
+	 * @param clover Instance of {@link Clover} to use.
+	 * @param ma     The {@link MessageAction} containing the message to be sent.
+	 * @param target The target user. Only this user will be able to "act" on the
+	 *               message (i.e. only this user will trigger the bot when they
+	 *               react).
+	 */
 	public final void create(Clover clover, MessageAction ma, User target) {
 		ma.queue(t -> {
 			if (!actions.isEmpty()) {
