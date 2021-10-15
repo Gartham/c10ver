@@ -147,7 +147,6 @@ public final class ActionMessage<R extends ActionReaction, B extends ActionButto
 	 */
 	public final void create(Clover clover, MessageAction ma, User target) {
 		if (!buttons.isEmpty()) {
-			System.out.println("Adding button");
 			List<ActionRow> rows = new ArrayList<>();
 			List<Component> comps = new ArrayList<>();
 			for (B b : getButtons()) {
@@ -183,17 +182,21 @@ public final class ActionMessage<R extends ActionReaction, B extends ActionButto
 			if (!buttons.isEmpty())
 				clover.getEventHandler().getButtonClickProcessor()
 						.registerInputConsumer(((InputConsumer<ButtonClickEvent>) (event, processor, consumer) -> {
-							if (event.getMessage().equals(t) && event.getUser().equals(target))
+							if (event.getMessage().equals(t))
 								for (B b : buttons)
 									if (b.getComponent().getId().equals(event.getComponentId())) {
-										b.getAction().accept(new ActionButtonInvocation(event, this, clover));
-										try {
-											event.editButton(event.getButton().asDisabled()).queue();
-										} catch (Exception e) {
-											System.err.println("Exception (possibly okay) when handling button click: "
-													+ e.getMessage());
-										}
-										return true;
+										if (event.getUser().equals(target)) {
+											b.getAction().accept(new ActionButtonInvocation(event, this, clover));
+											try {
+												event.editButton(event.getButton().asDisabled()).queue();
+											} catch (Exception e) {
+												System.err.println(
+														"Exception (possibly okay) when handling button click: "
+																+ e.getMessage());
+											}
+											return true;
+										} else
+											event.reply(b.getNontargetReply());
 									}
 							return false;
 						}).oneTime());
