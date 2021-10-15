@@ -37,12 +37,12 @@ public class ActionMessage<A extends Action> {
 		this(JavaTools.iterable(actions));
 	}
 
-	public ActionMessage(Iterable<A> actions) {
+	public ActionMessage(Iterable<? extends A> actions) {
 		for (A a : actions)
 			this.actions.add(a);
 	}
 
-	public ActionMessage(Iterator<A> actions) {
+	public ActionMessage(Iterator<? extends A> actions) {
 		while (actions.hasNext())
 			this.actions.add(actions.next());
 	}
