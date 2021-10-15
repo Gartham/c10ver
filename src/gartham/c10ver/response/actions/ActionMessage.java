@@ -154,6 +154,8 @@ public final class ActionMessage<R extends ActionReaction, B extends ActionButto
 					rows.add(ActionRow.of(comps));
 					comps.clear();
 				}
+			if (!comps.isEmpty())
+				rows.add(ActionRow.of(comps));
 			ma.setActionRows(rows);
 		}
 		ma.queue(t -> {
