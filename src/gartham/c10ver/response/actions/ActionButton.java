@@ -2,6 +2,8 @@ package gartham.c10ver.response.actions;
 
 import java.util.function.Consumer;
 
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.components.Component;
 
 public class ActionButton {
@@ -13,6 +15,18 @@ public class ActionButton {
 
 	public void setAction(Consumer<ActionButtonInvocation> action) {
 		this.action = action;
+	}
+
+	private Message ntr;
+
+	public ActionButton setNontargetReply(String message) {
+		ntr = new MessageBuilder(message).build();
+		return this;
+	}
+
+	public ActionButton setNontargetReply(Message msg) {
+		ntr = msg;
+		return this;
 	}
 
 	private Component component;
@@ -41,6 +55,10 @@ public class ActionButton {
 
 	public void setEmoji(String emoji) {
 		this.emoji = emoji;
+	}
+
+	public Message getNontargetReply() {
+		return ntr;
 	}
 
 }
