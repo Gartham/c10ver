@@ -187,6 +187,12 @@ public final class ActionMessage<R extends ActionReaction, B extends ActionButto
 								for (B b : buttons)
 									if (b.getComponent().getId().equals(event.getComponentId())) {
 										b.getAction().accept(new ActionButtonInvocation(event, this, clover));
+										try {
+											event.editButton(event.getButton().asDisabled()).queue();
+										} catch (Exception e) {
+											System.err.println("Exception (possibly okay) when handling button click: "
+													+ e.getMessage());
+										}
 										return true;
 									}
 							return false;
