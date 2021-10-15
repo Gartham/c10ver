@@ -2,10 +2,10 @@ package gartham.c10ver.games.rpg.fighting.battles.app;
 
 import gartham.c10ver.games.rpg.RPGUtils;
 import gartham.c10ver.response.actions.DetailedAction;
-import gartham.c10ver.response.actions.DetailedActionMessage;
+import gartham.c10ver.response.actions.DetailedMenuMessage;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-public class GarmonActionMessage extends DetailedActionMessage<DetailedAction> {
+public class GarmonActionMessage extends DetailedMenuMessage<DetailedAction> {
 	private final GarmonFighter creature;
 
 	public GarmonActionMessage(GarmonFighter creature, DetailedAction... actions) {

@@ -10,7 +10,7 @@ import gartham.c10ver.games.rpg.GarmonUtils;
 import gartham.c10ver.games.rpg.fighting.battles.api.ActionCompletion;
 import gartham.c10ver.games.rpg.fighting.battles.app.GarmonBattleAction.ActionType;
 import gartham.c10ver.response.actions.DetailedAction;
-import gartham.c10ver.response.actions.DetailedActionMessage;
+import gartham.c10ver.response.actions.DetailedMenuMessage;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 
@@ -93,7 +93,7 @@ public final class GarmonBattleManager {
 		GarmonUtils.queueWithClient(chan, t -> t.send(whm.build()));
 	}
 
-	private DetailedAction attack(DetailedActionMessage<DetailedAction> source) {
+	private DetailedAction attack(DetailedMenuMessage<DetailedAction> source) {
 		return new DetailedAction("\u2694", "Attack", "Pow pow pow!\nTakes: \uD83D\uDD50\uFE0F 50", t -> {
 			if (opponentTeam.memberView().size() == 1) {
 				ActionCompletion<GarmonActionResult, GarmonFighter> act = battle
@@ -104,7 +104,7 @@ public final class GarmonBattleManager {
 				else
 					next();
 			} else {
-				var dam = new DetailedActionMessage<>();
+				var dam = new DetailedMenuMessage<>();
 				var oplist = battle.getRemainingFighters(opponentTeam);
 				for (var v : oplist)
 					dam.getActions().add(
@@ -123,9 +123,9 @@ public final class GarmonBattleManager {
 		});
 	}
 
-	private DetailedAction info(DetailedActionMessage<DetailedAction> source) {
+	private DetailedAction info(DetailedMenuMessage<DetailedAction> source) {
 		return new DetailedAction("\u2139", "Info", "Check battle queue or enemy stats.", t -> {
-			var dam = new DetailedActionMessage<>();
+			var dam = new DetailedMenuMessage<>();
 			DetailedAction battleQueue = new DetailedAction("Battle Queue",
 					"Check the time until each creature's turn.", DetailedAction.actionMessageAction(dam, t1 -> chan
 							.sendMessage("Battle Queue:").embed(GarmonUtils.printBattleQueue(battle).build()).queue()));
