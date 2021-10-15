@@ -4,19 +4,13 @@ import java.util.function.Consumer;
 
 import gartham.c10ver.response.menus.MenuMessage;
 
-public class ActionReaction {
+public class ActionReaction extends Action {
 
 	public void setEmoji(String emoji) {
 		this.emoji = emoji;
 	}
 
-	public void setAction(Consumer<ActionInvocation> action) {
-		this.action = action;
-	}
-
 	private String emoji;
-	private Consumer<ActionInvocation> action;
-
 	public ActionReaction(String emoji, Consumer<ActionInvocation> action) {
 		this.emoji = emoji;
 		this.action = action;
@@ -24,10 +18,6 @@ public class ActionReaction {
 
 	public ActionReaction(Consumer<ActionInvocation> action) {
 		this(null, action);
-	}
-
-	public Consumer<ActionInvocation> getAction() {
-		return action;
 	}
 
 	public String getEmoji() {
