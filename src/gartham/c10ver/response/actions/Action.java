@@ -11,7 +11,10 @@ public class Action {
 	}
 
 	public Action() {
-		super();
+	}
+
+	public Action(Consumer<ActionInvocation> action) {
+		this.action = action;
 	}
 
 	public Consumer<ActionInvocation> getAction() {
