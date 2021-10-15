@@ -9,10 +9,12 @@ import org.alixia.javalibrary.JavaTools;
 import gartham.c10ver.Clover;
 import gartham.c10ver.commands.consumers.MessageReactionInputConsumer;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 public abstract class ActionMessage<A extends Action> {
 	static final String[] EMOJIS = { "\u0030\uFE0F\u20E3", "\u0031\uFE0F\u20E3", "\u0032\uFE0F\u20E3",
@@ -62,6 +64,51 @@ public abstract class ActionMessage<A extends Action> {
 
 	public void send(Clover clover, MessageChannel msg, User target) {
 		msg.sendMessage(embed()).queue(t -> {
+			if (!actions.isEmpty()) {
+				for (int i = 0; i < actions.size(); i++) {
+					String customEmoji = actions.get(i).getEmoji();
+					t.addReaction(customEmoji == null ? EMOJIS[i] : customEmoji).queue();
+				}
+				clover.getEventHandler().getReactionAdditionProcessor().registerInputConsumer(
+						((MessageReactionInputConsumer<MessageReactionAddEvent>) (event, processor, consumer) -> {
+							for (int i = 0; i < actions.size(); i++) {
+								String customEmoji = actions.get(i).getEmoji();
+								if (event.getReactionEmote().getEmoji()
+										.equals(customEmoji == null ? EMOJIS[i] : customEmoji)) {
+									actions.get(i).accept(new ActionInvocation(event, this, clover));
+									return true;
+								}
+							}
+							return false;
+						}).filter(target, t).oneTime());
+			}
+
+		});
+	}
+
+	public void attach(Clover clover, Message msg, User target) {
+		if (!actions.isEmpty()) {
+			for (int i = 0; i < actions.size(); i++) {
+				String customEmoji = actions.get(i).getEmoji();
+				msg.addReaction(customEmoji == null ? EMOJIS[i] : customEmoji).queue();
+			}
+			clover.getEventHandler().getReactionAdditionProcessor().registerInputConsumer(
+					((MessageReactionInputConsumer<MessageReactionAddEvent>) (event, processor, consumer) -> {
+						for (int i = 0; i < actions.size(); i++) {
+							String customEmoji = actions.get(i).getEmoji();
+							if (event.getReactionEmote().getEmoji()
+									.equals(customEmoji == null ? EMOJIS[i] : customEmoji)) {
+								actions.get(i).accept(new ActionInvocation(event, this, clover));
+								return true;
+							}
+						}
+						return false;
+					}).filter(target, msg).oneTime());
+		}
+	}
+
+	public final void create(Clover clover, MessageAction ma, User target) {
+		ma.queue(t -> {
 			if (!actions.isEmpty()) {
 				for (int i = 0; i < actions.size(); i++) {
 					String customEmoji = actions.get(i).getEmoji();
