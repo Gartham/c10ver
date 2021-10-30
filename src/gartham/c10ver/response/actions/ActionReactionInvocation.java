@@ -1,20 +1,20 @@
-package gartham.c10ver.actions;
+package gartham.c10ver.response.actions;
 
 import gartham.c10ver.Clover;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
-public class ActionInvocation {
+public class ActionReactionInvocation {
 	private final MessageReactionAddEvent event;
-	private final ActionMessage message;
+	private final ActionMessage<?, ?> message;
 	private final Clover clover;
 
-	public ActionInvocation(MessageReactionAddEvent event, ActionMessage message, Clover clover) {
+	public ActionReactionInvocation(MessageReactionAddEvent event, ActionMessage<?, ?> message, Clover clover) {
 		this.event = event;
 		this.message = message;
 		this.clover = clover;
 	}
 
-	public ActionMessage getMessage() {
+	public ActionMessage<?, ?> getMessage() {
 		return message;
 	}
 

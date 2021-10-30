@@ -1,15 +1,29 @@
 package gartham.c10ver.games.rpg.fighting.battles.app;
 
-import gartham.c10ver.actions.DetailedAction;
-import gartham.c10ver.actions.DetailedActionMessage;
 import gartham.c10ver.games.rpg.RPGUtils;
+import gartham.c10ver.response.actions.ActionMessage;
+import gartham.c10ver.response.actions.DetailedActionButton;
+import gartham.c10ver.response.actions.DetailedActionReaction;
+import gartham.c10ver.response.menus.DetailedMenuMessage;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-public class GarmonActionMessage extends DetailedActionMessage<DetailedAction> {
+public class GarmonActionMessage extends DetailedMenuMessage<DetailedActionReaction, DetailedActionButton> {
 	private final GarmonFighter creature;
 
-	public GarmonActionMessage(GarmonFighter creature, DetailedAction... actions) {
-		super(actions);
+	public GarmonActionMessage(GarmonFighter creature, DetailedActionButton[] buttons,
+			DetailedActionReaction... reactions) {
+		super(new ActionMessage<>(buttons, reactions));
+		this.creature = creature;
+	}
+
+	public GarmonActionMessage(GarmonFighter creature, DetailedActionReaction... reactions) {
+		super(new ActionMessage<>(reactions));
+		this.creature = creature;
+	}
+
+	public GarmonActionMessage(GarmonFighter creature, DetailedActionReaction[] reactions,
+			DetailedActionButton... buttons) {
+		super(new ActionMessage<>(reactions, buttons));
 		this.creature = creature;
 	}
 

@@ -6,11 +6,13 @@ import java.util.function.Consumer;
 
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import gartham.c10ver.Clover;
-import gartham.c10ver.actions.DetailedAction;
-import gartham.c10ver.actions.DetailedActionMessage;
 import gartham.c10ver.games.rpg.GarmonUtils;
 import gartham.c10ver.games.rpg.fighting.battles.api.ActionCompletion;
 import gartham.c10ver.games.rpg.fighting.battles.app.GarmonBattleAction.ActionType;
+import gartham.c10ver.response.actions.ActionMessage;
+import gartham.c10ver.response.actions.DetailedActionButton;
+import gartham.c10ver.response.actions.DetailedActionReaction;
+import gartham.c10ver.response.menus.DetailedMenuMessage;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 
@@ -61,13 +63,13 @@ public final class GarmonBattleManager {
 
 	private GarmonActionMessage userTurnMessage() {
 		GarmonActionMessage m = new GarmonActionMessage(battle.getActingFighter(), surrender(), skipTurn());
-		m.getActions().add(1, attack(m));
-		m.getActions().add(info(m));
+		m.getReactions().add(1, attack(m));
+		m.getReactions().add(info(m));
 		return m;
 	}
 
-	private DetailedAction surrender() {
-		return new DetailedAction("\uD83C\uDFF3", "Surrender", "Give up and take the L.", t -> {
+	private DetailedActionReaction surrender() {
+		return new DetailedActionReaction("\uD83C\uDFF3", "Surrender", "Give up and take the L.", t -> {
 			if (battle.act(new GarmonBattleAction(ActionType.SURRENDER)).isBattleOver())
 				chan.sendMessage("**Battle Lost!**\n" + player.getAsMention() + " surrendered. Better luck next time.")
 						.queue();
@@ -76,8 +78,8 @@ public final class GarmonBattleManager {
 		});
 	}
 
-	private DetailedAction skipTurn() {
-		return new DetailedAction("\uD83D\uDCA8", "Skip Turn", "Pass up this creature's move.", t -> {
+	private DetailedActionReaction skipTurn() {
+		return new DetailedActionReaction("\uD83D\uDCA8", "Skip Turn", "Pass up this creature's move.", t -> {
 			battle.act(new GarmonBattleAction(ActionType.SKIP_TURN));
 			next();
 		});
@@ -93,8 +95,8 @@ public final class GarmonBattleManager {
 		GarmonUtils.queueWithClient(chan, t -> t.send(whm.build()));
 	}
 
-	private DetailedAction attack(DetailedActionMessage<DetailedAction> source) {
-		return new DetailedAction("\u2694", "Attack", "Pow pow pow!\nTakes: \uD83D\uDD50\uFE0F 50", t -> {
+	private DetailedActionReaction attack(DetailedMenuMessage<DetailedActionReaction, DetailedActionButton> source) {
+		return new DetailedActionReaction("\u2694", "Attack", "Pow pow pow!\nTakes: \uD83D\uDD50\uFE0F 50", t -> {
 			if (opponentTeam.memberView().size() == 1) {
 				ActionCompletion<GarmonActionResult, GarmonFighter> act = battle
 						.act(new GarmonBattleAction(opponentTeam.iterator().next()/* TODO Fix */));
@@ -104,11 +106,11 @@ public final class GarmonBattleManager {
 				else
 					next();
 			} else {
-				var dam = new DetailedActionMessage<>();
+				var dam = new DetailedMenuMessage<>(new ActionMessage<>());
 				var oplist = battle.getRemainingFighters(opponentTeam);
 				for (var v : oplist)
-					dam.getActions().add(
-							new DetailedAction(v.getName(), "\uD83D\uDD50\uFE0F " + battle.getFighterTicks(v), t1 -> {
+					dam.getReactions().add(
+							new DetailedActionReaction(v.getName(), "\uD83D\uDD50\uFE0F " + battle.getFighterTicks(v), t1 -> {
 								var act = battle.act(new GarmonBattleAction(v));
 								sendAttackMessage(act);
 								if (act.isBattleOver())
@@ -116,23 +118,23 @@ public final class GarmonBattleManager {
 								else
 									next();
 							}));
-				dam.getActions().add(new DetailedAction("Back", "Return to the previous menu.",
-						DetailedAction.actionMessageAction(source)));
+				dam.getReactions().add(new DetailedActionReaction("Back", "Return to the previous menu.",
+						DetailedActionReaction.actionMessageAction(source)));
 				dam.send(t.getClover(), t.getEvent().getChannel(), t.getEvent().getUser());
 			}
 		});
 	}
 
-	private DetailedAction info(DetailedActionMessage<DetailedAction> source) {
-		return new DetailedAction("\u2139", "Info", "Check battle queue or enemy stats.", t -> {
-			var dam = new DetailedActionMessage<>();
-			DetailedAction battleQueue = new DetailedAction("Battle Queue",
-					"Check the time until each creature's turn.", DetailedAction.actionMessageAction(dam, t1 -> chan
+	private DetailedActionReaction info(DetailedMenuMessage<DetailedActionReaction, DetailedActionButton> source) {
+		return new DetailedActionReaction("\u2139", "Info", "Check battle queue or enemy stats.", t -> {
+			var dam = new DetailedMenuMessage<>(new ActionMessage<>());
+			DetailedActionReaction battleQueue = new DetailedActionReaction("Battle Queue",
+					"Check the time until each creature's turn.", DetailedActionReaction.actionMessageAction(dam, t1 -> chan
 							.sendMessage("Battle Queue:").embed(GarmonUtils.printBattleQueue(battle).build()).queue()));
-			DetailedAction back = new DetailedAction("\u2B05", "Back", "Go back to attack menu.",
-					DetailedAction.actionMessageAction(source));
-			dam.getActions().add(battleQueue);
-			dam.getActions().add(back);
+			DetailedActionReaction back = new DetailedActionReaction("\u2B05", "Back", "Go back to attack menu.",
+					DetailedActionReaction.actionMessageAction(source));
+			dam.getReactions().add(battleQueue);
+			dam.getReactions().add(back);
 			dam.send(clover, chan, player);
 		});
 	}
