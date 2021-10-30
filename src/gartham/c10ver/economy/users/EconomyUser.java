@@ -107,7 +107,7 @@ public class EconomyUser extends SavablePropertyObject {
 	private final String userID;
 
 	public net.dv8tion.jda.api.entities.User getUser() {
-		return economy.getClover().getBot().getUserById(userID);
+		return economy.getClover().getBot().retrieveUserById(userID).complete();
 	}
 
 	public Economy getEconomy() {
