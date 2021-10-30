@@ -45,6 +45,7 @@ import gartham.c10ver.data.PropertyObject.Property;
 import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.Rewards;
 import gartham.c10ver.economy.Server;
+import gartham.c10ver.economy.items.ItemBunch;
 import gartham.c10ver.economy.items.UserInventory.UserEntry;
 import gartham.c10ver.economy.items.utility.crates.DailyCrate;
 import gartham.c10ver.economy.items.utility.crates.LootCrateItem;
@@ -70,15 +71,19 @@ import gartham.c10ver.games.math.MathProblemGenerator;
 import gartham.c10ver.games.math.simple.SimpleMathProblemGenerator;
 import gartham.c10ver.processing.commands.InventoryCommand;
 import gartham.c10ver.processing.trading.TradeManager;
+import gartham.c10ver.response.actions.ActionButton;
+import gartham.c10ver.response.actions.ActionMessage;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Category;
+import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
+import net.dv8tion.jda.api.interactions.components.Button;
 
 public class CloverCommandProcessor extends SimpleCommandProcessor {
 
@@ -164,8 +169,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 								: Utilities.toRomanNumerals(ua.getPrestige()))
 						.append("** (`").append(NumberFormat.getInstance().format(ua.getPrestige())).append("`)\n");
 				sb.append("Cloves/Msg: **").append(Utilities.CURRENCY_SYMBOL).append("** [`")
-						.append(Utilities.formatNumber(BigInteger.valueOf(2).multiply(ua.getPrestige()))).append("` - `")
-						.append(Utilities.formatNumber(BigDecimal.valueOf(5.999999999999999999999999)
+						.append(Utilities.formatNumber(BigInteger.valueOf(2).multiply(ua.getPrestige())))
+						.append("` - `").append(Utilities.formatNumber(BigDecimal.valueOf(5.999999999999999999999999)
 								.multiply(new BigDecimal(ua.getMessageCount())).toBigInteger()))
 						.append("`]\n");
 				eb.setDescription(sb.toString());
@@ -2489,6 +2494,46 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						.append("`\n\n\u2022 **To find out what a setting is or check its value**, run: `~settings (prefix)`, e.g.: `~settings rrn` to view random rewards notifications.\n\u2022 **To change a setting**, run: `~settings (prefix) (new-value)`, e.g.: `~sesttings rrn false` to disable random rewards notifications.");
 				inv.event.getChannel().sendMessage(sb.toString()).queue();
 
+			}
+		});
+
+		register(new MatchBasedCommand("o") {
+
+			@Override
+			public void exec(CommandInvocation inv) {
+				EmbedBuilder eb = new EmbedBuilder();
+				StringBuilder sb = new StringBuilder().append("You have **3** items in your mailbox and ")
+						.append(Utilities.format(BigInteger.valueOf((long) (Math.random() * 527816 + 250))))
+						.append(".\n\n");
+
+				// Add Items
+				ItemBunch<NormalCrate> firstEntry = new ItemBunch<>(new NormalCrate(), BigInteger.TWO);
+				ItemBunch<Bomb> secondEntry = new ItemBunch<>(new Bomb());
+				sb.append("`x").append(Utilities.formatNumber(firstEntry.getCount()));// TODO Fix formatNumber being
+																						// only
+																						// for monetary values (make a
+																						// formatMoney func).
+				sb.append("` ").append(firstEntry.getItem().getIcon()).append(' ')
+						.append(firstEntry.getItem().getEffectiveName()).append('\n');
+
+				sb.append("`x").append(Utilities.formatNumber(secondEntry.getCount()));
+				sb.append("` ").append(secondEntry.getItem().getIcon()).append(' ')
+						.append(secondEntry.getItem().getEffectiveName());
+
+				String description = sb.toString();
+				eb.setTitle(inv.event.getAuthor().getAsTag() + "'s Mailbox").setColor(Color.GREEN)
+						.setDescription(description);
+				eb.setFooter("Use the \"claim\" command to claim all of your loot!");
+
+				ActionMessage<?, ?> am = new ActionMessage<>(new ActionButton(
+						t -> t.getEvent().getChannel().sendMessage("You claimed all your rewards!").queue(),
+						Button.danger("test", Emoji.fromMarkdown("\uD83D\uDCB0")).withLabel("claim")).setNontargetReply(
+								"You can't claim someone else's mail! That violates 18 U.S.C. \u00A7 1708!"));
+
+//				ActionMessage<ActionReaction> am = new ActionMessage<>(
+//						new ActionReaction("egg", t -> t.getEvent().getChannel().sendMessage("Clicked!").queue()));
+
+				am.create(clover, inv.event.getChannel().sendMessage(eb.build()), inv.event.getAuthor());
 			}
 		});
 
