@@ -105,6 +105,7 @@ public class EconomyUser extends SavablePropertyObject {
 	private final UserSettings settings;
 	private final CreatureBox creatures;
 	private final String userID;
+	private final Rewards rewards;
 
 	public net.dv8tion.jda.api.entities.User getUser() {
 		return economy.getClover().getBot().getUserById(userID);
@@ -132,6 +133,10 @@ public class EconomyUser extends SavablePropertyObject {
 
 	public UserSettings getSettings() {
 		return settings;
+	}
+
+	public Rewards getRewards() {
+		return rewards;
 	}
 
 	/**
@@ -297,6 +302,7 @@ public class EconomyUser extends SavablePropertyObject {
 		accolades = new AccoladeList(new File(userDirectory, "accolades.txt"));
 		creatures = new CreatureBox(new File(userDirectory, "creatures.txt"));
 		settings = new UserSettings(userDirectory, this);
+		rewards = Rewards.load(new File(userDirectory, "mailbox"));
 		if (load)
 			load();
 		if (getMessageCount() == null)
