@@ -15,6 +15,7 @@ import gartham.c10ver.data.autosave.SavablePropertyObject;
 import gartham.c10ver.economy.Economy;
 import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.MultiplierManager;
+import gartham.c10ver.economy.MutableRewards;
 import gartham.c10ver.economy.Rewards;
 import gartham.c10ver.economy.Server;
 import gartham.c10ver.economy.accolades.AccoladeList;
@@ -105,7 +106,7 @@ public class EconomyUser extends SavablePropertyObject {
 	private final UserSettings settings;
 	private final CreatureBox creatures;
 	private final String userID;
-	private final Rewards rewards;
+	private final MutableRewards rewards;
 
 	public net.dv8tion.jda.api.entities.User getUser() {
 		return economy.getClover().getBot().retrieveUserById(userID).complete();
@@ -302,7 +303,7 @@ public class EconomyUser extends SavablePropertyObject {
 		accolades = new AccoladeList(new File(userDirectory, "accolades.txt"));
 		creatures = new CreatureBox(new File(userDirectory, "creatures.txt"));
 		settings = new UserSettings(userDirectory, this);
-		rewards = Rewards.load(new File(userDirectory, "mailbox"));
+		rewards = new MutableRewards(new File(userDirectory, "mailbox"));
 		if (load)
 			load();
 		if (getMessageCount() == null)
