@@ -127,4 +127,10 @@ public class MutableRewards extends Rewards {
 		}
 	}
 
+	public void clear() {
+		getItemsModifiable().clear();
+		setCloves(BigInteger.ZERO);
+		getMultipliersModifiable().clear();
+	}
+
 }
