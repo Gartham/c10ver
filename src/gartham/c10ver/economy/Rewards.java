@@ -25,9 +25,33 @@ import gartham.c10ver.utils.Utilities;
 
 public class Rewards extends PropertyObject {
 
-	private final Inventory items;
-	private final Map<AbstractMultiplier, Integer> multipliers;
-	private final BigInteger cloves;
+	private Inventory items;
+	private Map<AbstractMultiplier, Integer> multipliers;
+	private BigInteger cloves;
+
+	protected void setInventory(Inventory n) {
+		items = n;
+	}
+
+	protected Inventory getItemsModifiable() {
+		return items;
+	}
+
+	protected Map<AbstractMultiplier, Integer> getMultipliersModifiable() {
+		return multipliers;
+	}
+
+	protected void setItems(Inventory items) {
+		this.items = items;
+	}
+
+	protected void setCloves(BigInteger cloves) {
+		this.cloves = cloves;
+	}
+
+	protected void setMultipliers(Map<AbstractMultiplier, Integer> multipliers) {
+		this.multipliers = multipliers;
+	}
 
 	public boolean hasCloves() {
 		return cloves != null;
@@ -93,13 +117,13 @@ public class Rewards extends PropertyObject {
 		this((Iterable<ItemBunch<?>>) null, cloves, (List<AbstractMultiplier>) null);
 	}
 
-	private Rewards(Inventory inventory, BigInteger cloves, List<AbstractMultiplier> mults) {
+	protected Rewards(Inventory inventory, BigInteger cloves, List<AbstractMultiplier> mults) {
 		items = inventory == null || inventory.getEntryCount() == 0 ? null : inventory;
 		this.cloves = cloves == null ? BigInteger.ZERO : cloves;
 		multipliers = mults == null || mults.isEmpty() ? null : JavaTools.frequencyMap(mults);
 	}
 
-	private Rewards(Inventory inventory, BigInteger cloves, Map<AbstractMultiplier, Integer> mults) {
+	protected Rewards(Inventory inventory, BigInteger cloves, Map<AbstractMultiplier, Integer> mults) {
 		items = inventory == null || inventory.getEntryCount() == 0 ? null : inventory;
 		this.cloves = cloves == null ? BigInteger.ZERO : cloves;
 		multipliers = mults == null || mults.isEmpty() ? null : mults;
