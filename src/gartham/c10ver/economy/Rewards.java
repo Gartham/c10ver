@@ -258,4 +258,8 @@ public class Rewards extends PropertyObject {
 		return new Rewards(inv, cloves, multipliers);
 	}
 
+	public boolean isEmpty() {
+		return items.isEmpty() && multipliers.isEmpty() && cloves.equals(BigInteger.ZERO);
+	}
+
 }
