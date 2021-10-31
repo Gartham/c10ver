@@ -115,4 +115,16 @@ public class MutableRewards extends Rewards {
 		setMultipliers(multipliers);
 	}
 
+	public void subsume(Rewards... others) {
+		for (var r : others) {
+			r.getItemsModifiable().putInto(getItemsModifiable());
+			for (var e : r.getMultipliersModifiable().entrySet())
+				getMultipliersModifiable().put(e.getKey(),
+						getMultipliersModifiable().containsKey(e.getKey())
+								? e.getValue() + getMultipliersModifiable().get(e.getKey())
+								: e.getValue());
+			setCloves(getCloves().add(r.getCloves()));
+		}
+	}
+
 }
