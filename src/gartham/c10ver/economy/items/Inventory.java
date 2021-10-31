@@ -28,6 +28,10 @@ import gartham.c10ver.utils.Utilities;
  *
  */
 public class Inventory implements Cloneable, Iterable<Entry<?>> {
+	
+	public boolean isEmpty() {
+		return entryList.isEmpty();
+	}
 
 	public void clear() {
 		entries.clear();
