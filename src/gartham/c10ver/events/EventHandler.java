@@ -93,10 +93,10 @@ public class EventHandler implements EventListener {
 			if (mre.isFromGuild() && clover.getEconomy().hasServer(mre.getGuild().getId())) {
 				EconomyUser user = clover.getEconomy().getUser(mre.getAuthor().getId());
 				user.incrementMessageCount();
-				user.getMailbox().setCloves(new BigDecimal(user.getMailbox().getCloves()
-						.add(BigDecimal.valueOf(Math.random() * 4 + 2)
-								.multiply(new BigDecimal(user.getPrestige().add(BigInteger.ONE))).toBigInteger()))
-										.multiply(user.calcMultiplier(mre.getGuild())).toBigInteger());
+				user.getMailbox()
+						.addCloves(BigDecimal.valueOf(Math.random() * 4 + 2)
+								.multiply(new BigDecimal(user.getPrestige().add(BigInteger.ONE)))
+								.multiply(user.calcMultiplier(mre.getGuild())).toBigInteger());
 				user.saveMailbox();
 				if (user.getMessageCount().getLowestSetBit() >= 4) {// Save every 16 messages.
 					user.save();
@@ -134,7 +134,7 @@ public class EventHandler implements EventListener {
 					if (rewards != null) {
 						var mult = user.calcMultiplier(mre.getGuild());
 						var amt = new BigDecimal(rewards).multiply(mult).toBigInteger();
-						user.getMailbox().setCloves(user.getMailbox().getCloves().add(amt));
+						user.getMailbox().addCloves(amt);
 						user.saveMailbox();
 						if (user.getSettings().isRandomRewardsNotifyingEnabled())
 							mre.getChannel()
@@ -148,8 +148,7 @@ public class EventHandler implements EventListener {
 							var mult = user.calcMultiplier(mre.getGuild());
 							BigInteger rawrew = BigInteger.valueOf((long) (Math.random() * 20 + 40));
 
-							user.getMailbox().setCloves(user.getMailbox().getCloves()
-									.add(new BigDecimal(rawrew).multiply(mult).toBigInteger()));
+							user.getMailbox().addCloves(new BigDecimal(rawrew).multiply(mult).toBigInteger());
 							user.saveMailbox();
 
 							if (user.getSettings().isRandomRewardsNotifyingEnabled())
