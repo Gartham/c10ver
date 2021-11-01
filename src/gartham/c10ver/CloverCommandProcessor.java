@@ -2523,7 +2523,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				if (rewards.hasCloves())
 					v.add(Utilities.format(rewards.getCloves()));
 				if (rewards.hasMultipliers())
-					v.add(Utilities.formatNumber(JavaTools.sumFrequencyMap(rewards.getMultipliersModifiable())));
+					v.add(Utilities.formatNumber(JavaTools.sumFrequencyMap(rewards.getMultipliersModifiable()))
+							+ " multipliers");
 				sb.append("You have ").append(JavaTools.printInEnglish(v.iterator(), true))
 						.append(" in your mailbox!\n\n");
 
