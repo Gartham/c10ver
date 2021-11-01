@@ -22,6 +22,10 @@ public class MutableRewards extends Rewards {
 		super.setCloves(cloves);
 	}
 
+	public void addCloves(BigInteger cloves) {
+		super.setCloves(getCloves().add(cloves));
+	}
+
 	@Override
 	public void setInventory(Inventory n) {
 		super.setInventory(n);
