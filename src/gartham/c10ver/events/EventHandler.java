@@ -93,11 +93,15 @@ public class EventHandler implements EventListener {
 			if (mre.isFromGuild() && clover.getEconomy().hasServer(mre.getGuild().getId())) {
 				EconomyUser user = clover.getEconomy().getUser(mre.getAuthor().getId());
 				user.incrementMessageCount();
-				user.getAccount().deposit(BigDecimal.valueOf(Math.random() * 4 + 2)
-						.multiply(new BigDecimal(user.getPrestige().add(BigInteger.ONE))).toBigInteger());
+				user.getMailbox().setCloves(new BigDecimal(user.getMailbox().getCloves()
+						.add(BigDecimal.valueOf(Math.random() * 4 + 2)
+								.multiply(new BigDecimal(user.getPrestige().add(BigInteger.ONE))).toBigInteger()))
+										.multiply(user.calcMultiplier(mre.getGuild())).toBigInteger());
+				user.saveMailbox();
 				if (user.getMessageCount().getLowestSetBit() >= 4) {// Save every 16 messages.
 					user.save();
 					user.getAccount().save();
+					user.saveMailbox();
 				}
 				if (!mre.getAuthor().isBot()) {
 					BigInteger rewards = switch (user.getMessageCount().toString()) {
@@ -129,25 +133,31 @@ public class EventHandler implements EventListener {
 					};
 					if (rewards != null) {
 						var mult = user.calcMultiplier(mre.getGuild());
-						var amt = user.rewardAndSave(rewards, mult);
+						var amt = new BigDecimal(rewards).multiply(mult).toBigInteger();
+						user.getMailbox().setCloves(user.getMailbox().getCloves().add(amt));
+						user.saveMailbox();
 						if (user.getSettings().isRandomRewardsNotifyingEnabled())
 							mre.getChannel()
 									.sendMessage(mre.getAuthor().getAsMention() + " congratulations, you just reached "
 											+ user.getMessageCount() + " messages! You've earned: "
-											+ Utilities.listRewards(amt, mult))
+											+ Utilities.listRewards(rewards, mult) + ". Check your mailbox!")
 									.queue(t -> t.delete().queueAfter(10, TimeUnit.SECONDS));
 					} else {
 						var serv = clover.getEconomy().getServer(mre.getGuild().getId());
 						if (serv.isGeneral(mre.getChannel()) && Math.random() < 0.02) {
 							var mult = user.calcMultiplier(mre.getGuild());
 							BigInteger rawrew = BigInteger.valueOf((long) (Math.random() * 20 + 40));
-							user.rewardAndSave(rawrew, mult);
+
+							user.getMailbox().setCloves(user.getMailbox().getCloves()
+									.add(new BigDecimal(rawrew).multiply(mult).toBigInteger()));
+							user.saveMailbox();
+
 							if (user.getSettings().isRandomRewardsNotifyingEnabled())
 								mre.getChannel()
 										.sendMessage(mre.getAuthor().getAsMention()
 												+ ", you found some cloves sitting on the ground.\n"
 												+ Utilities.listRewards(rawrew, mult) + "\nTotal Cloves: "
-												+ format(user.getAccount().getBalance()))
+												+ format(user.getAccount().getBalance()) + ". Check your mailbox!")
 										.queue(t -> t.delete().queueAfter(10, TimeUnit.SECONDS));
 						} else if (ranCmd && commandInvoc != null && !commandInvoc.getCmdName().equalsIgnoreCase("tip")
 								&& Math.random() < 0.18)
@@ -155,22 +165,22 @@ public class EventHandler implements EventListener {
 						else if (serv.isGeneral(mre.getChannel()) && Math.random() < 0.01)
 							if (Math.random() < 0.2) {
 								NormalCrate crate = new NormalCrate();
-								user.getInventory().add(crate).save();
+								user.getMailbox().getItemsModifiable().add(crate);
+								user.saveMailbox();
 								if (user.getSettings().isRandomRewardsNotifyingEnabled())
-									mre.getChannel()
-											.sendMessage(mre.getAuthor().getAsMention()
-													+ " you look hungry... for a loot crate! (Acquired `1`x "
-													+ crate.getIcon() + crate.getEffectiveName() + ".)")
+									mre.getChannel().sendMessage(mre.getAuthor().getAsMention()
+											+ " you look hungry... for a loot crate! (Acquired `1`x " + crate.getIcon()
+											+ crate.getEffectiveName() + ".)\nCheck your mailbox!")
 											.queue(t -> t.delete().queueAfter(10, TimeUnit.SECONDS));
 							} else {
 								BigInteger count = BigInteger.valueOf((long) (Math.random() * 3 + 1));
 								Sandwich item = new Sandwich();
-								user.getInventory().add(new ItemBunch<>(item, count)).save();
+								user.getMailbox().getItemsModifiable().add(new ItemBunch<>(item, count));
+								user.saveMailbox();
 								if (user.getSettings().isRandomRewardsNotifyingEnabled())
-									mre.getChannel()
-											.sendMessage(mre.getAuthor().getAsMention()
-													+ " you look hungry. Have some sandwiches! (Acquired `" + count
-													+ "`x " + item.getIcon() + item.getEffectiveName() + ".)")
+									mre.getChannel().sendMessage(mre.getAuthor().getAsMention()
+											+ " you look hungry. Have some sandwiches! (Acquired `" + count + "`x "
+											+ item.getIcon() + item.getEffectiveName() + ".)\nCheck your mailbox!")
 											.queue(t -> t.delete().queueAfter(10, TimeUnit.SECONDS));
 
 							}
