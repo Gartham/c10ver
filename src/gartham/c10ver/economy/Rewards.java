@@ -134,7 +134,7 @@ public class Rewards extends PropertyObject {
 	}
 
 	public boolean hasItems() {
-		return items != null;
+		return items != null || items.isEmpty();
 	}
 
 	/**
@@ -163,7 +163,7 @@ public class Rewards extends PropertyObject {
 	}
 
 	public boolean hasMultipliers() {
-		return multipliers != null;
+		return multipliers != null || multipliers.isEmpty();
 	}
 
 	public BigInteger getCloves() {
