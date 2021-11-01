@@ -142,7 +142,13 @@ public class EconomyUser extends SavablePropertyObject {
 	}
 
 	public Receipt claimMailbox() {
-		return mailbox.isEmpty() ? null : rewardAndSave(getMailbox(), BigDecimal.ONE);
+		if (mailbox.isEmpty())
+			return null;
+		else {
+			Receipt ras = rewardAndSave(getMailbox(), BigDecimal.ONE);
+			getMailbox().clear();
+			return ras;
+		}
 	}
 
 	public Receipt claimMailboxAndSave() {
