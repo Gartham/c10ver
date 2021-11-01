@@ -42,12 +42,10 @@ import gartham.c10ver.commands.consumers.MessageInputConsumer;
 import gartham.c10ver.commands.subcommands.ParentCommand;
 import gartham.c10ver.commands.subcommands.SubcommandInvocation;
 import gartham.c10ver.data.PropertyObject.Property;
-import gartham.c10ver.economy.AbstractMultiplier;
 import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.MutableRewards;
 import gartham.c10ver.economy.Rewards;
 import gartham.c10ver.economy.Server;
-import gartham.c10ver.economy.items.ItemBunch;
 import gartham.c10ver.economy.items.UserInventory.UserEntry;
 import gartham.c10ver.economy.items.utility.crates.DailyCrate;
 import gartham.c10ver.economy.items.utility.crates.LootCrateItem;
@@ -58,7 +56,6 @@ import gartham.c10ver.economy.items.utility.foodstuffs.Foodstuff;
 import gartham.c10ver.economy.items.utility.foodstuffs.Hamburger;
 import gartham.c10ver.economy.items.utility.foodstuffs.Pizza;
 import gartham.c10ver.economy.items.utility.foodstuffs.Sandwich;
-import gartham.c10ver.economy.items.utility.foodstuffs.Spaghetti;
 import gartham.c10ver.economy.items.utility.itembomb.Bomb;
 import gartham.c10ver.economy.items.utility.multickets.MultiplierTicket;
 import gartham.c10ver.economy.items.valuables.VoteToken;
@@ -2512,6 +2509,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 				EconomyUser user = clover.getEconomy().getUser(inv.event.getAuthor().getId());
 				MutableRewards rewards = user.getMailbox();
+
 				if (rewards.isEmpty()) {
 					inv.event.getChannel().sendMessage("Your mailbox is empty.").queue();
 					return;
@@ -2542,10 +2540,13 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				eb.setTitle(inv.event.getAuthor().getAsTag() + "'s Mailbox").setColor(Color.GREEN)
 						.setDescription(description);
 
-				ActionMessage<?, ?> am = new ActionMessage<>(new ActionButton(
-						t -> t.getEvent().getChannel().sendMessage("You claimed all your rewards!").queue(),
-						Button.danger("test", Emoji.fromMarkdown("\uD83D\uDCB0")).withLabel("claim")).setNontargetReply(
-								"You can't claim someone else's mail! That violates 18 U.S.C. \u00A7 1708!"));
+				ActionMessage<?, ?> am = new ActionMessage<>(new ActionButton(t -> {
+					var rec = user.claimMailbox();
+//					user.saveMailbox();
+					t.getEvent().getChannel()
+							.sendMessage("You claimed all your rewards!\n" + Utilities.listRewards(rec)).queue();
+				}, Button.danger("test", Emoji.fromMarkdown("\uD83D\uDCB0")).withLabel("claim")).setNontargetReply(
+						"You can't claim someone else's mail! That violates 18 U.S.C. \u00A7 1708!"));
 
 //				ActionMessage<ActionReaction> am = new ActionMessage<>(
 //						new ActionReaction("egg", t -> t.getEvent().getChannel().sendMessage("Clicked!").queue()));
