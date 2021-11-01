@@ -18,6 +18,11 @@ import gartham.c10ver.utils.Utilities;
 public class MutableRewards extends Rewards {
 
 	@Override
+	public void setCloves(BigInteger cloves) {
+		super.setCloves(cloves);
+	}
+
+	@Override
 	public void setInventory(Inventory n) {
 		super.setInventory(n);
 	}
