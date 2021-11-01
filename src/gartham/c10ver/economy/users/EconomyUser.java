@@ -140,6 +140,10 @@ public class EconomyUser extends SavablePropertyObject {
 		return mailbox;
 	}
 
+	public Receipt claimMailbox() {
+		return mailbox.isEmpty() ? null : rewardAndSave(getMailbox(), null);
+	}
+
 	/**
 	 * Calculates the multiplier applied to a reward that this user earned in the
 	 * provided guild.
