@@ -42,7 +42,9 @@ import gartham.c10ver.commands.consumers.MessageInputConsumer;
 import gartham.c10ver.commands.subcommands.ParentCommand;
 import gartham.c10ver.commands.subcommands.SubcommandInvocation;
 import gartham.c10ver.data.PropertyObject.Property;
+import gartham.c10ver.economy.AbstractMultiplier;
 import gartham.c10ver.economy.Multiplier;
+import gartham.c10ver.economy.MutableRewards;
 import gartham.c10ver.economy.Rewards;
 import gartham.c10ver.economy.Server;
 import gartham.c10ver.economy.items.ItemBunch;
@@ -56,6 +58,7 @@ import gartham.c10ver.economy.items.utility.foodstuffs.Foodstuff;
 import gartham.c10ver.economy.items.utility.foodstuffs.Hamburger;
 import gartham.c10ver.economy.items.utility.foodstuffs.Pizza;
 import gartham.c10ver.economy.items.utility.foodstuffs.Sandwich;
+import gartham.c10ver.economy.items.utility.foodstuffs.Spaghetti;
 import gartham.c10ver.economy.items.utility.itembomb.Bomb;
 import gartham.c10ver.economy.items.utility.multickets.MultiplierTicket;
 import gartham.c10ver.economy.items.valuables.VoteToken;
@@ -2497,33 +2500,47 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 			}
 		});
 
-		register(new MatchBasedCommand("o") {
+		register(new MatchBasedCommand("mail", "mailbox") {
 
 			@Override
 			public void exec(CommandInvocation inv) {
+
+				if (!clover.getEconomy().hasAccount(inv.event.getAuthor().getId())) {
+					inv.event.getChannel().sendMessage("Your mailbox is empty.").queue();
+					return;
+				}
+
+				EconomyUser user = clover.getEconomy().getUser(inv.event.getAuthor().getId());
+				MutableRewards rewards = user.getMailbox();
+				if (rewards.isEmpty()) {
+					inv.event.getChannel().sendMessage("Your mailbox is empty.").queue();
+					return;
+				}
+
 				EmbedBuilder eb = new EmbedBuilder();
-				StringBuilder sb = new StringBuilder().append("You have **3** items in your mailbox and ")
-						.append(Utilities.format(BigInteger.valueOf((long) (Math.random() * 527816 + 250))))
-						.append(".\n\n");
+				StringBuilder sb = new StringBuilder();
+				List<String> v = new ArrayList<>(3);
+				if (rewards.hasItems())
+					v.add(Utilities.formatNumber(rewards.getItemsModifiable().getTotalItemCount()) + " items");
+				if (rewards.hasCloves())
+					v.add(Utilities.format(rewards.getCloves()));
+				if (rewards.hasMultipliers())
+					v.add(Utilities.formatNumber(JavaTools.sumFrequencyMap(rewards.getMultipliersModifiable())));
+				sb.append("You have ").append(JavaTools.printInEnglish(v.iterator(), true))
+						.append(" in your mailbox!\n\n");
 
-				// Add Items
-				ItemBunch<NormalCrate> firstEntry = new ItemBunch<>(new NormalCrate(), BigInteger.TWO);
-				ItemBunch<Bomb> secondEntry = new ItemBunch<>(new Bomb());
-				sb.append("`x").append(Utilities.formatNumber(firstEntry.getCount()));// TODO Fix formatNumber being
-																						// only
-																						// for monetary values (make a
-																						// formatMoney func).
-				sb.append("` ").append(firstEntry.getItem().getIcon()).append(' ')
-						.append(firstEntry.getItem().getEffectiveName()).append('\n');
-
-				sb.append("`x").append(Utilities.formatNumber(secondEntry.getCount()));
-				sb.append("` ").append(secondEntry.getItem().getIcon()).append(' ')
-						.append(secondEntry.getItem().getEffectiveName());
+				for (var ib : rewards.getItemsAsList())
+					sb.append("`x").append(Utilities.formatNumber(ib.getCount())).append("` ")
+							.append(ib.getItem().getIcon()).append(' ').append(ib.getItem().getEffectiveName())
+							.append('\n');
+				for (var m : rewards.getMultipliersModifiable().entrySet())
+					sb.append("(x").append(Utilities.formatNumber(BigInteger.valueOf(m.getValue()))).append(") [**x")
+							.append(Utilities.multiplier(m.getKey().getAmt())).append("**] for ")
+							.append(Utilities.formatLargest(m.getKey().getDuration(), 2)).append('\n');
 
 				String description = sb.toString();
 				eb.setTitle(inv.event.getAuthor().getAsTag() + "'s Mailbox").setColor(Color.GREEN)
 						.setDescription(description);
-				eb.setFooter("Use the \"claim\" command to claim all of your loot!");
 
 				ActionMessage<?, ?> am = new ActionMessage<>(new ActionButton(
 						t -> t.getEvent().getChannel().sendMessage("You claimed all your rewards!").queue(),
@@ -2535,6 +2552,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 				am.create(clover, inv.event.getChannel().sendMessage(eb.build()), inv.event.getAuthor());
 			}
+
 		});
 
 		help.addCommand("settings",
