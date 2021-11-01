@@ -3,9 +3,7 @@ package gartham.c10ver.economy;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.HOURS;
 import static java.time.temporal.ChronoUnit.MINUTES;
-import static java.time.temporal.ChronoUnit.MONTHS;
 import static java.time.temporal.ChronoUnit.WEEKS;
-import static java.time.temporal.ChronoUnit.YEARS;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -50,11 +48,11 @@ public class AbstractMultiplier {
 	}
 
 	public static AbstractMultiplier ofMth(long monthsTillExpired, BigDecimal value) {
-		return new AbstractMultiplier(value, Duration.of(monthsTillExpired, MONTHS));
+		return ofSec(2629746, value);
 	}
 
 	public static AbstractMultiplier ofYr(long yrsTillExpired, BigDecimal value) {
-		return new AbstractMultiplier(value, Duration.of(yrsTillExpired, YEARS));
+		return ofMth(12, value);
 	}
 
 	public Multiplier reify() {

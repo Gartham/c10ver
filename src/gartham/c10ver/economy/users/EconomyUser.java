@@ -15,6 +15,7 @@ import gartham.c10ver.data.autosave.SavablePropertyObject;
 import gartham.c10ver.economy.Economy;
 import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.MultiplierManager;
+import gartham.c10ver.economy.MutableRewards;
 import gartham.c10ver.economy.Rewards;
 import gartham.c10ver.economy.Server;
 import gartham.c10ver.economy.accolades.AccoladeList;
@@ -35,6 +36,7 @@ public class EconomyUser extends SavablePropertyObject {
 			toObjectGateway(Multiplier::new));
 	private final Property<ArrayList<String>> joinedGuilds = listProperty("joined-guilds",
 			toStringGateway(StringGateway.string()));
+	private final File mailboxLocation;
 
 	public ArrayList<String> getJoinedGuilds() {
 		return joinedGuilds.get();
@@ -105,6 +107,7 @@ public class EconomyUser extends SavablePropertyObject {
 	private final UserSettings settings;
 	private final CreatureBox creatures;
 	private final String userID;
+	private final MutableRewards mailbox;
 
 	public net.dv8tion.jda.api.entities.User getUser() {
 		return economy.getClover().getBot().retrieveUserById(userID).complete();
@@ -132,6 +135,26 @@ public class EconomyUser extends SavablePropertyObject {
 
 	public UserSettings getSettings() {
 		return settings;
+	}
+
+	public MutableRewards getMailbox() {
+		return mailbox;
+	}
+
+	public Receipt claimMailbox() {
+		if (mailbox.isEmpty())
+			return null;
+		else {
+			Receipt ras = rewardAndSave(getMailbox(), BigDecimal.ONE);
+			getMailbox().clear();
+			return ras;
+		}
+	}
+
+	public Receipt claimMailboxAndSave() {
+		var rec = claimMailbox();
+		saveMailbox();
+		return rec;
 	}
 
 	/**
@@ -174,6 +197,10 @@ public class EconomyUser extends SavablePropertyObject {
 		return reward(amount, calcMultiplier(guild));
 	}
 
+	/**
+	 * Saves all parts of this {@link EconomyUser} <b>except for the
+	 * {@link #mailbox}</b>.
+	 */
 	@Override
 	public void save() {
 		MultiplierManager.cleanMults(multipliers.get());
@@ -213,7 +240,10 @@ public class EconomyUser extends SavablePropertyObject {
 	}
 
 	public Receipt reward(Rewards rewards, Guild guild) {
-		var mult = calcMultiplier(guild);
+		return reward(rewards, calcMultiplier(guild));
+	}
+
+	public Receipt reward(Rewards rewards, BigDecimal mult) {
 		BigInteger clovesGiven = BigInteger.ZERO;
 		if (rewards.hasMultipliers())
 			for (var m : rewards.getMultipliers().entrySet())
@@ -229,6 +259,22 @@ public class EconomyUser extends SavablePropertyObject {
 
 	public Receipt rewardAndSave(Rewards rewards, Guild guild) {
 		var r = reward(rewards, guild);
+		if (rewards.hasCloves())
+			getAccount().save();
+		if (rewards.hasItems())
+			for (var i : rewards.getItemsAsList())
+				try {
+					getInventory().get(i.getItem()).save();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+		if (rewards.hasMultipliers())
+			save();
+		return r;
+	}
+
+	public Receipt rewardAndSave(Rewards rewards, BigDecimal mult) {
+		var r = reward(rewards, mult);
 		if (rewards.hasCloves())
 			getAccount().save();
 		if (rewards.hasItems())
@@ -297,6 +343,7 @@ public class EconomyUser extends SavablePropertyObject {
 		accolades = new AccoladeList(new File(userDirectory, "accolades.txt"));
 		creatures = new CreatureBox(new File(userDirectory, "creatures.txt"));
 		settings = new UserSettings(userDirectory, this);
+		mailbox = new MutableRewards(mailboxLocation = new File(userDirectory, "mailbox"));
 		if (load)
 			load();
 		if (getMessageCount() == null)
@@ -347,6 +394,10 @@ public class EconomyUser extends SavablePropertyObject {
 
 	public BigInteger getVoteCount() {
 		return voteCount.get();
+	}
+
+	public void saveMailbox() {
+		mailbox.save(mailboxLocation);
 	}
 
 }

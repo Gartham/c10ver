@@ -1,22 +1,57 @@
 package gartham.c10ver.economy;
 
+import java.io.File;
+import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.function.Function;
 
 import org.alixia.javalibrary.JavaTools;
+import org.alixia.javalibrary.json.JSONArray;
+import org.alixia.javalibrary.json.JSONObject;
+import org.alixia.javalibrary.json.JSONValue;
 
+import gartham.c10ver.data.PropertyObject;
 import gartham.c10ver.economy.items.Inventory;
 import gartham.c10ver.economy.items.ItemBunch;
+import gartham.c10ver.utils.Utilities;
 
-public class Rewards {
-	private final Inventory items;
-	private final Map<AbstractMultiplier, Integer> multipliers;
-	private final BigInteger cloves;
+public class Rewards extends PropertyObject {
+
+	private Inventory items;
+	private Map<AbstractMultiplier, Integer> multipliers;
+	private BigInteger cloves;
+
+	protected void setInventory(Inventory n) {
+		items = n;
+	}
+
+	protected Inventory getItemsModifiable() {
+		return items;
+	}
+
+	protected Map<AbstractMultiplier, Integer> getMultipliersModifiable() {
+		return multipliers;
+	}
+
+	protected void setItems(Inventory items) {
+		this.items = items;
+	}
+
+	protected void setCloves(BigInteger cloves) {
+		this.cloves = cloves;
+	}
+
+	protected void setMultipliers(Map<AbstractMultiplier, Integer> multipliers) {
+		this.multipliers = multipliers;
+	}
 
 	public boolean hasCloves() {
 		return cloves != null;
@@ -82,13 +117,13 @@ public class Rewards {
 		this((Iterable<ItemBunch<?>>) null, cloves, (List<AbstractMultiplier>) null);
 	}
 
-	private Rewards(Inventory inventory, BigInteger cloves, List<AbstractMultiplier> mults) {
+	protected Rewards(Inventory inventory, BigInteger cloves, List<AbstractMultiplier> mults) {
 		items = inventory == null || inventory.getEntryCount() == 0 ? null : inventory;
 		this.cloves = cloves == null ? BigInteger.ZERO : cloves;
 		multipliers = mults == null || mults.isEmpty() ? null : JavaTools.frequencyMap(mults);
 	}
 
-	private Rewards(Inventory inventory, BigInteger cloves, Map<AbstractMultiplier, Integer> mults) {
+	protected Rewards(Inventory inventory, BigInteger cloves, Map<AbstractMultiplier, Integer> mults) {
 		items = inventory == null || inventory.getEntryCount() == 0 ? null : inventory;
 		this.cloves = cloves == null ? BigInteger.ZERO : cloves;
 		multipliers = mults == null || mults.isEmpty() ? null : mults;
@@ -99,7 +134,7 @@ public class Rewards {
 	}
 
 	public boolean hasItems() {
-		return items != null;
+		return items != null || items.isEmpty();
 	}
 
 	/**
@@ -128,7 +163,7 @@ public class Rewards {
 	}
 
 	public boolean hasMultipliers() {
-		return multipliers != null;
+		return multipliers != null || multipliers.isEmpty();
 	}
 
 	public BigInteger getCloves() {
@@ -159,6 +194,100 @@ public class Rewards {
 		var arr = Arrays.copyOf(others, others.length + 1);
 		arr[arr.length - 1] = this;
 		return combine(arr);
+	}
+
+	/**
+	 * Saves this {@link Rewards} object into the provided folder. The folder
+	 * logically represents the {@link Rewards} object.
+	 * 
+	 * @param rewardsFolder The folder that will be the serialized {@link Rewards}
+	 *                      object.
+	 */
+	public void save(File rewardsFolder) {
+		saveInventory(rewardsFolder);
+		saveClovesAndMults(rewardsFolder);
+	}
+
+	/**
+	 * Saves just the inventory part of this {@link Rewards}. Should be called with
+	 * the same folder that would be provided when calling {@link #save(File)}.
+	 * 
+	 * @param rewardsFolder The folder in which (only part) of this {@link Rewards}
+	 *                      will be saved. Calling {@link #saveClovesAndMults(File)}
+	 *                      with the same folder after (or before) a call to this
+	 *                      method will be equivalent to calling
+	 *                      {@link #save(File)}.
+	 */
+	public void saveInventory(File rewardsFolder) {
+		File i = new File(rewardsFolder, "items");
+		i.mkdirs();
+		items.saveAll(i);
+	}
+
+	/**
+	 * Saves just the rewards and cloves part of this {@link Rewards}. Should be
+	 * called with the same folder that would be provided when calling
+	 * {@link #save(File)}.
+	 * 
+	 * @param rewardsFolder The folder in which (only part) of this {@link Rewards}
+	 *                      will be saved. Calling {@link #saveInventory(File)} with
+	 *                      the same folder after (or before) a call to this method
+	 *                      will be equivalent to calling {@link #save(File)}.
+	 */
+	public void saveClovesAndMults(File rewardsFolder) {
+		File rew = new File(rewardsFolder, "rewards.txt");
+		JSONObject rewards = new JSONObject();
+		rewards.put("c", cloves.toString());
+		JSONArray mults = new JSONArray(
+				JavaTools.mask(multipliers.entrySet(), (Function<Entry<AbstractMultiplier, Integer>, JSONValue>) t -> {
+					JSONObject o = new JSONObject();
+					o.put("a", t.getKey().getAmt().toString());
+					o.put("c", t.getValue());
+					o.put("d", t.getKey().getDuration().toString());
+					return o;
+				}));
+		rewards.put("m", mults);
+
+		Utilities.save(rewards, rew);
+	}
+
+	/**
+	 * Loads a {@link Rewards} object out of the provided folder. This is the
+	 * symmetric counterpart of {@link #save(File)}.
+	 * 
+	 * @param rewardsFolder The folder that will be read from.
+	 * @return The loaded {@link Rewards} object.
+	 */
+	public static Rewards load(File rewardsFolder) {
+		File i = new File(rewardsFolder, "items");
+		Inventory inv = new Inventory();
+		if (i.isDirectory())
+			inv.load(i);
+
+		JSONObject rewards = Utilities.loadObj(new File(rewardsFolder, "rewards.txt"));
+		BigInteger cloves;
+		Map<AbstractMultiplier, Integer> multipliers;
+		if (rewards != null) {
+			cloves = new BigInteger(rewards.getString("c"));
+
+			JSONArray a = (JSONArray) rewards.get("m");
+			multipliers = new HashMap<>();
+			for (var o : a) {
+				JSONObject obj = (JSONObject) o;
+				AbstractMultiplier m = new AbstractMultiplier(new BigDecimal(obj.getString("a")),
+						Duration.parse(obj.getString("d")));
+				multipliers.put(m, obj.getInt("c"));
+			}
+		} else {
+			cloves = BigInteger.ZERO;
+			multipliers = new HashMap<>();
+		}
+
+		return new Rewards(inv, cloves, multipliers);
+	}
+
+	public boolean isEmpty() {
+		return items.isEmpty() && multipliers.isEmpty() && cloves.equals(BigInteger.ZERO);
 	}
 
 }
