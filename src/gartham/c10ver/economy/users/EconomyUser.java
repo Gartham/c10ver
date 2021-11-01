@@ -36,6 +36,7 @@ public class EconomyUser extends SavablePropertyObject {
 			toObjectGateway(Multiplier::new));
 	private final Property<ArrayList<String>> joinedGuilds = listProperty("joined-guilds",
 			toStringGateway(StringGateway.string()));
+	private final File mailboxLocation;
 
 	public ArrayList<String> getJoinedGuilds() {
 		return joinedGuilds.get();
@@ -144,6 +145,12 @@ public class EconomyUser extends SavablePropertyObject {
 		return mailbox.isEmpty() ? null : rewardAndSave(getMailbox(), null);
 	}
 
+	public Receipt claimMailboxAndSave() {
+		var rec = claimMailbox();
+		saveMailbox();
+		return rec;
+	}
+
 	/**
 	 * Calculates the multiplier applied to a reward that this user earned in the
 	 * provided guild.
@@ -184,6 +191,10 @@ public class EconomyUser extends SavablePropertyObject {
 		return reward(amount, calcMultiplier(guild));
 	}
 
+	/**
+	 * Saves all parts of this {@link EconomyUser} <b>except for the
+	 * {@link #mailbox}</b>.
+	 */
 	@Override
 	public void save() {
 		MultiplierManager.cleanMults(multipliers.get());
@@ -307,7 +318,7 @@ public class EconomyUser extends SavablePropertyObject {
 		accolades = new AccoladeList(new File(userDirectory, "accolades.txt"));
 		creatures = new CreatureBox(new File(userDirectory, "creatures.txt"));
 		settings = new UserSettings(userDirectory, this);
-		mailbox = new MutableRewards(new File(userDirectory, "mailbox"));
+		mailbox = new MutableRewards(mailboxLocation = new File(userDirectory, "mailbox"));
 		if (load)
 			load();
 		if (getMessageCount() == null)
@@ -358,6 +369,10 @@ public class EconomyUser extends SavablePropertyObject {
 
 	public BigInteger getVoteCount() {
 		return voteCount.get();
+	}
+
+	public void saveMailbox() {
+		mailbox.save(mailboxLocation);
 	}
 
 }
