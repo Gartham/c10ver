@@ -142,7 +142,7 @@ public class EconomyUser extends SavablePropertyObject {
 	}
 
 	public Receipt claimMailbox() {
-		return mailbox.isEmpty() ? null : rewardAndSave(getMailbox(), null);
+		return mailbox.isEmpty() ? null : rewardAndSave(getMailbox(), BigDecimal.ONE);
 	}
 
 	public Receipt claimMailboxAndSave() {
@@ -234,7 +234,10 @@ public class EconomyUser extends SavablePropertyObject {
 	}
 
 	public Receipt reward(Rewards rewards, Guild guild) {
-		var mult = calcMultiplier(guild);
+		return reward(rewards, calcMultiplier(guild));
+	}
+
+	public Receipt reward(Rewards rewards, BigDecimal mult) {
 		BigInteger clovesGiven = BigInteger.ZERO;
 		if (rewards.hasMultipliers())
 			for (var m : rewards.getMultipliers().entrySet())
@@ -250,6 +253,22 @@ public class EconomyUser extends SavablePropertyObject {
 
 	public Receipt rewardAndSave(Rewards rewards, Guild guild) {
 		var r = reward(rewards, guild);
+		if (rewards.hasCloves())
+			getAccount().save();
+		if (rewards.hasItems())
+			for (var i : rewards.getItemsAsList())
+				try {
+					getInventory().get(i.getItem()).save();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+		if (rewards.hasMultipliers())
+			save();
+		return r;
+	}
+
+	public Receipt rewardAndSave(Rewards rewards, BigDecimal mult) {
+		var r = reward(rewards, mult);
 		if (rewards.hasCloves())
 			getAccount().save();
 		if (rewards.hasItems())
