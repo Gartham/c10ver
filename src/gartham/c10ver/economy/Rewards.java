@@ -204,10 +204,37 @@ public class Rewards extends PropertyObject {
 	 *                      object.
 	 */
 	public void save(File rewardsFolder) {
+		saveInventory(rewardsFolder);
+		saveClovesAndMults(rewardsFolder);
+	}
+
+	/**
+	 * Saves just the inventory part of this {@link Rewards}. Should be called with
+	 * the same folder that would be provided when calling {@link #save(File)}.
+	 * 
+	 * @param rewardsFolder The folder in which (only part) of this {@link Rewards}
+	 *                      will be saved. Calling {@link #saveClovesAndMults(File)}
+	 *                      with the same folder after (or before) a call to this
+	 *                      method will be equivalent to calling
+	 *                      {@link #save(File)}.
+	 */
+	public void saveInventory(File rewardsFolder) {
 		File i = new File(rewardsFolder, "items");
 		i.mkdirs();
 		items.saveAll(i);
+	}
 
+	/**
+	 * Saves just the rewards and cloves part of this {@link Rewards}. Should be
+	 * called with the same folder that would be provided when calling
+	 * {@link #save(File)}.
+	 * 
+	 * @param rewardsFolder The folder in which (only part) of this {@link Rewards}
+	 *                      will be saved. Calling {@link #saveInventory(File)} with
+	 *                      the same folder after (or before) a call to this method
+	 *                      will be equivalent to calling {@link #save(File)}.
+	 */
+	public void saveClovesAndMults(File rewardsFolder) {
 		File rew = new File(rewardsFolder, "rewards.txt");
 		JSONObject rewards = new JSONObject();
 		rewards.put("c", cloves.toString());
@@ -234,7 +261,8 @@ public class Rewards extends PropertyObject {
 	public static Rewards load(File rewardsFolder) {
 		File i = new File(rewardsFolder, "items");
 		Inventory inv = new Inventory();
-		inv.load(i);
+		if (i.isDirectory())
+			inv.load(i);
 
 		JSONObject rewards = Utilities.loadObj(new File(rewardsFolder, "rewards.txt"));
 		BigInteger cloves;
