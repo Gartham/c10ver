@@ -110,7 +110,12 @@ public class EconomyUser extends SavablePropertyObject {
 	private final MutableRewards mailbox;
 
 	public net.dv8tion.jda.api.entities.User getUser() {
-		return economy.getClover().getBot().retrieveUserById(userID).complete();
+		try {
+			return economy.getClover().getBot().retrieveUserById(userID).complete();
+		} catch (Exception e) {
+			System.out.println(userID);
+			throw e;
+		}
 	}
 
 	public Economy getEconomy() {
