@@ -7,6 +7,7 @@ import java.util.Map;
 
 import gartham.c10ver.economy.items.Inventory;
 import gartham.c10ver.economy.users.EconomyUser;
+import net.dv8tion.jda.api.entities.Guild;
 
 /**
  * <h1>RewardsOperation</h1>
@@ -63,6 +64,18 @@ import gartham.c10ver.economy.users.EconomyUser;
  *
  */
 public class RewardsOperation {
+
+	public boolean hasItems() {
+		return !items.isEmpty();
+	}
+
+	public boolean hasCloves() {
+		return cloves.signum() != 0;
+	}
+
+	public boolean hasMults() {
+		return !mults.isEmpty();
+	}
 
 	/**
 	 * The items to give the user.
