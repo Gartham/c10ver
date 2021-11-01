@@ -63,6 +63,7 @@ import gartham.c10ver.economy.questions.Question;
 import gartham.c10ver.economy.questions.Question.Difficulty;
 import gartham.c10ver.economy.server.ColorRole;
 import gartham.c10ver.economy.users.EconomyUser;
+import gartham.c10ver.economy.users.EconomyUser.Receipt;
 import gartham.c10ver.economy.users.UserAccount;
 import gartham.c10ver.economy.users.UserSettings;
 import gartham.c10ver.games.math.MathProblem;
@@ -2541,13 +2542,15 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				eb.setTitle(inv.event.getAuthor().getAsTag() + "'s Mailbox").setColor(Color.GREEN)
 						.setDescription(description);
 
-				ActionMessage<?, ?> am = new ActionMessage<>(new ActionButton(
-						t -> t.getEvent().getChannel()
-								.sendMessage("You claimed all your rewards!\n"
-										+ Utilities.listRewards(user.claimMailboxAndSave()))
-								.queue(),
-						Button.danger("test", Emoji.fromMarkdown("\uD83D\uDCB0")).withLabel("claim")).setNontargetReply(
-								"You can't claim someone else's mail! That violates 18 U.S.C. \u00A7 1708!"));
+				ActionMessage<?, ?> am = new ActionMessage<>(new ActionButton(t -> {
+					Receipt receipt = user.claimMailboxAndSave();
+					t.getEvent().getChannel()
+							.sendMessage(
+									receipt != null ? "You claimed all your rewards!\n" + Utilities.listRewards(receipt)
+											: "Your mailbox is empty!")
+							.queue();
+				}, Button.danger("test", Emoji.fromMarkdown("\uD83D\uDCB0")).withLabel("claim")).setNontargetReply(
+						"You can't claim someone else's mail! That violates 18 U.S.C. \u00A7 1708!"));
 
 //				ActionMessage<ActionReaction> am = new ActionMessage<>(
 //						new ActionReaction("egg", t -> t.getEvent().getChannel().sendMessage("Clicked!").queue()));
