@@ -43,7 +43,7 @@ import gartham.c10ver.commands.subcommands.ParentCommand;
 import gartham.c10ver.commands.subcommands.SubcommandInvocation;
 import gartham.c10ver.data.PropertyObject.Property;
 import gartham.c10ver.economy.Multiplier;
-import gartham.c10ver.economy.MutableRewards;
+import gartham.c10ver.economy.Mailbox;
 import gartham.c10ver.economy.Rewards;
 import gartham.c10ver.economy.Server;
 import gartham.c10ver.economy.items.UserInventory.UserEntry;
@@ -2509,7 +2509,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				}
 
 				EconomyUser user = clover.getEconomy().getUser(inv.event.getAuthor().getId());
-				MutableRewards rewards = user.getMailbox();
+				Mailbox rewards = user.getMailbox();
 
 				if (rewards.isEmpty()) {
 					inv.event.getChannel().sendMessage("Your mailbox is empty.").queue();
