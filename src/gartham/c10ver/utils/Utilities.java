@@ -32,8 +32,6 @@ import org.alixia.javalibrary.json.JSONValue;
 import org.alixia.javalibrary.streams.CharacterStream;
 import org.alixia.javalibrary.strings.matching.Matching;
 
-import gartham.c10ver.economy.Rewards;
-import gartham.c10ver.economy.items.ItemBunch;
 import gartham.c10ver.economy.users.EconomyUser.Receipt;
 
 public final class Utilities {
@@ -317,66 +315,24 @@ public final class Utilities {
 		return format(duration, arr);
 	}
 
-	public static String listRewards(long cloves, ItemBunch<?>... items) {
-		return listRewards(BigInteger.valueOf(cloves), items);
-	}
+	public static String listRewards(Receipt receipt) {
+		StringBuilder sb = new StringBuilder();
+		if (!receipt.getRewards().getCloves().equals(BigInteger.ZERO))
+			sb.append(format(receipt.getRewards().getCloves())).append('\n');
+		for (var e : receipt.getRewards().getItems())
+			for (var is : e)
+				sb.append("`" + is.getCount() + "`x " + is.getItem().getIcon() + ' ' + is.getItem().getEffectiveName()
+						+ '\n');
 
-	public static String listRewards(long cloves, Iterable<ItemBunch<?>> items) {
-		return listRewards(BigInteger.valueOf(cloves), items);
-	}
-
-	public static String listRewards(BigInteger cloves, ItemBunch<?>... items) {
-		return listRewards(cloves, null, items);
-	}
-
-	public static String listRewards(BigInteger cloves, Iterable<ItemBunch<?>> items) {
-		return listRewards(cloves, null, items);
-	}
-
-	public static String listRewards(Rewards rewards, BigInteger rewardsCloves, BigInteger totalCloves,
-			BigDecimal totalMult) {
-		String rew = listRewards(rewardsCloves, rewards.getItemsAsList());
-		StringBuilder sb = new StringBuilder(rew);
-		for (var m : rewards.getMultipliers().entrySet())
+		sb.toString();
+		for (var m : receipt.getRewards().getMults().entrySet())
 			sb.append(m.getValue() + "x [**x").append(m.getKey().getAmt()).append("**] for ")
 					.append(formatLargest(m.getKey().getDuration(), 2)).append('\n');
-		sb.append("\nTotal Cloves: ").append(format(totalCloves));
-		var mul = multiplier(totalMult);
+		sb.append("\nCloves Received: ").append(format(receipt.getRewards().getRewardedCloves()))
+				.append(", New Balance: ").append(format(receipt.getTotalCloves()));
+		var mul = multiplier(receipt.getRewards().getTotalMultiplier());
 		if (mul != null)
 			sb.append("\nTotal Mult: ").append("[**x").append(mul).append("**]");
-		return sb.toString();
-	}
-
-	public static String listRewards(Receipt receipt) {
-		return listRewards(receipt.getRewards(), receipt.getResultingCloves(), receipt.getTotalCloves(),
-				receipt.getAppliedMultiplier());
-	}
-
-	public static String listRewards(BigInteger cloves, BigDecimal mult, ItemBunch<?>... items) {
-		StringBuilder sb = new StringBuilder();
-		if (!cloves.equals(BigInteger.ZERO))
-			sb.append(format(cloves)).append('\n');
-		for (ItemBunch<?> ib : items)
-			sb.append("`" + ib.getCount() + "`x " + ib.getItem().getIcon() + ' ' + ib.getItem().getEffectiveName()
-					+ '\n');
-
-		var mul = multiplier(mult);
-		if (mul != null)
-			sb.append("\nMultiplier: [**x" + mul + "**]");
-		return sb.toString();
-	}
-
-	public static String listRewards(BigInteger cloves, BigDecimal mult, Iterable<ItemBunch<?>> items) {
-		StringBuilder sb = new StringBuilder();
-		if (!cloves.equals(BigInteger.ZERO))
-			sb.append(format(cloves)).append('\n');
-		for (ItemBunch<?> ib : items)
-			sb.append("`" + ib.getCount() + "`x " + ib.getItem().getIcon() + ' ' + ib.getItem().getEffectiveName()
-					+ '\n');
-
-		var mul = multiplier(mult);
-		if (mul != null)
-			sb.append("\nMultiplier: [**x" + mul + "**]");
 		return sb.toString();
 	}
 
