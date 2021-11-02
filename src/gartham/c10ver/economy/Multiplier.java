@@ -37,15 +37,15 @@ public final class Multiplier extends PropertyObject {
 	}
 
 	public static Multiplier ofWk(long weeksTillExpired, BigDecimal value) {
-		return new Multiplier(Instant.now().plus(weeksTillExpired, WEEKS), value);
+		return new Multiplier(Instant.now().plus(weeksTillExpired * 7, DAYS), value);
 	}
 
 	public static Multiplier ofMth(long monthsTillExpired, BigDecimal value) {
-		return new Multiplier(Instant.now().plus(monthsTillExpired, MONTHS), value);
+		return ofSec(monthsTillExpired * 2629746, value);
 	}
 
 	public static Multiplier ofYr(long yrsTillExpired, BigDecimal value) {
-		return new Multiplier(Instant.now().plus(yrsTillExpired, YEARS), value);
+		return ofMth(yrsTillExpired * 12, value);
 	}
 
 	public Instant getExpiration() {
