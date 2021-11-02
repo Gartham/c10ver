@@ -28,6 +28,66 @@ import org.alixia.javalibrary.json.JSONValue;
 import org.alixia.javalibrary.util.Gateway;
 import org.alixia.javalibrary.util.StringGateway;
 
+/**
+ * <h1>Property Objects</h1>
+ * <p>
+ * An object with <b>Properties</b> that can be stored to and recovered from
+ * JSON format. Subclasses create and register properties with one of the
+ * protected property methods in this class, and use those properties to store
+ * aspects of the object. Whenever the {@link PropertyObject} needs to be
+ * converted to JSON format (e.g., if the {@link PropertyObject} is being
+ * written to a file in JSON), the {@link #toJSON()} method can be called. If a
+ * {@link PropertyObject} is being loaded back from a file, the subclass can
+ * call the {@link #load(JSONObject)} method from its constructor to load all
+ * the values from the JSON data back into the {@link PropertyObject}.
+ * </p>
+ * 
+ * <h3>Properties</h3>
+ * <p>
+ * {@link Property Properties} are similar to normal class fields. They each
+ * store a value and have an associated type, and can have its value changed,
+ * but they also can be "written out" in JSON format and loaded back from JSON
+ * format. To do this, they keep track of a {@link Gateway}, that "bridges"
+ * their values with JSON. Specifically, the {@link Gateway} lets the
+ * {@link Property} convert its value to JSON and back at any given moment.
+ * </p>
+ * 
+ * <h3>Default Values</h3>
+ * <p>
+ * {@link Property Properties} have default values, just as fields can in Java,
+ * and the default value of a {@link Property} has well-defined behavior during
+ * loading, denoted by two properties:
+ * <ol>
+ * <li>A {@link Property}'s value is its default value immediately after it is
+ * instantiated.</li>
+ * <li>A {@link Property}'s value is its default value immediately after it is
+ * loaded if the provided {@link JSONObject} does not contain a mapping for it
+ * (or if the {@link JSONObject} to be loaded from is <code>null</code>).</li>
+ * </ol>
+ * </p>
+ * <p>
+ * Default values are used to <b>shrink output size</b>. Specifically, if a
+ * {@link Property}'s current value is its default value, its
+ * {@link PropertyObject} will not include it in the map returned by
+ * {@link #toJSON()}. This allows for less data in many situations, e.g., when
+ * writing to a file.
+ * </p>
+ * 
+ * <h3>JSON Conversion</h3>
+ * <p>
+ * Every {@link PropertyObject} has a {@link #toJSON()} method. This returns a
+ * {@link JSONObject} which contains key:pair mappings of every property's
+ * unique ID to its JSON-format value. Every {@link PropertyObject} can be
+ * loaded using {@link #load(JSONObject)}. Doing this will cause every
+ * {@link Property} to {@link Property#load(JSONObject)} itself from the
+ * {@link JSONObject} map by obtaining the value with the {@link Property#key
+ * property's key} in the map and converting it from JSON to whatever type the
+ * {@link Property} is.
+ * </p>
+ * 
+ * @author Gartham
+ *
+ */
 public class PropertyObject {
 
 	private Map<String, Property<?>> propertyMap = new HashMap<>();
@@ -490,6 +550,18 @@ public class PropertyObject {
 			return def;
 		}
 
+		/**
+		 * Sets the default value for this {@link PropertyObject}, but <b>does not</b>
+		 * modify the {@link PropertyObject}'s current value. The default value is used
+		 * in two scenarios:
+		 * <ol>
+		 * <li>When the property is first instantiated, its value is the default value
+		 * (if any is set, otherwise <code>null</code>).</li>
+		 * <li>If
+		 * 
+		 * @param def
+		 * @return
+		 */
 		public Property<V> setDef(V def) {
 			this.def = def;
 			return this;
