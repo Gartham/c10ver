@@ -115,7 +115,7 @@ public class RewardsOperation {
 	 * multiplicatively with each of other types (a total personal multiplier is
 	 * multiplied by a server multiplier to give a final reward amount).
 	 */
-	private BigDecimal personalMultiplier;
+	private BigDecimal personalMultiplier = BigDecimal.ONE;
 	/**
 	 * All non-personal multipliers that will take place during this
 	 * {@link RewardsOperation} combined into a final multiplier.
@@ -124,7 +124,36 @@ public class RewardsOperation {
 	 * in any category if they don't have any active multipliers there (otherwise
 	 * their final rewards will be zero :( ).
 	 */
-	private BigDecimal otherMultipliers;
+	private BigDecimal otherMultipliers = BigDecimal.ONE;
+	/**
+	 * Used to calculate the {@link #otherMultipliers} if it is not specified.
+	 */
+	private Guild guild;
+
+	/**
+	 * Gets the {@link Guild} that this reward was earned by a user in. This
+	 * {@link Guild} is used to calculate what server to give, and it can be
+	 * <code>null</code>. If {@link #getOtherMultipliers() otherMultipliers} is set,
+	 * this value is ignored. Otherwise, this value is used to calculate
+	 * {@link #getOtherMultipliers() otherMultipliers}, at the time of the
+	 * {@link RewardsOperation} being executed, through the following calculations:
+	 * 
+	 * <pre>
+	 * 	<code>
+	 * 		otherMultipliers = totalServerMultiplier * nitroMultiplier
+	 * 		nitroMultiplier = 1 + daysBoosted * 0.02
+	 * 	</code>
+	 * </pre>
+	 * 
+	 * @return The guild for this {@link RewardsOperation}.
+	 */
+	public Guild getGuild() {
+		return guild;
+	}
+
+	public void setGuild(Guild guild) {
+		this.guild = guild;
+	}
 
 	/**
 	 * <p>
@@ -293,10 +322,6 @@ public class RewardsOperation {
 	 * <code>0</code> will give the user <code>0</code> cloves when the reward
 	 * operation is executed.
 	 * </p>
-	 * <p>
-	 * If this value is <code>null</code> it is calculated at the time the operation
-	 * is executed.
-	 * </p>
 	 * 
 	 * @param personalMultiplier The total personal multiplier to apply to the
 	 *                           operation.
@@ -329,10 +354,6 @@ public class RewardsOperation {
 	 * this {@link RewardsOperation}). Right now, this is typically a multiplier
 	 * based on whether the user has boosted the server multiplied by any server
 	 * multipliers that are in effect in the server that the rewards were earned in.
-	 * <p>
-	 * If this value is <code>null</code> it is calculated at the time the operation
-	 * is executed.
-	 * </p>
 	 * 
 	 * @param otherMultipliers The non-personal active multipliers to apply to the
 	 *                         transaction. This value is multiplied with
