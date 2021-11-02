@@ -216,31 +216,19 @@ public class EconomyUser extends SavablePropertyObject {
 
 	public class Receipt {
 		private final RewardsOperation rewards;
-		private final BigDecimal appliedMultiplier;
-		private final BigInteger resultingCloves, totalCloves = getAccount().getBalance();
+		private final BigInteger totalCloves = getAccount().getBalance();
 
-		public Receipt(RewardsOperation rewards, BigDecimal appliedMultiplier, BigInteger resultingCloves) {
+		public Receipt(RewardsOperation rewards) {
 			this.rewards = rewards;
-			this.appliedMultiplier = appliedMultiplier;
-			this.resultingCloves = resultingCloves;
 		}
 
 		public RewardsOperation getRewards() {
 			return rewards;
 		}
 
-		public BigDecimal getAppliedMultiplier() {
-			return appliedMultiplier;
-		}
-
-		public BigInteger getResultingCloves() {
-			return resultingCloves;
-		}
-
 		public BigInteger getTotalCloves() {
 			return totalCloves;
 		}
-
 	}
 
 	public EconomyUser(File userDirectory, Economy economy) {
