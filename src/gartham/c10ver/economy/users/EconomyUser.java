@@ -17,6 +17,7 @@ import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.MultiplierManager;
 import gartham.c10ver.economy.MutableRewards;
 import gartham.c10ver.economy.Rewards;
+import gartham.c10ver.economy.RewardsOperation;
 import gartham.c10ver.economy.Server;
 import gartham.c10ver.economy.accolades.AccoladeList;
 import gartham.c10ver.economy.items.UserInventory;
@@ -182,29 +183,30 @@ public class EconomyUser extends SavablePropertyObject {
 		return x;
 	}
 
-	/**
-	 * <p>
-	 * Rewards the user the specified amount. The actual amount deposited into the
-	 * user's account is a product of the specified amount and this user's
-	 * multipliers and possible "effects" which can increase (or decrease) the
-	 * amount of money earned. This method handles a <code>null</code> value for the
-	 * {@link Guild} argument as if the command was not invoked in a server.
-	 * </p>
-	 * <p>
-	 * The total rewards earned multiplied byt
-	 * 
-	 * @param amount The amount to reward the user.
-	 * @param guild  The {@link Guild} that the reward is to be given in. Nitro
-	 *               boosts will multiply the reward of this user.
-	 * @return The amount rewarded to the user.
-	 */
-	public BigInteger reward(BigInteger amount, Guild guild) {
-		return reward(amount, calcMultiplier(guild));
+	public Receipt reward(RewardsOperation op) {
+		if (op.hasCloves()) {
+			getAccount().deposit(op.getRewardedCloves());
+			if (op.isShouldSave())
+				getAccount().save();
+		}
+		if (op.hasItems()) {
+			op.getItems().putInto(inventory);
+			if (op.isShouldSave())
+				inventory.saveAll();
+		}
+		if (op.hasMults()) {
+			for (var m : op.getMults().entrySet())
+				for (int i = 0; i < m.getValue(); i++)
+					addMultiplier(m.getKey().reify());
+			if (op.isShouldSave())
+				save();
+		}
+		return new Receipt(op);
 	}
 
 	/**
-	 * Saves all parts of this {@link EconomyUser} <b>except for the
-	 * {@link #mailbox}</b>.
+	 * Cleans multipliers and saves user data encapsulated directly in the
+	 * {@link EconomyUser} class.
 	 */
 	@Override
 	public void save() {
@@ -212,100 +214,18 @@ public class EconomyUser extends SavablePropertyObject {
 		super.save();
 	}
 
-	/**
-	 * Adds the specified amount of cloves, multiplied by the pre-calculated
-	 * multiplier, to this user's account.
-	 * 
-	 * @param amount     The amount earned.
-	 * @param multiplier The total multiplier (already calculated) to multiply the
-	 *                   amount by.
-	 * @return The total number of cloves rewarded (amount * multiplier).
-	 */
-	public BigInteger reward(BigInteger amount, BigDecimal multiplier) {
-		var x = new BigDecimal(amount).multiply(multiplier).toBigInteger();
-		getAccount().deposit(x);
-		getAccount().addTotalEarnings(x);
-		return x;
-	}
-
-	/**
-	 * Adds the specified amount of rewards, multiplied by the pre-calculated
-	 * multiplier, to this user's account, and then saves this user's data.
-	 * 
-	 * @param amount     The amount of cloves earned.
-	 * @param multiplier The total multiplier (already calculated) to multiply the
-	 *                   amount by.
-	 * @return The total number of cloves rewarded (amount * multiplier).
-	 */
-	public BigInteger rewardAndSave(BigInteger amount, BigDecimal multiplier) {
-		var x = reward(amount, multiplier);
-		save();
-		account.save();
-		return x;
-	}
-
-	public Receipt reward(Rewards rewards, Guild guild) {
-		return reward(rewards, calcMultiplier(guild));
-	}
-
-	public Receipt reward(Rewards rewards, BigDecimal mult) {
-		BigInteger clovesGiven = BigInteger.ZERO;
-		if (rewards.hasMultipliers())
-			for (var m : rewards.getMultipliers().entrySet())
-				for (int i = 0; i < m.getValue(); i++)
-					addMultiplier(m.getKey().reify());
-		if (rewards.hasCloves())
-			clovesGiven = reward(rewards.getCloves(), mult);
-		if (rewards.hasItems())
-			getInventory().add(rewards.getItemsAsList());
-
-		return new Receipt(rewards, mult, clovesGiven);
-	}
-
-	public Receipt rewardAndSave(Rewards rewards, Guild guild) {
-		var r = reward(rewards, guild);
-		if (rewards.hasCloves())
-			getAccount().save();
-		if (rewards.hasItems())
-			for (var i : rewards.getItemsAsList())
-				try {
-					getInventory().get(i.getItem()).save();
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-				}
-		if (rewards.hasMultipliers())
-			save();
-		return r;
-	}
-
-	public Receipt rewardAndSave(Rewards rewards, BigDecimal mult) {
-		var r = reward(rewards, mult);
-		if (rewards.hasCloves())
-			getAccount().save();
-		if (rewards.hasItems())
-			for (var i : rewards.getItemsAsList())
-				try {
-					getInventory().get(i.getItem()).save();
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-				}
-		if (rewards.hasMultipliers())
-			save();
-		return r;
-	}
-
 	public class Receipt {
-		private final Rewards rewards;
+		private final RewardsOperation rewards;
 		private final BigDecimal appliedMultiplier;
 		private final BigInteger resultingCloves, totalCloves = getAccount().getBalance();
 
-		public Receipt(Rewards rewards, BigDecimal appliedMultiplier, BigInteger resultingCloves) {
+		public Receipt(RewardsOperation rewards, BigDecimal appliedMultiplier, BigInteger resultingCloves) {
 			this.rewards = rewards;
 			this.appliedMultiplier = appliedMultiplier;
 			this.resultingCloves = resultingCloves;
 		}
 
-		public Rewards getRewards() {
+		public RewardsOperation getRewards() {
 			return rewards;
 		}
 
@@ -321,18 +241,6 @@ public class EconomyUser extends SavablePropertyObject {
 			return totalCloves;
 		}
 
-	}
-
-	public BigInteger rewardAndSave(long amount, BigDecimal multiplier) {
-		return rewardAndSave(BigInteger.valueOf(amount), multiplier);
-	}
-
-	public BigInteger reward(long amount, BigDecimal multiplier) {
-		return reward(BigInteger.valueOf(amount), multiplier);
-	}
-
-	public BigInteger reward(long amount, Guild guild) {
-		return reward(BigInteger.valueOf(amount), guild);
 	}
 
 	public EconomyUser(File userDirectory, Economy economy) {
