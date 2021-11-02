@@ -48,11 +48,11 @@ public class AbstractMultiplier {
 	}
 
 	public static AbstractMultiplier ofMth(long monthsTillExpired, BigDecimal value) {
-		return ofSec(2629746, value);
+		return ofSec(2629746 * monthsTillExpired, value);
 	}
 
 	public static AbstractMultiplier ofYr(long yrsTillExpired, BigDecimal value) {
-		return ofMth(12, value);
+		return ofMth(12 * yrsTillExpired, value);
 	}
 
 	public Multiplier reify() {
