@@ -109,4 +109,12 @@ public class Mailbox extends SavablePropertyObject {
 		return op;
 	}
 
+	public boolean hasItems() {
+		return !inventory.isEmpty();
+	}
+
+	public boolean hasCloves() {
+		return !getCloves().equals(BigInteger.ZERO);
+	}
+
 }
