@@ -49,14 +49,110 @@ import org.alixia.javalibrary.util.StringGateway;
  * but they also can be "written out" in JSON format and loaded back from JSON
  * format. To do this, they keep track of a {@link Gateway}, that "bridges"
  * their values with JSON. Specifically, the {@link Gateway} lets the
- * {@link Property} convert its value to JSON and back at any given moment.
+ * {@link Property} convert its value to JSON and back at any desired time.
  * </p>
  * 
  * <h3>Default Values</h3>
  * <p>
- * {@link Property Properties} have default values, just as fields can in Java,
- * and the default value of a {@link Property} has well-defined behavior during
- * loading, denoted by two properties:
+ * {@link Property Properties} have default values, (just as fields can in
+ * Java). If, at the time of a {@link PropertyObject} being saved, a
+ * {@link Property}'s value is its default value, the {@link Property} is
+ * <b>not</b> written to the JSON output. This is done in an effort to conserve
+ * space in files. Likewise, if a {@link PropertyObject} is loaded from a
+ * {@link JSONObject} and the {@link JSONObject} contains no entry for a
+ * specific {@link Property}, that property's value <i><b>becomes</b></i> its
+ * default value. This is done to make sure that {@link Property properties}
+ * that were saved when their values were equal to their default values get
+ * loaded back correctly.
+ * </p>
+ * <p>
+ * To illustrate these characteristics, consider the following {@link Property
+ * properties} in a {@link PropertyObject}:
+ * 
+ * <pre>
+ * <code>
+ * <span style=
+"color:purple"><b>public class</b></span> GameCreature <span style=
+"color:purple"><b>extends</b></span> PropertyObject {
+ * 	<span style=
+"color:purple"><b>private final</b></span> Property<String> <span style=
+"color:green">type</span> = stringProperty(<span style=
+"color:blue">"type"</span>);
+ * 	<span style=
+"color:purple"><b>private final</b></span> Property<Integer> <span style=
+"color:green">health</span> = intProperty(<span style=
+"color:blue">"health"</span>, 100); <span style=
+"color:orange">// Health is full (100/100) by default.</span>
+ * }
+ * </code>
+ * </pre>
+ * 
+ * Consider that a <code>new GameCreature()</code> is created. When calling the
+ * {@link #toJSON()} method on the brand <code>new GameCreature()</code>, the
+ * following {@link JSONObject} is returned:
+ * 
+ * <pre>
+ * <code>
+ * {	}
+ * </code>
+ * </pre>
+ * 
+ * This is because the value of the properties stored in the
+ * <code>GameCreature</code> object are all their defaults (<code>null</code>
+ * and <code>100</code>). If, instead, we created a
+ * <code>new GameCreature()</code> and set its
+ * <code style="color:green">health</code> to <code>50</code>, then
+ * {@link #toJSON()} would return:
+ * 
+ * <pre>
+ * <code>
+ * {
+ * 	"health":50
+ * }
+ * </code>
+ * </pre>
+ * 
+ * If we then took a brand <code>new GameCreature()</code> object and
+ * <i>loaded</i> it from this JSON data, the <code>GameCreature</code> would
+ * have the values:
+ * 
+ * <pre>
+ * <code>
+ * type = null
+ * health = 50
+ * </code>
+ * </pre>
+ * 
+ * This is because the <code style="color:green">health</code> property was not
+ * its default (<code>100</code>) during saving, and was, thus, written to the
+ * JSON output, causing it to be loaded back in the
+ * <code>new GameCreature()</code> object, while the
+ * <code style="color:green">type</code> property was its default:
+ * <code>null</code>, and so, was not written to JSON, and was read back as
+ * <code>null</code>.
+ * 
+ * To reemphasize, if a {@link Property} is not contained in a
+ * {@link JSONObject} and the respective {@link PropertyObject} is loaded from
+ * that {@link JSONObject}, the {@link Property} will have its value set to its
+ * default. A quick way to force all {@link Property properties} to assume their
+ * default values is to load the {@link PropertyObject} from an empty
+ * {@link JSONObject}:
+ * 
+ * <pre>
+ * <code>
+ * PropertyObject <span style="color:green">myCreature = <span style="color:purple"><b>new</b></span> GameCreature();
+ * myCreature.setType("dragon");
+ * myCreature.setHealth(250); <span style="color:orange">// Dragons have extra health!</span>
+ * myCreature.load(<span style="color:purple"><b>new</b></span> JSONObject());
+ * 
+ * System.out.println(myCreature.getHealth()); <span style="color:orange">// Prints 100! Not 250.</span>
+ * System.out.println(myCreature.getType()); <span style="color:orange">// Prints null.</span>
+ * </code>
+ * </pre>
+ * 
+ * </p>
+ * <p>
+ * The
  * <ol>
  * <li>A {@link Property}'s value is its default value immediately after it is
  * instantiated.</li>
