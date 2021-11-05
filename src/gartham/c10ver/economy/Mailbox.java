@@ -117,4 +117,21 @@ public class Mailbox extends SavablePropertyObject {
 		return !getCloves().equals(BigInteger.ZERO);
 	}
 
+	/**
+	 * Returns <code>true</code> if there is nothing to be claimed in this
+	 * {@link Mailbox}.
+	 * 
+	 * @return
+	 * 
+	 *         <pre>
+	 * <code>!(hasItems() || hasCloves())</code>
+	 *         </pre>
+	 * 
+	 *         <code>true</code> if this {@link Mailbox} has items or cloves,
+	 *         <code>false</code> otherwise.
+	 */
+	public boolean isEmpty() {
+		return !(hasItems() || hasCloves());
+	}
+
 }
