@@ -147,19 +147,28 @@ public class EconomyUser extends SavablePropertyObject {
 		return mailbox;
 	}
 
+	/**
+	 * Claims all the loot in this user's {@link Mailbox}, returning the
+	 * {@link Receipt} or <code>null</code> if the {@link Mailbox} was empty.
+	 * 
+	 * @return The {@link Receipt} from the
+	 */
 	public Receipt claimMailbox() {
 		if (mailbox.isEmpty())
 			return null;
 		else {
-			Receipt ras = reward(getMailbox(), BigDecimal.ONE);
-			getMailbox().clear();
-			return ras;
+			var rewardsop = mailbox.claim();// Take the loot out of the mailbox.
+			var receipt = reward(rewardsop);// Give it to the user.
+			return receipt;// Return the receipt.
+			// I don't like creating variables like this. :)
+			// This entire method can be a one-liner using a conditional (:? operator)
+			// expression.
 		}
 	}
 
 	public Receipt claimMailboxAndSave() {
 		var rec = claimMailbox();
-		saveMailbox();
+		mailbox.save();
 		return rec;
 	}
 
@@ -295,10 +304,6 @@ public class EconomyUser extends SavablePropertyObject {
 
 	public BigInteger getVoteCount() {
 		return voteCount.get();
-	}
-
-	public void saveMailbox() {
-		mailbox.save(mailboxLocation);
 	}
 
 }
