@@ -5,9 +5,12 @@ import java.math.BigInteger;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import gartham.c10ver.economy.items.Inventory;
+import gartham.c10ver.economy.items.Item;
 import gartham.c10ver.economy.items.ItemBunch;
 import gartham.c10ver.economy.users.EconomyUser;
 import net.dv8tion.jda.api.entities.Guild;
@@ -563,6 +566,232 @@ public class RewardsOperation {
 		rew.getItems().add(items);
 		rew.getMults().putAll(mults);
 		return rew;
+	}
+
+	/**
+	 * Adds the specified number of cloves to
+	 * <b style="color:firebrick"><code>this</code></b> {@link RewardsOperation} and
+	 * returns <code>this</code> {@link RewardsOperation}. This method does
+	 * <b>NOT</b> return a new {@link RewardsOperation}.
+	 * 
+	 * @param cloves The cloves to add to this {@link RewardsOperation}.
+	 * @return <code>this</code>.
+	 */
+	public RewardsOperation with(BigInteger cloves) {
+		setCloves(getCloves().add(cloves));
+		return this;
+	}
+
+	/**
+	 * Adds the specified {@link AbstractMultiplier} to
+	 * <b style="color:firebrick"><code>this</code></b> {@link RewardsOperation} and
+	 * returns <code>this</code> {@link RewardsOperation}. This method does
+	 * <b>NOT</b> return a new {@link RewardsOperation}.
+	 * 
+	 * @param mult The {@link AbstractMultiplier} to add to this
+	 *             {@link RewardsOperation}.
+	 * @return <code>this</code>.
+	 */
+	public RewardsOperation with(AbstractMultiplier mult) {
+		return with(mult, 1);
+	}
+
+	/**
+	 * Adds the specified {@link AbstractMultiplier} and amount to
+	 * <b style="color:firebrick"><code>this</code></b> {@link RewardsOperation} and
+	 * returns <code>this</code> {@link RewardsOperation}. This method does
+	 * <b>NOT</b> return a new {@link RewardsOperation}.
+	 * 
+	 * @param mult   The {@link AbstractMultiplier} to add.
+	 * @param amount The number of the multiplier that will be added. (E.g.,
+	 *               <code>3</code> for this value will cause 3 of the specified
+	 *               multiplier to be added to this {@link RewardsOperation}.)
+	 * @return <code>this</code>.
+	 */
+	public RewardsOperation with(AbstractMultiplier mult, int amount) {
+		mults.put(mult, mults.containsKey(mult) ? mults.get(mult) + amount : amount);
+		return this;
+	}
+
+	/**
+	 * Adds the specified {@link AbstractMultiplier}s to
+	 * <b style="color:firebrick"><code>this</code></b> {@link RewardsOperation} and
+	 * returns <code>this</code> {@link RewardsOperation}. This method does
+	 * <b>NOT</b> return a new {@link RewardsOperation}.
+	 * 
+	 * @param mults The multipliers to add.
+	 * @return <code>this</code>.
+	 */
+	public RewardsOperation with(Map<AbstractMultiplier, Integer> mults) {
+		for (Entry<AbstractMultiplier, Integer> e : mults.entrySet())
+			this.mults.put(e.getKey(),
+					this.mults.containsKey(e.getKey()) ? e.getValue() + this.mults.get(e.getKey()) : e.getValue());
+		return this;
+	}
+
+	/**
+	 * Adds one of the specified {@link Item} to
+	 * <b style="color:firebrick"><code>this</code></b> {@link RewardsOperation} and
+	 * returns <code>this</code> {@link RewardsOperation}. This method does
+	 * <b>NOT</b> return a new {@link RewardsOperation}.
+	 * 
+	 * @param item The {@link Item} to add.
+	 * @return <code>this</code>.
+	 */
+	public RewardsOperation with(Item item) {
+		items.add(item);
+		return this;
+	}
+
+	/**
+	 * Adds the specified {@link ItemBunch}es to
+	 * <b style="color:firebrick"><code>this</code></b> {@link RewardsOperation} and
+	 * returns <code>this</code> {@link RewardsOperation}. This method does
+	 * <b>NOT</b> return a new {@link RewardsOperation}.
+	 * 
+	 * @param items The {@link Item}s, and their respective amounts.
+	 * @return <code>this</code>.
+	 */
+	public RewardsOperation with(Iterable<ItemBunch<?>> items) {
+		this.items.add(items);
+		return this;
+	}
+
+	/**
+	 * Adds the specified item to <b style="color:firebrick"><code>this</code></b>
+	 * {@link RewardsOperation} and returns <code>this</code>
+	 * {@link RewardsOperation}. This method does <b>NOT</b> return a new
+	 * {@link RewardsOperation}.
+	 * 
+	 * @param item The item and amount of it to add.
+	 * @return <code>this</code>.
+	 */
+	public RewardsOperation with(ItemBunch<?> item) {
+		items.add(item);
+		return this;
+	}
+
+	/**
+	 * Adds the specified {@link ItemBunch}es to
+	 * <b style="color:firebrick"><code>this</code></b> {@link RewardsOperation} and
+	 * returns <code>this</code> {@link RewardsOperation}. This method does
+	 * <b>NOT</b> return a new {@link RewardsOperation}.
+	 * 
+	 * @param items The items and their respective amounts to add.
+	 * @return <code>this</code>.
+	 */
+	public RewardsOperation with(ItemBunch<?>... items) {
+		this.items.add(items);
+		return this;
+	}
+
+	/**
+	 * <p>
+	 * Synonymous to {@link #with(ItemBunch...)}, but for {@link Iterator}s.
+	 * </p>
+	 * <p>
+	 * Adds the specified {@link ItemBunch}es to
+	 * <b style="color:firebrick"><code>this</code></b> {@link RewardsOperation} and
+	 * returns <code>this</code> {@link RewardsOperation}. This method does
+	 * <b>NOT</b> return a new {@link RewardsOperation}.
+	 * </p>
+	 * 
+	 * @param items The items and their respective amounts to add.
+	 * @return <code>this</code>.
+	 */
+	public RewardsOperation with(Iterator<ItemBunch<?>> items) {
+		this.items.add(items);
+		return this;
+	}
+
+	/**
+	 * Copies the {@link Item}s from the specified {@link Inventory} into
+	 * <b style="color:firebrick"><code>this</code></b> {@link RewardsOperation} and
+	 * returns <code>this</code> {@link RewardsOperation}. This method does
+	 * <b>NOT</b> return a new {@link RewardsOperation}.
+	 * 
+	 * @param inv The {@link Inventory} to copy {@link Item}s from.
+	 * @return <code>this</code>.
+	 */
+	public RewardsOperation with(Inventory inv) {
+		inv.putInto(this.items);
+		return this;
+	}
+
+	/**
+	 * <p>
+	 * Adds the
+	 * <ol>
+	 * <li>Cloves</li>
+	 * <li>Items</li>
+	 * <li>Multipliers</li>
+	 * </ol>
+	 * of the specified {@link RewardsOperation} to
+	 * <b style="color:firebrick"><code>this</code></b> {@link RewardsOperation} and
+	 * returns <code>this</code> {@link RewardsOperation}. This method does
+	 * <b>NOT</b> return a new {@link RewardsOperation}.
+	 * </p>
+	 * <p>
+	 * Additionally, this method <span style="color:firebrick">does not</span>
+	 * further modify this {@link RewardsOperation}. If the properties
+	 * ({@link #shouldSave} and {@link #personalMultiplier} e.g.) should be copied
+	 * over from the specified {@link RewardsOperation} to this one in addition to
+	 * the rewards being added, {@link #with(RewardsOperation, boolean)} should be
+	 * called with <code>true</code> as the second argument.
+	 * </p>
+	 * 
+	 * @param other The other {@link RewardsOperation} to copy the rewards from.
+	 * @return <code>this</code>.
+	 */
+	public RewardsOperation with(RewardsOperation other) {
+		return with(other.getCloves()).with(other.getMults()).with(other.getItems());
+	}
+
+	/**
+	 * <p>
+	 * Adds the cloves, items, and multipliers of the specified
+	 * {@link RewardsOperation} to this one, just as {@link #with(RewardsOperation)}
+	 * does, and then copies the properties of the specified
+	 * {@link RewardsOperation} if <code>copyProperties</code> is <code>true</code>.
+	 * If called with <code>copyProperties</code> being <code>false</code>, this
+	 * method would be exactly equivalent to {@link #with(RewardsOperation)}.
+	 * </p>
+	 * <p>
+	 * The following fields are copied from the specified {@link RewardsOperation}
+	 * and then <b>added</b> to this {@link RewardsOperation}:
+	 * <ol>
+	 * <li>{@link #cloves}</li>
+	 * <li>{@link #items}</li>
+	 * <li>{@link #mults}</li>
+	 * </ol>
+	 * </p>
+	 * <p>
+	 * <b style="color:firebrick;">If</b> <code>copyProperties</code> is
+	 * <code>true</code>, then <i>all</i> of the following properties are copied (if
+	 * not, none of them are):
+	 * <ol>
+	 * <li>{@link #applyEarnedMultipliers}</li>
+	 * <li>{@link #otherMultipliers}</li>
+	 * <li>{@link #personalMultiplier}</li>
+	 * <li>{@link #shouldSave}</li>
+	 * <li>{@link #guild}</li>
+	 * </ol>
+	 * </p>
+	 * 
+	 * @param other          The other {@link RewardsOperation} to add (and copy
+	 *                       properties) from.
+	 * @param copyProperties Whether to also copy the properties of the
+	 *                       {@link RewardsOperation}, or to just add all of the
+	 *                       rewards.
+	 * @return <code>this</code>.
+	 */
+	public RewardsOperation with(RewardsOperation other, boolean copyProperties) {
+		with(other);
+		if (copyProperties)
+			setApplyEarnedMultipliers(other.isApplyEarnedMultipliers()).setOtherMultipliers(other.getOtherMultipliers())
+					.setPersonalMultiplier(other.getPersonalMultiplier()).setShouldSave(other.isShouldSave())
+					.setGuild(other.getGuild());
+		return this;
 	}
 
 }
