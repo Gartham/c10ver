@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import gartham.c10ver.economy.items.Inventory;
+import gartham.c10ver.economy.items.ItemBunch;
 import gartham.c10ver.economy.users.EconomyUser;
 import net.dv8tion.jda.api.entities.Guild;
 
@@ -418,6 +419,42 @@ public class RewardsOperation {
 	 */
 	public BigInteger getRewardedCloves() {
 		return new BigDecimal(getCloves()).multiply(getTotalMultiplier()).toBigInteger();
+	}
+
+	public static RewardsOperation build(EconomyUser user, Guild guild, BigInteger cloves) {
+		var rew = new RewardsOperation();
+		rew.setCloves(cloves);
+		rew.setPersonalMultiplier(user.getPersonalTotalMultiplier());
+		rew.setGuild(guild);
+		return rew;
+	}
+
+	public static RewardsOperation build(EconomyUser user, Guild guild, ItemBunch<?>... items) {
+		var rew = new RewardsOperation();
+		rew.getItems().add(items);
+		rew.setPersonalMultiplier(user.getPersonalTotalMultiplier());
+		rew.setGuild(guild);
+		return rew;
+	}
+
+	public static RewardsOperation build(EconomyUser user, Guild guild, BigInteger cloves, ItemBunch<?>... items) {
+		var rew = build(user, guild, cloves);
+		rew.getItems().add(items);
+		return rew;
+	}
+
+	public static RewardsOperation build(EconomyUser user, BigInteger cloves, ItemBunch<?>... items) {
+		var rew = build(user, items);
+		rew.setCloves(cloves);
+		rew.setPersonalMultiplier(user.getPersonalTotalMultiplier());
+		return rew;
+	}
+
+	public static RewardsOperation build(EconomyUser user, ItemBunch<?>... items) {
+		var rew = new RewardsOperation();
+		rew.getItems().add(items);
+		rew.setPersonalMultiplier(user.getPersonalTotalMultiplier());
+		return rew;
 	}
 
 }
