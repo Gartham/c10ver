@@ -1,17 +1,25 @@
 package gartham.c10ver.economy;
 
 import java.io.File;
-import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import gartham.c10ver.data.autosave.SavablePropertyObject;
 import gartham.c10ver.economy.items.Inventory;
+import gartham.c10ver.economy.users.EconomyUser;
 
 /**
  * <h1 style="font-size:1.2em;">Mailboxes</h1>
  * <p>
  * A user's {@link Mailbox}. This class represents the storage in which earnings
- * are collected by a user idly.
+ * are collected by a user passively (meaning, not by a command or action
+ * directly with the bot). When a user interacts directly with the bot to earn
+ * rewards (e.g., receiving their daily rewards with the <code>daily</code>
+ * command), they receive those rewards <i>directly</i>, and are shown the
+ * rewards they received immediately (as a result of executing the interaction
+ * with the bot), however, if a user earns rewards <i>passively</i>, e.g. by
+ * talking to another user thereby getting rewards for sending messages, the
+ * rewards are added to the user's <i>mailbox</i>, which the user can claim.
+ * When claimed, the user will be shown what rewards they earned.
  * </p>
  * <p>
  * {@link Mailbox}es can contain cloves and items. Earned multipliers are
@@ -34,10 +42,12 @@ public class Mailbox extends SavablePropertyObject {
 	private final Inventory inventory = new Inventory();
 	private final Property<BigInteger> cloves = bigIntegerProperty("cloves", BigInteger.ZERO);
 	private final File dir;
+	private final EconomyUser user;
 
-	public Mailbox(File dir) {
+	public Mailbox(File dir, EconomyUser user) {
 		super(new File(dir, "mb.txt"));
 		this.dir = dir;
+		this.user = user;
 		load();
 	}
 
@@ -56,6 +66,26 @@ public class Mailbox extends SavablePropertyObject {
 		super.load();
 	}
 
+	public void reward(RewardsOperation op) {
+		if (op.hasCloves()) {
+			addCloves(op.getRewardedCloves());
+			if (op.isShouldSave())
+				super.save();
+		}
+		if (op.hasItems()) {
+			op.getItems().putInto(inventory);
+			if (op.isShouldSave())
+				inventory.saveAll(new File(dir, "inv"));
+		}
+		if (op.hasMults()) {
+			for (var m : op.getMults().entrySet())
+				for (int i = 0; i < m.getValue(); i++)
+					user.addMultiplier(m.getKey().reify());
+			if (op.isShouldSave())
+				user.save();
+		}
+	}
+
 	public BigInteger getCloves() {
 		return cloves.get();
 	}
@@ -70,6 +100,10 @@ public class Mailbox extends SavablePropertyObject {
 
 	public Inventory getInventory() {
 		return inventory;
+	}
+
+	public EconomyUser getUser() {
+		return user;
 	}
 
 	/**
@@ -101,8 +135,6 @@ public class Mailbox extends SavablePropertyObject {
 	public RewardsOperation claim() {
 		RewardsOperation op = new RewardsOperation();
 		op.setCloves(getCloves());
-		op.setPersonalMultiplier(BigDecimal.ONE);
-		op.setOtherMultipliers(BigDecimal.ONE);
 		inventory.putInto(op.getItems());
 		op.setShouldSave(true);
 		op.setApplyEarnedMultipliers(false);
