@@ -14,6 +14,7 @@ import gartham.c10ver.Clover;
 import gartham.c10ver.commands.CommandInvocation;
 import gartham.c10ver.commands.InputProcessor;
 import gartham.c10ver.economy.Multiplier;
+import gartham.c10ver.economy.RewardsOperation;
 import gartham.c10ver.economy.Server;
 import gartham.c10ver.economy.items.ItemBunch;
 import gartham.c10ver.economy.items.utility.crates.NormalCrate;
@@ -94,14 +95,11 @@ public class EventHandler implements EventListener {
 				EconomyUser user = clover.getEconomy().getUser(mre.getAuthor().getId());
 				user.incrementMessageCount();
 				user.getMailbox()
-						.addCloves(BigDecimal.valueOf(Math.random() * 4 + 2)
-								.multiply(new BigDecimal(user.getPrestige().add(BigInteger.ONE)))
-								.multiply(user.calcMultiplier(mre.getGuild())).toBigInteger());
-				user.saveMailbox();
+						.reward(RewardsOperation.build(user, mre.getGuild(), BigDecimal.valueOf(Math.random() * 4 + 2)
+								.multiply(new BigDecimal(user.getPrestige().add(BigInteger.ONE))).toBigInteger()));
 				if (user.getMessageCount().getLowestSetBit() >= 4) {// Save every 16 messages.
 					user.save();
 					user.getAccount().save();
-					user.saveMailbox();
 				}
 				if (!mre.getAuthor().isBot()) {
 					BigInteger rewards = switch (user.getMessageCount().toString()) {
