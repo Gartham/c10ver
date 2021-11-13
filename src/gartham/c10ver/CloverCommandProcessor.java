@@ -42,9 +42,8 @@ import gartham.c10ver.commands.consumers.MessageInputConsumer;
 import gartham.c10ver.commands.subcommands.ParentCommand;
 import gartham.c10ver.commands.subcommands.SubcommandInvocation;
 import gartham.c10ver.data.PropertyObject.Property;
-import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.Mailbox;
-import gartham.c10ver.economy.Rewards;
+import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.RewardsOperation;
 import gartham.c10ver.economy.Server;
 import gartham.c10ver.economy.items.UserInventory.UserEntry;
@@ -356,14 +355,11 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 								LootCrateItem lci = is.getItem();
 								RewardsOperation op = RewardsOperation.build(u,
 										inv.event.isFromGuild() ? inv.event.getGuild() : null);
-								Rewards rew = new Rewards();
 
 								// TODO Implement a constant-in-item-count random sampling means of generating
 								// the loot.
 								for (var i = BigInteger.ZERO; i.compareTo(count) < 0; i = i.add(BigInteger.ONE))
-									rew = rew.with(lci.open());
-
-								// TODO Remove Rewards dependency.
+									op.with(lci.open());
 
 								var rec = u.reward(op);
 
@@ -1234,15 +1230,16 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 									var user = event.getChannel().retrieveMessageById(event.getMessageId()).complete()
 											.getAuthor();
 									var u1 = clover.getEconomy().getUser(user.getId());
-									var mult = u1.calcMultiplier(event.getGuild());
-									var rewards = u1.rewardAndSave(q.getValue(), mult);
-
-									String m = Utilities.prettyPrintMultiplier(mult);
+									var rec = u1.reward(RewardsOperation.build(u1,
+											event.isFromGuild() ? event.getGuild() : null, q.getValue()));
 
 									String msg = user.getAsMention() + ", you got the question right and earned "
-											+ Utilities.format(rewards) + " for answering it!";
-									if (m != null)
-										msg += "\n\nMultiplier: **" + m + "**.";
+											+ Utilities.format(rec.getRewards().getCloves()) + " for answering it!";
+									if (BigDecimal.ONE.compareTo(rec.getRewards().getTotalMultiplier()) != 0)
+										msg += "\n\nMultiplier: **"
+												+ Utilities.prettyPrintMultiplier(rec.getRewards().getTotalMultiplier())
+												+ "**.\nRewarded Cloves: "
+												+ Utilities.format(rec.getRewards().getRewardedCloves());
 
 									questionMap.remove(inv.event.getAuthor().getId(), inv.event.getChannel().getId());
 
@@ -1283,16 +1280,18 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 											}
 											var u1 = clover.getEconomy().getUser(fid);
 
-											var mult = u1.calcMultiplier(event.getGuild());
-											var rewards = u1.reward(q.getValue(), mult);
-
-											String m = Utilities.multiplier(mult);
+											var rec = u1.reward(RewardsOperation.build(u1,
+													event.isFromGuild() ? event.getGuild() : null, q.getValue()));
 
 											String msg = user.getAsMention()
-													+ ", you got the question right and earned " + format(rewards)
-													+ " for answering it!";
-											if (m != null)
-												msg += "\n\nMultiplier: **" + m + "**.";
+													+ ", you got the question right and earned "
+													+ format(rec.getRewards().getCloves()) + " for answering it!";
+											if (BigDecimal.ONE.compareTo(rec.getRewards().getTotalMultiplier()) != 0)
+												msg += "\n\nMultiplier: **"
+														+ Utilities.prettyPrintMultiplier(
+																rec.getRewards().getTotalMultiplier())
+														+ "**\nRewarded Cloves: "
+														+ Utilities.format(rec.getRewards().getRewardedCloves());
 
 											questionMap.remove(inv.event.getAuthor().getId(),
 													inv.event.getChannel().getId());
@@ -2238,7 +2237,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 									ms2.problem = mpg.generate(ms2.diff);
 									for (var p : ms2.players) {
 										var acc = clover.getEconomy().getUser(p);
-										acc.rewardAndSave(amt, acc.calcMultiplier(event.getGuild()));
+										acc.reward(RewardsOperation.build(acc, event.getGuild(), amt));
 									}
 									inv.event.getChannel().sendMessage(event.getAuthor().getAsMention()
 											+ " you solved the problem! Everyone's been given " + Utilities.format(amt)
@@ -2522,23 +2521,17 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				StringBuilder sb = new StringBuilder();
 				List<String> v = new ArrayList<>(3);
 				if (rewards.hasItems())
-					v.add(Utilities.formatNumber(rewards.getItemsModifiable().getTotalItemCount()) + " items");
+					v.add(Utilities.formatNumber(rewards.getInventory().getTotalItemCount()) + " items");
 				if (rewards.hasCloves())
 					v.add(Utilities.format(rewards.getCloves()));
-				if (rewards.hasMultipliers())
-					v.add(Utilities.formatNumber(JavaTools.sumFrequencyMap(rewards.getMultipliersModifiable()))
-							+ " multipliers");
 				sb.append("You have ").append(JavaTools.printInEnglish(v.iterator(), true))
 						.append(" in your mailbox!\n\n");
 
-				for (var ib : rewards.getItemsAsList())
-					sb.append("`x").append(Utilities.formatNumber(ib.getCount())).append("` ")
-							.append(ib.getItem().getIcon()).append(' ').append(ib.getItem().getEffectiveName())
-							.append('\n');
-				for (var m : rewards.getMultipliersModifiable().entrySet())
-					sb.append("(x").append(Utilities.formatNumber(BigInteger.valueOf(m.getValue()))).append(") [**x")
-							.append(Utilities.multiplier(m.getKey().getAmt())).append("**] for ")
-							.append(Utilities.formatLargest(m.getKey().getDuration(), 2)).append('\n');
+				for (var e : rewards.getInventory())
+					for (var ib : e)
+						sb.append("`x").append(Utilities.formatNumber(ib.getCount())).append("` ")
+								.append(ib.getItem().getIcon()).append(' ').append(ib.getItem().getEffectiveName())
+								.append('\n');
 
 				String description = sb.toString();
 				eb.setTitle(inv.event.getAuthor().getAsTag() + "'s Mailbox").setColor(Color.GREEN)
