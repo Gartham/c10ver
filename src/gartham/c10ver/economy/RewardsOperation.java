@@ -488,13 +488,15 @@ public class RewardsOperation {
 			}
 
 			try {
-				var tb = guild.retrieveMember(user.getUser()).complete();
-				if (tb != null) {
-					var nitromult = BigDecimal.valueOf(13, 1)
-							.add(BigDecimal.valueOf(
-									Duration.between(tb.getTimeBoosted().toInstant(), Instant.now()).toDays() + 1)
-									.multiply(BigDecimal.valueOf(1, 2)));
-					setOtherMultipliers(getOtherMultipliers().multiply(nitromult));
+				var memb = guild.retrieveMember(user.getUser()).complete();
+				if (memb != null) {
+					var tb = memb.getTimeBoosted();
+					if (tb != null) {
+						var nitromult = BigDecimal.valueOf(13, 1)
+								.add(BigDecimal.valueOf(Duration.between(tb.toInstant(), Instant.now()).toDays() + 1)
+										.multiply(BigDecimal.valueOf(1, 2)));
+						setOtherMultipliers(getOtherMultipliers().multiply(nitromult));
+					}
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
