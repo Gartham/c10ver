@@ -96,11 +96,10 @@ public class EventHandler implements EventListener {
 				user.incrementMessageCount();
 				user.getMailbox()
 						.reward(RewardsOperation.build(user, mre.getGuild(), BigDecimal.valueOf(Math.random() * 4 + 2)
-								.multiply(new BigDecimal(user.getPrestige().add(BigInteger.ONE))).toBigInteger()));
-				if (user.getMessageCount().getLowestSetBit() >= 4) {// Save every 16 messages.
-					user.save();
-					user.getAccount().save();
-				}
+								.multiply(new BigDecimal(user.getPrestige().add(BigInteger.ONE))).toBigInteger())
+								.setShouldSave(false));
+				if (user.getMessageCount().getLowestSetBit() >= 4)// Save every 16 messages.
+					user.getMailbox().saveCloves();
 				if (!mre.getAuthor().isBot()) {
 					BigInteger rewards = switch (user.getMessageCount().toString()) {
 					case "10" -> valueOf(50);
@@ -133,7 +132,7 @@ public class EventHandler implements EventListener {
 						var mult = user.calcMultiplier(mre.getGuild());
 						var amt = new BigDecimal(rewards).multiply(mult).toBigInteger();
 						user.getMailbox().addCloves(amt);
-						user.saveMailbox();
+						user.saveCloves();
 						if (user.getSettings().isRandomRewardsNotifyingEnabled())
 							mre.getChannel()
 									.sendMessage(mre.getAuthor().getAsMention() + " congratulations, you just reached "
@@ -147,7 +146,7 @@ public class EventHandler implements EventListener {
 							BigInteger rawrew = BigInteger.valueOf((long) (Math.random() * 20 + 40));
 
 							user.getMailbox().addCloves(new BigDecimal(rawrew).multiply(mult).toBigInteger());
-							user.saveMailbox();
+							user.saveCloves();
 
 							if (user.getSettings().isRandomRewardsNotifyingEnabled())
 								mre.getChannel()
@@ -163,7 +162,7 @@ public class EventHandler implements EventListener {
 							if (Math.random() < 0.2) {
 								NormalCrate crate = new NormalCrate();
 								user.getMailbox().getItemsModifiable().add(crate);
-								user.saveMailbox();
+								user.saveCloves();
 								if (user.getSettings().isRandomRewardsNotifyingEnabled())
 									mre.getChannel().sendMessage(mre.getAuthor().getAsMention()
 											+ " you look hungry... for a loot crate! (Acquired `1`x " + crate.getIcon()
@@ -173,7 +172,7 @@ public class EventHandler implements EventListener {
 								BigInteger count = BigInteger.valueOf((long) (Math.random() * 3 + 1));
 								Sandwich item = new Sandwich();
 								user.getMailbox().getItemsModifiable().add(new ItemBunch<>(item, count));
-								user.saveMailbox();
+								user.saveCloves();
 								if (user.getSettings().isRandomRewardsNotifyingEnabled())
 									mre.getChannel().sendMessage(mre.getAuthor().getAsMention()
 											+ " you look hungry. Have some sandwiches! (Acquired `" + count + "`x "
