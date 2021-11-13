@@ -53,10 +53,17 @@ public class Mailbox extends SavablePropertyObject {
 
 	@Override
 	public void save() {
+		saveCloves();
+		saveMailbox();
+	}
+
+	public void saveMailbox() {
+		super.save();
+	}
+
+	public void saveCloves() {
 		File i = new File(dir, "inv");
 		inventory.saveAll(i);
-		super.save();
-
 	}
 
 	@Override
