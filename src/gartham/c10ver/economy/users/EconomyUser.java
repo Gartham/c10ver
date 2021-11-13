@@ -253,7 +253,7 @@ public class EconomyUser extends SavablePropertyObject {
 		accolades = new AccoladeList(new File(userDirectory, "accolades.txt"));
 		creatures = new CreatureBox(new File(userDirectory, "creatures.txt"));
 		settings = new UserSettings(userDirectory, this);
-		mailbox = new Mailbox(mailboxLocation = new File(userDirectory, "mailbox"));
+		mailbox = new Mailbox(mailboxLocation = new File(userDirectory, "mailbox"), this);
 		if (load)
 			load();
 		if (getMessageCount() == null)
