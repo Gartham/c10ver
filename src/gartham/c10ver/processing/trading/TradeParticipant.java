@@ -1,6 +1,7 @@
 package gartham.c10ver.processing.trading;
 
 import java.math.BigInteger;
+import java.util.Map;
 
 import gartham.c10ver.economy.items.Item;
 import gartham.c10ver.economy.items.utils.ItemList;
@@ -69,7 +70,7 @@ public class TradeParticipant {
 
 	public EmbedBuilder getTrade(EmbedBuilder e) {
 		return e.setAuthor(ecouser.getUser().getAsTag(), null, ecouser.getUser().getEffectiveAvatarUrl())
-				.setDescription(Utilities.listRewards(cloves, items.getItemBunches()));
+				.setDescription(Utilities.list(cloves, items.getItemBunches(), Map.of()));
 	}
 
 }
