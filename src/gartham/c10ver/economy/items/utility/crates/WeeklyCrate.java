@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.alixia.javalibrary.json.JSONObject;
 
-import gartham.c10ver.economy.Rewards;
+import gartham.c10ver.economy.RewardsOperation;
 import gartham.c10ver.economy.items.ItemBunch;
 import gartham.c10ver.economy.items.utility.foodstuffs.Sandwich;
 
@@ -29,7 +29,7 @@ public class WeeklyCrate extends LootCrateItem {
 	}
 
 	@Override
-	public Rewards open() {
+	public RewardsOperation open() {
 		List<ItemBunch<?>> items = new ArrayList<>();
 		items.add(new ItemBunch<>(new Sandwich(), BigInteger.valueOf((long) (Math.random() * 4 + 2))));
 		if (Math.random() > 0.8)
@@ -38,8 +38,7 @@ public class WeeklyCrate extends LootCrateItem {
 			items.add(new ItemBunch<>(new Sandwich()));
 		if (Math.random() > 0.98)
 			items.add(new ItemBunch<>(new MonthlyCrate(), BigInteger.ONE));
-		return new Rewards(items,
-				BigInteger.valueOf((long) (350 + Math.random() * 150)));
+		return new RewardsOperation().with(BigInteger.valueOf((long) (350 + Math.random() * 150))).with(items);
 	}
 
 }
