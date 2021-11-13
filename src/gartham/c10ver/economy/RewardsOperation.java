@@ -152,8 +152,9 @@ public class RewardsOperation {
 		return guild;
 	}
 
-	public void setGuild(Guild guild) {
+	public RewardsOperation setGuild(Guild guild) {
 		this.guild = guild;
+		return this;
 	}
 
 	/**
@@ -205,8 +206,9 @@ public class RewardsOperation {
 	 *             {@link RewardsOperation} is executed is enabled,
 	 *             <code>false</code> otherwise.
 	 */
-	public void setShouldSave(boolean save) {
+	public RewardsOperation setShouldSave(boolean save) {
 		this.shouldSave = save;
+		return this;
 	}
 
 	/**
@@ -228,8 +230,9 @@ public class RewardsOperation {
 	 * 
 	 * @param cloves The number of cloves to be given in this reward.
 	 */
-	public void setCloves(BigInteger cloves) {
+	public RewardsOperation setCloves(BigInteger cloves) {
 		this.cloves = cloves;
+		return this;
 	}
 
 	/**
@@ -252,8 +255,9 @@ public class RewardsOperation {
 	 * @param applyEarnedMultipliers <code>true</code> if mults earned in this
 	 *                               rewards op should affect the cloves rewarded.
 	 */
-	public void setApplyEarnedMultipliers(boolean applyEarnedMultipliers) {
+	public RewardsOperation setApplyEarnedMultipliers(boolean applyEarnedMultipliers) {
 		this.applyEarnedMultipliers = applyEarnedMultipliers;
+		return this;
 	}
 
 	/**
@@ -331,8 +335,9 @@ public class RewardsOperation {
 	 * @see #setOtherMultipliers(BigDecimal)
 	 * @see #getOtherMultipliers()
 	 */
-	public void setPersonalMultiplier(BigDecimal personalMultiplier) {
+	public RewardsOperation setPersonalMultiplier(BigDecimal personalMultiplier) {
 		this.personalMultiplier = personalMultiplier;
+		return this;
 	}
 
 	/**
@@ -366,8 +371,9 @@ public class RewardsOperation {
 	 * @see #setPersonalMultiplier(BigDecimal)
 	 * @see #getOtherMultipliers()
 	 */
-	public void setOtherMultipliers(BigDecimal otherMultipliers) {
+	public RewardsOperation setOtherMultipliers(BigDecimal otherMultipliers) {
 		this.otherMultipliers = otherMultipliers;
+		return this;
 	}
 
 	/**
