@@ -2,6 +2,8 @@ package gartham.c10ver.economy;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -430,17 +432,73 @@ public class RewardsOperation {
 	public static RewardsOperation build(EconomyUser user, Guild guild, BigInteger cloves) {
 		var rew = new RewardsOperation();
 		rew.setCloves(cloves);
-		rew.setPersonalMultiplier(user.getPersonalTotalMultiplier());
-		rew.setGuild(guild);
+		rew.autoSetMultipliers(user, guild);
 		return rew;
 	}
 
 	public static RewardsOperation build(EconomyUser user, Guild guild, ItemBunch<?>... items) {
 		var rew = new RewardsOperation();
 		rew.getItems().add(items);
-		rew.setPersonalMultiplier(user.getPersonalTotalMultiplier());
-		rew.setGuild(guild);
+		rew.autoSetMultipliers(user, guild);
 		return rew;
+	}
+
+	/**
+	 * <p>
+	 * Sets the {@link #personalMultiplier} and {@link #otherMultipliers} of this
+	 * {@link RewardsOperation} given the {@link EconomyUser} and {@link Guild} (if
+	 * any), in which the rewards were earned. The {@link Guild} can be
+	 * <code>null</code>.
+	 * </p>
+	 * <p>
+	 * This method calculates the appropriate multipliers for the
+	 * {@link RewardsOperation} based off of the provided user and guild.
+	 * <ul>
+	 * <li>The {@link #otherMultipliers} is set to the user's nitro-multiplier
+	 * (based on the time boosted of the specified user in the specified guild) and
+	 * the specified guild's {@link Server#getTotalServerMultiplier() total server
+	 * multiplier}.</li>
+	 * <li>The {@link #personalMultiplier} is based off of the user's
+	 * {@link EconomyUser#getPersonalTotalMultiplier() personal total
+	 * multiplier}.</li>
+	 * </ul>
+	 * Everything is calculated and set at the time this method is called.
+	 * </p>
+	 * <p>
+	 * If the provided {@link Guild} is <code>null</code>, then the
+	 * {@link #otherMultipliers} will not be modified by the call to this method.
+	 * </p>
+	 * 
+	 * @param user  The {@link EconomyUser} which earned the rewards.
+	 * @param guild The {@link Guild} in which the rewards were earned.
+	 * @return This {@link RewardsOperation} object.
+	 */
+	public RewardsOperation autoSetMultipliers(EconomyUser user, Guild guild) {
+
+		setPersonalMultiplier(user.getPersonalTotalMultiplier());
+
+		Economy economy = user.getEconomy();
+		if (guild != null) {
+			if (economy.hasServer(guild.getId())) {
+				var s = economy.getServer(guild.getId());
+				setOtherMultipliers(s.getTotalServerMultiplier());
+			}
+
+			try {
+				var tb = guild.retrieveMember(user.getUser()).complete();
+				if (tb != null) {
+					var nitromult = BigDecimal.valueOf(13, 1)
+							.add(BigDecimal.valueOf(
+									Duration.between(tb.getTimeBoosted().toInstant(), Instant.now()).toDays() + 1)
+									.multiply(BigDecimal.valueOf(1, 2)));
+					setOtherMultipliers(getOtherMultipliers().multiply(nitromult));
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+		return this;
 	}
 
 	public static RewardsOperation build(EconomyUser user, Guild guild, BigInteger cloves, ItemBunch<?>... items) {
@@ -460,6 +518,42 @@ public class RewardsOperation {
 		var rew = new RewardsOperation();
 		rew.getItems().add(items);
 		rew.setPersonalMultiplier(user.getPersonalTotalMultiplier());
+		return rew;
+	}
+
+	/**
+	 * <p>
+	 * Builds a {@link RewardsOperation} with the specified User's personal
+	 * multiplier and the specified characteristics. The {@link Guild} is
+	 * <code>null</code>able. The {@link EconomyUser} argument is used to calculate
+	 * the personal multiplier to apply to the {@link RewardsOperation}. The
+	 * {@link EconomyUser#getPersonalTotalMultiplier() personal multiplier} of the
+	 * provided {@link EconomyUser} is retrieved and used at the time of the method
+	 * being invoked.
+	 * </p>
+	 * <p>
+	 * The returned {@link RewardsOperation} has {@link #shouldSave} set to
+	 * <code>true</code>.
+	 * </p>
+	 * 
+	 * @param user   The user whose personal multiplier will be set to
+	 *               {@link #personalMultiplier} (used to calculate
+	 *               {@link #personalMultiplier}. See
+	 *               {@link #autoSetMultipliers(EconomyUser, Guild)}).
+	 * @param guild  The {@link Guild} in which the operation occurred (used to
+	 *               calculate {@link #otherMultipliers}; see
+	 *               {@link #autoSetMultipliers(EconomyUser, Guild)}).
+	 * @param cloves The cloves earned in the operation.
+	 * @param mults  The multipliers earned in the operation. (The resulting
+	 *               {@link RewardsOperation} has {@link #applyEarnedMultipliers}
+	 *               set to <code>true</code>, which is the field's default value.)
+	 * @param items  The items earned in the operation.
+	 * @return The built {@link RewardsOperation}.
+	 */
+	public static RewardsOperation build(EconomyUser user, Guild guild, BigInteger cloves,
+			Map<AbstractMultiplier, Integer> mults, ItemBunch<?>... items) {
+		var rew = build(user, guild, cloves, items);
+		rew.getMults().putAll(mults);
 		return rew;
 	}
 
