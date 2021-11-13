@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import org.alixia.javalibrary.json.JSONObject;
 
 import gartham.c10ver.Clover;
+import gartham.c10ver.economy.RewardsOperation;
 import gartham.c10ver.economy.items.Item;
 import gartham.c10ver.economy.users.EconomyUser;
 import gartham.c10ver.utils.Utilities;
@@ -23,12 +24,16 @@ public class Bomb extends Item {
 
 	public void consume(MessageReceivedEvent event, Clover clover) {
 
+		// TODO Link with a volatile boolean map (or the like) to assert that the same
+		// bomb isn't "consumed" twice.
+
 		event.getGuild().findMembers(a -> !a.getUser().isBot()).onSuccess(t -> {
 			BigInteger tot = BigInteger.ZERO;
 			for (var x : t) {
 				EconomyUser user = clover.getEconomy().getUser(x.getId());
-				tot = tot.add(
-						user.rewardAndSave((int) (Math.random() * 200) + 50, user.calcMultiplier(event.getGuild())));
+				var rec = user.reward(RewardsOperation.build(user, event.getGuild(),
+						BigInteger.valueOf((int) (Math.random() * 200) + 50)));
+				tot = tot.add(rec.getRewards().getRewardedCloves());
 			}
 			event.getChannel().sendMessage(event.getAuthor().getAsMention()
 					+ " just used a bomb! It exploded into a total of " + Utilities.format(tot) + " cloves!").queue();

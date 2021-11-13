@@ -2,7 +2,7 @@ package gartham.c10ver.economy.items.utility.crates;
 
 import org.alixia.javalibrary.json.JSONObject;
 
-import gartham.c10ver.economy.Rewards;
+import gartham.c10ver.economy.RewardsOperation;
 import gartham.c10ver.economy.items.Item;
 
 public abstract class LootCrateItem extends Item {
@@ -15,7 +15,24 @@ public abstract class LootCrateItem extends Item {
 		setItemName(ITEM_NAME);
 	}
 
-	public abstract Rewards open();
+	/**
+	 * Returns a {@link RewardsOperation} containing <b style="color:firebrick>only
+	 * the rewards</b> resulting from opening one of this {@link LootCrateItem}. The
+	 * multipliers (and other properties) are exactly their defaults (and will
+	 * likely need to be set or changed by the caller).
+	 * 
+	 * @return A {@link RewardsOperation} containing just the rewards from opening
+	 *         this {@link LootCrateItem} (specifically, just the cloves, items, and
+	 *         multipliers earned).
+	 */
+	public abstract RewardsOperation open();
+
+	public RewardsOperation open(int times) {
+		var rop = open();
+		for (times--; times > 0; times--)
+			rop.with(open());
+		return rop;
+	}
 
 	private Property<String> crateTypeProperty() {
 		return getProperty(CRATE_TYPE_PK);

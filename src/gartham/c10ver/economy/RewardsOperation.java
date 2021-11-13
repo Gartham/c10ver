@@ -2,10 +2,16 @@ package gartham.c10ver.economy;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import gartham.c10ver.economy.items.Inventory;
+import gartham.c10ver.economy.items.Item;
+import gartham.c10ver.economy.items.ItemBunch;
 import gartham.c10ver.economy.users.EconomyUser;
 import net.dv8tion.jda.api.entities.Guild;
 
@@ -151,8 +157,9 @@ public class RewardsOperation {
 		return guild;
 	}
 
-	public void setGuild(Guild guild) {
+	public RewardsOperation setGuild(Guild guild) {
 		this.guild = guild;
+		return this;
 	}
 
 	/**
@@ -204,8 +211,9 @@ public class RewardsOperation {
 	 *             {@link RewardsOperation} is executed is enabled,
 	 *             <code>false</code> otherwise.
 	 */
-	public void setShouldSave(boolean save) {
+	public RewardsOperation setShouldSave(boolean save) {
 		this.shouldSave = save;
+		return this;
 	}
 
 	/**
@@ -227,8 +235,9 @@ public class RewardsOperation {
 	 * 
 	 * @param cloves The number of cloves to be given in this reward.
 	 */
-	public void setCloves(BigInteger cloves) {
+	public RewardsOperation setCloves(BigInteger cloves) {
 		this.cloves = cloves;
+		return this;
 	}
 
 	/**
@@ -251,8 +260,9 @@ public class RewardsOperation {
 	 * @param applyEarnedMultipliers <code>true</code> if mults earned in this
 	 *                               rewards op should affect the cloves rewarded.
 	 */
-	public void setApplyEarnedMultipliers(boolean applyEarnedMultipliers) {
+	public RewardsOperation setApplyEarnedMultipliers(boolean applyEarnedMultipliers) {
 		this.applyEarnedMultipliers = applyEarnedMultipliers;
+		return this;
 	}
 
 	/**
@@ -330,8 +340,9 @@ public class RewardsOperation {
 	 * @see #setOtherMultipliers(BigDecimal)
 	 * @see #getOtherMultipliers()
 	 */
-	public void setPersonalMultiplier(BigDecimal personalMultiplier) {
+	public RewardsOperation setPersonalMultiplier(BigDecimal personalMultiplier) {
 		this.personalMultiplier = personalMultiplier;
+		return this;
 	}
 
 	/**
@@ -365,8 +376,9 @@ public class RewardsOperation {
 	 * @see #setPersonalMultiplier(BigDecimal)
 	 * @see #getOtherMultipliers()
 	 */
-	public void setOtherMultipliers(BigDecimal otherMultipliers) {
+	public RewardsOperation setOtherMultipliers(BigDecimal otherMultipliers) {
 		this.otherMultipliers = otherMultipliers;
+		return this;
 	}
 
 	/**
@@ -418,6 +430,368 @@ public class RewardsOperation {
 	 */
 	public BigInteger getRewardedCloves() {
 		return new BigDecimal(getCloves()).multiply(getTotalMultiplier()).toBigInteger();
+	}
+
+	public static RewardsOperation build(EconomyUser user, Guild guild, BigInteger cloves) {
+		var rew = new RewardsOperation();
+		rew.setCloves(cloves);
+		rew.autoSetMultipliers(user, guild);
+		return rew;
+	}
+
+	public static RewardsOperation build(EconomyUser user, Guild guild, ItemBunch<?>... items) {
+		var rew = new RewardsOperation();
+		rew.getItems().add(items);
+		rew.autoSetMultipliers(user, guild);
+		return rew;
+	}
+
+	/**
+	 * <p>
+	 * Sets the {@link #personalMultiplier} and {@link #otherMultipliers} of this
+	 * {@link RewardsOperation} given the {@link EconomyUser} and {@link Guild} (if
+	 * any), in which the rewards were earned. The {@link Guild} can be
+	 * <code>null</code>.
+	 * </p>
+	 * <p>
+	 * This method calculates the appropriate multipliers for the
+	 * {@link RewardsOperation} based off of the provided user and guild.
+	 * <ul>
+	 * <li>The {@link #otherMultipliers} is set to the user's nitro-multiplier
+	 * (based on the time boosted of the specified user in the specified guild) and
+	 * the specified guild's {@link Server#getTotalServerMultiplier() total server
+	 * multiplier}.</li>
+	 * <li>The {@link #personalMultiplier} is based off of the user's
+	 * {@link EconomyUser#getPersonalTotalMultiplier() personal total
+	 * multiplier}.</li>
+	 * </ul>
+	 * Everything is calculated and set at the time this method is called.
+	 * </p>
+	 * <p>
+	 * If the provided {@link Guild} is <code>null</code>, then the
+	 * {@link #otherMultipliers} will not be modified by the call to this method.
+	 * </p>
+	 * 
+	 * @param user  The {@link EconomyUser} which earned the rewards.
+	 * @param guild The {@link Guild} in which the rewards were earned.
+	 * @return This {@link RewardsOperation} object.
+	 */
+	public RewardsOperation autoSetMultipliers(EconomyUser user, Guild guild) {
+
+		setPersonalMultiplier(user.getPersonalTotalMultiplier());
+
+		Economy economy = user.getEconomy();
+		if (guild != null) {
+			if (economy.hasServer(guild.getId())) {
+				var s = economy.getServer(guild.getId());
+				setOtherMultipliers(s.getTotalServerMultiplier());
+			}
+
+			try {
+				var tb = guild.retrieveMember(user.getUser()).complete();
+				if (tb != null) {
+					var nitromult = BigDecimal.valueOf(13, 1)
+							.add(BigDecimal.valueOf(
+									Duration.between(tb.getTimeBoosted().toInstant(), Instant.now()).toDays() + 1)
+									.multiply(BigDecimal.valueOf(1, 2)));
+					setOtherMultipliers(getOtherMultipliers().multiply(nitromult));
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+		return this;
+	}
+
+	public static RewardsOperation build(EconomyUser user, Guild guild, BigInteger cloves, ItemBunch<?>... items) {
+		var rew = build(user, guild, cloves);
+		rew.getItems().add(items);
+		return rew;
+	}
+
+	public static RewardsOperation build(EconomyUser user, BigInteger cloves, ItemBunch<?>... items) {
+		var rew = build(user, items);
+		rew.setCloves(cloves);
+		rew.setPersonalMultiplier(user.getPersonalTotalMultiplier());
+		return rew;
+	}
+
+	public static RewardsOperation build(EconomyUser user, ItemBunch<?>... items) {
+		var rew = new RewardsOperation();
+		rew.getItems().add(items);
+		rew.setPersonalMultiplier(user.getPersonalTotalMultiplier());
+		return rew;
+	}
+
+	/**
+	 * <p>
+	 * Builds a {@link RewardsOperation} with the specified User's personal
+	 * multiplier and the specified characteristics. The {@link Guild} is
+	 * <code>null</code>able. The {@link EconomyUser} argument is used to calculate
+	 * the personal multiplier to apply to the {@link RewardsOperation}. The
+	 * {@link EconomyUser#getPersonalTotalMultiplier() personal multiplier} of the
+	 * provided {@link EconomyUser} is retrieved and used at the time of the method
+	 * being invoked.
+	 * </p>
+	 * <p>
+	 * The returned {@link RewardsOperation} has {@link #shouldSave} set to
+	 * <code>true</code>.
+	 * </p>
+	 * 
+	 * @param user   The user whose personal multiplier will be set to
+	 *               {@link #personalMultiplier} (used to calculate
+	 *               {@link #personalMultiplier}. See
+	 *               {@link #autoSetMultipliers(EconomyUser, Guild)}).
+	 * @param guild  The {@link Guild} in which the operation occurred (used to
+	 *               calculate {@link #otherMultipliers}; see
+	 *               {@link #autoSetMultipliers(EconomyUser, Guild)}).
+	 * @param cloves The cloves earned in the operation.
+	 * @param mults  The multipliers earned in the operation. (The resulting
+	 *               {@link RewardsOperation} has {@link #applyEarnedMultipliers}
+	 *               set to <code>true</code>, which is the field's default value.)
+	 * @param items  The items earned in the operation.
+	 * @return The built {@link RewardsOperation}.
+	 */
+	public static RewardsOperation build(EconomyUser user, Guild guild, BigInteger cloves,
+			Map<AbstractMultiplier, Integer> mults, ItemBunch<?>... items) {
+		var rew = build(user, guild, cloves, items);
+		rew.getMults().putAll(mults);
+		return rew;
+	}
+
+	public static RewardsOperation build(EconomyUser user, Guild guild, BigInteger cloves,
+			Map<AbstractMultiplier, Integer> mults, Iterable<ItemBunch<?>> items) {
+		var rew = build(user, guild, cloves);
+		rew.getItems().add(items);
+		rew.getMults().putAll(mults);
+		return rew;
+	}
+
+	/**
+	 * Adds the specified number of cloves to
+	 * <b style="color:firebrick"><code>this</code></b> {@link RewardsOperation} and
+	 * returns <code>this</code> {@link RewardsOperation}. This method does
+	 * <b>NOT</b> return a new {@link RewardsOperation}.
+	 * 
+	 * @param cloves The cloves to add to this {@link RewardsOperation}.
+	 * @return <code>this</code>.
+	 */
+	public RewardsOperation with(BigInteger cloves) {
+		setCloves(getCloves().add(cloves));
+		return this;
+	}
+
+	/**
+	 * Adds the specified {@link AbstractMultiplier} to
+	 * <b style="color:firebrick"><code>this</code></b> {@link RewardsOperation} and
+	 * returns <code>this</code> {@link RewardsOperation}. This method does
+	 * <b>NOT</b> return a new {@link RewardsOperation}.
+	 * 
+	 * @param mult The {@link AbstractMultiplier} to add to this
+	 *             {@link RewardsOperation}.
+	 * @return <code>this</code>.
+	 */
+	public RewardsOperation with(AbstractMultiplier mult) {
+		return with(mult, 1);
+	}
+
+	/**
+	 * Adds the specified {@link AbstractMultiplier} and amount to
+	 * <b style="color:firebrick"><code>this</code></b> {@link RewardsOperation} and
+	 * returns <code>this</code> {@link RewardsOperation}. This method does
+	 * <b>NOT</b> return a new {@link RewardsOperation}.
+	 * 
+	 * @param mult   The {@link AbstractMultiplier} to add.
+	 * @param amount The number of the multiplier that will be added. (E.g.,
+	 *               <code>3</code> for this value will cause 3 of the specified
+	 *               multiplier to be added to this {@link RewardsOperation}.)
+	 * @return <code>this</code>.
+	 */
+	public RewardsOperation with(AbstractMultiplier mult, int amount) {
+		mults.put(mult, mults.containsKey(mult) ? mults.get(mult) + amount : amount);
+		return this;
+	}
+
+	/**
+	 * Adds the specified {@link AbstractMultiplier}s to
+	 * <b style="color:firebrick"><code>this</code></b> {@link RewardsOperation} and
+	 * returns <code>this</code> {@link RewardsOperation}. This method does
+	 * <b>NOT</b> return a new {@link RewardsOperation}.
+	 * 
+	 * @param mults The multipliers to add.
+	 * @return <code>this</code>.
+	 */
+	public RewardsOperation with(Map<AbstractMultiplier, Integer> mults) {
+		for (Entry<AbstractMultiplier, Integer> e : mults.entrySet())
+			this.mults.put(e.getKey(),
+					this.mults.containsKey(e.getKey()) ? e.getValue() + this.mults.get(e.getKey()) : e.getValue());
+		return this;
+	}
+
+	/**
+	 * Adds one of the specified {@link Item} to
+	 * <b style="color:firebrick"><code>this</code></b> {@link RewardsOperation} and
+	 * returns <code>this</code> {@link RewardsOperation}. This method does
+	 * <b>NOT</b> return a new {@link RewardsOperation}.
+	 * 
+	 * @param item The {@link Item} to add.
+	 * @return <code>this</code>.
+	 */
+	public RewardsOperation with(Item item) {
+		items.add(item);
+		return this;
+	}
+
+	/**
+	 * Adds the specified {@link ItemBunch}es to
+	 * <b style="color:firebrick"><code>this</code></b> {@link RewardsOperation} and
+	 * returns <code>this</code> {@link RewardsOperation}. This method does
+	 * <b>NOT</b> return a new {@link RewardsOperation}.
+	 * 
+	 * @param items The {@link Item}s, and their respective amounts.
+	 * @return <code>this</code>.
+	 */
+	public RewardsOperation with(Iterable<ItemBunch<?>> items) {
+		this.items.add(items);
+		return this;
+	}
+
+	/**
+	 * Adds the specified item to <b style="color:firebrick"><code>this</code></b>
+	 * {@link RewardsOperation} and returns <code>this</code>
+	 * {@link RewardsOperation}. This method does <b>NOT</b> return a new
+	 * {@link RewardsOperation}.
+	 * 
+	 * @param item The item and amount of it to add.
+	 * @return <code>this</code>.
+	 */
+	public RewardsOperation with(ItemBunch<?> item) {
+		items.add(item);
+		return this;
+	}
+
+	/**
+	 * Adds the specified {@link ItemBunch}es to
+	 * <b style="color:firebrick"><code>this</code></b> {@link RewardsOperation} and
+	 * returns <code>this</code> {@link RewardsOperation}. This method does
+	 * <b>NOT</b> return a new {@link RewardsOperation}.
+	 * 
+	 * @param items The items and their respective amounts to add.
+	 * @return <code>this</code>.
+	 */
+	public RewardsOperation with(ItemBunch<?>... items) {
+		this.items.add(items);
+		return this;
+	}
+
+	/**
+	 * <p>
+	 * Synonymous to {@link #with(ItemBunch...)}, but for {@link Iterator}s.
+	 * </p>
+	 * <p>
+	 * Adds the specified {@link ItemBunch}es to
+	 * <b style="color:firebrick"><code>this</code></b> {@link RewardsOperation} and
+	 * returns <code>this</code> {@link RewardsOperation}. This method does
+	 * <b>NOT</b> return a new {@link RewardsOperation}.
+	 * </p>
+	 * 
+	 * @param items The items and their respective amounts to add.
+	 * @return <code>this</code>.
+	 */
+	public RewardsOperation with(Iterator<ItemBunch<?>> items) {
+		this.items.add(items);
+		return this;
+	}
+
+	/**
+	 * Copies the {@link Item}s from the specified {@link Inventory} into
+	 * <b style="color:firebrick"><code>this</code></b> {@link RewardsOperation} and
+	 * returns <code>this</code> {@link RewardsOperation}. This method does
+	 * <b>NOT</b> return a new {@link RewardsOperation}.
+	 * 
+	 * @param inv The {@link Inventory} to copy {@link Item}s from.
+	 * @return <code>this</code>.
+	 */
+	public RewardsOperation with(Inventory inv) {
+		inv.putInto(this.items);
+		return this;
+	}
+
+	/**
+	 * <p>
+	 * Adds the
+	 * <ol>
+	 * <li>Cloves</li>
+	 * <li>Items</li>
+	 * <li>Multipliers</li>
+	 * </ol>
+	 * of the specified {@link RewardsOperation} to
+	 * <b style="color:firebrick"><code>this</code></b> {@link RewardsOperation} and
+	 * returns <code>this</code> {@link RewardsOperation}. This method does
+	 * <b>NOT</b> return a new {@link RewardsOperation}.
+	 * </p>
+	 * <p>
+	 * Additionally, this method <span style="color:firebrick">does not</span>
+	 * further modify this {@link RewardsOperation}. If the properties
+	 * ({@link #shouldSave} and {@link #personalMultiplier} e.g.) should be copied
+	 * over from the specified {@link RewardsOperation} to this one in addition to
+	 * the rewards being added, {@link #with(RewardsOperation, boolean)} should be
+	 * called with <code>true</code> as the second argument.
+	 * </p>
+	 * 
+	 * @param other The other {@link RewardsOperation} to copy the rewards from.
+	 * @return <code>this</code>.
+	 */
+	public RewardsOperation with(RewardsOperation other) {
+		return with(other.getCloves()).with(other.getMults()).with(other.getItems());
+	}
+
+	/**
+	 * <p>
+	 * Adds the cloves, items, and multipliers of the specified
+	 * {@link RewardsOperation} to this one, just as {@link #with(RewardsOperation)}
+	 * does, and then copies the properties of the specified
+	 * {@link RewardsOperation} if <code>copyProperties</code> is <code>true</code>.
+	 * If called with <code>copyProperties</code> being <code>false</code>, this
+	 * method would be exactly equivalent to {@link #with(RewardsOperation)}.
+	 * </p>
+	 * <p>
+	 * The following fields are copied from the specified {@link RewardsOperation}
+	 * and then <b>added</b> to this {@link RewardsOperation}:
+	 * <ol>
+	 * <li>{@link #cloves}</li>
+	 * <li>{@link #items}</li>
+	 * <li>{@link #mults}</li>
+	 * </ol>
+	 * </p>
+	 * <p>
+	 * <b style="color:firebrick;">If</b> <code>copyProperties</code> is
+	 * <code>true</code>, then <i>all</i> of the following properties are copied (if
+	 * not, none of them are):
+	 * <ol>
+	 * <li>{@link #applyEarnedMultipliers}</li>
+	 * <li>{@link #otherMultipliers}</li>
+	 * <li>{@link #personalMultiplier}</li>
+	 * <li>{@link #shouldSave}</li>
+	 * <li>{@link #guild}</li>
+	 * </ol>
+	 * </p>
+	 * 
+	 * @param other          The other {@link RewardsOperation} to add (and copy
+	 *                       properties) from.
+	 * @param copyProperties Whether to also copy the properties of the
+	 *                       {@link RewardsOperation}, or to just add all of the
+	 *                       rewards.
+	 * @return <code>this</code>.
+	 */
+	public RewardsOperation with(RewardsOperation other, boolean copyProperties) {
+		with(other);
+		if (copyProperties)
+			setApplyEarnedMultipliers(other.isApplyEarnedMultipliers()).setOtherMultipliers(other.getOtherMultipliers())
+					.setPersonalMultiplier(other.getPersonalMultiplier()).setShouldSave(other.isShouldSave())
+					.setGuild(other.getGuild());
+		return this;
 	}
 
 }
