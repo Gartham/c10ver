@@ -341,7 +341,7 @@ public final class Utilities {
 	}
 
 	public static String prettyPrintMultiplier(BigDecimal mult) {
-		return "[**x" + multiplier(mult) + "**]";
+		return mult == null ? null : "[**x" + multiplier(mult) + "**]";
 	}
 
 	public static String multiplier(BigDecimal mult, int scale) {
