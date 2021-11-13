@@ -2,7 +2,7 @@ package gartham.c10ver.economy.items.utility.crates;
 
 import org.alixia.javalibrary.json.JSONObject;
 
-import gartham.c10ver.economy.Rewards;
+import gartham.c10ver.economy.RewardsOperation;
 import gartham.c10ver.economy.items.Item;
 
 public abstract class LootCrateItem extends Item {
@@ -15,7 +15,14 @@ public abstract class LootCrateItem extends Item {
 		setItemName(ITEM_NAME);
 	}
 
-	public abstract Rewards open();
+	public abstract RewardsOperation open();
+
+	public RewardsOperation open(int times) {
+		var rop = open();
+		for (times--; times > 0; times--)
+			rop.with(open());
+		return rop;
+	}
 
 	private Property<String> crateTypeProperty() {
 		return getProperty(CRATE_TYPE_PK);
