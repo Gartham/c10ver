@@ -557,4 +557,12 @@ public class RewardsOperation {
 		return rew;
 	}
 
+	public static RewardsOperation build(EconomyUser user, Guild guild, BigInteger cloves,
+			Map<AbstractMultiplier, Integer> mults, Iterable<ItemBunch<?>> items) {
+		var rew = build(user, guild, cloves);
+		rew.getItems().add(items);
+		rew.getMults().putAll(mults);
+		return rew;
+	}
+
 }
