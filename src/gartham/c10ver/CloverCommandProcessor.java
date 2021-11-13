@@ -45,6 +45,7 @@ import gartham.c10ver.data.PropertyObject.Property;
 import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.Mailbox;
 import gartham.c10ver.economy.Rewards;
+import gartham.c10ver.economy.RewardsOperation;
 import gartham.c10ver.economy.Server;
 import gartham.c10ver.economy.items.UserInventory.UserEntry;
 import gartham.c10ver.economy.items.utility.crates.DailyCrate;
@@ -264,15 +265,13 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				else {
 					u.dailyInvoked();
 
-					var rewards = of(new DailyCrate());
-					clover.getEconomy().getInventory(inv.event.getAuthor().getId()).add(rewards).save();
-					u.save();
+					var ecousr = clover.getEconomy().getUser(inv.event.getAuthor().getId());
+					var rec = ecousr.reward(RewardsOperation.build(ecousr, of(new DailyCrate())));
 
 					inv.event.getChannel()
 							.sendMessage(inv.event.getAuthor().getAsMention()
-									+ " is getting their daily rewards!\n\n**Rewards:**\n"
-									+ listRewards(BigInteger.ZERO, rewards) + "\nTotal Cloves: "
-									+ format(u.getAccount().getBalance()))
+									+ " is getting their daily rewards!\n\n**Rewards:**\n" + listRewards(rec)
+									+ "\nTotal Cloves: " + format(u.getAccount().getBalance()))
 							.queue();
 				}
 
@@ -292,15 +291,13 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				} else {
 					u.weeklyInvoked();
 
-					var rewards = of(new WeeklyCrate());
-					clover.getEconomy().getInventory(inv.event.getAuthor().getId()).add(rewards).save();
-					u.save();
+					var ecousr = clover.getEconomy().getUser(inv.event.getAuthor().getId());
+					var rec = ecousr.reward(RewardsOperation.build(ecousr, of(new WeeklyCrate())));
 
 					inv.event.getChannel()
 							.sendMessage(inv.event.getAuthor().getAsMention()
-									+ " is getting their weekly rewards!\n\n**Rewards:**\n"
-									+ listRewards(BigInteger.ZERO, rewards) + "\nTotal Cloves: "
-									+ format(u.getAccount().getBalance()))
+									+ " is getting their weekly rewards!\n\n**Rewards:**\n" + listRewards(rec)
+									+ "\nTotal Cloves: " + format(u.getAccount().getBalance()))
 							.queue();
 				}
 			}
@@ -319,15 +316,13 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				} else {
 					u.monthlyInvoked();
 
-					var rewards = of(new MonthlyCrate());
-					clover.getEconomy().getInventory(inv.event.getAuthor().getId()).add(rewards).save();
-					u.save();
+					var ecousr = clover.getEconomy().getUser(inv.event.getAuthor().getId());
+					var rec = ecousr.reward(RewardsOperation.build(ecousr, of(new MonthlyCrate())));
 
 					inv.event.getChannel()
 							.sendMessage(inv.event.getAuthor().getAsMention()
-									+ " is getting their monthly rewards!!!\n\n**Rewards:**\n"
-									+ listRewards(BigInteger.ZERO, rewards) + "\nTotal Cloves: "
-									+ format(u.getAccount().getBalance()))
+									+ " is getting their monthly rewards!!!\n\n**Rewards:**\n" + listRewards(rec)
+									+ "\nTotal Cloves: " + format(u.getAccount().getBalance()))
 							.queue();
 				}
 			}
@@ -359,11 +354,18 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 								}
 
 								LootCrateItem lci = is.getItem();
+								RewardsOperation op = RewardsOperation.build(u,
+										inv.event.isFromGuild() ? inv.event.getGuild() : null);
 								Rewards rew = new Rewards();
+
+								// TODO Implement a constant-in-item-count random sampling means of generating
+								// the loot.
 								for (var i = BigInteger.ZERO; i.compareTo(count) < 0; i = i.add(BigInteger.ONE))
 									rew = rew.with(lci.open());
 
-								var rec = u.rewardAndSave(rew, inv.event.isFromGuild() ? inv.event.getGuild() : null);
+								// TODO Remove Rewards dependency.
+
+								var rec = u.reward(op);
 
 								is.remove(count);
 
