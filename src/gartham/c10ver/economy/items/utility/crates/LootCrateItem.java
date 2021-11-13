@@ -15,6 +15,16 @@ public abstract class LootCrateItem extends Item {
 		setItemName(ITEM_NAME);
 	}
 
+	/**
+	 * Returns a {@link RewardsOperation} containing <b style="color:firebrick>only
+	 * the rewards</b> resulting from opening one of this {@link LootCrateItem}. The
+	 * multipliers (and other properties) are exactly their defaults (and will
+	 * likely need to be set or changed by the caller).
+	 * 
+	 * @return A {@link RewardsOperation} containing just the rewards from opening
+	 *         this {@link LootCrateItem} (specifically, just the cloves, items, and
+	 *         multipliers earned).
+	 */
 	public abstract RewardsOperation open();
 
 	public RewardsOperation open(int times) {
