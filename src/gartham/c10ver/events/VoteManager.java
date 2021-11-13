@@ -15,8 +15,8 @@ import java.util.function.Consumer;
 
 import gartham.c10ver.Clover;
 import gartham.c10ver.commands.consumers.MessageReactionInputConsumer;
-import gartham.c10ver.economy.Multiplier;
-import gartham.c10ver.economy.Rewards;
+import gartham.c10ver.economy.AbstractMultiplier;
+import gartham.c10ver.economy.RewardsOperation;
 import gartham.c10ver.economy.Server;
 import gartham.c10ver.economy.items.ItemBunch;
 import gartham.c10ver.economy.items.utility.crates.DailyCrate;
@@ -61,20 +61,19 @@ public class VoteManager {
 		items.add(new ItemBunch<>(new Hamburger(), (long) (Math.random() * 2 + 4)));
 		items.add(new ItemBunch<>(new VoteToken(Type.NORMAL), 5));
 
-		List<Multiplier> multipliers = new ArrayList<>();
+		Map<AbstractMultiplier, Integer> multipliers = new HashMap<>();
 		if (Math.random() > 0.2)
-			multipliers.add(Multiplier.ofHr(12, BigDecimal.valueOf(2, 1)));
+			multipliers.put(AbstractMultiplier.ofHr(12, BigDecimal.valueOf(2, 1)), 1);
 		if (Math.random() > 0.3)
-			multipliers.add(Multiplier.ofHr(12, BigDecimal.valueOf(3, 1)));
+			multipliers.put(AbstractMultiplier.ofHr(12, BigDecimal.valueOf(3, 1)), 1);
 		if (Math.random() > 0.5)
-			multipliers.add(Multiplier.ofHr(12, BigDecimal.valueOf(5, 1)));
+			multipliers.put(AbstractMultiplier.ofHr(12, BigDecimal.valueOf(5, 1)), 1);
 
-		Rewards rewards = new Rewards(items, BigInteger.valueOf((long) (Math.random() * 3000 + 5000)));
 
 		EconomyUser u = clover.getEconomy().getUser(member.getId());
 		u.incrementVoteCount();
-		var rec = u.rewardAndSave(rewards, member.getGuild());
-		u.save();
+		var rec = u.reward(RewardsOperation.build(u, member.getGuild(),
+				BigInteger.valueOf((long) (Math.random() * 3000 + 5000)), multipliers, items));
 		var s = clover.getEconomy().getServer(member.getGuild().getId());
 
 		EmbedBuilder embed = new EmbedBuilder()
