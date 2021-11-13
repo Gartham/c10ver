@@ -84,6 +84,9 @@ public class EventHandler implements EventListener {
 		if (event instanceof MessageReceivedEvent) {
 			var mre = (MessageReceivedEvent) event;
 
+			if (mre.isWebhookMessage() || mre.getAuthor().isBot() || mre.getAuthor().isSystem())
+				return;
+
 			var ranCmd = false;
 			CommandInvocation commandInvoc = null;
 			if (!messageProcessor.runInputHandlers(mre))
