@@ -66,6 +66,12 @@ public class Mailbox extends SavablePropertyObject {
 		super.load();
 	}
 
+	/**
+	 * Adds the rewards from the provided {@link RewardsOperation} to this
+	 * {@link Mailbox}.
+	 * 
+	 * @param op The rewards to put in this {@link Mailbox}.
+	 */
 	public void reward(RewardsOperation op) {
 		if (op.hasCloves()) {
 			addCloves(op.getRewardedCloves());
@@ -90,10 +96,21 @@ public class Mailbox extends SavablePropertyObject {
 		return cloves.get();
 	}
 
+	/**
+	 * Sets the raw number of cloves in this {@link Mailbox}.
+	 * 
+	 * @param cloves The number of cloves that the mailbox will have.
+	 */
 	public void setCloves(BigInteger cloves) {
 		this.cloves.set(cloves);
 	}
 
+	/**
+	 * Adds cloves to this {@link Mailbox}. No multipliers are considered when
+	 * performing this operation.
+	 * 
+	 * @param amount The exact number of cloves to add.
+	 */
 	public void addCloves(BigInteger amount) {
 		cloves.set(cloves.get().add(amount));
 	}
