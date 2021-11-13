@@ -128,56 +128,59 @@ public class EventHandler implements EventListener {
 					case "1000000" -> valueOf(25_000_000);
 					default -> null;
 					};
-					if (rewards != null) {
-						var mult = user.calcMultiplier(mre.getGuild());
-						var amt = new BigDecimal(rewards).multiply(mult).toBigInteger();
-						user.getMailbox().addCloves(amt);
-						user.saveCloves();
+					if (rewards != null)
 						if (user.getSettings().isRandomRewardsNotifyingEnabled())
 							mre.getChannel()
 									.sendMessage(mre.getAuthor().getAsMention() + " congratulations, you just reached "
 											+ user.getMessageCount() + " messages! You've earned: "
-											+ Utilities.listRewards(rewards, mult) + ". Check your mailbox!")
+											+ Utilities.listRewards(
+													user.reward(RewardsOperation.build(user, mre.getGuild(), rewards)))
+											+ "\n Check your mailbox!")
 									.queue(t -> t.delete().queueAfter(10, TimeUnit.SECONDS));
-					} else {
+						else
+							user.getMailbox().reward(RewardsOperation.build(user, mre.getGuild(), rewards));
+					else {
 						var serv = clover.getEconomy().getServer(mre.getGuild().getId());
 						if (serv.isGeneral(mre.getChannel()) && Math.random() < 0.02) {
-							var mult = user.calcMultiplier(mre.getGuild());
-							BigInteger rawrew = BigInteger.valueOf((long) (Math.random() * 20 + 40));
+							RewardsOperation randrews = RewardsOperation.build(user, mre.getGuild(),
+									BigInteger.valueOf((long) (Math.random() * 20 + 40)));
 
-							user.getMailbox().addCloves(new BigDecimal(rawrew).multiply(mult).toBigInteger());
-							user.saveCloves();
-
-							if (user.getSettings().isRandomRewardsNotifyingEnabled())
+							if (user.getSettings().isRandomRewardsNotifyingEnabled()) {
 								mre.getChannel()
 										.sendMessage(mre.getAuthor().getAsMention()
 												+ ", you found some cloves sitting on the ground.\n"
-												+ Utilities.listRewards(rawrew, mult) + "\nTotal Cloves: "
+												+ Utilities.listRewards(user.reward(randrews)) + "\nTotal Cloves: "
 												+ format(user.getAccount().getBalance()) + ". Check your mailbox!")
 										.queue(t -> t.delete().queueAfter(10, TimeUnit.SECONDS));
+							} else
+								user.getMailbox().reward(randrews);
 						} else if (ranCmd && commandInvoc != null && !commandInvoc.getCmdName().equalsIgnoreCase("tip")
 								&& Math.random() < 0.18)
 							infoPopupGenerator.next().show(mre);
 						else if (serv.isGeneral(mre.getChannel()) && Math.random() < 0.01)
 							if (Math.random() < 0.2) {
 								NormalCrate crate = new NormalCrate();
-								user.getMailbox().getItemsModifiable().add(crate);
-								user.saveCloves();
-								if (user.getSettings().isRandomRewardsNotifyingEnabled())
+								if (user.getSettings().isRandomRewardsNotifyingEnabled()) {
+									user.getInventory().add(crate).save();
 									mre.getChannel().sendMessage(mre.getAuthor().getAsMention()
 											+ " you look hungry... for a loot crate! (Acquired `1`x " + crate.getIcon()
 											+ crate.getEffectiveName() + ".)\nCheck your mailbox!")
 											.queue(t -> t.delete().queueAfter(10, TimeUnit.SECONDS));
+								} else
+									user.getMailbox().reward(
+											RewardsOperation.build(user, mre.getGuild(), new ItemBunch<>(crate)));
 							} else {
 								BigInteger count = BigInteger.valueOf((long) (Math.random() * 3 + 1));
 								Sandwich item = new Sandwich();
-								user.getMailbox().getItemsModifiable().add(new ItemBunch<>(item, count));
-								user.saveCloves();
-								if (user.getSettings().isRandomRewardsNotifyingEnabled())
+								if (user.getSettings().isRandomRewardsNotifyingEnabled()) {
+									user.getInventory().add(item, count).save();
 									mre.getChannel().sendMessage(mre.getAuthor().getAsMention()
 											+ " you look hungry. Have some sandwiches! (Acquired `" + count + "`x "
 											+ item.getIcon() + item.getEffectiveName() + ".)\nCheck your mailbox!")
 											.queue(t -> t.delete().queueAfter(10, TimeUnit.SECONDS));
+								} else
+									user.getMailbox().reward(
+											RewardsOperation.build(user, mre.getGuild(), new ItemBunch<>(item, count)));
 
 							}
 					}

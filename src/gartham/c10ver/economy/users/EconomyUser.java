@@ -13,10 +13,9 @@ import org.alixia.javalibrary.util.StringGateway;
 
 import gartham.c10ver.data.autosave.SavablePropertyObject;
 import gartham.c10ver.economy.Economy;
+import gartham.c10ver.economy.Mailbox;
 import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.MultiplierManager;
-import gartham.c10ver.economy.Mailbox;
-import gartham.c10ver.economy.Rewards;
 import gartham.c10ver.economy.RewardsOperation;
 import gartham.c10ver.economy.Server;
 import gartham.c10ver.economy.accolades.AccoladeList;
