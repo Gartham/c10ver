@@ -32,6 +32,9 @@ import org.alixia.javalibrary.json.JSONValue;
 import org.alixia.javalibrary.streams.CharacterStream;
 import org.alixia.javalibrary.strings.matching.Matching;
 
+import gartham.c10ver.economy.AbstractMultiplier;
+import gartham.c10ver.economy.items.Inventory;
+import gartham.c10ver.economy.items.ItemBunch;
 import gartham.c10ver.economy.users.EconomyUser.Receipt;
 
 public final class Utilities {
@@ -317,6 +320,7 @@ public final class Utilities {
 
 	public static String listRewards(Receipt receipt) {
 		StringBuilder sb = new StringBuilder();
+		// List method impl
 		if (!receipt.getRewards().getCloves().equals(BigInteger.ZERO))
 			sb.append(format(receipt.getRewards().getCloves())).append('\n');
 		for (var e : receipt.getRewards().getItems())
@@ -328,11 +332,42 @@ public final class Utilities {
 		for (var m : receipt.getRewards().getMults().entrySet())
 			sb.append(m.getValue() + "x [**x").append(m.getKey().getAmt()).append("**] for ")
 					.append(formatLargest(m.getKey().getDuration(), 2)).append('\n');
+		// End List method impl
 		sb.append("\nCloves Received: ").append(format(receipt.getRewards().getRewardedCloves()))
 				.append(", New Balance: ").append(format(receipt.getTotalCloves()));
 		var mul = multiplier(receipt.getRewards().getTotalMultiplier());
 		if (mul != null)
 			sb.append("\nTotal Mult: ").append("[**x").append(mul).append("**]");
+		return sb.toString();
+	}
+
+	public static String list(BigInteger cloves, Inventory items, Map<AbstractMultiplier, Integer> mults) {
+		StringBuilder sb = new StringBuilder();
+		if (!cloves.equals(BigInteger.ZERO))
+			sb.append(format(cloves)).append('\n');
+		for (var e : items)
+			for (var is : e)
+				sb.append("`" + is.getCount() + "`x " + is.getItem().getIcon() + ' ' + is.getItem().getEffectiveName()
+						+ '\n');
+		sb.toString();
+		for (var m : mults.entrySet())
+			sb.append(m.getValue() + "x [**x").append(m.getKey().getAmt()).append("**] for ")
+					.append(formatLargest(m.getKey().getDuration(), 2)).append('\n');
+		return sb.toString();
+	}
+
+	public static String list(BigInteger cloves, Iterable<ItemBunch<?>> items, Map<AbstractMultiplier, Integer> mults) {
+		StringBuilder sb = new StringBuilder();
+		if (!cloves.equals(BigInteger.ZERO))
+			sb.append(format(cloves)).append('\n');
+		for (var is : items) {
+			sb.append("`" + is.getCount() + "`x " + is.getItem().getIcon() + ' ' + is.getItem().getEffectiveName()
+					+ '\n');
+		}
+		sb.toString();
+		for (var m : mults.entrySet())
+			sb.append(m.getValue() + "x [**x").append(m.getKey().getAmt()).append("**] for ")
+					.append(formatLargest(m.getKey().getDuration(), 2)).append('\n');
 		return sb.toString();
 	}
 
