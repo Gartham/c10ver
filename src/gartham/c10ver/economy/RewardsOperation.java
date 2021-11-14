@@ -90,7 +90,7 @@ public class RewardsOperation {
 	/**
 	 * The cloves to give the user.
 	 */
-	private BigInteger cloves;
+	private BigInteger cloves = BigInteger.ZERO;
 	/**
 	 * The multipliers to give the user.
 	 */
