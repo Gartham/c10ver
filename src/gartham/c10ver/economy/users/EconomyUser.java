@@ -195,6 +195,7 @@ public class EconomyUser extends SavablePropertyObject {
 	public Receipt reward(RewardsOperation op) {
 		if (op.hasCloves()) {
 			getAccount().deposit(op.getRewardedCloves());
+			getAccount().addTotalEarnings(op.getRewardedCloves());
 			if (op.isShouldSave())
 				getAccount().save();
 		}
