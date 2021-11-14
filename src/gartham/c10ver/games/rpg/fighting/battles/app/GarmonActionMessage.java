@@ -1,5 +1,7 @@
 package gartham.c10ver.games.rpg.fighting.battles.app;
 
+import java.awt.Color;
+
 import gartham.c10ver.games.rpg.RPGUtils;
 import gartham.c10ver.response.actions.ActionMessage;
 import gartham.c10ver.response.actions.DetailedActionButton;
@@ -30,6 +32,7 @@ public class GarmonActionMessage extends DetailedMenuMessage<DetailedActionReact
 	@Override
 	protected void buildEmbed(EmbedBuilder eb) {
 		super.buildEmbed(eb);
+		eb.setColor(new Color(0x18b300));
 		eb.setTitle(creature.getName() + "'s Turn").setThumbnail(creature.getHeadshot());
 		eb.setDescription("It's your team's turn. **" + creature.getName()
 				+ "** is up! Choose one of the following options to make your move. (The `info` option does NOT count as a move.)\n\n**"

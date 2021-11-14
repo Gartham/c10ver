@@ -1,5 +1,6 @@
 package gartham.c10ver.games.rpg;
 
+import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -39,6 +40,7 @@ public class GarmonUtils {
 	public static EmbedBuilder printBattleQueue(GarmonBattle battle) {
 		EmbedBuilder builder = new EmbedBuilder()
 				.setTitle(String.join(" vs ", JavaTools.mask(battle.getTeamsUnmodifiable(), GarmonTeam::getName)));
+		builder.setColor(new Color(0xe6da00));
 		for (int i = 0; i < battle.getFighterCount() - 1; i++) {
 			var f = battle.getBattleQueueUnmodifiable().get(i);
 			builder.addField(
