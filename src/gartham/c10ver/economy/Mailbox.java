@@ -143,7 +143,9 @@ public class Mailbox extends SavablePropertyObject {
 	 * This {@link Mailbox} will be emptied as a result of a call to this method.
 	 * (Specifically, this {@link Mailbox} will have its {@link #cloves} set to
 	 * {@link BigInteger#ZERO} and its {@link Inventory} cleared, as if it were a
-	 * newly created {@link Mailbox}.)
+	 * newly created {@link Mailbox}.) The {@link #user} and {@link #dir} fields
+	 * will remain unaffected by a call to this method, and the {@link Mailbox} is
+	 * <b>not</b> saved by a call to this method.
 	 * </p>
 	 * 
 	 * @return A {@link RewardsOperation} that contains {@link #getCloves()} and
@@ -162,6 +164,8 @@ public class Mailbox extends SavablePropertyObject {
 		inventory.putInto(op.getItems());
 		op.setShouldSave(true);
 		op.setApplyEarnedMultipliers(false);
+		setCloves(BigInteger.ONE);
+		getInventory().clear();
 		return op;
 	}
 
