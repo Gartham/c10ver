@@ -37,8 +37,6 @@ public class EconomyUser extends SavablePropertyObject {
 			toObjectGateway(Multiplier::new));
 	private final Property<ArrayList<String>> joinedGuilds = listProperty("joined-guilds",
 			toStringGateway(StringGateway.string()));
-	private final File mailboxLocation;
-
 	public ArrayList<String> getJoinedGuilds() {
 		return joinedGuilds.get();
 	}
@@ -260,7 +258,7 @@ public class EconomyUser extends SavablePropertyObject {
 		accolades = new AccoladeList(new File(userDirectory, "accolades.txt"));
 		creatures = new CreatureBox(new File(userDirectory, "creatures.txt"));
 		settings = new UserSettings(userDirectory, this);
-		mailbox = new Mailbox(mailboxLocation = new File(userDirectory, "mailbox"), this);
+		mailbox = new Mailbox(new File(userDirectory, "mailbox"), this);
 		garpgData = new GARPGState(new File(userDirectory, "garpg/data"), this);
 		if (load)
 			load();
