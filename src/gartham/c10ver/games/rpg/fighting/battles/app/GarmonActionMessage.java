@@ -31,7 +31,9 @@ public class GarmonActionMessage extends DetailedMenuMessage<DetailedActionReact
 	protected void buildEmbed(EmbedBuilder eb) {
 		super.buildEmbed(eb);
 		eb.setTitle(creature.getName() + "'s Turn").setThumbnail(creature.getHeadshot());
-		eb.setDescription("**" + creature.getName() + "**\nHealth: " + creature.getHealthString()
+		eb.setDescription("It's your team's turn. **" + creature.getName()
+				+ "** is up! Choose one of the following options to make your move. (The `info` option does NOT count as a move.)\n\n**"
+				+ creature.getName() + "**\nHealth: " + creature.getHealthString()
 				+ RPGUtils.calcHealthbar(creature.getHealth(), creature.getMaxHealth()));
 	}
 
