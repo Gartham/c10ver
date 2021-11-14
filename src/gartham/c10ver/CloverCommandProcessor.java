@@ -1419,6 +1419,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 									sb.append("\nGeneral Channel: <#").append(s.getGeneralChannel()).append('>');
 								if (s.getSpamChannel() != null)
 									sb.append("\nSpam Channel: <#").append(s.getSpamChannel()).append('>');
+								if (s.getRPGChannel() != null)
+									sb.append("\nRPG Channel: <#").append(s.getRPGChannel()).append('>');
 								if (s.getGamblingChannel() != null)
 									sb.append("\nGambling Channel: <#").append(s.getGamblingChannel()).append('>');
 								if (s.getVoteRole() != null)
@@ -1563,6 +1565,26 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 												inv.event.getAuthor().getAsMention() + " that's not a valid channel.")
 												.queue();
 										return;
+									case "rpg-channel":
+										CHANP: {
+											String cm = Utilities.parseChannelMention(inv.args[1]);
+											if (cm == null)
+												break CHANP;
+											try {
+												if (inv.event.getGuild().getTextChannelById(cm) == null)
+													break CHANP;
+											} catch (NumberFormatException e) {
+												break CHANP;
+											}
+											s.setRPGChannel(cm);
+											inv.event.getChannel().sendMessage("RPG channel set to <#" + cm + ">.")
+													.queue();
+											break;
+										}
+										inv.event.getChannel().sendMessage(
+												inv.event.getAuthor().getAsMention() + " that's not a valid channel.")
+												.queue();
+										return;
 									case "private-channel-category":
 									case "pcc":
 										CHANP: {
@@ -1664,6 +1686,10 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 									case "spam-channel":
 										s.setSpamChannel(null);
 										inv.event.getChannel().sendMessage("Unregistered the spam channel.").queue();
+										break;
+									case "rpg-channel":
+										s.setRPGChannel(null);
+										inv.event.getChannel().sendMessage("Unregistered the RPG channel.").queue();
 										break;
 									case "vote-role":
 										s.setVoteRole(null);
