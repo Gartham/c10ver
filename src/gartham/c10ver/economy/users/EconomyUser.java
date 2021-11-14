@@ -157,6 +157,7 @@ public class EconomyUser extends SavablePropertyObject {
 			return null;
 		else {
 			var rewardsop = mailbox.claim();// Take the loot out of the mailbox.
+			mailbox.save();
 			var receipt = reward(rewardsop);// Give it to the user.
 			return receipt;// Return the receipt.
 			// I don't like creating variables like this. :)
