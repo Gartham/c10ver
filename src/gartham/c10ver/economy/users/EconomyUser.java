@@ -13,6 +13,7 @@ import org.alixia.javalibrary.util.StringGateway;
 
 import gartham.c10ver.data.autosave.SavablePropertyObject;
 import gartham.c10ver.economy.Economy;
+import gartham.c10ver.economy.GARPGData;
 import gartham.c10ver.economy.Mailbox;
 import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.MultiplierManager;
@@ -108,6 +109,7 @@ public class EconomyUser extends SavablePropertyObject {
 	private final CreatureBox creatures;
 	private final String userID;
 	private final Mailbox mailbox;
+	private final GARPGData garpgData;
 
 	public net.dv8tion.jda.api.entities.User getUser() {
 		try {
@@ -144,6 +146,10 @@ public class EconomyUser extends SavablePropertyObject {
 
 	public Mailbox getMailbox() {
 		return mailbox;
+	}
+
+	public GARPGData getGarpgData() {
+		return garpgData;
 	}
 
 	/**
@@ -255,6 +261,7 @@ public class EconomyUser extends SavablePropertyObject {
 		creatures = new CreatureBox(new File(userDirectory, "creatures.txt"));
 		settings = new UserSettings(userDirectory, this);
 		mailbox = new Mailbox(mailboxLocation = new File(userDirectory, "mailbox"), this);
+		garpgData = new GARPGData(new File(userDirectory, "garpg/data"), this);
 		if (load)
 			load();
 		if (getMessageCount() == null)
