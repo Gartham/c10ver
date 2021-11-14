@@ -21,7 +21,7 @@ public class Server extends SavablePropertyObject {
 			spamChannel = stringProperty("spam-channel"), gamblingChannel = stringProperty("gambling-channel"),
 			voteChannel = stringProperty("vote-channel"),
 			privateChannelCategory = stringProperty("private-channel-category"),
-			loggingChannel = stringProperty("logging-channel");
+			loggingChannel = stringProperty("logging-channel"), rpgChannel = stringProperty("rpg-channel");
 	private final Property<String> voteRole = stringProperty("vote-role");
 	private final Property<ArrayList<Multiplier>> multipliers = listProperty("multipliers",
 			toObjectGateway(Multiplier::new));
@@ -41,6 +41,14 @@ public class Server extends SavablePropertyObject {
 
 	public void setVoteRole(String role) {
 		voteRole.set(role);
+	}
+
+	public void setRPGChannel(String rpgChannel) {
+		this.rpgChannel.set(rpgChannel);
+	}
+
+	public String getRPGChannel() {
+		return rpgChannel.get();
 	}
 
 	/**
