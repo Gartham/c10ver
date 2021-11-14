@@ -14,4 +14,8 @@ public class GARPGData extends SavablePropertyObject {
 		this.user = user;
 	}
 
+	public EconomyUser getUser() {
+		return user;
+	}
+
 }
