@@ -146,7 +146,7 @@ public class EconomyUser extends SavablePropertyObject {
 		return mailbox;
 	}
 
-	public GARPGState getGarpgData() {
+	public GARPGState getGarpgState() {
 		return garpgData;
 	}
 
