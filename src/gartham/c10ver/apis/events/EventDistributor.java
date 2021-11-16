@@ -17,21 +17,32 @@ public class EventDistributor implements EventListener {
 	private final Listmap<Class<? extends GenericEvent>, Consumer<? super GenericEvent>, ArrayList<Consumer<? super GenericEvent>>> eventHandlers = Listmap
 			.arrayListMap(), eventResponders = Listmap.arrayListMap();
 
-	public void register(Class<? extends GenericEvent> key, Consumer<? super GenericEvent> element, boolean handler) {
-		(handler ? eventHandlers : eventResponders).putElement(key, element);
+	public void registerHandler(Class<? extends GenericEvent> key, Consumer<? super GenericEvent> element) {
+		eventHandlers.putElement(key, element);
 	}
 
-	public void unregister(Class<? extends GenericEvent> key, Consumer<? super GenericEvent> element, boolean handler) {
-		(handler ? eventHandlers : eventResponders).removeElement(key, element);
+	public void registerResponder(Class<? extends GenericEvent> key, Consumer<? super GenericEvent> element) {
+		eventResponders.putElement(key, element);
+	}
+
+	public void unregisterHandler(Class<? extends GenericEvent> key, Consumer<? super GenericEvent> element) {
+		eventHandlers.removeElement(key, element);
+	}
+
+	public void unregisterResponder(Class<? extends GenericEvent> key, Consumer<? super GenericEvent> element) {
+		eventResponders.removeElement(key, element);
+	}
+
+	public boolean isHandlerRegistered(Class<? extends GenericEvent> key, Consumer<? super GenericEvent> element) {
+		return eventHandlers.containsElement(key, element);
+	}
+
+	public boolean isResponderRegistered(Class<? extends GenericEvent> key, Consumer<? super GenericEvent> element) {
+		return eventResponders.containsElement(key, element);
 	}
 
 	public boolean isRegistered(Class<? extends GenericEvent> key, Consumer<? super GenericEvent> element) {
-		return isRegistered(key, element, true) || isRegistered(key, element, false);
-	}
-
-	public boolean isRegistered(Class<? extends GenericEvent> key, Consumer<? super GenericEvent> element,
-			boolean handler) {
-		return (handler ? eventHandlers : eventResponders).containsElement(key, element);
+		return isHandlerRegistered(key, element) || isResponderRegistered(key, element);
 	}
 
 	@SuppressWarnings("unchecked")
