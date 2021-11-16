@@ -20,7 +20,6 @@ import gartham.c10ver.economy.items.ItemBunch;
 import gartham.c10ver.economy.items.utility.crates.NormalCrate;
 import gartham.c10ver.economy.items.utility.foodstuffs.Sandwich;
 import gartham.c10ver.economy.users.EconomyUser;
-import gartham.c10ver.games.rpg.GARPGHandler;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.entities.Invite;
 import net.dv8tion.jda.api.entities.Role;
@@ -31,7 +30,6 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import zeale.applicationss.notesss.utilities.generators.Generator;
@@ -75,7 +73,6 @@ public class EventHandler implements EventListener {
 		this.clover = clover;
 		infoPopupGenerator = Generator.loop(clover.getTiplist());
 		voteManager = new VoteManager(clover);
-		garpgHandler = new GARPGHandler(clover);
 	}
 
 	public void initialize() {

@@ -70,6 +70,12 @@ import gartham.c10ver.games.math.MathProblem;
 import gartham.c10ver.games.math.MathProblem.AttemptResult;
 import gartham.c10ver.games.math.MathProblemGenerator;
 import gartham.c10ver.games.math.simple.SimpleMathProblemGenerator;
+import gartham.c10ver.games.rpg.creatures.Creature;
+import gartham.c10ver.games.rpg.creatures.Nymph;
+import gartham.c10ver.games.rpg.fighting.battles.app.GarmonBattle;
+import gartham.c10ver.games.rpg.fighting.battles.app.GarmonBattleManager;
+import gartham.c10ver.games.rpg.fighting.battles.app.GarmonFighter;
+import gartham.c10ver.games.rpg.fighting.battles.app.GarmonTeam;
 import gartham.c10ver.processing.commands.InventoryCommand;
 import gartham.c10ver.processing.trading.TradeManager;
 import gartham.c10ver.response.actions.ActionButton;
@@ -2579,6 +2585,30 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				am.create(clover, inv.event.getChannel().sendMessage(eb.build()), inv.event.getAuthor());
 			}
 
+		});
+
+		register(new MatchBasedCommand("rpg") {
+
+			@Override
+			public void exec(CommandInvocation inv) {
+				Creature wildNymph = new Nymph();
+				wildNymph.setLevel(BigInteger.valueOf(3));
+
+				var garf = new GarmonFighter("[Wild]", wildNymph);
+				var playerFighter = new GarmonFighter(inv.event.getAuthor().getName(),
+						inv.event.getAuthor().getEffectiveAvatarUrl(), BigInteger.valueOf(23), BigInteger.valueOf(100),
+						BigInteger.valueOf(100), BigInteger.valueOf(13), BigInteger.valueOf(7));
+
+				GarmonTeam playerTeam = new GarmonTeam(inv.event.getAuthor().getName(), playerFighter);
+				GarmonTeam wildTeam = new GarmonTeam("Wild Monsters", garf);
+
+				GarmonBattle battle = new GarmonBattle(playerTeam, wildTeam);
+
+				GarmonBattleManager gba = new GarmonBattleManager(battle, wildTeam, playerTeam, clover,
+						inv.event.getAuthor(), inv.event.getTextChannel());
+
+				gba.start();
+			}
 		});
 
 		help.addCommand("mailbox", "Shows you your mailbox! Your mail and passive rewards get sent here.", "mailbox",
