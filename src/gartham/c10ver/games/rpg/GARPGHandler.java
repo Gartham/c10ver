@@ -9,6 +9,12 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 
+/**
+ * Entry point for GARPG handling. Handles discord events and RPG logic.
+ * 
+ * @author Gartham
+ *
+ */
 public class GARPGHandler implements EventListener {
 
 	private final InputProcessor<MessageReactionAddEvent> reactionProcessor = new InputProcessor<>();
@@ -24,7 +30,7 @@ public class GARPGHandler implements EventListener {
 		return clover.getEconomy().getUser(event.getAuthor().getId()).getGarpgState();
 	}
 
-	public void onEvent(GuildMessageReceivedEvent event) {
+	private void onEvent(GuildMessageReceivedEvent event) {
 		var rpgstate = resolve(event);
 		if (rpgstate.isActive()) {
 
@@ -35,8 +41,32 @@ public class GARPGHandler implements EventListener {
 
 	@Override
 	public void onEvent(GenericEvent event) {
-		// TODO Auto-generated method stub
+		if (event instanceof GuildMessageReceivedEvent) {
+			GuildMessageReceivedEvent e = (GuildMessageReceivedEvent) event;
+			if (!checkChannel(e.getGuild().getId(), e.getChannel().getId()))
+				return;
+			onEvent(e);
+		} else if (event instanceof MessageReactionAddEvent) {
+			MessageReactionAddEvent e = (MessageReactionAddEvent) event;
+			if (!e.isFromGuild())
+				return;
+			if (!checkChannel(e.getGuild().getId(), e.getChannel().getId()))
+				return;
+			reactionProcessor.runInputHandlers(e);
+		} else if (event instanceof ButtonClickEvent) {
+			ButtonClickEvent e = (ButtonClickEvent) event;
+			if (!e.isFromGuild())
+				return;
+			if (!checkChannel(e.getGuild().getId(), e.getChannel().getId()))
+				return;
+			buttonProcessor.runInputHandlers(e);
+		}
+	}
 
+	public boolean checkChannel(String serverID, String channelID) {
+		if (!clover.getEconomy().hasServer(serverID))
+			return false;
+		return channelID.equals(clover.getEconomy().getServer(serverID).getRPGChannel());
 	}
 
 }
