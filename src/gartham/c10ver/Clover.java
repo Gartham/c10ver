@@ -23,6 +23,7 @@ import gartham.c10ver.commands.CommandProcessor;
 import gartham.c10ver.economy.Economy;
 import gartham.c10ver.events.EventHandler;
 import gartham.c10ver.events.InfoPopup;
+import gartham.c10ver.games.rpg.GARPGHandler;
 import gartham.c10ver.transactions.Transaction;
 import gartham.c10ver.transactions.Transaction.Entry;
 import gartham.c10ver.transactions.TransactionHandler;
@@ -82,6 +83,7 @@ public class Clover {
 	private final CommandParser commandParser;
 	private final CommandProcessor commandProcessor = new CloverCommandProcessor(this);
 	private final EventHandler eventHandler = new EventHandler(this);
+	private final GARPGHandler garpgHandler = new GARPGHandler(this);
 	private final Economy economy = new Economy(new File(root, "economy"), this);
 	private final Changelog changelog;
 	private final Set<String> devlist;
