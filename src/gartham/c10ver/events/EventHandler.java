@@ -53,7 +53,6 @@ public class EventHandler implements EventListener {
 	private final Generator<InfoPopup> infoPopupGenerator;
 	private final InviteTracker inviteTracker = new InviteTracker(this);
 	private final VoteManager voteManager;
-	private final GARPGHandler garpgHandler;
 
 	public VoteManager getVoteManager() {
 		return voteManager;
@@ -83,7 +82,6 @@ public class EventHandler implements EventListener {
 		this.clover = clover;
 		infoPopupGenerator = Generator.loop(clover.getTiplist());
 		voteManager = new VoteManager(clover);
-		garpgHandler = new GARPGHandler(clover);
 	}
 
 	public void initialize() {
@@ -108,10 +106,6 @@ public class EventHandler implements EventListener {
 
 			if (mre.isFromGuild() && clover.getEconomy().hasServer(mre.getGuild().getId())) {
 				var server = clover.getEconomy().getServer(mre.getGuild().getId());
-				if (mre.getChannel().getId().equals(server.getRPGChannel())) {
-					garpgHandler.onEvent((GuildMessageReceivedEvent) event);
-					return;
-				}
 
 				EconomyUser user = clover.getEconomy().getUser(mre.getAuthor().getId());
 				user.incrementMessageCount();
