@@ -108,12 +108,10 @@ public class GARPGCommand extends MatchBasedCommand {
 
 	private void handleSafariInvocation(CommandInvocation inv) {
 		// TODO Handle command being used in the rpg channel.
-		inv.event.getChannel().sendMessage("Processed.").queue();
 	}
 
 	private void handleGeneralInvocation(CommandInvocation inv) {
 		// TODO Handle command being used in non-rpg channel.
-		inv.event.getChannel().sendMessage("Processed!").queue();
 	}
 
 }
