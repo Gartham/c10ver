@@ -90,6 +90,7 @@ public class EventHandler implements EventListener {
 		inviteTracker.initialize();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void onEvent(GenericEvent event) {
 		if (event instanceof MessageReceivedEvent) {
@@ -207,11 +208,7 @@ public class EventHandler implements EventListener {
 				}
 			}
 
-		} else if (event instanceof MessageReactionAddEvent)
-			getReactionAdditionProcessor().runInputHandlers((MessageReactionAddEvent) event);
-		else if (event instanceof ButtonClickEvent)
-			getButtonClickProcessor().runInputHandlers((ButtonClickEvent) event);
-		else if (event instanceof GuildMemberJoinEvent)
+		} else if (event instanceof GuildMemberJoinEvent)
 			synchronized (this) {
 				var ge = (GuildMemberJoinEvent) event;
 				Invite inviteee = inviteTracker.calcUser(ge);
@@ -335,7 +332,10 @@ public class EventHandler implements EventListener {
 					}
 				}
 			}
-		}
+		} else// TODO Run all input processors.
+			for (Class<?> c = event.getClass(); GenericEvent.class.isAssignableFrom(c); c = c.getSuperclass())
+				if (inputProcessors.containsKey(c))
+					((InputProcessor<GenericEvent>) inputProcessors.get(c)).runInputHandlers(event);
 	}
 
 	private static void print(String str) {
