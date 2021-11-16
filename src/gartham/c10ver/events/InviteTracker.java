@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import gartham.c10ver.v2.api.events.EventManager;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Invite;
@@ -17,9 +18,9 @@ import net.dv8tion.jda.api.events.guild.update.GuildUpdateVanityCodeEvent;
 
 public class InviteTracker {
 	private final Map<String, Map<String, Integer>> invites = new HashMap<>();
-	private final EventHandler eventHandler;
+	private final EventManager eventHandler;
 
-	public InviteTracker(EventHandler eventHandler) {
+	public InviteTracker(EventManager eventHandler) {
 		this.eventHandler = eventHandler;
 	}
 

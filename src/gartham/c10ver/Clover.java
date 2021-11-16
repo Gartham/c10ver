@@ -21,12 +21,12 @@ import gartham.c10ver.changelog.Changelog;
 import gartham.c10ver.commands.CommandParser;
 import gartham.c10ver.commands.CommandProcessor;
 import gartham.c10ver.economy.Economy;
-import gartham.c10ver.events.EventHandler;
 import gartham.c10ver.events.InfoPopup;
 import gartham.c10ver.transactions.Transaction;
 import gartham.c10ver.transactions.Transaction.Entry;
 import gartham.c10ver.transactions.TransactionHandler;
 import gartham.c10ver.transactions.sockets.SocketTransactionHandler;
+import gartham.c10ver.v2.api.events.EventManager;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.User;
@@ -81,7 +81,7 @@ public class Clover {
 	private final JDA bot;
 	private final CommandParser commandParser;
 	private final CommandProcessor commandProcessor = new CloverCommandProcessor(this);
-	private final EventHandler eventHandler = new EventHandler(this);
+	private final EventManager eventHandler = new EventManager(this);
 	private final Economy economy = new Economy(new File(root, "economy"), this);
 	private final Changelog changelog;
 	private final Set<String> devlist;
@@ -196,7 +196,7 @@ public class Clover {
 		return commandProcessor;
 	}
 
-	public EventHandler getEventHandler() {
+	public EventManager getEventHandler() {
 		return eventHandler;
 	}
 

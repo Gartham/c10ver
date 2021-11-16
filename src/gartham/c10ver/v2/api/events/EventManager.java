@@ -1,4 +1,4 @@
-package gartham.c10ver.events;
+package gartham.c10ver.v2.api.events;
 
 import static gartham.c10ver.utils.Utilities.format;
 import static java.math.BigInteger.valueOf;
@@ -20,6 +20,9 @@ import gartham.c10ver.economy.items.ItemBunch;
 import gartham.c10ver.economy.items.utility.crates.NormalCrate;
 import gartham.c10ver.economy.items.utility.foodstuffs.Sandwich;
 import gartham.c10ver.economy.users.EconomyUser;
+import gartham.c10ver.events.InfoPopup;
+import gartham.c10ver.events.InviteTracker;
+import gartham.c10ver.events.VoteManager;
 import gartham.c10ver.games.rpg.GARPGHandler;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.entities.Invite;
@@ -36,7 +39,7 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import zeale.applicationss.notesss.utilities.generators.Generator;
 
-public class EventHandler implements EventListener {
+public class EventManager implements EventListener {
 
 	private final Clover clover;
 	private final InputProcessor<MessageReceivedEvent> messageProcessor = new InputProcessor<>();
@@ -72,7 +75,7 @@ public class EventHandler implements EventListener {
 		return buttonClickProcessor;
 	}
 
-	public EventHandler(Clover clover) {
+	public EventManager(Clover clover) {
 		this.clover = clover;
 		infoPopupGenerator = Generator.loop(clover.getTiplist());
 		voteManager = new VoteManager(clover);

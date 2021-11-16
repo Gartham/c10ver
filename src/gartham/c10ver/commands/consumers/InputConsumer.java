@@ -5,7 +5,7 @@ import java.time.Instant;
 import org.alixia.javalibrary.util.Box;
 
 import gartham.c10ver.commands.InputProcessor;
-import gartham.c10ver.events.EventHandler;
+import gartham.c10ver.v2.api.events.EventManager;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -22,8 +22,8 @@ public interface InputConsumer<E extends GenericEvent> {
 	 * {@link InputConsumer} "didn't match" the input.
 	 * 
 	 * @param event     The event to handle.
-	 * @param processor The {@link EventHandler} that is executing the
-	 *                  {@link #consume(E, EventHandler, InputConsumer)} method on
+	 * @param processor The {@link EventManager} that is executing the
+	 *                  {@link #consume(E, EventManager, InputConsumer)} method on
 	 *                  this {@link InputConsumer}.
 	 * @param consumer  This {@link InputConsumer}. Can be used to refer to this
 	 *                  {@link InputConsumer} from inside a lambda expression.
