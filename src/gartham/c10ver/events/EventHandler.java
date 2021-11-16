@@ -8,6 +8,8 @@ import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import gartham.c10ver.Clover;
@@ -39,9 +41,14 @@ import zeale.applicationss.notesss.utilities.generators.Generator;
 public class EventHandler implements EventListener {
 
 	private final Clover clover;
-	private final InputProcessor<MessageReceivedEvent> messageProcessor = new InputProcessor<>();
-	private final InputProcessor<MessageReactionAddEvent> reactionAdditionProcessor = new InputProcessor<>();
-	private final InputProcessor<ButtonClickEvent> buttonClickProcessor = new InputProcessor<>();
+	private final Map<Class<?>, InputProcessor<?>> inputProcessors = new HashMap<>();
+
+	@SuppressWarnings("unchecked")
+	public <E extends GenericEvent> InputProcessor<E> getProcessor(Class<E> eventType) {
+		if (!inputProcessors.containsKey(eventType))
+			inputProcessors.put(eventType, new InputProcessor<>());
+		return (InputProcessor<E>) inputProcessors.get(eventType);
+	}
 
 	private final Generator<InfoPopup> infoPopupGenerator;
 	private final InviteTracker inviteTracker = new InviteTracker(this);
@@ -61,15 +68,15 @@ public class EventHandler implements EventListener {
 	}
 
 	public InputProcessor<MessageReceivedEvent> getMessageProcessor() {
-		return messageProcessor;
+		return getProcessor(MessageReceivedEvent.class);
 	}
 
 	public InputProcessor<MessageReactionAddEvent> getReactionAdditionProcessor() {
-		return reactionAdditionProcessor;
+		return getProcessor(MessageReactionAddEvent.class);
 	}
 
 	public InputProcessor<ButtonClickEvent> getButtonClickProcessor() {
-		return buttonClickProcessor;
+		return getProcessor(ButtonClickEvent.class);
 	}
 
 	public EventHandler(Clover clover) {
@@ -93,7 +100,7 @@ public class EventHandler implements EventListener {
 
 			var ranCmd = false;
 			CommandInvocation commandInvoc = null;
-			if (!messageProcessor.runInputHandlers(mre))
+			if (!getMessageProcessor().runInputHandlers(mre))
 				if ((commandInvoc = clover.getCommandParser().parse(mre.getMessage().getContentRaw(), mre)) != null)
 					if (clover.getCommandProcessor().run(commandInvoc))
 						ranCmd = true;
@@ -201,9 +208,9 @@ public class EventHandler implements EventListener {
 			}
 
 		} else if (event instanceof MessageReactionAddEvent)
-			reactionAdditionProcessor.runInputHandlers((MessageReactionAddEvent) event);
+			getReactionAdditionProcessor().runInputHandlers((MessageReactionAddEvent) event);
 		else if (event instanceof ButtonClickEvent)
-			buttonClickProcessor.runInputHandlers((ButtonClickEvent) event);
+			getButtonClickProcessor().runInputHandlers((ButtonClickEvent) event);
 		else if (event instanceof GuildMemberJoinEvent)
 			synchronized (this) {
 				var ge = (GuildMemberJoinEvent) event;
