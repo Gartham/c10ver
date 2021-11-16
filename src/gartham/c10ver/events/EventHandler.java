@@ -95,7 +95,6 @@ public class EventHandler implements EventListener {
 						ranCmd = true;
 
 			if (mre.isFromGuild() && clover.getEconomy().hasServer(mre.getGuild().getId())) {
-				var server = clover.getEconomy().getServer(mre.getGuild().getId());
 
 				EconomyUser user = clover.getEconomy().getUser(mre.getAuthor().getId());
 				user.incrementMessageCount();
