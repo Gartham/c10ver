@@ -225,6 +225,7 @@ public class Clover {
 		commandParser = new CommandParser(Matching.build(devmode ? "$" : "~").or(
 				Matching.build("<@").possibly("!").then(bot.getSelfUser().getId() + ">").then(Matching.whitespace())));
 		bot.addEventListener(eventHandler);
+		bot.addEventListener(garpgHandler);
 		eventHandler.initialize();
 
 		transactionHandler.enable();
