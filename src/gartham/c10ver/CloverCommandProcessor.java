@@ -70,6 +70,7 @@ import gartham.c10ver.games.math.MathProblem;
 import gartham.c10ver.games.math.MathProblem.AttemptResult;
 import gartham.c10ver.games.math.MathProblemGenerator;
 import gartham.c10ver.games.math.simple.SimpleMathProblemGenerator;
+import gartham.c10ver.games.rpg.GARPGCommand;
 import gartham.c10ver.processing.commands.InventoryCommand;
 import gartham.c10ver.processing.trading.TradeManager;
 import gartham.c10ver.response.actions.ActionButton;
@@ -102,6 +103,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 	public CloverCommandProcessor(Clover clover) {
 		this.clover = clover;
 		tradeManager = new TradeManager(clover);
+		register(new GARPGCommand(clover));
 		register(new InventoryCommand(clover, "inventory", "inv"));
 		register(new PrivateChannelCommand(clover, help));
 	}
@@ -2581,6 +2583,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 
 		});
 
+		help.addCommand("explore", "Explores the world! Use this command in the RPG channel for better loot!",
+				"explore", "rpg");
 		help.addCommand("mailbox", "Shows you your mailbox! Your mail and passive rewards get sent here.", "mailbox",
 				"mail");
 		help.addCommand("settings",
