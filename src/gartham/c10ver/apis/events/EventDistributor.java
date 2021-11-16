@@ -15,18 +15,23 @@ public class EventDistributor implements EventListener {
 
 	private final Map<Class<?>, InputProcessor<?>> inputProcessors = new HashMap<>();
 	private final Listmap<Class<? extends GenericEvent>, Consumer<? super GenericEvent>, ArrayList<Consumer<? super GenericEvent>>> eventHandlers = Listmap
-			.arrayListMap();
+			.arrayListMap(), eventResponders = Listmap.arrayListMap();
 
-	public void registerHandler(Class<? extends GenericEvent> key, Consumer<? super GenericEvent> element) {
-		eventHandlers.putElement(key, element);
+	public void register(Class<? extends GenericEvent> key, Consumer<? super GenericEvent> element, boolean handler) {
+		(handler ? eventHandlers : eventResponders).putElement(key, element);
 	}
 
-	public void unregisterHandler(Class<? extends GenericEvent> key, Consumer<? super GenericEvent> element) {
-		eventHandlers.removeElement(key, element);
+	public void unregister(Class<? extends GenericEvent> key, Consumer<? super GenericEvent> element, boolean handler) {
+		(handler ? eventHandlers : eventResponders).removeElement(key, element);
 	}
 
-	public boolean isHandlerRegistered(Class<? extends GenericEvent> key, Consumer<? super GenericEvent> element) {
-		return eventHandlers.containsElement(key, element);
+	public boolean isRegistered(Class<? extends GenericEvent> key, Consumer<? super GenericEvent> element) {
+		return isRegistered(key, element, true) || isRegistered(key, element, false);
+	}
+
+	public boolean isRegistered(Class<? extends GenericEvent> key, Consumer<? super GenericEvent> element,
+			boolean handler) {
+		return (handler ? eventHandlers : eventResponders).containsElement(key, element);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -52,6 +57,12 @@ public class EventDistributor implements EventListener {
 			if (inputProcessors.containsKey(c))
 				if (((InputProcessor<GenericEvent>) inputProcessors.get(c)).runInputHandlers(event))
 					return;// runInputHandlers returns true if the input has already been handled.
+
+		// Run all event responders if input processors do not block them.
+		for (Class<?> c = event.getClass(); GenericEvent.class.isAssignableFrom(c); c = c.getSuperclass())
+			if (eventResponders.containsKey(c))
+				for (var v : eventResponders.get(c))
+					v.accept(event);
 
 	}
 
