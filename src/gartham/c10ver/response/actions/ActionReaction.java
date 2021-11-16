@@ -41,13 +41,13 @@ public class ActionReaction {
 	}
 
 	public static ActionReaction msg(MenuMessage<? extends ActionReaction, ? extends ActionButton> msg) {
-		return new ActionReaction(null,
-				t -> msg.send(t.getClover(), t.getEvent().getChannel(), t.getEvent().getUser()));
+		return new ActionReaction(null, t -> msg.send(t.getReactionProcessor(), t.getButtonClickProcessor(),
+				t.getEvent().getChannel(), t.getEvent().getUser()));
 	}
 
 	public static ActionReaction msg(String emoji, MenuMessage<? extends ActionReaction, ? extends ActionButton> msg) {
-		return new ActionReaction(emoji,
-				t -> msg.send(t.getClover(), t.getEvent().getChannel(), t.getEvent().getUser()));
+		return new ActionReaction(emoji, t -> msg.send(t.getReactionProcessor(), t.getButtonClickProcessor(),
+				t.getEvent().getChannel(), t.getEvent().getUser()));
 	}
 
 	public static Consumer<ActionReactionInvocation> actionMessageAction(NamedActionReaction... actionMessages) {
@@ -56,14 +56,16 @@ public class ActionReaction {
 
 	public static Consumer<ActionReactionInvocation> actionMessageAction(
 			MenuMessage<? extends ActionReaction, ? extends ActionButton> msg) {
-		return t -> msg.send(t.getClover(), t.getEvent().getChannel(), t.getEvent().getUser());
+		return t -> msg.send(t.getReactionProcessor(), t.getButtonClickProcessor(), t.getEvent().getChannel(),
+				t.getEvent().getUser());
 	}
 
 	public static Consumer<ActionReactionInvocation> actionMessageAction(MenuMessage<?, ?> msg,
 			Consumer<ActionReactionInvocation> action) {
 		return t -> {
 			action.accept(t);
-			msg.send(t.getClover(), t.getEvent().getChannel(), t.getEvent().getUser());
+			msg.send(t.getReactionProcessor(), t.getButtonClickProcessor(), t.getEvent().getChannel(),
+					t.getEvent().getUser());
 		};
 	}
 
@@ -83,7 +85,8 @@ public class ActionReaction {
 	public static ActionReaction msg(String emoji, MenuMessage<?, ?> msg, Consumer<ActionReactionInvocation> action) {
 		return new ActionReaction(emoji, t -> {
 			action.accept(t);
-			msg.send(t.getClover(), t.getEvent().getChannel(), t.getEvent().getUser());
+			msg.send(t.getReactionProcessor(), t.getButtonClickProcessor(), t.getEvent().getChannel(),
+					t.getEvent().getUser());
 		});
 	}
 }

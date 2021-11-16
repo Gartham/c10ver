@@ -130,7 +130,8 @@ public final class GarmonBattleManager {
 							}));
 				dam.getReactions().add(new DetailedActionReaction("Back", "Return to the previous menu.",
 						DetailedActionReaction.actionMessageAction(source)));
-				dam.send(t.getClover(), t.getEvent().getChannel(), t.getEvent().getUser());
+				dam.send(t.getReactionProcessor(), t.getButtonClickProcessor(), t.getEvent().getChannel(),
+						t.getEvent().getUser());
 			}
 		});
 	}

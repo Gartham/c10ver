@@ -7,11 +7,13 @@ import java.util.List;
 import org.alixia.javalibrary.JavaTools;
 
 import gartham.c10ver.Clover;
+import gartham.c10ver.commands.InputProcessor;
 import gartham.c10ver.commands.consumers.InputConsumer;
 import gartham.c10ver.commands.consumers.MessageReactionInputConsumer;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Component;
@@ -146,6 +148,52 @@ public final class ActionMessage<R extends ActionReaction, B extends ActionButto
 	 *               react).
 	 */
 	public final void create(Clover clover, MessageAction ma, User target) {
+		create(ma, target, clover.getEventHandler().getReactionAdditionProcessor(),
+				clover.getEventHandler().getButtonClickProcessor());
+	}
+
+	/**
+	 * <p>
+	 * Sends this {@link ActionMessage} as the provided JDA {@link MessageAction}.
+	 * </p>
+	 * <h3>Reactions</h3>
+	 * <p>
+	 * If this {@link ActionMessage} has any {@link #getReactions() reaction}
+	 * actions registered to it, then those will automatically be added to the
+	 * discord message that gets sent by this method, and the provided
+	 * {@link InputProcessor reactionProcessor} will be used to listen for users
+	 * clicking an action (by clicking one of the reactions).
+	 * </p>
+	 * <h3>Buttons</h3>
+	 * <p>
+	 * If this {@link ActionMessage} has any {@link #getButtons() button} actions
+	 * assigned to it, then those will be added to the {@link MessageAction}
+	 * provided, and the discord message will then show buttons to users once it's
+	 * sent. The provided {@link InputProcessor ButtonClickProcessor} is used to
+	 * listen to buttons being clicked by users.
+	 * </p>
+	 * <h3>Nulls</h3>
+	 * <p>
+	 * The <code>reactionProcessor</code> or <code>buttonClickProcessor</code> can
+	 * be <code>null</code> so long as this {@link ActionMessage} doesn't have any
+	 * {@link #getReactions() reactions} or {@link #getButtons() buttons}
+	 * registered, respectively. If this {@link ActionMessage} has either reactions
+	 * or buttons, and the <code>reactionProcessor</code> or
+	 * <code>buttonClickProcessor</code> are <code>null</code>, respectively, this
+	 * method will throw an error.
+	 * </p>
+	 * 
+	 * @param ma                   The message to send and attach buttons and/or
+	 *                             reactions to.
+	 * @param target               The targeted user who is expected to invoke the
+	 *                             actions represented by the buttons or reactions.
+	 * @param reactionProcessor    The reaction addition processor to use to listen
+	 *                             to reactions with.
+	 * @param buttonClickProcessor The button click processor to use to listen to
+	 *                             button clicks with.
+	 */
+	public final void create(MessageAction ma, User target, InputProcessor<MessageReactionAddEvent> reactionProcessor,
+			InputProcessor<ButtonClickEvent> buttonClickProcessor) {
 		if (!buttons.isEmpty()) {
 			List<ActionRow> rows = new ArrayList<>();
 			List<Component> comps = new ArrayList<>();
@@ -166,13 +214,14 @@ public final class ActionMessage<R extends ActionReaction, B extends ActionButto
 					String customEmoji = reactions.get(i).getEmoji();
 					t.addReaction(customEmoji == null ? EMOJIS[i] : customEmoji).queue();
 				}
-				clover.getEventHandler().getReactionAdditionProcessor().registerInputConsumer(
+				reactionProcessor.registerInputConsumer(
 						((MessageReactionInputConsumer<MessageReactionAddEvent>) (event, processor, consumer) -> {
 							for (int i = 0; i < reactions.size(); i++) {
 								String customEmoji = reactions.get(i).getEmoji();
 								if (event.getReactionEmote().getEmoji()
 										.equals(customEmoji == null ? EMOJIS[i] : customEmoji)) {
-									reactions.get(i).accept(new ActionReactionInvocation(event, this, clover));
+									reactions.get(i).accept(new ActionReactionInvocation(event, this, reactionProcessor,
+											buttonClickProcessor));
 									return true;
 								}
 							}
@@ -180,13 +229,14 @@ public final class ActionMessage<R extends ActionReaction, B extends ActionButto
 						}).filter(target, t).oneTime());
 			}
 			if (!buttons.isEmpty())
-				clover.getEventHandler().getButtonClickProcessor()
+				buttonClickProcessor
 						.registerInputConsumer(((InputConsumer<ButtonClickEvent>) (event, processor, consumer) -> {
 							if (event.getMessage().equals(t))
 								for (B b : buttons)
 									if (b.getComponent().getId().equals(event.getComponentId())) {
 										if (event.getUser().equals(target)) {
-											b.getAction().accept(new ActionButtonInvocation(event, this, clover));
+											b.getAction().accept(new ActionButtonInvocation(event, this,
+													reactionProcessor, buttonClickProcessor));
 											try {
 												event.editButton(event.getButton().asDisabled()).queue();
 											} catch (Exception e) {
