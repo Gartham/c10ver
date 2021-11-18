@@ -36,6 +36,23 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
+/**
+ * <h3>API</h3>
+ * <p>
+ * <ol>
+ * <li>Handles rewarding users given the "vote role."
+ * <ul>
+ * <li>Rewards the user.</li>
+ * <li>Removes the role.</li>
+ * </ul>
+ * </li>
+ * <li>Also handles reminders automatically.</li>
+ * </ol>
+ * </p>
+ * 
+ * @author Gartham
+ *
+ */
 public class VoteManager {
 
 	private final Timer timer = new Timer(true);
@@ -68,7 +85,6 @@ public class VoteManager {
 			multipliers.put(AbstractMultiplier.ofHr(12, BigDecimal.valueOf(3, 1)), 1);
 		if (Math.random() > 0.5)
 			multipliers.put(AbstractMultiplier.ofHr(12, BigDecimal.valueOf(5, 1)), 1);
-
 
 		EconomyUser u = clover.getEconomy().getUser(member.getId());
 		u.incrementVoteCount();
