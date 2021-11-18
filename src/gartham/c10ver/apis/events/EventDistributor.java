@@ -94,6 +94,19 @@ import net.dv8tion.jda.api.hooks.EventListener;
  */
 public class EventDistributor implements EventListener {
 
+	/**
+	 * Creates a new {@link Consumer} based off the provided {@link EventListener}.
+	 * All events provided to the {@link Consumer} are simply forwarded to the
+	 * {@link EventListener}.
+	 * 
+	 * @param <E>      The type of the {@link Consumer}.
+	 * @param listener The {@link EventListener} to receive the events.
+	 * @return The new {@link Consumer}.
+	 */
+	public static <E extends GenericEvent> Consumer<? extends E> consumer(EventListener listener) {
+		return listener::onEvent;
+	}
+
 	private final Map<Class<?>, InputProcessor<?>> inputProcessors = new HashMap<>();
 	private final Listmap<Class<? extends GenericEvent>, Consumer<? super GenericEvent>, ArrayList<Consumer<? super GenericEvent>>> eventHandlers = Listmap
 			.arrayListMap(), eventResponders = Listmap.arrayListMap();
