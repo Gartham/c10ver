@@ -57,8 +57,7 @@ import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
  * <code>0</code> ticks by definition (because it must wait <code>0</code> ticks
  * before making its move).</li>
  * <li>Any move that a fighter can make <i>costs</i> a certain number of ticks.
- * This cost is added to the fighter's ticks when the fighter makes a
- * move.</li>
+ * This cost is added to the fighter's ticks when the fighter makes a move.</li>
  * <li>When a fighter makes a move, the following two operations are performed,
  * in order:
  * <ol>
@@ -125,8 +124,31 @@ import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
  * </p>
  * <h1>Class Model</h1>
  * <p>
- * This class models a battle as described above, with a focus on the above
- * characteristics and behavior.
+ * This class models a battle.
+ * </p>
+ * <h2>Construction</h2>
+ * <p>
+ * Constructing a {@link Battle} requires at least two {@link Team}s.
+ * </p>
+ * <p>
+ * Upon construction, the {@link #getBattleQueueUnmodifiable() battle queue} is
+ * calculated by assigning ticks to each {@link Fighter}. Tick assignment is
+ * determined by the {@link #assignInitialTicks(List)} method, which can be
+ * overridden by subclasses. By default, {@link #assignInitialTicks(List)}'s
+ * tick assignment algorithm is randomized but is partially dependent on each
+ * {@link Fighter}'s speed at the time of tick assignment.
+ * </p>
+ * <p>
+ * Once a {@link Battle} is constructed, it is in its initial state and is ready
+ * for the first {@link Fighter} to make its first move.
+ * </p>
+ * <h2>Logistics</h2>
+ * <p>
+ * <ul>
+ * <li>It tracks the <b>health</b> of each {@link Fighter} in the battle.</li>
+ * <li>It tracks the <b>membership</b> of each {@link Team} in the battle.</li>
+ * <li>It tracks the <b>ticks</b> of each {@link Fighter} in the battle.</li>
+ * </ul>
  * </p>
  * <h2>Battle Queue</h2>
  * <p>
