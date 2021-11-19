@@ -15,32 +15,128 @@ import java.util.Set;
 import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
 
 /**
+ * <h1>Introduction</h1><i>- A brief overview of the <b>concept</b> of
+ * battles.</i>
  * <p>
- * A {@link Battle} is a fight between at least two {@link Team}s, each composed
- * of at least one {@link Fighter}. {@link Battle}s are <b>turn-based</b>, with
- * each turn being taken through the doing of an <b>action</b> by a
- * {@link Fighter}. Each action "takes" a certain number of "ticks", which are,
- * in a sense, time in a battle. When a fighter acts during its turn, the number
- * of ticks the action takes is the number of ticks "until" it is that same
- * {@link Fighter}'s turn to make its next move. Upon the conclusion of any
- * turn, if all {@link Fighter}s on a {@link Team} are considered dead (i.e.
- * their health is <code>0</code>), that {@link Team} is considered dead. Once
- * all but one {@link Team} is considered dead, that {@link Team} wins the
- * {@link Battle}. If, upon the conclusion of a turn, all {@link Team}s are
- * dead, the battle is considered a draw between <b>all participating
- * {@link Team}s</b>.
+ * This class models a <i>battle</i>, which is a structured conflict that occurs
+ * between two (or more) parties, each known as a <i>team</i>. Battles are
+ * carried out by <i>fighters</i>, (each of which belong to a team), that
+ * <i>make moves</i> with the goal of having their team <i>win</i> the battle.
  * </p>
  * <p>
- * Each turn, a {@link Fighter} takes an <b>action</b>. Actions take a certain
- * number of ticks and can modify the {@link Battle} in any way that the
- * {@link Battle} permits. Subclasses may expose behavior and functionality that
- * modifies the battle as they see fit. They may also expose behavior and
- * functionality that build upon the basic concept of a {@link Battle} (e.g.
- * adding "effects" that target {@link Fighter}s, which are kept track of by the
- * {@link Battle} and cease their effects after a certain number of ticks,
- * affecting the targeted {@link Fighter} while extant). {@link Battle}
- * subclasses should expose the actions that can be taken by a {@link Fighter}
- * to calling code through some means.
+ * At any given moment in a battle, it is a <b>single</b> fighter's <i>turn</i>
+ * to make a move, and each fighter works with the goal of eliminating all other
+ * fighters of all other teams, from the battle. A fighter is considered
+ * "eliminated" when its health is <code>0</code> or less, and a team is
+ * considered eliminated when all of its fighters are eliminated.
+ * </p>
+ * <p>
+ * Once all but one team is/are eliminated, the one remaining team is considered
+ * the winner of the battle.
+ * </p>
+ * <h2>Moves</h2>
+ * <p>
+ * When it is one's turn, a fighter must make a move to affect the state of the
+ * battle. This class considers a move to be any action that <i>possibly</i>
+ * affects the state of a battle and takes a non-negative amount of
+ * <i>ticks</i>. The set of moves that a fighter can make and the behavior of
+ * those moves with regard to the battle is determined by the developer
+ * utilizing this class
+ * </p>
+ * <h2>Ticks</h2>
+ * <p>
+ * In a battle, each fighter must wait a certain number of <i>ticks</i> before
+ * it can make its next move. The number of ticks a fighter must wait before
+ * making a move is referred to as that fighter's ticks (possessively). <i>A
+ * fighter's ticks is the number of ticks that fighter must wait before making
+ * its next move.</i>
+ * </p>
+ * <p>
+ * <ul>
+ * <li>When it is a fighter's turn to make a move, that fighter has
+ * <code>0</code> ticks by definition (because it must wait <code>0</code> ticks
+ * before making its move).</li>
+ * <li>Any move that a fighter can make <i>costs</i> a certain number of ticks.
+ * This cost is added to the fighter's ticks when the fighter makes a
+ * move.</li>
+ * <li>When a fighter makes a move, the following two operations are performed,
+ * in order:
+ * <ol>
+ * <li>The cost of that move is added to that fighter's ticks.</li>
+ * <li>The ticks of the fighter with the lowest number of ticks is subtracted
+ * from <i>all</i> fighters. This is the battle analogue of "time passing."</li>
+ * </ol>
+ * </li>
+ * </ul>
+ * The cost of a move can be imagined as the number of ticks before the fighter
+ * will get to act again. When a fighter makes its move, it must wait before
+ * making a second move, so the first move's cost is added to its ticks.
+ * Correspondingly, it must then be a (different) fighter's turn to make a move,
+ * so the battle "waits through" the number of ticks of the fighter with the
+ * lowest number of ticks. This fighter then gets a tick count of
+ * <code>0</code>, and then gets to move.
+ * </p>
+ * <figure><img style="display:block;" height=200px src=
+ * "doc-files/TickingExample.png"><figcaption>Example of a battle modeled as a
+ * state transition diagram. Each rectangle (named "Battle" in the top left) is
+ * a state, and transitions are denoted with colored arrows.
+ * <span style="color:#B85450;">Red arrows</span> denote moves made by a fighter
+ * represented by a <span style="color:#B85450;">red box</span>, and
+ * respectively for the <span style="color:#82B366;">green arrows</span>. Ticks
+ * are denoted with <span style="color:#D6B656;">gold colored</span> boxes
+ * inside fighters.<br>
+ * Initially, it is <span style="color:#B85450;">Red's</span> turn, and
+ * <span style="color:#82B366;">Green</span> has <code>30</code> ticks.
+ * <span style="color:#B85450;">Red</span> then makes a move that costs
+ * <code>500</code> ticks, which causes <span style="color:#B85450;">Red</span>
+ * to have <code>500</code> ticks and <span style="color:#82B366;">Green</span>
+ * to have <code>30</code>. The battle then calculates the next fighter's turn
+ * (<span style="color:#82B366;">Green</span>, since
+ * <span style="color:#82B366;">Green</span> has the fewest ticks of the two
+ * fighters) and reduces all fighters ticks by that amount, making
+ * <span style="color:#82B366;">Green</span>'s ticks <code>0</code> and leaving
+ * <span style="color:#B85450;">Red</span> with <code>470</code>.
+ * <span style="color:#B85450;">Red</span> must then wait until its tick count
+ * reaches <code>0</code> again to make its next move.</figcaption></figure>
+ * <p>
+ * Battle ticks are an analogue of real time (they can be imagined as "battle
+ * time") but should not be confused with real time; the two are completely
+ * disjoint. Operations "costing" ticks can be performed instantaneously with
+ * respect to real time, which is why battles are referred to as "asynchronous."
+ * No operation in this class is specified to be a blocking operation per this
+ * documentation.
+ * </p>
+ * <h2>State System</h2>
+ * <p>
+ * Battles can be modeled as a state system that changes state only when a move
+ * is made by a fighter.<figure><img style="display:block;" width=400px src=
+ * "doc-files/BattleState.png"/><figcaption>Diagram detailing the state of a
+ * battle. An arrow denotes <i>containment</i>, in the sense that the state of a
+ * Battle contains the state of multiple teams.</figcaption></figure> A battle's
+ * state is made up of the states of that battle's participating teams, and the
+ * queue of fighters. Each team's state comprises the state of each of that
+ * team's fighters, (including the fighter's health and status effects
+ * (buffs/debuffs)). This gives a hierarchy as depicted in the diagram.
+ * </p>
+ * <p>
+ * Battles change state whenever a fighter makes a move. Making a move can
+ * affect the position of each fighter in the fighter queue (as denoted below),
+ * the state of each fighter, and the state of each team.
+ * </p>
+ * <h1>Class Model</h1>
+ * <p>
+ * This class models a battle as described above, with a focus on the above
+ * characteristics and behavior.
+ * </p>
+ * <h2>Battle Queue</h2>
+ * <p>
+ * The {@link #getBattleQueueUnmodifiable() battle queue} is an ordered list
+ * containing all living (i.e., non-eliminated) fighters in a battle, sorted by
+ * ticks, ascendingly. The battle queue is used to determine which fighter's
+ * turn it is (simply by checking the head of the queue, which always has
+ * <code>0</code> ticks). The order and contents of the battle queue is managed
+ * by this class and is unalterable by calling code, although it is viewable
+ * through {@link #getBattleQueueUnmodifiable()}.
  * </p>
  * 
  * @author Gartham
