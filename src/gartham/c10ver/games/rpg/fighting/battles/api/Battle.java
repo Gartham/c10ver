@@ -124,7 +124,39 @@ import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
  * </p>
  * <h1>Class Model</h1>
  * <p>
- * This class models a battle.
+ * This class models a battle, as described above. It is constructed with at
+ * least two {@link Team}s and it begins in its initial state (awaiting the
+ * first fighter's move) immediately after construction.
+ * </p>
+ * <p>
+ * This class manages the <b>ticks</b> and <b>liveliness</b> of each fighter,
+ * (more specifically, it keeps track of a {@link #getBattleQueueUnmodifiable()
+ * battle queue}), such that the following properties hold at all times except
+ * during the execution of a move, (as this class is not synchronized):
+ * <ol>
+ * <li>The {@link #getBattleQueueUnmodifiable() battle queue} is comprised only
+ * of every living {@link Fighter}.</li>
+ * <li>The {@link #getBattleQueueUnmodifiable() battle queue} is sorted in
+ * ascending order, with the first element having the fewest ticks.</li>
+ * <li>The first element of the {@link #getBattleQueueUnmodifiable() battle
+ * queue} has exactly <code>0</code> ticks.</li>
+ * </ol>
+ * </p>
+ * <p>
+ * This class does not report the effects of {@link Fighter}s' moves to calling
+ * code. When calling code affects the state of the {@link Battle} in some way,
+ * it is expected to determine the effects.
+ * </p>
+ * <p>
+ * This class provides observation of battle state via the
+ * {@link #getActingFighter()} and {@link #getBattleQueueUnmodifiable()}
+ * methods.
+ * <ul>
+ * <li>Changes to battle
+ * <li>The changed properties of individual {@link Fighter}s can be observed
+ * through their respective objects. (E.g., changes in health or other
+ * stats.)</li>
+ * <li>Changes in
  * </p>
  * <h2>Construction</h2>
  * <p>
