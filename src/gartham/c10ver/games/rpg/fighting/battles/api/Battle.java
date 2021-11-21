@@ -256,7 +256,7 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>, R extends 
 	 * </p>
 	 */
 	public void updateFighterStates() {
-
+//		for
 	}
 
 	/**
@@ -355,51 +355,12 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>, R extends 
 	}
 
 	/**
-	 * Acts as the current {@link Fighter}.
-	 * 
-	 * @param action The action to take.
-	 * @return <code>true</code> if the {@link Battle} is over.
-	 */
-	public final ActionCompletion<R, F> act(A action) {
-		var fighter = getCurrentFighter();
-		var t = handleAction(action, fighter);
-		ticksTillTurn.put(fighter, ticksTillTurn.get(fighter) + t.getTicks());// We get the ticks for our fighter
-																				// because the
-		// action taken my have modified its ticks via
-		// side-effect.
-		if (state == State.STOPPED)
-			return new ActionCompletion<>(true, fighter, t);
-
-		// Finally we re-sort the battle queue.
-		sortQueue();
-		shiftQueue();
-		return new ActionCompletion<>(false, fighter, t);
-
-	}
-
-	/**
-	 * Performs any unique behavior specified by the provided <code>action</code>,
-	 * and returns the number of ticks that the action has taken. This method should
-	 * <b>not</b> add said number of ticks to the {@link Fighter} that performed the
-	 * action. That is handled by {@link #act(Object)} in the {@link Battle} class.
-	 * 
-	 * @param action  The action taken.
-	 * @param fighter The {@link Fighter} that took the action (i.e. the current
-	 *                fighter). At the beginning of this method call, (as per normal
-	 *                {@link Battle} behavior), this argument should be exactly the
-	 *                same as the {@link Fighter} in the front (position
-	 *                <code>0</code>) of the {@link #battleQueue battle queue}.
-	 * @return An {@link ActionResult} object containing the number of ticks that
-	 *         the action took as well as any other information used by this battle.
-	 */
-	protected abstract R handleAction(A action, F fighter);
-
-	/**
 	 * Sorts the battle queue according to ticks. This is automatically done at the
-	 * conclusion of every turn, specifically after the ticks to the {@link Fighter}
-	 * that has just performed its action have been applied to it.
+	 * conclusion of every turn (by {@link #act(int)}), specifically after the ticks
+	 * to the {@link Fighter} that has just performed its action have been applied
+	 * to it.
 	 */
-	protected final void sortQueue() {
+	protected final void sort() {
 		Collections.sort(battleQueue, sortingComparator());
 	}
 
@@ -410,8 +371,8 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>, R extends 
 		};
 	}
 
-	protected final void shiftQueue() {
-		var ticks = getTicks(getCurrentFighter());
+	protected final void normalize() {
+		var ticks = getTicks(battleQueue.get(0));
 		if (ticks != 0)
 			for (var e : ticksTillTurn.entrySet())
 				e.setValue(e.getValue() - ticks);
@@ -419,7 +380,7 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>, R extends 
 
 	@SafeVarargs
 	public Battle(T... teams) {
-		teamsUnmodifiable = Collections.unmodifiableSet(this.teams = new HashSet<>());
+		this.teams = new HashSet<>();
 		for (var t : teams) {
 			this.teams.add(t);
 			for (var f : t)
@@ -429,26 +390,29 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>, R extends 
 	}
 
 	public Battle(Collection<T> teams) {
-		teamsUnmodifiable = Collections.unmodifiableSet(this.teams = new HashSet<>(teams));
+		this.teams = new HashSet<>(teams);
 		for (var t : teams)
 			for (var f : t)
 				battleQueue.add(-Collections.binarySearch(battleQueue, f, Comparator.<F>naturalOrder().reversed()) - 1,
 						f);
 	}
 
-	public void stop() {
-		state = State.STOPPED;
-	}
-
-	public final F getActingFighter() {
-		return battleQueue.get(0);
-	}
-
 	/**
-	 * Gets the {@link Team} that the provided {@link Fighter} belongs to.
+	 * <p>
+	 * Gets the {@link Team} that the provided {@link Fighter} belongs to by
+	 * searching each {@link Team} until the specified {@link Fighter} is found in
+	 * one. If no {@link Team} contains the specified {@link Fighter}, this method
+	 * returns <code>null</code>.
+	 * </p>
+	 * <p>
+	 * This method searches {@link #getTeams() every Team in this Battle},
+	 * <i>not</i> just {@link #getRemainingTeams() remaining team}s.
+	 * </p>
 	 * 
 	 * @param f0 The {@link Fighter} to get the {@link Team} of.
-	 * @return The {@link Team} that the provided {@link Fighter} belongs to.
+	 * @return The {@link Team} that the provided {@link Fighter} belongs to, or
+	 *         <code>null</code> if such {@link Team} is not tracked by this
+	 *         {@link Battle}.
 	 */
 	public final T getTeam(F f0) {
 		for (var t : teams)
@@ -519,7 +483,10 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>, R extends 
 
 	/**
 	 * Returns the number of living {@link Fighter}s still participating in this
-	 * {@link Battle}.
+	 * {@link Battle}. This method does reflects the state of all the
+	 * {@link Fighter}s in this {@link Battle} since the last call to
+	 * {@link #updateFighterStates()} (or {@link #act(int)}, since {@link #act(int)}
+	 * calls {@link #updateFighterStates()}).
 	 * 
 	 * @return The number of {@link Fighter}s in this {@link Battle}.
 	 */
@@ -529,32 +496,34 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>, R extends 
 
 	public List<F> getRemainingFighters(T team) {
 		List<F> fighters = new ArrayList<>();
-		for (F f : battleQueue)
-			if (!f.isFainted() && team.contains(f))
+		for (F f : team)
+			if (!f.isFainted())
 				fighters.add(f);
 		return fighters;
 	}
 
-	/**
-	 * Causes the specified {@link Team} to forfeit the battle. This will result in
-	 * a win for the opposing {@link Team}, if there is only one opposing
-	 * {@link Team} remaining. Otherwise, any remaining {@link Team}s will continue
-	 * battle.
-	 * 
-	 * @param team The {@link Team} to surrender.
-	 */
-	protected final void surrender(T team) {
-		for (Iterator<F> iterator = battleQueue.iterator(); iterator.hasNext();)
-			if (team.contains(iterator.next()))
-				iterator.remove();
-		teamLose(team);
-	}
+	// Closed until manual tracking of surrendered teams is made (so that teams can
+	// "temporarily surrender").
+//	/**
+//	 * Causes the specified {@link Team} to forfeit the battle. This will result in
+//	 * a win for the opposing {@link Team}, if there is only one opposing
+//	 * {@link Team} remaining. Otherwise, any remaining {@link Team}s will continue
+//	 * battle.
+//	 * 
+//	 * @param team The {@link Team} to surrender.
+//	 */
+//	protected final void surrender(T team) {
+//		for (Iterator<F> iterator = battleQueue.iterator(); iterator.hasNext();)
+//			if (team.contains(iterator.next()))
+//				iterator.remove();
+//		teamLose(team);
+//	}
 
 	/**
 	 * Returns the winning {@link Team} if this {@link Battle} is over and is not a
 	 * draw. Otherwise, returns <code>null</code>.
 	 * 
-	 * @return The winning {@link Team}, if there is one.
+	 * @return The winning {@link Team}, if there currently is one.
 	 */
 	public final T getWinningTeam() {
 		return remainingTeams.size() == 1 ? remainingTeams.iterator().next() : null;
@@ -568,26 +537,6 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>, R extends 
 	 */
 	public final boolean isDraw() {
 		return remainingTeams.isEmpty();
-	}
-
-	/**
-	 * <p>
-	 * Removes the specified {@link Fighter} from this {@link Battle}. This is done
-	 * whenever a {@link Fighter} "faints" or otherwise loses and can no longer
-	 * participate in {@link Battle}. Removal from a {@link Battle} is signified by
-	 * a lack of the {@link Fighter}'s presence in the battle queue. The
-	 * {@link Fighter} will still remain in its {@link Team}, as {@link Team}s are
-	 * immutable, however if all the {@link Fighter}s in a {@link Team} are
-	 * 
-	 * @param fighter The {@link Fighter} to remove.
-	 */
-	protected final void remove(F fighter) {
-		battleQueue.remove(fighter);
-		T team = getTeam(fighter);
-		for (F f : team)
-			if (!f.isFainted())
-				return;
-		teamLose(team);
 	}
 
 }
