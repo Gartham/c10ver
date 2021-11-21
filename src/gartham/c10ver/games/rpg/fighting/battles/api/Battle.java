@@ -15,8 +15,7 @@ import java.util.Set;
 import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
 
 /**
- * <h1>Introduction</h1><i>- A brief overview of the <b>concept</b> of
- * battles.</i>
+ * <h1>Concept</h1><i>- A brief overview of the <b>concept</b> of battles.</i>
  * <p>
  * This class models a <i>battle</i>, which is a structured conflict that occurs
  * between two (or more) parties, each known as a <i>team</i>. Battles are
@@ -124,31 +123,48 @@ import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
  * affect the position of each fighter in the fighter queue (as denoted below),
  * the state of each fighter, and the state of each team.
  * </p>
- * <h1>Class Model</h1>
+ * <h1>Interface</h1>
+ * <h2>Usage</h2>
  * <p>
- * This class models a battle, as described above. It is constructed with at
- * least two {@link Team}s and it begins in its initial state (awaiting the
- * first fighter's move) immediately after construction.
+ * Constructing a {@link Battle}
  * </p>
  * <p>
- * This class manages the <b>ticks</b> and <b>liveliness</b> of each fighter,
- * (more specifically, it keeps track of a {@link #getBattleQueueUnmodifiable()
- * battle queue}), such that the following properties hold at all times except
- * during the execution of a move, (as this class is not synchronized):
+ * After construction, the {@link Battle} is in a valid state. Typical calling
+ * code will perform the following, in order:
  * <ol>
- * <li>The {@link #getBattleQueueUnmodifiable() battle queue} is comprised only
- * of every living {@link Fighter}.</li>
- * <li>The {@link #getBattleQueueUnmodifiable() battle queue} is sorted in
- * ascending order, with the first element having the fewest ticks.</li>
- * <li>The first element of the {@link #getBattleQueueUnmodifiable() battle
- * queue} has exactly <code>0</code> ticks.</li>
+ * <li>Get the {@link #getCurrentFighter() current fighter} ({@link Fighter}
+ * whose turn it is).</li>
+ * <li>Carry out that {@link Fighter}'s move (by affecting the state of other
+ * {@link Fighter}s and of {@link Team}s, e.g. the {@link #getCurrentFighter()
+ * current fighter} may attack another {@link Fighter} by lowering the other
+ * {@link Fighter}'s health).</li>
+ * <li>Call {@link #act(int)}, providing the number of ticks the
+ * {@link #getCurrentFighter() current fighter}'s move took</li>
  * </ol>
+ * and repeat these steps until the battle is completed (i.e.
+ * {@link #getWinningTeam()} does not return <code>null</code>).
  * </p>
  * <p>
- * This class does not report the effects of {@link Fighter}s' moves to calling
- * code. When calling code affects the state of the {@link Battle} in some way,
- * it is expected to determine the effects.
+ * Calling {@link #act(int)} rectifies the state of the {@link Battle} so that:
+ * <ol>
+ * <li>The elimination (or revival) of any {@link Fighter}s (since the last
+ * {@link Fighter}'s move) is reflected by the {@link Battle} (this adds/removes
+ * members of the {@link #getBattleQueue() battle queue} and
+ * {@link #getRemainingTeams() remaining teams} lists when needed).</li>
+ * <li>The number of ticks that the action taken by {@link #getCurrentFighter()}
+ * took is added to that {@link Fighter}'s ticks.</li>
+ * <li>Sorts and normalizes the {@link #getBattleQueue() battle queue}, so that
+ * it is ordered ascendingly and so that the first {@link Fighter} in it, (i.e.,
+ * the {@link Fighter} at position <code>0</code>), has <code>0</code>
+ * ticks.</li>
+ * </ol>
+ * Each of these rectifications are performed in order to ensure state
+ * consistency.
  * </p>
+ * 
+ * <h1>Implementation</h1>
+ * <p>
+ * This implementation is hardy: If the
  * 
  * @author Gartham
  *
@@ -157,21 +173,91 @@ import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
  */
 public abstract class Battle<A, F extends Fighter, T extends Team<F>, R extends ActionResult> {
 
+	private F currentFighter;// This is kept track of between moves so that if the current fighter dies, or
+								// otherwise, and #updateFighterStates() removes it from the battle queue,
+								// consistency is preserved.
+
 	/**
 	 * Gets the fighter that will make the next move (the fighter whose turn it is).
 	 * 
 	 * @return The fighter.
 	 */
-	public F getCurrentFighter();
+	public F getCurrentFighter() {
+		return currentFighter;
+	}
 
 	/**
+	 * <p>
 	 * Completes an action performed by the {@link #getCurrentFighter() current
-	 * fighter} by adding the specified number of ticks to that fighter and then
-	 * updating the state by calling {@link #updateState()}.
+	 * fighter} and updates the state of this {@link Battle} so that it is
+	 * consistent with the specifiction of battles for the next turn. (Essentially,
+	 * this method prepares the state of this object so that calling code can
+	 * perform the next {@link Fighter}'s move.)
+	 * </p>
+	 * <p>
+	 * This method performs three characteristic operations, in order:
+	 * <ol>
+	 * <li>The elimination and revival of any {@link Fighter}s (since the last
+	 * {@link Fighter}'s move) according to each {@link Fighter}'s health.
+	 * <ul>
+	 * <li>Specifically, each {@link Fighter} whose health changed to be
+	 * <code>&lt;= 0</code> is considered eliminated and each {@link Fighter} whose
+	 * health changed to become <code>&gt; 0</code> is then considered alive (or
+	 * revived).</li>
+	 * </ul>
+	 * </li>
+	 * <li>If the {@link #getCurrentFighter() current fighter} was not eliminated,
+	 * adds the specified number of ticks that its move took to its ticks.</li>
+	 * <li>Sorts and normalizes the {@link #getBattleQueue() battle queue}, so that
+	 * it is ordered ascendingly and so that the first {@link Fighter} in it, (i.e.,
+	 * the {@link Fighter} at position <code>0</code>), has <code>0</code> ticks.
+	 * This causes {@link #getCurrentFighter() the current fighter} to be updated to
+	 * reflect whatever {@link Fighter} has the fewest number of ticks after the
+	 * conclusion of the previous {@link Fighter}'s move.</li>
+	 * </ol>
+	 * </p>
 	 * 
 	 * @param ticks The number of ticks that the {@link Fighter}'s action took.
 	 */
-	public void act(int ticks);
+	public void act(int ticks) {
+		updateFighterStates();
+		setTicks(getCurrentFighter(), getTicks(getCurrentFighter()) + ticks);
+		updateState();
+	}
+
+	/**
+	 * <p>
+	 * Performs the first of the three characteristic operations of
+	 * {@link #act(int)}. Specifically, this updates the state of this
+	 * {@link Battle} object so that any eliminated {@link Fighter}s and
+	 * {@link Team}s are considered eliminated, and so that any revived
+	 * {@link Fighter}s and {@link Team}s are also considered revived.
+	 * </p>
+	 * <p>
+	 * This method does not sort or normalize the {@link #getBattleQueue() battle
+	 * queue}, nor does it change the return value of {@link #getCurrentFighter()},
+	 * even if the {@link #getCurrentFighter() current fighter} is eliminated (its
+	 * health is <code>0</code>) when this method is called. This is because this
+	 * method does <b>not</b> "move" this {@link Battle} object to the next turn.
+	 * </p>
+	 * <p>
+	 * This method is publicized so that calling code can exploit the raw
+	 * functionality of this class when not following the strict, formal
+	 * requirements of the concept of a battle (which only permits state
+	 * modification via fighter actions, not in between fighter actions). By not
+	 * following these strict requirements, calling code can, for example, model
+	 * battles with "events" that occur between fighter's moves which modify the
+	 * state of the battle. {@link Battle}s are capable of functioning with these
+	 * relaxed requirements, so long as {@link #updateState()} is called once
+	 * between each call to {@link #act(int)}. Naturally, (under the more stringent
+	 * battle requirements), {@link #act(int)} is simply called to conclude the
+	 * {@link #getCurrentFighter() current fighter}'s move and to prepare for the
+	 * next {@link Fighter}'s move.
+	 * </p>
+	 */
+	public void updateFighterStates() {
+
+	}
 
 	/**
 	 * <p>
@@ -180,30 +266,43 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>, R extends 
 	 * {@link #act(int)}.
 	 * </p>
 	 * <p>
+	 * This method is publicized so that calling code can exploit the raw
+	 * functionality of this class when not following the strict, formal
+	 * requirements of the concept of a battle (which only permits state
+	 * modification via fighter actions, not in between fighter actions). By not
+	 * following these strict requirements, calling code can, for example, model
+	 * battles with "events" that occur between fighter's moves which modify the
+	 * state of the battle. {@link Battle}s are capable of functioning with these
+	 * relaxed requirements, so long as {@link #updateState()} is called once
+	 * between each call to {@link #act(int)}. Naturally, (under the more stringent
+	 * battle requirements), {@link #updateState()} is called during object
+	 * construction and at the end of each call to {@link #act(int)} (to prepare the
+	 * state of {@link Fighter}s to be modified by calling code).
+	 * </p>
+	 * <p>
 	 * This method performs the following operations so that the
-	 * {@link #getBattleQueueUnmodifiable() battle queue} and
-	 * {@link #getTicksTillTurnUnmodifiable() fighters' ticks} are consistent with
-	 * the specification:
+	 * {@link #getBattleQueue() battle queue} and {@link #getTicksTillTurn()
+	 * fighters' ticks} are consistent with the specification:
 	 * <ol>
-	 * <li>Updates the {@link #getBattleQueueUnmodifiable() battle queue} so that it
-	 * contains only living {@link Fighter}s (and all the living {@link Fighter}s).
-	 * This is done by removing from it any {@link Fighter}s eliminated since the
-	 * last call to {@link #updateState()} and adding any {@link Fighter}s whose
-	 * health(s) rose above <code>0</code> since. Any {@link Fighter}s added back to
-	 * the {@link Battle} like this are positioned at the end of the
-	 * {@link #getBattleQueueUnmodifiable() battle queue}, and is given the same
-	 * number of ticks as the {@link Fighter} previously at the end.</li>
-	 * <li>Updates the list of {@link #getRemainingTeamsUnmodifiable() remaining
-	 * teams} so that only teams with extant, (still-living) {@link Fighter}s are
-	 * contained within it, and that all such teams are contained within it.</li>
-	 * <li>Sorts the {@link #getBattleQueueUnmodifiable() battle queue} so that the
+	 * <li>Updates the {@link #getBattleQueue() battle queue} so that it contains
+	 * only living {@link Fighter}s (and all the living {@link Fighter}s). This is
+	 * done by removing from it any {@link Fighter}s eliminated since the last call
+	 * to {@link #updateState()} and adding any {@link Fighter}s whose health(s)
+	 * rose above <code>0</code> since. Any {@link Fighter}s added back to the
+	 * {@link Battle} like this are positioned at the end of the
+	 * {@link #getBattleQueue() battle queue}, and is given the same number of ticks
+	 * as the {@link Fighter} previously at the end.</li>
+	 * <li>Updates the list of {@link #getRemainingTeams() remaining teams} so that
+	 * only teams with extant, (still-living) {@link Fighter}s are contained within
+	 * it, and that all such teams are contained within it.</li>
+	 * <li>Sorts the {@link #getBattleQueue() battle queue} so that the
 	 * {@link Fighter} at position <code>0</code> has the lowest number of ticks and
 	 * the {@link Fighter} at the end has the highest.</li>
-	 * <li>Normalizes the {@link #getBattleQueueUnmodifiable() battle queue} so that
-	 * the {@link Fighter} at position <code>0</code> has <code>0</code> ticks. This
-	 * is done by finding the ticks of the {@link Fighter} at position
-	 * <code>0</code> and subtracting that amount from the ticks of every fighter in
-	 * the {@link #getBattleQueueUnmodifiable() battle queue}.</li>
+	 * <li>Normalizes the {@link #getBattleQueue() battle queue} so that the
+	 * {@link Fighter} at position <code>0</code> has <code>0</code> ticks. This is
+	 * done by finding the ticks of the {@link Fighter} at position <code>0</code>
+	 * and subtracting that amount from the ticks of every fighter in the
+	 * {@link #getBattleQueue() battle queue}.</li>
 	 * </ol>
 	 * </p>
 	 */
