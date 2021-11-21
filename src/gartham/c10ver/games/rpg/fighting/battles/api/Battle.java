@@ -213,24 +213,20 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>, R extends 
 	private final List<F> battleQueue = new ArrayList<>();
 	private final Set<T> teams, remainingTeams = new HashSet<>();
 
-	private Map<F, Integer> ticksTillTurnUnmodifiable = Collections.unmodifiableMap(ticksTillTurn);
-	private List<F> battleQueueUnmodifiable = Collections.unmodifiableList(battleQueue);
-	private Set<T> teamsUnmodifiable, remainingTeamsUnmodifiable = Collections.unmodifiableSet(remainingTeams);
-
-	public final Map<F, Integer> getTicksTillTurnUnmodifiable() {
-		return ticksTillTurnUnmodifiable;
+	public Map<F, Integer> getTicksTillTurn() {
+		return Collections.unmodifiableMap(ticksTillTurn);
 	}
 
-	public final List<F> getBattleQueueUnmodifiable() {
-		return battleQueueUnmodifiable;
+	public List<F> getBattleQueue() {
+		return Collections.unmodifiableList(battleQueue);
 	}
 
-	public final Set<T> getTeamsUnmodifiable() {
-		return teamsUnmodifiable;
+	public Set<T> getTeams() {
+		return Collections.unmodifiableSet(teams);
 	}
 
-	public final Set<T> getRemainingTeamsUnmodifiable() {
-		return remainingTeamsUnmodifiable;
+	public Set<T> getRemainingTeams() {
+		return Collections.unmodifiableSet(remainingTeams);
 	}
 
 	public void start() {
