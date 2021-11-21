@@ -37,11 +37,13 @@ import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
  * <h2>Moves</h2>
  * <p>
  * When it is one's turn, a fighter must make a move to affect the state of the
- * battle. This class considers a move to be any action that <i>possibly</i>
- * affects the state of a battle and takes a non-negative amount of
- * <i>ticks</i>. The set of moves that a fighter can make and the behavior of
- * those moves with regard to the battle is determined by the developer
- * utilizing this class
+ * battle. This class considers a move to be any action that:
+ * <ol>
+ * <li><i>possibly</i> affects the state of a battle and,</li>
+ * <li>takes a non-negative amount of <i>ticks</i>.</li>
+ * </ol>
+ * The set of moves that a fighter can make and the behavior of those moves with
+ * regard to the battle is determined by the developer utilizing this class
  * </p>
  * <h2>Ticks</h2>
  * <p>
@@ -58,8 +60,8 @@ import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
  * before making its move).</li>
  * <li>Any move that a fighter can make <i>costs</i> a certain number of ticks.
  * This cost is added to the fighter's ticks when the fighter makes a move.</li>
- * <li>When a fighter makes a move, the following two operations are performed,
- * in order:
+ * <li>When a fighter concludes making a move, the following two operations are
+ * performed, in order:
  * <ol>
  * <li>The cost of that move is added to that fighter's ticks.</li>
  * <li>The ticks of the fighter with the lowest number of ticks is subtracted
@@ -147,51 +149,6 @@ import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
  * code. When calling code affects the state of the {@link Battle} in some way,
  * it is expected to determine the effects.
  * </p>
- * <p>
- * This class provides observation of battle state via the
- * {@link #getActingFighter()} and {@link #getBattleQueueUnmodifiable()}
- * methods.
- * <ul>
- * <li>Changes to battle
- * <li>The changed properties of individual {@link Fighter}s can be observed
- * through their respective objects. (E.g., changes in health or other
- * stats.)</li>
- * <li>Changes in
- * </p>
- * <h2>Construction</h2>
- * <p>
- * Constructing a {@link Battle} requires at least two {@link Team}s.
- * </p>
- * <p>
- * Upon construction, the {@link #getBattleQueueUnmodifiable() battle queue} is
- * calculated by assigning ticks to each {@link Fighter}. Tick assignment is
- * determined by the {@link #assignInitialTicks(List)} method, which can be
- * overridden by subclasses. By default, {@link #assignInitialTicks(List)}'s
- * tick assignment algorithm is randomized but is partially dependent on each
- * {@link Fighter}'s speed at the time of tick assignment.
- * </p>
- * <p>
- * Once a {@link Battle} is constructed, it is in its initial state and is ready
- * for the first {@link Fighter} to make its first move.
- * </p>
- * <h2>Logistics</h2>
- * <p>
- * <ul>
- * <li>It tracks the <b>health</b> of each {@link Fighter} in the battle.</li>
- * <li>It tracks the <b>membership</b> of each {@link Team} in the battle.</li>
- * <li>It tracks the <b>ticks</b> of each {@link Fighter} in the battle.</li>
- * </ul>
- * </p>
- * <h2>Battle Queue</h2>
- * <p>
- * The {@link #getBattleQueueUnmodifiable() battle queue} is an ordered list
- * containing all living (i.e., non-eliminated) fighters in a battle, sorted by
- * ticks, ascendingly. The battle queue is used to determine which fighter's
- * turn it is (simply by checking the head of the queue, which always has
- * <code>0</code> ticks). The order and contents of the battle queue is managed
- * by this class and is unalterable by calling code, although it is viewable
- * through {@link #getBattleQueueUnmodifiable()}.
- * </p>
  * 
  * @author Gartham
  *
@@ -200,14 +157,65 @@ import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
  */
 public abstract class Battle<A, F extends Fighter, T extends Team<F>, R extends ActionResult> {
 
+	/**
+	 * Gets the fighter that will make the next move (the fighter whose turn it is).
+	 * 
+	 * @return The fighter.
+	 */
+	public F getCurrentFighter();
+
+	/**
+	 * Completes an action performed by the {@link #getCurrentFighter() current
+	 * fighter} by adding the specified number of ticks to that fighter and then
+	 * updating the state by calling {@link #updateState()}.
+	 * 
+	 * @param ticks The number of ticks that the {@link Fighter}'s action took.
+	 */
+	public void act(int ticks);
+
+	/**
+	 * <p>
+	 * Updates the state of this {@link Battle} so that it is consistent with the
+	 * specification of battles for the next turn. This method is called by
+	 * {@link #act(int)}.
+	 * </p>
+	 * <p>
+	 * This method performs the following operations so that the
+	 * {@link #getBattleQueueUnmodifiable() battle queue} and
+	 * {@link #getTicksTillTurnUnmodifiable() fighters' ticks} are consistent with
+	 * the specification:
+	 * <ol>
+	 * <li>Updates the {@link #getBattleQueueUnmodifiable() battle queue} so that it
+	 * contains only living {@link Fighter}s (and all the living {@link Fighter}s).
+	 * This is done by removing from it any {@link Fighter}s eliminated since the
+	 * last call to {@link #updateState()} and adding any {@link Fighter}s whose
+	 * health(s) rose above <code>0</code> since. Any {@link Fighter}s added back to
+	 * the {@link Battle} like this are positioned at the end of the
+	 * {@link #getBattleQueueUnmodifiable() battle queue}, and is given the same
+	 * number of ticks as the {@link Fighter} previously at the end.</li>
+	 * <li>Updates the list of {@link #getRemainingTeamsUnmodifiable() remaining
+	 * teams} so that only teams with extant, (still-living) {@link Fighter}s are
+	 * contained within it, and that all such teams are contained within it.</li>
+	 * <li>Sorts the {@link #getBattleQueueUnmodifiable() battle queue} so that the
+	 * {@link Fighter} at position <code>0</code> has the lowest number of ticks and
+	 * the {@link Fighter} at the end has the highest.</li>
+	 * <li>Normalizes the {@link #getBattleQueueUnmodifiable() battle queue} so that
+	 * the {@link Fighter} at position <code>0</code> has <code>0</code> ticks. This
+	 * is done by finding the ticks of the {@link Fighter} at position
+	 * <code>0</code> and subtracting that amount from the ticks of every fighter in
+	 * the {@link #getBattleQueueUnmodifiable() battle queue}.</li>
+	 * </ol>
+	 * </p>
+	 */
+	public void updateState();
+
 	private final Map<F, Integer> ticksTillTurn = new HashMap<>();
 	private final List<F> battleQueue = new ArrayList<>();
 	private final Set<T> teams, remainingTeams = new HashSet<>();
-	private State state = State.UNSTARTED;
 
-	private final Map<F, Integer> ticksTillTurnUnmodifiable = Collections.unmodifiableMap(ticksTillTurn);
-	private final List<F> battleQueueUnmodifiable = Collections.unmodifiableList(battleQueue);
-	private final Set<T> teamsUnmodifiable, remainingTeamsUnmodifiable = Collections.unmodifiableSet(remainingTeams);
+	private Map<F, Integer> ticksTillTurnUnmodifiable = Collections.unmodifiableMap(ticksTillTurn);
+	private List<F> battleQueueUnmodifiable = Collections.unmodifiableList(battleQueue);
+	private Set<T> teamsUnmodifiable, remainingTeamsUnmodifiable = Collections.unmodifiableSet(remainingTeams);
 
 	public final Map<F, Integer> getTicksTillTurnUnmodifiable() {
 		return ticksTillTurnUnmodifiable;
@@ -225,60 +233,15 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>, R extends 
 		return remainingTeamsUnmodifiable;
 	}
 
-	public enum State {
-		/**
-		 * Denotes that a {@link Battle} is yet to be started.
-		 */
-		UNSTARTED,
-		/**
-		 * Denotes that a battle has been started via {@link Battle#start()}.
-		 */
-		RUNNING,
-		/**
-		 * Denotes that a {@link Battle} has been stopped, meaning fighting has
-		 * concluded. This can either be through its {@link Battle#stop()} method or
-		 * through a {@link Team} naturally winning.
-		 */
-		STOPPED;
-	}
-
-	public final State getState() {
-		return state;
-	}
-
-	/**
-	 * Starts this {@link Battle} by setting the {@link #state} to
-	 * {@link State#RUNNING} and assigning <b>initial ticks</b> to each
-	 * {@link Fighter}.
-	 */
 	public void start() {
-		if (state != State.UNSTARTED)
-			throw new IllegalStateException("Battles cannot be started more than once.");
-		state = State.RUNNING;
 		remainingTeams.clear();
 		remainingTeams.addAll(teams);
 
+		Collections.sort(battleQueue, (o1, o2) -> Integer.compare(ticksTillTurn.get(o1), ticksTillTurn.get(o2)));
 		assignInitialTicks(battleQueue);
 
-		Collections.sort(battleQueue, (o1, o2) -> Integer.compare(ticksTillTurn.get(o1), ticksTillTurn.get(o2)));
 	}
 
-	/**
-	 * <p>
-	 * This is the method that assigns <b>initial ticks</b> to each {@link Fighter}.
-	 * Upon a call to this method by {@link #start()}, the provided
-	 * <code>queue</code> of {@link Fighter}s (1) contains all of the
-	 * {@link Fighter}s participating in the {@link Battle} and (2) is sorted, in
-	 * descending order, by {@link Fighter#getSpeed() speed}. This means that the
-	 * {@link Fighter} with the highest speed is positioned at index <code>0</code>.
-	 * </p>
-	 * <p>
-	 * This method is <b>only</b> tasked with setting the number of ticks for each
-	 * {@link Fighter} through the {@link #setTicks(Fighter, int)} method. The
-	 * provided {@link List} is unmodifiable, as the {@link #battleQueue battle
-	 * queue} used by {@link Battle} is sorted according to ticks immediately after
-	 * this method is called by {@link #start()}.
-	 */
 	protected void assignInitialTicks(List<F> queue) {
 		// Assign initial ticks.
 		var max = battleQueue.get(0).getSpeed();
@@ -303,9 +266,7 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>, R extends 
 	 * @return <code>true</code> if the {@link Battle} is over.
 	 */
 	public final ActionCompletion<R, F> act(A action) {
-		if (state != State.RUNNING)
-			throw new IllegalStateException("Battles must be in a running state for actions to be taken.");
-		var fighter = getActingFighter();
+		var fighter = getCurrentFighter();
 		var t = handleAction(action, fighter);
 		ticksTillTurn.put(fighter, ticksTillTurn.get(fighter) + t.getTicks());// We get the ticks for our fighter
 																				// because the
@@ -355,7 +316,7 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>, R extends 
 	}
 
 	protected final void shiftQueue() {
-		var ticks = getTicks(getActingFighter());
+		var ticks = getTicks(getCurrentFighter());
 		if (ticks != 0)
 			for (var e : ticksTillTurn.entrySet())
 				e.setValue(e.getValue() - ticks);
@@ -512,16 +473,6 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>, R extends 
 	 */
 	public final boolean isDraw() {
 		return remainingTeams.isEmpty();
-	}
-
-	private void checkForNaturalTerm() {
-		if (remainingTeams.size() <= 1)
-			state = State.STOPPED;
-	}
-
-	private void teamLose(T team) {
-		remainingTeams.remove(team);
-		checkForNaturalTerm();
 	}
 
 	/**
