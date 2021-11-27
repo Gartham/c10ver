@@ -153,9 +153,9 @@ import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
  * {@link #getRemainingTeams() remaining teams} lists when needed).</li>
  * <li>The number of ticks that the action taken by {@link #getCurrentFighter()}
  * took is added to that {@link Fighter}'s ticks.</li>
- * <li>Sorts and normalizes the {@link #getBattleQueue() battle queue}, so that
- * it is ordered ascendingly and so that the first {@link Fighter} in it, (i.e.,
- * the {@link Fighter} at position <code>0</code>), has <code>0</code>
+ * <li>The {@link #getBattleQueue() battle queue} is sorted and normalized so
+ * that it is ordered ascendingly and so that the first {@link Fighter} in it,
+ * (i.e., the {@link Fighter} at position <code>0</code>), has <code>0</code>
  * ticks.</li>
  * </ol>
  * Each of these rectifications are performed in order to ensure state
@@ -200,10 +200,9 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>, R extends 
 	 * <li>The elimination and revival of any {@link Fighter}s (since the last
 	 * {@link Fighter}'s move) according to each {@link Fighter}'s health.
 	 * <ul>
-	 * <li>Specifically, each {@link Fighter} whose health changed to be
-	 * <code>&lt;= 0</code> is considered eliminated and each {@link Fighter} whose
-	 * health changed to become <code>&gt; 0</code> is then considered alive (or
-	 * revived).</li>
+	 * <li>Specifically, each {@link Fighter} whose health <code>&lt;= 0</code> is
+	 * considered eliminated and each {@link Fighter} whose health changed to become
+	 * <code>&gt; 0</code> is then considered alive (or revived).</li>
 	 * </ul>
 	 * </li>
 	 * <li>If the {@link #getCurrentFighter() current fighter} was not eliminated,
@@ -284,17 +283,6 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>, R extends 
 	 * {@link #getBattleQueue() battle queue} and {@link #getTicksTillTurn()
 	 * fighters' ticks} are consistent with the specification:
 	 * <ol>
-	 * <li>Updates the {@link #getBattleQueue() battle queue} so that it contains
-	 * only living {@link Fighter}s (and all the living {@link Fighter}s). This is
-	 * done by removing from it any {@link Fighter}s eliminated since the last call
-	 * to {@link #updateState()} and adding any {@link Fighter}s whose health(s)
-	 * rose above <code>0</code> since. Any {@link Fighter}s added back to the
-	 * {@link Battle} like this are positioned at the end of the
-	 * {@link #getBattleQueue() battle queue}, and is given the same number of ticks
-	 * as the {@link Fighter} previously at the end.</li>
-	 * <li>Updates the list of {@link #getRemainingTeams() remaining teams} so that
-	 * only teams with extant, (still-living) {@link Fighter}s are contained within
-	 * it, and that all such teams are contained within it.</li>
 	 * <li>Sorts the {@link #getBattleQueue() battle queue} so that the
 	 * {@link Fighter} at position <code>0</code> has the lowest number of ticks and
 	 * the {@link Fighter} at the end has the highest.</li>
