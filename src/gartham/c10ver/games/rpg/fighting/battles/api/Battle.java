@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.alixia.javalibrary.JavaTools;
+
 import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
 
 /**
@@ -153,10 +155,10 @@ import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
  * {@link #getRemainingTeams() remaining teams} lists when needed).</li>
  * <li>The number of ticks that the action taken by {@link #getCurrentFighter()}
  * took is added to that {@link Fighter}'s ticks.</li>
- * <li>The {@link #getBattleQueue() battle queue} is sorted and normalized so
- * that it is ordered ascendingly and so that the first {@link Fighter} in it,
- * (i.e., the {@link Fighter} at position <code>0</code>), has <code>0</code>
- * ticks.</li>
+ * <li>The {@link #getBattleQueue() battle queue} is sorted and normalized (it
+ * is ordered ascendingly and so that the first {@link Fighter} in it, (i.e.,
+ * the {@link Fighter} at position <code>0</code>), has <code>0</code>
+ * ticks).</li>
  * </ol>
  * Each of these rectifications are performed in order to ensure state
  * consistency.
@@ -175,7 +177,9 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>, R extends 
 
 	private F currentFighter;// This is kept track of between moves so that if the current fighter dies, or
 								// otherwise, and #updateFighterStates() removes it from the battle queue,
-								// consistency is preserved.
+								// consistency is preserved. If the method relied on calculating the current
+								// fighter on the fly, this would not work, since calling code can update
+								// fighter states.
 
 	/**
 	 * Gets the fighter that will make the next move (the fighter whose turn it is).
@@ -195,7 +199,7 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>, R extends 
 	 * perform the next {@link Fighter}'s move.)
 	 * </p>
 	 * <p>
-	 * This method performs three characteristic operations, in order:
+	 * This method performs three characteristic operations:
 	 * <ol>
 	 * <li>The elimination and revival of any {@link Fighter}s (since the last
 	 * {@link Fighter}'s move) according to each {@link Fighter}'s health.
@@ -219,82 +223,63 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>, R extends 
 	 * @param ticks The number of ticks that the {@link Fighter}'s action took.
 	 */
 	public void act(int ticks) {
-		updateFighterStates();
+		// Remove all dead fighters.
+		for (Iterator<F> iterator = battleQueue.iterator(); iterator.hasNext();) {
+			F f = iterator.next();
+			if (f.isFainted()) {
+				iterator.remove();
+				ticksTillTurn.remove(f);
+			}
+		}
+
+		// Here we sort the fighter queue, *then* get the last fighter in the fighter
+		// queue (whose ticks we will need later for any revived fighters), *then* we
+		// normalize the fighter queue.
+
+		// We sort the fighter queue because this is a requirement (see method doc;
+		// characteristic operation #4), and because it makes it easier to determine who
+		// the last fighter in the queue was while the acting fighter was acting: The
+		// last fighter in the queue now is that last fighter.
+
+		// Once we have the last fighter, we normalize the entire battle queue now, so
+		// that we won't have to later. (When we add new, revived fighters into the
+		// battle, we add them such that their ticks are the "current" last fighter's
+		// ticks + 1. We don't want to add a bunch of new fighters and then have to
+		// normalize them too. If we normalize the queue first, when we add them,
+		// they'll be normalized already.)
+
+		// After we normalize, we get the last fighter's ticks. This is the number of
+		// ticks that we use to calculate where revived fighters will go. This is
+		// because we want revived fighters to appear as if they were revived "during"
+		// the #currentFighter's turn, so if the #currentFighter gets to the end of the
+		// queue as a result of its move, all the revived fighters will go before it
+		// (unless it ties with what was previously there). If a deeper explanation is
+		// desired then contact me!
+		sort();
+		var maxf = battleQueue.get(battleQueue.size() - 1);// Get last fighter, (has the most ticks).
 		setTicks(getCurrentFighter(), getTicks(getCurrentFighter()) + ticks);
-		updateState();
-	}
+		battleQueue.remove(getCurrentFighter());
+		battleQueue.add(-Collections.binarySearch(battleQueue, getCurrentFighter(), sortingComparator()) - 1,
+				getCurrentFighter());
+		normalize();
+		var max = ticksTillTurn.get(maxf);
 
-	/**
-	 * <p>
-	 * Performs the first of the three characteristic operations of
-	 * {@link #act(int)}. Specifically, this updates the state of this
-	 * {@link Battle} object so that any eliminated {@link Fighter}s and
-	 * {@link Team}s are considered eliminated, and so that any revived
-	 * {@link Fighter}s and {@link Team}s are also considered revived.
-	 * </p>
-	 * <p>
-	 * This method does not sort or normalize the {@link #getBattleQueue() battle
-	 * queue}, nor does it change the return value of {@link #getCurrentFighter()},
-	 * even if the {@link #getCurrentFighter() current fighter} is eliminated (its
-	 * health is <code>0</code>) when this method is called. This is because this
-	 * method does <b>not</b> "move" this {@link Battle} object to the next turn.
-	 * </p>
-	 * <p>
-	 * This method is publicized so that calling code can exploit the raw
-	 * functionality of this class when not following the strict, formal
-	 * requirements of the concept of a battle (which only permits state
-	 * modification via fighter actions, not in between fighter actions). By not
-	 * following these strict requirements, calling code can, for example, model
-	 * battles with "events" that occur between fighter's moves which modify the
-	 * state of the battle. {@link Battle}s are capable of functioning with these
-	 * relaxed requirements, so long as {@link #updateState()} is called once
-	 * between each call to {@link #act(int)}. Naturally, (under the more stringent
-	 * battle requirements), {@link #act(int)} is simply called to conclude the
-	 * {@link #getCurrentFighter() current fighter}'s move and to prepare for the
-	 * next {@link Fighter}'s move.
-	 * </p>
-	 */
-	public void updateFighterStates() {
-//		for
-	}
+		// Add all revived fighters.
+		for (var t : teams)
+			for (var f : t)// For every fighter,
+				if (!f.isFainted() && !ticksTillTurn.containsKey(f)) {// If the fighter is alive but is not in the ticks
+																		// map,
+					// Add the fighter to the ticks map and add the fighter to the battle queue.
+					ticksTillTurn.put(f, max + 1);
+					// TODO Possibly use sublist method to reduce the number of fighters sorted
+					// through.
+					battleQueue.add(-Collections.binarySearch(battleQueue, f, sortingComparator()) - 1, f);
+				}
 
-	/**
-	 * <p>
-	 * Updates the state of this {@link Battle} so that it is consistent with the
-	 * specification of battles for the next turn. This method is called by
-	 * {@link #act(int)}.
-	 * </p>
-	 * <p>
-	 * This method is publicized so that calling code can exploit the raw
-	 * functionality of this class when not following the strict, formal
-	 * requirements of the concept of a battle (which only permits state
-	 * modification via fighter actions, not in between fighter actions). By not
-	 * following these strict requirements, calling code can, for example, model
-	 * battles with "events" that occur between fighter's moves which modify the
-	 * state of the battle. {@link Battle}s are capable of functioning with these
-	 * relaxed requirements, so long as {@link #updateState()} is called once
-	 * between each call to {@link #act(int)}. Naturally, (under the more stringent
-	 * battle requirements), {@link #updateState()} is called during object
-	 * construction and at the end of each call to {@link #act(int)} (to prepare the
-	 * state of {@link Fighter}s to be modified by calling code).
-	 * </p>
-	 * <p>
-	 * This method performs the following operations so that the
-	 * {@link #getBattleQueue() battle queue} and {@link #getTicksTillTurn()
-	 * fighters' ticks} are consistent with the specification:
-	 * <ol>
-	 * <li>Sorts the {@link #getBattleQueue() battle queue} so that the
-	 * {@link Fighter} at position <code>0</code> has the lowest number of ticks and
-	 * the {@link Fighter} at the end has the highest.</li>
-	 * <li>Normalizes the {@link #getBattleQueue() battle queue} so that the
-	 * {@link Fighter} at position <code>0</code> has <code>0</code> ticks. This is
-	 * done by finding the ticks of the {@link Fighter} at position <code>0</code>
-	 * and subtracting that amount from the ticks of every fighter in the
-	 * {@link #getBattleQueue() battle queue}.</li>
-	 * </ol>
-	 * </p>
-	 */
-	public void updateState();
+		// Battle queue is now normalized, sorted, and dead/revived fighters are
+		// accounted for. Update #currentFighter.
+		currentFighter = battleQueue.get(0);
+	}
 
 	private final Map<F, Integer> ticksTillTurn = new HashMap<>();
 	private final List<F> battleQueue = new ArrayList<>();
@@ -473,8 +458,8 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>, R extends 
 	 * Returns the number of living {@link Fighter}s still participating in this
 	 * {@link Battle}. This method does reflects the state of all the
 	 * {@link Fighter}s in this {@link Battle} since the last call to
-	 * {@link #updateFighterStates()} (or {@link #act(int)}, since {@link #act(int)}
-	 * calls {@link #updateFighterStates()}).
+	 * {@link #updateFighters()} (or {@link #act(int)}, since {@link #act(int)}
+	 * calls {@link #updateFighters()}).
 	 * 
 	 * @return The number of {@link Fighter}s in this {@link Battle}.
 	 */
