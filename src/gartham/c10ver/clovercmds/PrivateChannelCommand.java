@@ -24,6 +24,7 @@ import gartham.c10ver.economy.users.UserAccount;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 
@@ -375,8 +376,10 @@ public class PrivateChannelCommand extends ParentCommand {
 							pc.save();
 							putChannel(pc);
 							inv.event.getChannel().sendMessage("You now have a new private channel!").queue();
-							return;
-						}
+						} else
+							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention() + " you need "
+									+ Utilities.format(BigInteger.valueOf(25000)) + " to do that!").queue();
+						return;
 					}
 					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention() + " you need "
 							+ Utilities.format(BigInteger.valueOf(25000)) + " to create your own private channel.")
