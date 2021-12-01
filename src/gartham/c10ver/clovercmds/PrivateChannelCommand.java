@@ -57,7 +57,7 @@ public class PrivateChannelCommand extends ParentCommand {
 				"pc (name)", "private-channel");
 		h.addSubcommand("list", "Shows you which private channels you have available for use.", "list", "show", "view");
 		h.addSubcommand("buy", "Buy a new private channel. This costs " + Utilities.CURRENCY_SYMBOL
-				+ " 12.5K and incurs a " + Utilities.CURRENCY_SYMBOL + " 25K tax.", "buy (name)", "new");
+				+ " 12.5K and incurs a " + Utilities.CURRENCY_SYMBOL + " 25K tax.", "buy (name)", "new", "create");
 		h.addSubcommand("invite",
 				"Adds people to your private channel. Doing this costs " + Utilities.CURRENCY_SYMBOL
 						+ " 2.5K and will incur a " + Utilities.CURRENCY_SYMBOL + " 5K tax.",
