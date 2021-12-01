@@ -348,7 +348,8 @@ public class PrivateChannelCommand extends ParentCommand {
 						String cg = clover.getEconomy().getServer(g.getId()).getPCCategory();
 						if (cg == null) {
 							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
-									+ ", this server does not have a private channel category set up (talk to an admin to set that up so you can use private channels).");
+									+ ", this server does not have a private channel category set up (talk to an admin to set that up so you can use private channels).")
+									.queue();
 							return;
 						}
 						if (acc.withdraw(25000)) {
