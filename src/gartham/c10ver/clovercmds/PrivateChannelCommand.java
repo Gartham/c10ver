@@ -24,7 +24,6 @@ import gartham.c10ver.economy.users.UserAccount;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 
