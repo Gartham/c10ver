@@ -16,6 +16,7 @@ import java.util.function.Consumer;
 import javax.security.auth.login.LoginException;
 
 import org.alixia.javalibrary.strings.matching.Matching;
+import org.alixia.javalibrary.util.KeyMap;
 
 import gartham.c10ver.changelog.Changelog;
 import gartham.c10ver.commands.CommandParser;
@@ -31,6 +32,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import zeale.apps.stuff.api.appprops.ApplicationProperties;
 
 public class Clover {
 	{
@@ -77,6 +79,7 @@ public class Clover {
 
 	}
 
+	private final CloverConfiguration config;
 	private final File root = new File("data");
 	private final JDA bot;
 	private final CommandParser commandParser;
@@ -204,19 +207,20 @@ public class Clover {
 		return economy;
 	}
 
-	public Clover(String token) throws LoginException {
-		this(JDABuilder.create(token, EnumSet.allOf(GatewayIntent.class)).build());
+	public Clover(String token, CloverConfiguration configuration) throws LoginException {
+		this(JDABuilder.create(token, EnumSet.allOf(GatewayIntent.class)).build(), configuration);
 	}
 
-	public Clover(JDA jda) {
-		this(jda, false);
+	public Clover(JDA jda, CloverConfiguration configuration) {
+		this(jda, false, configuration);
 	}
 
-	public Clover(String token, boolean devmode) throws LoginException {
-		this(JDABuilder.create(token, EnumSet.allOf(GatewayIntent.class)).build(), devmode);
+	public Clover(String token, boolean devmode, CloverConfiguration configuration) throws LoginException {
+		this(JDABuilder.create(token, EnumSet.allOf(GatewayIntent.class)).build(), devmode, configuration);
 	}
 
-	public Clover(JDA jda, boolean devmode) {
+	public Clover(JDA jda, boolean devmode, CloverConfiguration configuration) {
+		config = configuration == null ? new CloverConfiguration(new String[0]) : configuration;
 		bot = jda;
 		if (devmode)
 			System.out.println("Dev mode enabled!");
@@ -225,7 +229,10 @@ public class Clover {
 		bot.addEventListener(eventHandler);
 		eventHandler.initialize();
 
-		transactionHandler.enable();
+		if (!configuration.isDisableTransactionHandler())
+			transactionHandler.enable();
+		else
+			System.out.println("Transaction handler disabled!");
 	}
 
 	public static void main(String[] args) throws LoginException {
@@ -233,8 +240,10 @@ public class Clover {
 		for (var s : args)
 			if (s.equalsIgnoreCase("dev"))
 				devmode = true;
+		String line;
 		try (var s = new Scanner(Clover.class.getResourceAsStream(devmode ? "dev-token.txt" : "token.txt"))) {
-			new Clover(s.nextLine(), devmode);
+			line = s.nextLine();
 		}
+		new Clover(line, devmode, new CloverConfiguration(args));
 	}
 }
