@@ -133,14 +133,14 @@ public class ExploreCommand extends MatchBasedCommand {
 				break;
 			case 2:
 				cloves = Utilities.randBIFromMean(82, 15);
-				msg = inv.event.getAuthor().getAsMention() + ", you find a cave with a chest in it full of "
+				msg = inv.event.getAuthor().getAsMention() + ", you stumble upon a cave with a chest in it full of "
 						+ Utilities.format(cloves) + '.';
 				op = RewardsOperation.build(user, inv.event.getGuild(), cloves);
 				break;
 			case 3:
 				cloves = Utilities.randBIFromMean(64, 15);
 				msg = inv.event.getAuthor().getAsMention() + ", you stole " + Utilities.format(cloves)
-						+ " from an unsuspecting mailbox.";
+						+ " from an unsuspecting politican's mailbox.";
 				op = RewardsOperation.build(user, inv.event.getGuild(), cloves);
 				break;
 			case 4:
