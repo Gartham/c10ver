@@ -445,6 +445,30 @@ public final class Utilities {
 		return (int) rand(lower, upper + 1d);
 	}
 
+	/**
+	 * <p>
+	 * Returns a random value whose distribution is centered at <code>mean</code>
+	 * and whose distribution has a range of <code>2*deviation+1</code>. The
+	 * distribution is uniform.
+	 * </p>
+	 * <p>
+	 * This function returns a value that can be anywhere between
+	 * <code>mean - deviation</code> and <code>mean + deviation</code>, uniformly at
+	 * random (with each value having equal likelihood).
+	 * </p>
+	 * 
+	 * @param mean      The center or average of the uniform distribution.
+	 * @param deviation The deviation of the distribution.
+	 * @return The randomly picked value.
+	 */
+	public static long randFromMean(long mean, long deviation) {
+		return (long) (Math.random() * (2 * deviation + 1) + mean - deviation);
+	}
+
+	public static BigInteger randBIFromMean(long mean, long deviation) {
+		return BigInteger.valueOf(randFromMean(mean, deviation));
+	}
+
 	public static String strip(String msg) {
 		return stripEveryonePings(stripHerePings(msg));
 	}
