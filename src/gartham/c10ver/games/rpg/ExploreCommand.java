@@ -12,9 +12,13 @@ import java.util.TimerTask;
 import gartham.c10ver.Clover;
 import gartham.c10ver.commands.CommandInvocation;
 import gartham.c10ver.commands.MatchBasedCommand;
+import gartham.c10ver.economy.RewardsOperation;
+import gartham.c10ver.economy.items.ItemBunch;
+import gartham.c10ver.economy.items.utility.foodstuffs.Sandwich;
+import gartham.c10ver.economy.users.EconomyUser;
 import gartham.c10ver.utils.Utilities;
 
-public class GARPGCommand extends MatchBasedCommand {
+public class ExploreCommand extends MatchBasedCommand {
 
 	private static final long EXPLORE_COMMAND_SEPARATION_LATENCY = 3000;// 3000 millis before command can be reinvoked.
 
@@ -52,7 +56,7 @@ public class GARPGCommand extends MatchBasedCommand {
 	private final Clover clover;
 	private final Map<String, State> useTimestamps = new HashMap<>();
 
-	public GARPGCommand(Clover clover) {
+	public ExploreCommand(Clover clover) {
 		super("explore", "rpg");
 		this.clover = clover;
 	}
@@ -99,19 +103,67 @@ public class GARPGCommand extends MatchBasedCommand {
 		if (inv.event.isFromGuild() && clover.getEconomy().hasServer(inv.event.getGuild().getId())) {
 			var serv = clover.getEconomy().getServer(inv.event.getGuild().getId());
 			if (inv.event.getChannel().getId().equals(serv.getRPGChannel())) {
-				handleSafariInvocation(inv);
+				handle(inv, true);
 				return;
 			}
 		}
-		handleGeneralInvocation(inv);
+		handle(inv, false);
 	}
 
-	private void handleSafariInvocation(CommandInvocation inv) {
-		// TODO Handle command being used in the rpg channel.
-	}
+	private void handle(CommandInvocation inv, boolean safari) {
+		if (Math.random() < 0.3) {
 
-	private void handleGeneralInvocation(CommandInvocation inv) {
-		// TODO Handle command being used in non-rpg channel.
+			int rand = (int) (Math.random() * 5);
+			String msg;
+			RewardsOperation op;
+			EconomyUser user = clover.getEconomy().getUser(inv.event.getAuthor().getId());
+
+			switch (rand) {
+			case 0:
+				var cloves = Utilities.randBIFromMean(32, 15);
+				msg = inv.event.getAuthor().getAsMention() + ", you found " + Utilities.format(cloves)
+						+ " hidden in a bush.";
+				op = RewardsOperation.build(user, inv.event.getGuild(), cloves);
+				break;
+			case 1:
+				cloves = Utilities.randBIFromMean(75, 15);
+				msg = inv.event.getAuthor().getAsMention() + ", you found a wallet in the woods with "
+						+ Utilities.format(cloves) + " in it.";
+				op = RewardsOperation.build(user, inv.event.getGuild(), cloves);
+				break;
+			case 2:
+				cloves = Utilities.randBIFromMean(82, 15);
+				msg = inv.event.getAuthor().getAsMention() + ", you find a cave with a chest in it full of "
+						+ Utilities.format(cloves) + '.';
+				op = RewardsOperation.build(user, inv.event.getGuild(), cloves);
+				break;
+			case 3:
+				cloves = Utilities.randBIFromMean(64, 15);
+				msg = inv.event.getAuthor().getAsMention() + ", you stole " + Utilities.format(cloves)
+						+ " from an unsuspecting mailbox.";
+				op = RewardsOperation.build(user, inv.event.getGuild(), cloves);
+				break;
+			case 4:
+				cloves = Utilities.randBIFromMean(73, 15);
+				msg = inv.event.getAuthor().getAsMention()
+						+ ", you purchased a sandwich but used so many coupons that the store paid you "
+						+ Utilities.format(cloves) + " back.";
+				op = RewardsOperation.build(user, inv.event.getGuild(), cloves, new ItemBunch<>(new Sandwich()));
+				break;
+
+			default:
+				assert false : "Random value not handled by switch.";
+				msg = null;
+				op = null;
+			}
+
+			assert msg != null && op != null : "Values were assigned null by switch.";
+
+			inv.event.getChannel().sendMessage(msg + "\n\n" + Utilities.listRewards(user.reward(op))).queue();
+
+		} else {
+
+		}
 	}
 
 }
