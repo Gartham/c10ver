@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.alixia.javalibrary.JavaTools;
-
 import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
 
 /**
@@ -170,10 +168,8 @@ import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
  * 
  * @author Gartham
  *
- * @param <A> The type representing the actions that can be taken by
- *            {@link Fighter}s tracked by this {@link Battle}.
  */
-public abstract class Battle<A, F extends Fighter, T extends Team<F>, R extends ActionResult> {
+public abstract class Battle<F extends Fighter, T extends Team<F>> {
 
 	private F currentFighter;// This is kept track of between moves so that if the current fighter dies, or
 								// otherwise, and #updateFighterStates() removes it from the battle queue,
@@ -301,7 +297,7 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>, R extends 
 		return Collections.unmodifiableSet(remainingTeams);
 	}
 
-	public void start() {
+	private void start() {
 		remainingTeams.clear();
 		remainingTeams.addAll(teams);
 
@@ -360,6 +356,7 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>, R extends 
 				battleQueue.add(-Collections.binarySearch(battleQueue, f, Comparator.<F>naturalOrder().reversed()) - 1,
 						f);
 		}
+		start();
 	}
 
 	public Battle(Collection<T> teams) {
@@ -368,6 +365,7 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>, R extends 
 			for (var f : t)
 				battleQueue.add(-Collections.binarySearch(battleQueue, f, Comparator.<F>naturalOrder().reversed()) - 1,
 						f);
+		start();
 	}
 
 	/**
@@ -456,10 +454,9 @@ public abstract class Battle<A, F extends Fighter, T extends Team<F>, R extends 
 
 	/**
 	 * Returns the number of living {@link Fighter}s still participating in this
-	 * {@link Battle}. This method does reflects the state of all the
-	 * {@link Fighter}s in this {@link Battle} since the last call to
-	 * {@link #updateFighters()} (or {@link #act(int)}, since {@link #act(int)}
-	 * calls {@link #updateFighters()}).
+	 * {@link Battle}. This method returns the number of living fighters in this
+	 * {@link Battle} at the last moment in which the battle was in a valid state
+	 * (right after construction or right after a call to {@link #act(int)}).
 	 * 
 	 * @return The number of {@link Fighter}s in this {@link Battle}.
 	 */
