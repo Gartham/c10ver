@@ -34,7 +34,7 @@ public class MonthlyCrate extends LootCrateItem {
 		List<ItemBunch<?>> items = new ArrayList<>();
 		double rand = Math.random();
 		items.add(new ItemBunch<>(new Hamburger(), BigInteger.valueOf((long) (rand * 3 + 1))));
-		if (Math.random() < 0.2)
+		if (Math.random() < 0.09)
 			items.add(new ItemBunch<>(new Pizza()));
 		if (Math.random() < 0.3)
 			items.add(new ItemBunch<>(new DailyCrate(), BigInteger.valueOf((long) (Math.random() * 3 + 1))));
