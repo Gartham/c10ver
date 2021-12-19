@@ -34,7 +34,7 @@ public class WeeklyCrate extends LootCrateItem {
 		items.add(new ItemBunch<>(new Sandwich(), BigInteger.valueOf((long) (Math.random() * 4 + 2))));
 		if (Math.random() > 0.8)
 			items.add(new ItemBunch<>(new DailyCrate(), BigInteger.valueOf((long) (2 + Math.random() * 2))));
-		if (Math.random() > 0.4)
+		if (Math.random() > 0.09)
 			items.add(new ItemBunch<>(new Sandwich()));
 		if (Math.random() > 0.98)
 			items.add(new ItemBunch<>(new MonthlyCrate(), BigInteger.ONE));
