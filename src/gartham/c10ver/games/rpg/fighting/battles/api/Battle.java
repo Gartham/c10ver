@@ -352,9 +352,10 @@ public class Battle<F extends Fighter, T extends Team<F>> {
 		this.teams = new HashSet<>();
 		for (var t : teams) {
 			this.teams.add(t);
-			for (var f : t)
-				battleQueue.add(-Collections.binarySearch(battleQueue, f, Comparator.<F>naturalOrder().reversed()) - 1,
-						f);
+			for (var f : t) {
+				int pos = Collections.binarySearch(battleQueue, f, Comparator.<F>naturalOrder().reversed());
+				battleQueue.add(pos >= 0 ? pos : -pos - 1, f);
+			}
 		}
 		start();
 	}
@@ -362,9 +363,10 @@ public class Battle<F extends Fighter, T extends Team<F>> {
 	public Battle(Collection<T> teams) {
 		this.teams = new HashSet<>(teams);
 		for (var t : teams)
-			for (var f : t)
-				battleQueue.add(-Collections.binarySearch(battleQueue, f, Comparator.<F>naturalOrder().reversed()) - 1,
-						f);
+			for (var f : t) {
+				int pos = Collections.binarySearch(battleQueue, f, Comparator.<F>naturalOrder().reversed());
+				battleQueue.add(pos >= 0 ? pos : -pos - 1, f);
+			}
 		start();
 	}
 
