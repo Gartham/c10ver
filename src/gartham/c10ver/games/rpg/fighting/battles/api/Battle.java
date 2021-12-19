@@ -301,14 +301,31 @@ public class Battle<F extends Fighter, T extends Team<F>> {
 		remainingTeams.clear();
 		remainingTeams.addAll(teams);
 
-		Collections.sort(battleQueue, (o1, o2) -> Integer.compare(ticksTillTurn.get(o1), ticksTillTurn.get(o2)));
+		// Constructors sorted the battle queue by fighter speed. Now assign ticks.
 		assignInitialTicks(battleQueue);
-
+		// Sort the fighters by ticks that were just assigned.
+		Collections.sort(battleQueue, (o1, o2) -> Integer.compare(ticksTillTurn.get(o1), ticksTillTurn.get(o2)));
+		currentFighter = battleQueue.get(0);// Set the current fighter.
 	}
 
+	/**
+	 * <p>
+	 * Assigns ticks to {@link Fighter}s in the provided {@link List}. This is
+	 * called immediately before sorting the battle queue by ticks in the
+	 * {@link Battle} class.
+	 * </p>
+	 * <p>
+	 * This method expects the fighter with the fastest speed to be positioned at
+	 * the first index of the provided battle queue. (Sorting the provided battle
+	 * queue using {@link Fighter}'s natural comparator <b>in reverse order</b> will
+	 * accomplish this.)
+	 * </p>
+	 * 
+	 * @param queue The queue to sort.
+	 */
 	protected void assignInitialTicks(List<F> queue) {
 		// Assign initial ticks.
-		var max = battleQueue.get(0).getSpeed();
+		var max = queue.get(0).getSpeed();
 
 		for (F f : queue)
 			ticksTillTurn.put(f, new BigDecimal(max.subtract(f.getSpeed()))
@@ -352,9 +369,10 @@ public class Battle<F extends Fighter, T extends Team<F>> {
 		this.teams = new HashSet<>();
 		for (var t : teams) {
 			this.teams.add(t);
-			for (var f : t)
-				battleQueue.add(-Collections.binarySearch(battleQueue, f, Comparator.<F>naturalOrder().reversed()) - 1,
-						f);
+			for (var f : t) {
+				int pos = Collections.binarySearch(battleQueue, f, Comparator.<F>naturalOrder().reversed());
+				battleQueue.add(pos >= 0 ? pos : -pos - 1, f);
+			}
 		}
 		start();
 	}
@@ -362,9 +380,10 @@ public class Battle<F extends Fighter, T extends Team<F>> {
 	public Battle(Collection<T> teams) {
 		this.teams = new HashSet<>(teams);
 		for (var t : teams)
-			for (var f : t)
-				battleQueue.add(-Collections.binarySearch(battleQueue, f, Comparator.<F>naturalOrder().reversed()) - 1,
-						f);
+			for (var f : t) {
+				int pos = Collections.binarySearch(battleQueue, f, Comparator.<F>naturalOrder().reversed());
+				battleQueue.add(pos >= 0 ? pos : -pos - 1, f);
+			}
 		start();
 	}
 
