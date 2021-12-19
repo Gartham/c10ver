@@ -305,6 +305,7 @@ public class Battle<F extends Fighter, T extends Team<F>> {
 		assignInitialTicks(battleQueue);
 		// Sort the fighters by ticks that were just assigned.
 		Collections.sort(battleQueue, (o1, o2) -> Integer.compare(ticksTillTurn.get(o1), ticksTillTurn.get(o2)));
+		currentFighter = battleQueue.get(0);// Set the current fighter.
 	}
 
 	/**
