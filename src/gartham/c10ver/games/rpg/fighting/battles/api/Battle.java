@@ -169,7 +169,7 @@ import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
  * @author Gartham
  *
  */
-public abstract class Battle<F extends Fighter, T extends Team<F>> {
+public class Battle<F extends Fighter, T extends Team<F>> {
 
 	private F currentFighter;// This is kept track of between moves so that if the current fighter dies, or
 								// otherwise, and #updateFighterStates() removes it from the battle queue,
