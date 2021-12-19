@@ -528,4 +528,16 @@ public class Battle<F extends Fighter, T extends Team<F>> {
 		return remainingTeams.isEmpty();
 	}
 
+	/**
+	 * Returns <code>true</code> if this {@link Battle} has concluded and
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return Whether this {@link Battle} is over or not.
+	 */
+	public boolean isOver() {
+		// If one team remains or the final X teams have all been eliminated in the
+		// previous turn, the battle is over.
+		return remainingTeams.size() < 2;
+	}
+
 }
