@@ -60,30 +60,6 @@ public class GarmonBattle extends Battle<GarmonFighter, GarmonTeam> {
 		super(teams);
 	}
 
-	public int getFighterTicks(GarmonFighter fighter) {
-		return getTicks(fighter);
-	}
-
-	/**
-	 * Starts this battle on the executing thread. This method does not return until
-	 * the battle is completed. This method calls {@link #nextTurn()} until the
-	 * battle has concluded.
-	 */
-	public void start() {
-		while (!isOver()) {
-			
-		}
-	}
-
-	/**
-	 * Executes the next turn. This method calls the controller of the next fighter
-	 * to execute that fighter's turn, and then calls {@link #act(int)} to ready
-	 * this {@link Battle} object for the next fighter's turn.
-	 */
-	public void nextTurn() {
-
-	}
-
 //	@Override
 //	protected GarmonActionResult handleAction(GarmonBattleAction action, GarmonFighter fighter) {
 //		switch (action.getType()) {
