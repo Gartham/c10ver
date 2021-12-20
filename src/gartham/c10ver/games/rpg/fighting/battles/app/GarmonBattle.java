@@ -3,6 +3,9 @@ package gartham.c10ver.games.rpg.fighting.battles.app;
 import java.util.Collection;
 
 import gartham.c10ver.games.rpg.fighting.battles.api.Battle;
+import gartham.c10ver.games.rpg.fighting.battles.api.ControlledBattle;
+import gartham.c10ver.games.rpg.fighting.battles.api.Controller;
+import gartham.c10ver.games.rpg.fighting.battles.api.Team;
 import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
 
 /**
@@ -50,7 +53,7 @@ import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
  * @author Gartham
  *
  */
-public class GarmonBattle extends Battle<GarmonFighter, GarmonTeam> {
+public class GarmonBattle extends ControlledBattle<GarmonFighter, GarmonTeam> {
 
 	public GarmonBattle(Collection<GarmonTeam> teams) {
 		super(teams);
@@ -58,6 +61,12 @@ public class GarmonBattle extends Battle<GarmonFighter, GarmonTeam> {
 
 	public GarmonBattle(GarmonTeam... teams) {
 		super(teams);
+	}
+
+	@Override
+	protected Controller<GarmonFighter> getController(GarmonFighter fighter) {
+		// Gets the controller from the team to which the fighter belongs.
+		return getTeam(fighter).getController();
 	}
 
 //	@Override
