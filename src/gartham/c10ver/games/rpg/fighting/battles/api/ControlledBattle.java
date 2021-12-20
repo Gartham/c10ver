@@ -1,6 +1,5 @@
 package gartham.c10ver.games.rpg.fighting.battles.api;
 
-import gartham.c10ver.games.rpg.fighting.battles.app.Controller;
 import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
 
 public abstract class ControlledBattle<F extends Fighter, T extends Team<F>> extends Battle<F, T> {
