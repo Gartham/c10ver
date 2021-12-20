@@ -547,4 +547,24 @@ public class Battle<F extends Fighter, T extends Team<F>> {
 		return remainingTeams.size() < 2;
 	}
 
+	public final Set<T> getRemainingOpponentTeams(T team) {
+		var teams = new HashSet<>(remainingTeams);
+		teams.remove(team);
+		return teams;
+	}
+
+	public F pickRandomLivingOpponent(T team) {
+		var l = getRemainingOpponents(team);
+		return l.get((int) (Math.random() * l.size()));
+	}
+
+	public final List<F> getRemainingOpponents(T team) {
+		List<F> op = new ArrayList<>();
+		for (var t : getRemainingOpponentTeams(team))
+			for (var f : t)
+				if (!f.isFainted())
+					op.add(f);
+		return op;
+	}
+
 }
