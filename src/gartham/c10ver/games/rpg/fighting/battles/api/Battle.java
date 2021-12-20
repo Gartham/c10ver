@@ -222,9 +222,15 @@ public class Battle<F extends Fighter, T extends Team<F>> {
 		// Remove all dead fighters.
 		for (Iterator<F> iterator = battleQueue.iterator(); iterator.hasNext();) {
 			F f = iterator.next();
-			if (f.isFainted()) {
+			CHECK: if (f.isFainted()) {
 				iterator.remove();
 				ticksTillTurn.remove(f);
+				T team = getTeam(f);
+				for (var other : team)
+					if (!other.isFainted())
+						break CHECK;
+				remainingTeams.remove(team);
+
 			}
 		}
 
@@ -270,6 +276,7 @@ public class Battle<F extends Fighter, T extends Team<F>> {
 					// TODO Possibly use sublist method to reduce the number of fighters sorted
 					// through.
 					battleQueue.add(-Collections.binarySearch(battleQueue, f, sortingComparator()) - 1, f);
+					remainingTeams.add(t);// Add the team to the remainingTeams list if it is not already there.
 				}
 
 		// Battle queue is now normalized, sorted, and dead/revived fighters are
