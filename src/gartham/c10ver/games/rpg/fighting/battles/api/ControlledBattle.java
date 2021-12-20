@@ -1,8 +1,20 @@
 package gartham.c10ver.games.rpg.fighting.battles.api;
 
+import java.util.Collection;
+
 import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
 
 public abstract class ControlledBattle<F extends Fighter, T extends Team<F>> extends Battle<F, T> {
+
+	public ControlledBattle(Collection<T> teams) {
+		super(teams);
+	}
+
+	@SafeVarargs
+	public ControlledBattle(T... teams) {
+		super(teams);
+	}
+
 	protected abstract Controller<F> getController(F fighter);
 
 	/**
