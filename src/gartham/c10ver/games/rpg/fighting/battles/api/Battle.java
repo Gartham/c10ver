@@ -1,6 +1,7 @@
 package gartham.c10ver.games.rpg.fighting.battles.api;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -353,8 +354,9 @@ public class Battle<F extends Fighter, T extends Team<F>> {
 		var max = queue.get(0).getSpeed();
 
 		for (F f : queue)
-			ticksTillTurn.put(f, new BigDecimal(max.subtract(f.getSpeed()))
-					.multiply(BigDecimal.valueOf(Math.random() / 5 + 0.9)).intValue());
+			ticksTillTurn.put(f,
+					new BigDecimal(max.subtract(f.getSpeed()).add(BigInteger.valueOf((long) (Math.random() * 7 - 3))))
+							.multiply(BigDecimal.valueOf(Math.random() / 5 + 0.9)).intValue());
 	}
 
 	protected final void setTicks(F fighter, int ticks) {
