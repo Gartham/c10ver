@@ -1,6 +1,7 @@
 package gartham.c10ver.games.rpg.fighting.battles.api;
 
 import java.util.Collection;
+import java.util.function.Consumer;
 
 import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
 
@@ -49,4 +50,32 @@ public abstract class ControlledBattle<F extends Fighter, T extends Team<F>> ext
 		t.start();
 		return t;
 	}
+
+	/**
+	 * <p>
+	 * Executes this {@link ControlledBattle} from start to finish on a separate
+	 * {@link Thread}. The thread is created by this method and is returned. At the
+	 * end of the battle, the provided {@link Consumer} is called, if the argument
+	 * is not <code>null</code>, and the winning team (if any) is passed to the
+	 * {@link Consumer}. If there is no winning team, i.e., the
+	 * {@link ControlledBattle} is a draw, then <code>null</code> is provided to the
+	 * {@link Consumer}. The {@link Consumer} is always called on the thread spawned
+	 * by this method (the thread the battle executes on).
+	 * 
+	 * @param daemon     Whether the thread executing the {@link Battle} should be a
+	 *                   daemon thread or not.
+	 * @param winHandler The {@link Consumer} to be called when the battle is over.
+	 * @return The {@link Thread} on which the game is executing.
+	 */
+	public Thread startAsync(boolean daemon, Consumer<T> winHandler) {
+		var t = new Thread(() -> {
+			start();
+			if (winHandler != null)
+				winHandler.accept(isDraw() ? null : getWinningTeam());
+		});
+		t.setDaemon(daemon);
+		t.start();
+		return t;
+	}
+
 }
