@@ -188,6 +188,25 @@ public class Battle<F extends Fighter, T extends Team<F>> {
 
 	/**
 	 * <p>
+	 * Adds a value to the list using binary search so that it is positioned
+	 * correctly. This method will add the item regardless of if it is already in
+	 * the list or not. This method is meant to work around the
+	 * {@link Collections#binarySearch(List, Object)}'s property of using the
+	 * {@link Comparator#compare(Object, Object)} method for object equivalence (as
+	 * two {@link Fighter}s can have the same "priority" in the {@link #battleQueue}
+	 * while not being equivalent objects).
+	 * 
+	 * @param <E>   The type of element in the list.
+	 * @param value The value to put in the sorted list.
+	 * @param list  The sorted list.
+	 */
+	private static <E> void addBinarySearchedValue(E value, List<E> list, Comparator<? super E> comp) {
+		var val = Collections.binarySearch(list, value, comp);
+		list.add(val < 0 ? -val - 1 : val, value);
+	}
+
+	/**
+	 * <p>
 	 * Completes an action performed by the {@link #getCurrentFighter() current
 	 * fighter} and updates the state of this {@link Battle} so that it is
 	 * consistent with the specifiction of battles for the next turn. (Essentially,
@@ -261,8 +280,7 @@ public class Battle<F extends Fighter, T extends Team<F>> {
 		var maxf = battleQueue.get(battleQueue.size() - 1);// Get last fighter, (has the most ticks).
 		setTicks(getCurrentFighter(), getTicks(getCurrentFighter()) + ticks);
 		battleQueue.remove(getCurrentFighter());
-		battleQueue.add(-Collections.binarySearch(battleQueue, getCurrentFighter(), sortingComparator()) - 1,
-				getCurrentFighter());
+		addBinarySearchedValue(getCurrentFighter(), battleQueue, sortingComparator());
 		normalize();
 		var max = ticksTillTurn.get(maxf);
 
@@ -275,7 +293,7 @@ public class Battle<F extends Fighter, T extends Team<F>> {
 					ticksTillTurn.put(f, max + 1);
 					// TODO Possibly use sublist method to reduce the number of fighters sorted
 					// through.
-					battleQueue.add(-Collections.binarySearch(battleQueue, f, sortingComparator()) - 1, f);
+					addBinarySearchedValue(f, battleQueue, sortingComparator());
 					remainingTeams.add(t);// Add the team to the remainingTeams list if it is not already there.
 				}
 
@@ -376,10 +394,8 @@ public class Battle<F extends Fighter, T extends Team<F>> {
 		this.teams = new HashSet<>();
 		for (var t : teams) {
 			this.teams.add(t);
-			for (var f : t) {
-				int pos = Collections.binarySearch(battleQueue, f, Comparator.<F>naturalOrder().reversed());
-				battleQueue.add(pos >= 0 ? pos : -pos - 1, f);
-			}
+			for (var f : t)
+				addBinarySearchedValue(f, battleQueue, Comparator.<F>naturalOrder().reversed());
 		}
 		start();
 	}
@@ -387,10 +403,8 @@ public class Battle<F extends Fighter, T extends Team<F>> {
 	public Battle(Collection<T> teams) {
 		this.teams = new HashSet<>(teams);
 		for (var t : teams)
-			for (var f : t) {
-				int pos = Collections.binarySearch(battleQueue, f, Comparator.<F>naturalOrder().reversed());
-				battleQueue.add(pos >= 0 ? pos : -pos - 1, f);
-			}
+			for (var f : t)
+				addBinarySearchedValue(f, battleQueue, Comparator.<F>naturalOrder().reversed());
 		start();
 	}
 
