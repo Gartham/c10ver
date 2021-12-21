@@ -94,6 +94,7 @@ public class PlayerController implements Controller<GarmonFighter> {
 		whm.setAvatarUrl(attacker.getHeadshot());
 		whm.setContent("*Attacks " + target.getName() + " for \u2694 `" + dmg + "`.*");
 		GarmonUtils.queueWithClient(channel, t -> t.send(whm.build()));
+		ticks = 50;
 	}
 
 	private DetailedActionReaction attack(DetailedMenuMessage<DetailedActionReaction, DetailedActionButton> source,
