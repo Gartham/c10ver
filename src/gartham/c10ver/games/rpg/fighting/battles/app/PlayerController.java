@@ -69,7 +69,7 @@ public class PlayerController implements Controller<GarmonFighter> {
 
 	private DetailedActionReaction skipTurn(GarmonFighter fighter) {
 		return new DetailedActionReaction("\uD83D\uDCA8", "Skip Turn",
-				"Pass up " + (fighter instanceof PlayerFighter ? "your" : "this creature's") + "move.", t -> {
+				"Pass up " + (fighter instanceof PlayerFighter ? "your" : "this creature's") + " move.", t -> {
 					synchronized (this) {
 						battle.skipTurn();
 						PlayerController.this.notify();
