@@ -64,7 +64,7 @@ public class CreatureAI implements Controller<GarmonFighter> {
 		var opps = battle.getRemainingOpponents(battle.getTeam(fighter));
 		attack(fighter, opps.get((int) (opps.size() * Math.random())));
 
-		return 0;
+		return 50;
 	}
 
 }
