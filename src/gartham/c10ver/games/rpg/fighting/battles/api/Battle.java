@@ -567,4 +567,21 @@ public class Battle<F extends Fighter, T extends Team<F>> {
 		return op;
 	}
 
+	/**
+	 * <p>
+	 * Skips this {@link Fighter}'s turn, adding one plus the number of ticks of the
+	 * next opponent of this fighter to it. This puts it "immediately" after the
+	 * next opponent to it, chronologically (although multiple fighters may have the
+	 * same number of ticks as its next opponent, causing them to be before this
+	 * fighter).
+	 * </p>
+	 * <p>
+	 * This method finishes a fighter's move, so {@link #act(int)} is called by this
+	 * method.
+	 * </p>
+	 */
+	public void skipTurn() {
+		act(getTicks(battleQueue.get(1)) + 1);
+	}
+
 }
