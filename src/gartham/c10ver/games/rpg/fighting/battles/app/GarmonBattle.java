@@ -5,7 +5,6 @@ import java.util.Collection;
 import gartham.c10ver.games.rpg.fighting.battles.api.Battle;
 import gartham.c10ver.games.rpg.fighting.battles.api.ControlledBattle;
 import gartham.c10ver.games.rpg.fighting.battles.api.Controller;
-import gartham.c10ver.games.rpg.fighting.battles.api.Team;
 import gartham.c10ver.games.rpg.fighting.fighters.Fighter;
 
 /**
@@ -67,6 +66,17 @@ public class GarmonBattle extends ControlledBattle<GarmonFighter, GarmonTeam> {
 	protected Controller<GarmonFighter> getController(GarmonFighter fighter) {
 		// Gets the controller from the team to which the fighter belongs.
 		return getTeam(fighter).getController();
+	}
+
+	public void surrender(GarmonTeam team) {
+		if (getRemainingTeams().contains(team))
+			for (var f : team)
+				f.damage(f.getHealth());
+	}
+
+	public void surrender(GarmonFighter fighter) {
+		if (getBattleQueue().contains(fighter))
+			fighter.damage(fighter.getHealth());
 	}
 
 //	@Override
