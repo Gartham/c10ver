@@ -7,7 +7,7 @@ import gartham.c10ver.games.rpg.fighting.battles.api.Team;
 
 public class GarmonTeam extends Team<GarmonFighter> {
 	private final String name;
-	private final Controller<GarmonFighter> controller;
+	private Controller<GarmonFighter> controller;
 
 	public GarmonTeam(Iterable<? extends GarmonFighter> members, String name, Controller<GarmonFighter> controller) {
 		super(members);
@@ -24,6 +24,25 @@ public class GarmonTeam extends Team<GarmonFighter> {
 	public GarmonTeam(Collection<? extends GarmonFighter> members, String name, Controller<GarmonFighter> controller) {
 		super(members);
 		this.name = name;
+		this.controller = controller;
+	}
+
+	public GarmonTeam(Iterable<? extends GarmonFighter> members, String name) {
+		super(members);
+		this.name = name;
+	}
+
+	public GarmonTeam(String name, GarmonFighter... members) {
+		super(members);
+		this.name = name;
+	}
+
+	public GarmonTeam(Collection<? extends GarmonFighter> members, String name) {
+		super(members);
+		this.name = name;
+	}
+
+	public void setController(Controller<GarmonFighter> controller) {
 		this.controller = controller;
 	}
 
