@@ -33,22 +33,22 @@ public class GarmonUtils {
 	private static String getField(GarmonFighter f, GarmonBattle battle) {
 		return "\\\u2764\uFE0F `" + f.getHealth() + "/" + f.getMaxHealth() + "` \u200b \u200b \\\u2694\uFE0F `"
 				+ f.getAttack() + "` \u200b \u200b \\\uD83D\uDEE1\uFE0F `" + f.getDefense()
-				+ "` \u200b \u200b \\\uD83D\uDCA8\uFE0F `" + f.getSpeed() + "`\nTeam: "
-				+ battle.getFighterTeam(f).getName();
+				+ "` \u200b \u200b \\\uD83D\uDCA8\uFE0F `" + f.getSpeed() + "`\nTeam: " + battle.getTeam(f).getName();
 	}
 
 	public static EmbedBuilder printBattleQueue(GarmonBattle battle) {
 		EmbedBuilder builder = new EmbedBuilder()
-				.setTitle(String.join(" vs ", JavaTools.mask(battle.getTeamsUnmodifiable(), GarmonTeam::getName)));
+				.setTitle(String.join(" vs ", JavaTools.mask(battle.getTeams(), GarmonTeam::getName)));
 		builder.setColor(new Color(0xe6da00));
 		for (int i = 0; i < battle.getFighterCount() - 1; i++) {
-			var f = battle.getBattleQueueUnmodifiable().get(i);
+			var f = battle.getBattleQueue().get(i);
 			builder.addField(
-					"\uD83D\uDD50\uFE0F " + battle.getFighterTicks(f) + "   " + f.getEmoji() + ' ' + f.getName(),
+					"\uD83D\uDD50\uFE0F " + battle.getTicksTillTurn().get(f) + "   " + f.getEmoji() + ' ' + f.getName(),
 					getField(f, battle) + "\n\u200b", false);
 		}
-		var f = battle.getBattleQueueUnmodifiable().get(battle.getFighterCount() - 1);
-		builder.addField("\uD83D\uDD50\uFE0F " + battle.getFighterTicks(f) + "   " + f.getEmoji() + ' ' + f.getName(),
+		var f = battle.getBattleQueue().get(battle.getFighterCount() - 1);
+		builder.addField(
+				"\uD83D\uDD50\uFE0F " + battle.getTicksTillTurn().get(f) + "   " + f.getEmoji() + ' ' + f.getName(),
 				getField(f, battle), false);
 		return builder;
 	}

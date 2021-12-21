@@ -1,6 +1,7 @@
 package gartham.c10ver.games.rpg.fighting.battles.api;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -188,6 +189,25 @@ public class Battle<F extends Fighter, T extends Team<F>> {
 
 	/**
 	 * <p>
+	 * Adds a value to the list using binary search so that it is positioned
+	 * correctly. This method will add the item regardless of if it is already in
+	 * the list or not. This method is meant to work around the
+	 * {@link Collections#binarySearch(List, Object)}'s property of using the
+	 * {@link Comparator#compare(Object, Object)} method for object equivalence (as
+	 * two {@link Fighter}s can have the same "priority" in the {@link #battleQueue}
+	 * while not being equivalent objects).
+	 * 
+	 * @param <E>   The type of element in the list.
+	 * @param value The value to put in the sorted list.
+	 * @param list  The sorted list.
+	 */
+	private static <E> void addBinarySearchedValue(E value, List<E> list, Comparator<? super E> comp) {
+		var val = Collections.binarySearch(list, value, comp);
+		list.add(val < 0 ? -val - 1 : val, value);
+	}
+
+	/**
+	 * <p>
 	 * Completes an action performed by the {@link #getCurrentFighter() current
 	 * fighter} and updates the state of this {@link Battle} so that it is
 	 * consistent with the specifiction of battles for the next turn. (Essentially,
@@ -222,9 +242,15 @@ public class Battle<F extends Fighter, T extends Team<F>> {
 		// Remove all dead fighters.
 		for (Iterator<F> iterator = battleQueue.iterator(); iterator.hasNext();) {
 			F f = iterator.next();
-			if (f.isFainted()) {
+			CHECK: if (f.isFainted()) {
 				iterator.remove();
 				ticksTillTurn.remove(f);
+				T team = getTeam(f);
+				for (var other : team)
+					if (!other.isFainted())
+						break CHECK;
+				remainingTeams.remove(team);
+
 			}
 		}
 
@@ -255,8 +281,7 @@ public class Battle<F extends Fighter, T extends Team<F>> {
 		var maxf = battleQueue.get(battleQueue.size() - 1);// Get last fighter, (has the most ticks).
 		setTicks(getCurrentFighter(), getTicks(getCurrentFighter()) + ticks);
 		battleQueue.remove(getCurrentFighter());
-		battleQueue.add(-Collections.binarySearch(battleQueue, getCurrentFighter(), sortingComparator()) - 1,
-				getCurrentFighter());
+		addBinarySearchedValue(getCurrentFighter(), battleQueue, sortingComparator());
 		normalize();
 		var max = ticksTillTurn.get(maxf);
 
@@ -269,7 +294,8 @@ public class Battle<F extends Fighter, T extends Team<F>> {
 					ticksTillTurn.put(f, max + 1);
 					// TODO Possibly use sublist method to reduce the number of fighters sorted
 					// through.
-					battleQueue.add(-Collections.binarySearch(battleQueue, f, sortingComparator()) - 1, f);
+					addBinarySearchedValue(f, battleQueue, sortingComparator());
+					remainingTeams.add(t);// Add the team to the remainingTeams list if it is not already there.
 				}
 
 		// Battle queue is now normalized, sorted, and dead/revived fighters are
@@ -328,8 +354,9 @@ public class Battle<F extends Fighter, T extends Team<F>> {
 		var max = queue.get(0).getSpeed();
 
 		for (F f : queue)
-			ticksTillTurn.put(f, new BigDecimal(max.subtract(f.getSpeed()))
-					.multiply(BigDecimal.valueOf(Math.random() / 5 + 0.9)).intValue());
+			ticksTillTurn.put(f,
+					new BigDecimal(max.subtract(f.getSpeed()).add(BigInteger.valueOf((long) (Math.random() * 7 - 3))))
+							.multiply(BigDecimal.valueOf(Math.random() / 5 + 0.9)).intValue());
 	}
 
 	protected final void setTicks(F fighter, int ticks) {
@@ -369,10 +396,8 @@ public class Battle<F extends Fighter, T extends Team<F>> {
 		this.teams = new HashSet<>();
 		for (var t : teams) {
 			this.teams.add(t);
-			for (var f : t) {
-				int pos = Collections.binarySearch(battleQueue, f, Comparator.<F>naturalOrder().reversed());
-				battleQueue.add(pos >= 0 ? pos : -pos - 1, f);
-			}
+			for (var f : t)
+				addBinarySearchedValue(f, battleQueue, Comparator.<F>naturalOrder().reversed());
 		}
 		start();
 	}
@@ -380,10 +405,8 @@ public class Battle<F extends Fighter, T extends Team<F>> {
 	public Battle(Collection<T> teams) {
 		this.teams = new HashSet<>(teams);
 		for (var t : teams)
-			for (var f : t) {
-				int pos = Collections.binarySearch(battleQueue, f, Comparator.<F>naturalOrder().reversed());
-				battleQueue.add(pos >= 0 ? pos : -pos - 1, f);
-			}
+			for (var f : t)
+				addBinarySearchedValue(f, battleQueue, Comparator.<F>naturalOrder().reversed());
 		start();
 	}
 
@@ -526,6 +549,55 @@ public class Battle<F extends Fighter, T extends Team<F>> {
 	 */
 	public final boolean isDraw() {
 		return remainingTeams.isEmpty();
+	}
+
+	/**
+	 * Returns <code>true</code> if this {@link Battle} has concluded and
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return Whether this {@link Battle} is over or not.
+	 */
+	public boolean isOver() {
+		// If one team remains or the final X teams have all been eliminated in the
+		// previous turn, the battle is over.
+		return remainingTeams.size() < 2;
+	}
+
+	public final Set<T> getRemainingOpponentTeams(T team) {
+		var teams = new HashSet<>(remainingTeams);
+		teams.remove(team);
+		return teams;
+	}
+
+	public F pickRandomLivingOpponent(T team) {
+		var l = getRemainingOpponents(team);
+		return l.get((int) (Math.random() * l.size()));
+	}
+
+	public final List<F> getRemainingOpponents(T team) {
+		List<F> op = new ArrayList<>();
+		for (var t : getRemainingOpponentTeams(team))
+			for (var f : t)
+				if (!f.isFainted())
+					op.add(f);
+		return op;
+	}
+
+	/**
+	 * <p>
+	 * Skips this {@link Fighter}'s turn, adding one plus the number of ticks of the
+	 * next opponent of this fighter to it. This puts it "immediately" after the
+	 * next opponent to it, chronologically (although multiple fighters may have the
+	 * same number of ticks as its next opponent, causing them to be before this
+	 * fighter).
+	 * </p>
+	 * <p>
+	 * This method finishes a fighter's move, so {@link #act(int)} is called by this
+	 * method.
+	 * </p>
+	 */
+	public void skipTurn() {
+		act(getTicks(battleQueue.get(1)) + 1);
 	}
 
 }
