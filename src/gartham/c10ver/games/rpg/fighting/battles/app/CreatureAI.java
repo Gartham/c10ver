@@ -4,7 +4,6 @@ import java.math.BigInteger;
 import java.util.Random;
 
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
-import gartham.c10ver.Clover;
 import gartham.c10ver.games.rpg.GarmonUtils;
 import gartham.c10ver.games.rpg.fighting.battles.api.Controller;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -13,12 +12,10 @@ public class CreatureAI implements Controller<GarmonFighter> {
 	private final static Random RANDOM = new Random();
 
 	private final GarmonBattle battle;
-	private final Clover clover;
 	private final TextChannel channel;
 
-	public CreatureAI(GarmonBattle battle, Clover clover, TextChannel channel) {
+	public CreatureAI(GarmonBattle battle, TextChannel channel) {
 		this.battle = battle;
-		this.clover = clover;
 		this.channel = channel;
 	}
 
