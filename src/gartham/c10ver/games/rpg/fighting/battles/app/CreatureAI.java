@@ -31,7 +31,7 @@ public class CreatureAI implements Controller<GarmonFighter> {
 		for (int i = 2; i < 13; i++)
 			if (RANDOM.nextInt(i) == 0)
 				attack = attack.add(attacker.getAttack().divide(BigInteger.valueOf(i + 1)));
-		BigInteger dmg = max(BigInteger.ZERO, attack.subtract(target.getDefense()));
+		BigInteger dmg = max(BigInteger.ONE, attack.subtract(target.getDefense()));
 		target.damage(dmg);
 		var whm = new WebhookMessageBuilder();
 		whm.setUsername(attacker.getName());

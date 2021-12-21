@@ -57,7 +57,7 @@ public class AIController<F extends GarmonFighter> implements Controller<F> {
 		for (int i = 2; i < 13; i++)
 			if (RANDOM.nextInt(i) == 0)
 				attack = attack.add(fighter.getAttack().divide(BigInteger.valueOf(i + 1)));
-		BigInteger dmg = max(BigInteger.ZERO, attack.subtract(target.getDefense()));
+		BigInteger dmg = max(BigInteger.ONE, attack.subtract(target.getDefense()));
 		target.damage(dmg);
 		resultHandler.accept(new Result(fighter, dmg));
 		return 50;
