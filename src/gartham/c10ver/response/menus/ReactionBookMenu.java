@@ -10,7 +10,11 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
 public class ReactionBookMenu {
+	// If #reactions contains any reactions, handler must not be empty. If
+	// pageHandler is not empty, handler must not be empty.
+	// Page handling delegates to #handler if #pageHandler is empty.
 	private Consumer<String> handler;
+	private Consumer<Integer> pageHandler;
 
 	public void setHandler(Consumer<String> handler) {
 		this.handler = handler;
@@ -25,8 +29,7 @@ public class ReactionBookMenu {
 	private boolean edgeButtons;
 	private final Set<String> reactions = new HashSet<>();
 
-	public ReactionBookMenu(Consumer<String> handler, InputProcessor<MessageReactionAddEvent> processor) {
-		this.handler = handler;
+	public ReactionBookMenu(InputProcessor<MessageReactionAddEvent> processor) {
 		this.processor = processor;
 	}
 
@@ -68,6 +71,14 @@ public class ReactionBookMenu {
 
 	public void removeTarget() {
 		target = null;
+	}
+
+	public Consumer<Integer> getPageHandler() {
+		return pageHandler;
+	}
+
+	public void setPageHandler(Consumer<Integer> pageHandler) {
+		this.pageHandler = pageHandler;
 	}
 
 	public void attach(Message message) {
