@@ -152,7 +152,7 @@ public class ReactionBook {
 							this.pageHandler.accept(++this.page);
 						message.removeReaction(e, event.getUser()).queue();
 						return true;
-					default:
+					case RIGHT_ALL:
 						if (this.page < this.maxPage)
 							this.pageHandler.accept(this.page = this.maxPage);
 						message.removeReaction(e, event.getUser()).queue();
