@@ -30,7 +30,7 @@ public class ReactionBook {
 	 * track what the right "edge" button does (specifically, how far to the right
 	 * it goes).
 	 */
-	private int maxPage = -1;
+	private int maxPage = Integer.MAX_VALUE;
 
 	public int getMaxPage() {
 		return maxPage;
@@ -138,22 +138,22 @@ public class ReactionBook {
 				if (this.pageHandler != null) {
 					switch (e) { // If it is a page button, handle, but do not unregister the consumer.
 					case LEFT_ALL:
-						if (this.page != 0)
+						if (this.page > 0)
 							this.pageHandler.accept(this.page = 0);
 						message.removeReaction(e, event.getUser()).queue();
 						return true;
 					case LEFT_ONE:
-						if (this.page != 0)
+						if (this.page > 0)
 							this.pageHandler.accept(--this.page);
 						message.removeReaction(e, event.getUser()).queue();
 						return true;
 					case RIGHT_ONE:
-						if (this.page != this.maxPage)
+						if (this.page < this.maxPage)
 							this.pageHandler.accept(++this.page);
 						message.removeReaction(e, event.getUser()).queue();
 						return true;
 					default:
-						if (this.page != this.maxPage)
+						if (this.page < this.maxPage)
 							this.pageHandler.accept(this.page = this.maxPage);
 						message.removeReaction(e, event.getUser()).queue();
 						return true;
