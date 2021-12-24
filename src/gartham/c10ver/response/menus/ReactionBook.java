@@ -267,14 +267,14 @@ public class ReactionBook {
 	public ActiveReactionBook attach(Message message) {
 		var res = new ActiveReactionBook(new ArrayList<>(reactions.size() + (edgeButtons ? 4 : 2)), handler,
 				pageHandler, maxPage, target, message, processor);
+		for (var s : reactions)
+			res.reactions.add(normalizeEmoji(s));
 		res.reactions.add(0, LEFT_ONE);
 		res.reactions.add(RIGHT_ONE);
 		if (edgeButtons) {
 			res.reactions.add(0, LEFT_ALL);
 			res.reactions.add(RIGHT_ALL);
 		}
-		for (var s : reactions)
-			res.reactions.add(normalizeEmoji(s));
 
 		if (!res.reactions.isEmpty())
 			for (var s : res.reactions)
