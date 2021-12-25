@@ -1,7 +1,6 @@
 package gartham.c10ver.response.menus;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -21,7 +20,6 @@ public class ButtonBook {
 	// TODO This class (and the surrounding class) are in desparate need of
 	// documentation.
 	public static final class ActiveButtonBook {
-		private final List<Button> buttons;// This will not be changeable.
 		private Consumer<ButtonClickEvent> handler;
 		private final InputConsumer<ButtonClickEvent> inc;
 		private int maxPage;
@@ -32,10 +30,8 @@ public class ButtonBook {
 		private final InputProcessor<ButtonClickEvent> processor;
 		private User target;
 
-		private ActiveButtonBook(List<Button> reactions, Consumer<ButtonClickEvent> handler,
-				BiConsumer<Integer, ButtonClickEvent> pageHandler, int maxPage, User target, Message message,
-				InputProcessor<ButtonClickEvent> processor) {
-			this.buttons = reactions;
+		private ActiveButtonBook(Consumer<ButtonClickEvent> handler, BiConsumer<Integer, ButtonClickEvent> pageHandler,
+				int maxPage, User target, Message message, InputProcessor<ButtonClickEvent> processor) {
 			this.handler = handler;
 			this.pageHandler = pageHandler;
 			this.maxPage = maxPage;
@@ -78,10 +74,6 @@ public class ButtonBook {
 			(this.processor = processor).registerInputConsumer(inc);
 			this.message = message;
 
-		}
-
-		public List<Button> getButtons() {
-			return Collections.unmodifiableList(buttons);
 		}
 
 		public Consumer<ButtonClickEvent> getHandler() {
@@ -191,8 +183,7 @@ public class ButtonBook {
 		buttons.add(button);
 	}
 
-	public void attachAndSend(MessageAction msg) {
-
+	public ActiveButtonBook attachAndSend(MessageAction msg) {
 		List<Button> buttons = new ArrayList<>(this.buttons);
 		buttons.add(0, Button.primary("left-one", Emoji.fromMarkdown(ResponseUtils.LEFT_ONE)));
 		buttons.add(Button.primary("right-one", Emoji.fromMarkdown(ResponseUtils.RIGHT_ONE)));
@@ -214,6 +205,8 @@ public class ButtonBook {
 			rows.add(ActionRow.of(bs));
 
 		msg.setActionRows(rows);
+		var m = msg.complete();
+		return new ActiveButtonBook(handler, pageHandler, maxPage, target, m, processor);
 	}
 
 	public List<Button> getButtons() {
