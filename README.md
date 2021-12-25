@@ -1,4 +1,4 @@
-<a href="https://discord.com/invite/CdNdJmcnFx"><img align="right" src="https://cdn.discordapp.com/app-icons/807877488046112769/5d3c2e6f569aa15f921502160466aad8.png?size=1024" width=27%></a>
+<a href="https://discord.com/invite/CdNdJmcnFx"><img align="right" src="https://cdn.discordapp.com/avatars/807877488046112769/41e70e50c1aa2a060997e821f3bcbc51.webp?size=4096" width=27%></a>
 
 <h1 align="center">Clover</h1>
 
