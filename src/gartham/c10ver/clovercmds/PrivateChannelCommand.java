@@ -274,7 +274,7 @@ public class PrivateChannelCommand extends ParentCommand {
 															Permission.MESSAGE_ADD_REACTION,
 															Permission.MESSAGE_ATTACH_FILES,
 															Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_HISTORY,
-															Permission.MESSAGE_WRITE, Permission.MESSAGE_READ)
+															Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL)
 													.queue();
 											pc.save();
 											inv.event.getChannel()
@@ -362,7 +362,7 @@ public class PrivateChannelCommand extends ParentCommand {
 											// Webhook permissions (currently) have too many security exploits,
 											// including some in the bot (can fake claim buttons, for example).
 											Permission.MESSAGE_HISTORY, Permission.MESSAGE_MANAGE,
-											Permission.MESSAGE_TTS, Permission.MESSAGE_WRITE, Permission.MESSAGE_READ)
+											Permission.MESSAGE_TTS, Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL)
 									.queue();
 							// No mentioning everyone because staff also have access + owner can add random
 							// users.
