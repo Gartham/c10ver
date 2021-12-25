@@ -88,11 +88,11 @@ public class VoteManager {
 
 		if (u.getSettings().isVoteRemindersEnabled()) {
 			scheduleReminder(member, s, voteTime);
-			channel.sendMessage(embed.setFooter(
+			channel.sendMessageEmbeds(embed.setFooter(
 					"----> You currently have vote reminders enabled. Disable them with: ~settings vr false <----")
 					.build()).queue();
 		} else
-			channel.sendMessage(embed.setFooter(
+			channel.sendMessageEmbeds(embed.setFooter(
 					"You can automatically be reminded when it's time to vote by reacting to this message! (Click the alarm clock.)")
 					.build()).queue((Consumer<? super Message>) t -> {
 						t.addReaction("\u23F0").queue();

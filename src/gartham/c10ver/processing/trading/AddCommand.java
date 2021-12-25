@@ -182,7 +182,7 @@ class AddCommand extends MatchBasedCommand {
 		inv.event.getChannel()
 				.sendMessage(inv.event.getAuthor().getAsMention() + " added `" + amt
 						+ "` of that item to the trade! Here's what you've listed so far: ")
-				.embed(person.getTrade(new EmbedBuilder()).build()).queue();
+				.setEmbeds(person.getTrade(new EmbedBuilder()).build()).queue();
 
 	}
 

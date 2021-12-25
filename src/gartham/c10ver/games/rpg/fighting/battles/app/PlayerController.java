@@ -129,7 +129,7 @@ public class PlayerController implements Controller<GarmonFighter> {
 			DetailedActionReaction battleQueue = new DetailedActionReaction("Battle Queue",
 					"Check the time until each creature's turn.",
 					DetailedActionReaction.actionMessageAction(dam, t1 -> channel.sendMessage("Battle Queue:")
-							.embed(GarmonUtils.printBattleQueue(battle).build()).queue()));
+							.setEmbeds(GarmonUtils.printBattleQueue(battle).build()).queue()));
 			DetailedActionReaction back = new DetailedActionReaction("\u2B05", "Back", "Go back to attack menu.",
 					DetailedActionReaction.actionMessageAction(source));
 			dam.getReactions().add(battleQueue);
