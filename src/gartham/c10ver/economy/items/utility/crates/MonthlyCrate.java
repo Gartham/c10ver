@@ -36,9 +36,9 @@ public class MonthlyCrate extends LootCrateItem {
 		items.add(new ItemBunch<>(new Hamburger(), BigInteger.valueOf((long) (rand * 3 + 1))));
 		if (Math.random() < 0.2)
 			items.add(new ItemBunch<>(new Pizza()));
-		if (Math.random() < 0.3)
+		if (Math.random() < 0.15)
 			items.add(new ItemBunch<>(new DailyCrate(), BigInteger.valueOf((long) (Math.random() * 3 + 1))));
-		if (Math.random() < 0.4)
+		if (Math.random() < 0.1)
 			items.add(new ItemBunch<>(new MonthlyCrate()));
 		return new RewardsOperation().with(BigInteger.valueOf((long) (Math.random() * 800 + 450))).with(items);
 	}
