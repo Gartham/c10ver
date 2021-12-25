@@ -85,7 +85,7 @@ public class AcceptCommand extends MatchBasedCommand {
 				} else
 					inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
 							+ " you've accepted the trade. Now the person you're trading with needs to accept. If they make any changes, you'll have to accept again before the trade can take place.\n\n By the way, here are the items you're planning on trading:")
-							.embed(person.getTrade(new EmbedBuilder()).build()).queue();
+							.setEmbeds(person.getTrade(new EmbedBuilder()).build()).queue();
 			} else
 				inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
 						+ " you've already accepted, you need to wait on the person you're trading with to accept.")

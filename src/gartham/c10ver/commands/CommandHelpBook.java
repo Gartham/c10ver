@@ -55,7 +55,7 @@ public class CommandHelpBook {
 			builder.setAuthor(name, null, channel.getJDA().getSelfUser().getAvatarUrl())
 					.appendDescription("Showing help for command, `" + name.replace("`", "\\`") + "`:");
 			print(builder);
-			channel.sendMessage(builder.build()).queue();
+			channel.sendMessageEmbeds(builder.build()).queue();
 		}
 	}
 
@@ -87,7 +87,7 @@ public class CommandHelpBook {
 			builder.appendDescription(desc);
 			for (CommandHelp ch : subcmds)
 				ch.print(builder);
-			channel.sendMessage(builder.build()).queue();
+			channel.sendMessageEmbeds(builder.build()).queue();
 		}
 
 		public SimpleCommandHelp addSubcommand(String name, String description, String usage, String... aliases) {
@@ -168,7 +168,7 @@ public class CommandHelpBook {
 		final int item = (page - 1) * helpsPerPage;
 		final int maxPage = (helps.size() + helpsPerPage - 1) / helpsPerPage;
 		if (page < 1 || page > maxPage)
-			channel.sendMessage(new EmbedBuilder()
+			channel.sendMessageEmbeds(new EmbedBuilder()
 					.appendDescription(
 							"That page does not exist. The final page of help commands is page `" + maxPage + "`.")
 					.build()).queue();
@@ -185,14 +185,14 @@ public class CommandHelpBook {
 				if (++i >= helps.size()) {
 					builder.setFooter("End of help reached.");
 					builder.appendDescription(stringBuilder.toString());
-					channel.sendMessage(builder.build()).queue();
+					channel.sendMessageEmbeds(builder.build()).queue();
 					return;
 				}
 			}
 			builder.appendDescription(stringBuilder.toString());
 			if (page < maxPage)
 				builder.setFooter("Type `help " + (page + 1) + "` to view the next page.");
-			channel.sendMessage(builder.build()).queue();
+			channel.sendMessageEmbeds(builder.build()).queue();
 		}
 	}
 

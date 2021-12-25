@@ -177,7 +177,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 								.multiply(new BigDecimal(ua.getMessageCount())).toBigInteger()))
 						.append("`]\n");
 				eb.setDescription(sb.toString());
-				inv.event.getChannel().sendMessage(eb.build()).queue();
+				inv.event.getChannel().sendMessageEmbeds(eb.build()).queue();
 			}
 		});
 		register(new MatchBasedCommand("tip") {
@@ -211,7 +211,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 										.append(le.type.getName()).append('\n');
 					}
 					inv.event.getChannel()
-							.sendMessage(new EmbedBuilder().setTitle(inv.event.getAuthor().getAsTag() + "'s Accolades")
+							.sendMessageEmbeds(new EmbedBuilder().setTitle(inv.event.getAuthor().getAsTag() + "'s Accolades")
 									.setDescription(desc.toString()).build())
 							.queue();
 				} else if (inv.args.length != 1)
@@ -664,7 +664,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 										.append(" **").append(format(e.getValue().getCost())).append("**");
 							sb.append("\n\n**NOTE:** You currently must pay **each** time you change your role.");
 							eb.setDescription(sb);
-							m.embed(eb.build()).queue();
+							m.setEmbeds(eb.build()).queue();
 							return;
 						}
 					}
@@ -898,7 +898,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 								eb.addField("Page " + page + " Ranking", sb.toString(), false);
 								eb.setFooter("Showing page " + page + " in the server leaderboard.");
 
-								inv.event.getChannel().sendMessage(eb.build()).queue();
+								inv.event.getChannel().sendMessageEmbeds(eb.build()).queue();
 							} finally {
 								servers.remove(inv.event.getGuild().getId());
 							}
@@ -1080,7 +1080,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 								else {
 									var q = questions.get(numb);
 									inv.event.getChannel()
-											.sendMessage(new EmbedBuilder().setColor(switch (q.getDifficulty()) {
+											.sendMessageEmbeds(new EmbedBuilder().setColor(switch (q.getDifficulty()) {
 									case EASY:
 										yield Color.green;
 									case MEDIUM:
@@ -1326,7 +1326,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 							clover.getEventHandler().getMessageProcessor().registerInputConsumer(messageHandler.value);
 							questionMap.put(new AskedQuiz(q, messageHandler.value, reactionHandler.value),
 									inv.event.getAuthor().getId(), inv.event.getChannel().getId());
-							inv.event.getChannel().sendMessage(new EmbedBuilder().setColor(switch (q.getDifficulty()) {
+							inv.event.getChannel()
+									.sendMessageEmbeds(new EmbedBuilder().setColor(switch (q.getDifficulty()) {
 							case EASY:
 								yield Color.green;
 							case MEDIUM:
@@ -1336,7 +1337,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 							default:
 								yield Color.black;
 							}).setAuthor("Question #" + (numb + 1) + " [" + Utilities.format(q.getValue()) + ']')
-									.addField("\u200B", q.getQuestion(), false).build()).queue();
+											.addField("\u200B", q.getQuestion(), false).build())
+									.queue();
 						}
 					}
 				}
@@ -1444,7 +1446,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 										&& s.getSpamChannel() == null && s.getGamblingChannel() == null)
 									sb.append("\nNothing has been configured for this server yet.");
 								inv.event.getChannel()
-										.sendMessage(new EmbedBuilder().setDescription(sb.toString()).build()).queue();
+										.sendMessageEmbeds(new EmbedBuilder().setDescription(sb.toString()).build())
+										.queue();
 							} else
 								inv.event.getChannel().sendMessage("This server is not yet registered with me.")
 										.queue();
@@ -2179,8 +2182,8 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 							inv.event.getChannel().sendMessage(inv.event.getAuthor().getAsMention()
 									+ " you've joined the math lobby! (Type `~math leave` to leave.)").queue();
 						} else
-							inv.event.getChannel().sendMessage("Current math game:").embed(printState(ms, inv.event))
-									.queue();
+							inv.event.getChannel().sendMessage("Current math game:")
+									.setEmbeds(printState(ms, inv.event)).queue();
 					} else if (inv.args.length == 1) {
 						if (StringTools.equalsAnyIgnoreCase(inv.args[0], "clear", "stop", "quit", "leave", "exit")) {
 							if (ms.players.contains(inv.event.getAuthor().getId())) {
@@ -2191,7 +2194,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 							}
 							if (ms.players.isEmpty()) {
 								inv.event.getChannel().sendMessage("The math lobby has ended!")
-										.embed(printStateOver(ms, inv)).queue();
+										.setEmbeds(printStateOver(ms, inv)).queue();
 								end(inv.event.getChannel().getId());
 							} else {
 								inv.event.getChannel()
@@ -2223,7 +2226,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 									end(inv.event.getChannel().getId());
 									inv.event.getChannel().sendMessage(
 											"**Time's Up!** No one answered the math problem correctly in time!")
-											.embed(printStateOver(ms2, inv)).queue();
+											.setEmbeds(printStateOver(ms2, inv)).queue();
 								}
 							}, 30000);
 						} catch (IllegalStateException e) {
@@ -2252,7 +2255,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 												end(inv.event.getChannel().getId());
 												inv.event.getChannel().sendMessage(
 														"**Time's Up!** No one answered the math problem correctly in time!")
-														.embed(printStateOver(ms2, inv)).queue();
+														.setEmbeds(printStateOver(ms2, inv)).queue();
 											}
 										}, 30000);
 									} catch (IllegalStateException e) {
@@ -2285,7 +2288,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 						clover.getEventHandler().getMessageProcessor().registerInputConsumer(ms.mic);
 
 						inv.event.getChannel().sendMessage("Starting a new math lobby!")
-								.embed(printState(ms, inv.event)).queue();
+								.setEmbeds(printState(ms, inv.event)).queue();
 					} else {
 						inv.event.getChannel().sendMessage(
 								"The math command doesn't take any arguments unless you're in a game! (Just use `~math` to start a new lobby.)")
@@ -2376,7 +2379,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 									u.setPrestige(u.getPrestige().add(pahmount));
 									u.save();
 
-									inv.event.getChannel().sendMessage(new EmbedBuilder()
+									inv.event.getChannel().sendMessageEmbeds(new EmbedBuilder()
 											.setAuthor(inv.event.getAuthor().getAsTag() + " Prestiged!")
 											.setDescription("You prestiged to rank `"
 													+ Utilities.toRomanNumerals(u.getPrestige()) + "`.")
@@ -2422,7 +2425,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				inv.event.getChannel()
 						.sendMessage("**You can vote at https://top.gg/servers/" + inv.event.getGuild().getId()
 								+ "/vote to get rewards!**")
-						.embed(new EmbedBuilder().setAuthor("Vote Rewards", null, inv.event.getGuild().getIconUrl())
+						.setEmbeds(new EmbedBuilder().setAuthor("Vote Rewards", null, inv.event.getGuild().getIconUrl())
 								.setDescription(new LootRewardStringBuilder()
 										.printLootChance(WeeklyCrate.ITEM_ICON, WeeklyCrate.ITEM_NAME, "[2-3] @ 100%")
 										.printLootChance(MonthlyCrate.ITEM_ICON, MonthlyCrate.ITEM_NAME, "[1] @ 50%")
@@ -2578,7 +2581,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 //				ActionMessage<ActionReaction> am = new ActionMessage<>(
 //						new ActionReaction("egg", t -> t.getEvent().getChannel().sendMessage("Clicked!").queue()));
 
-				am.create(clover, inv.event.getChannel().sendMessage(eb.build()), inv.event.getAuthor());
+				am.create(clover, inv.event.getChannel().sendMessageEmbeds(eb.build()), inv.event.getAuthor());
 			}
 
 		});

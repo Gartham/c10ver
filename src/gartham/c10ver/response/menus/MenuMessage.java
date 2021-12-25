@@ -57,10 +57,10 @@ public abstract class MenuMessage<R extends ActionReaction, B extends ActionButt
 
 	public void send(InputProcessor<MessageReactionAddEvent> reactionProcessor,
 			InputProcessor<ButtonClickEvent> buttonClickProcessor, MessageChannel msg, User target) {
-		am.create(msg.sendMessage(embed()), target, reactionProcessor, buttonClickProcessor);
+		am.create(msg.sendMessageEmbeds(embed()), target, reactionProcessor, buttonClickProcessor);
 	}
 
 	public void send(Clover clover, MessageChannel msg, User target) {
-		am.create(clover, msg.sendMessage(embed()), target);
+		am.create(clover, msg.sendMessageEmbeds(embed()), target);
 	}
 }

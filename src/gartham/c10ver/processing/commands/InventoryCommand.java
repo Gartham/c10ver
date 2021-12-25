@@ -95,7 +95,7 @@ public class InventoryCommand extends MatchBasedCommand {
 						false);
 //				eb.setFooter(
 //						"You have " + maxPage + " page" + (maxPage == 1 ? "" : "s") + " in your inventory.");
-				inv.event.getChannel().sendMessage(eb.build()).queue();
+				inv.event.getChannel().sendMessageEmbeds(eb.build()).queue();
 			}
 			return;
 		}
@@ -122,7 +122,7 @@ public class InventoryCommand extends MatchBasedCommand {
 			eb.addField("", "You have **" + maxPage + "** page" + (maxPage == 1 ? "" : "s")
 					+ " of this item in your inventory.", false);
 //			eb.setFooter("You have " + maxPage + " page" + (maxPage == 1 ? "" : "s") + " in your inventory.");
-			inv.event.getChannel().sendMessage(eb.build()).queue();
+			inv.event.getChannel().sendMessageEmbeds(eb.build()).queue();
 		}
 	}
 

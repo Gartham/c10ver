@@ -16,7 +16,7 @@ public class ViewCommand extends MatchBasedCommand {
 	@Override
 	public void exec(CommandInvocation inv) {
 		inv.event.getChannel().sendMessage("Here are the items you are willing to offer: ")
-				.embed((trade.isRecipient(inv.event.getAuthor()) ? trade.getRecip() : trade.getRequester())
+				.setEmbeds((trade.isRecipient(inv.event.getAuthor()) ? trade.getRecip() : trade.getRequester())
 						.getTrade(new EmbedBuilder()).build())
 				.queue();
 	}
