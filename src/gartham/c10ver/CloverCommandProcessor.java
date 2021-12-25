@@ -103,7 +103,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 	public CloverCommandProcessor(Clover clover) {
 		this.clover = clover;
 		tradeManager = new TradeManager(clover);
-		register(new ExploreCommand(clover));
+//		register(new ExploreCommand(clover));
 		register(new InventoryCommand(clover, "inventory", "inv"));
 		register(new PrivateChannelCommand(clover, help));
 	}
@@ -2584,6 +2584,15 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				am.create(clover, inv.event.getChannel().sendMessageEmbeds(eb.build()), inv.event.getAuthor());
 			}
 
+		});
+		
+		register(new MatchBasedCommand("explore") {
+			
+			@Override
+			public void exec(CommandInvocation inv) {
+				// TODO Auto-generated method stub
+				
+			}
 		});
 
 		help.addCommand("explore", "Explore the world!", "explore", "rpg");
