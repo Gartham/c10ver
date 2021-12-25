@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import org.alixia.javalibrary.JavaTools;
+
 import gartham.c10ver.commands.InputProcessor;
 import gartham.c10ver.commands.consumers.InputConsumer;
 import gartham.c10ver.response.ResponseUtils;
@@ -14,6 +16,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.Component;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 public class ButtonBook {
@@ -39,10 +42,12 @@ public class ButtonBook {
 
 			inc = (event, p, consumer) -> {
 
-				if (this.target != null && !this.target.equals(event.getUser()))
-					return false;
 				if (event.getMessageIdLong() != message.getIdLong())
 					return false;
+				if (this.target != null && !this.target.equals(event.getUser())) {
+					event.reply("That's not for you!").setEphemeral(true).queue();
+					return true;
+				}
 
 				String e = event.getComponentId();
 				if (this.pageHandler != null) {
@@ -74,6 +79,42 @@ public class ButtonBook {
 			(this.processor = processor).registerInputConsumer(inc);
 			this.message = message;
 
+		}
+
+		/**
+		 * Returns a copy of the {@link ActionRow}s of the {@link ActiveButtonBook} but
+		 * such that the buttons in the {@link ActionRow}s are disabled. Otherwise, the
+		 * {@link ActionRow} is a complete copy of the rows in the
+		 * {@link ActiveButtonBook}. The {@link List} is fresh and mutable.
+		 */
+		public List<ActionRow> disabledButtonView() {
+			List<ActionRow> ars = message.getActionRows(), nars = new ArrayList<>(ars.size());
+			for (var ar : ars)
+				nars.add(ActionRow.of(JavaTools.addAll(ar.getButtons(), Button::asDisabled,
+						new ArrayList<>(ar.getButtons().size()))));
+			return nars;
+		}
+
+		/**
+		 * Returns a copy of the {@link ActionRow}s of the {@link ActiveButtonBook} but
+		 * such that the buttons in the {@link ActionRow}s are enabled. Otherwise, the
+		 * {@link ActionRow} is a complete copy of the rows in the
+		 * {@link ActiveButtonBook}. The {@link List} is fresh and mutable.
+		 */
+		public List<ActionRow> enabledButtonView() {
+			List<ActionRow> ars = message.getActionRows(), nars = new ArrayList<>(ars.size());
+			for (var ar : ars)
+				nars.add(ActionRow.of(
+						JavaTools.addAll(ar.getButtons(), Button::asEnabled, new ArrayList<>(ar.getButtons().size()))));
+			return nars;
+		}
+
+		public void disableButtons() {
+			message.editMessageComponents(disabledButtonView()).queue();
+		}
+
+		public void enableButtons() {
+			message.editMessageComponents(enabledButtonView()).queue();
 		}
 
 		public Consumer<ButtonClickEvent> getHandler() {
@@ -181,6 +222,16 @@ public class ButtonBook {
 
 	public void add(Button button) {
 		buttons.add(button);
+	}
+
+	public Button add(String id, String emoji) {
+		var b = Button.primary(id, Emoji.fromMarkdown(emoji));
+		add(b);
+		return b;
+	}
+
+	public Button add(String emoji) {
+		return add(emoji, emoji);
 	}
 
 	public ActiveButtonBook attachAndSend(MessageAction msg) {
