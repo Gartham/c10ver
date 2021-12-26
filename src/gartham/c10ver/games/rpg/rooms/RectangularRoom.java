@@ -134,4 +134,17 @@ public class RectangularRoom implements Room {
 		return cl;
 	}
 
+	/**
+	 * Returns a {@link RectangularRoom} which renders as a square on Discord in a
+	 * code block. (The width is a factor of <code>2.2</code> of the height, since
+	 * the width of a character on Discord is less than the height in code blocks.)
+	 * <code>width*2.2 = height</code>
+	 * 
+	 * @param size The height of the square.
+	 * @return The new {@link RectangularRoom}.
+	 */
+	public static RectangularRoom discordSquare(int size) {
+		return new RectangularRoom((int) (2.2 * size), size);
+	}
+
 }
