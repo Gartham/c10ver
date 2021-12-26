@@ -15,6 +15,10 @@ public class Dungeon {
 		this.rooms = rooms;
 	}
 
+	public DungeonRoom<Direction> getInitialRoom() {
+		return rooms.get(0);
+	}
+
 	public static Dungeon simpleEasyDungeon() {
 		int roomcount = (int) (Math.random() * 11 + 4);
 		var dung = new Dungeon(new ArrayList<>(roomcount));
