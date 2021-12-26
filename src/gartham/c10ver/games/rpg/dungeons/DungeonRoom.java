@@ -55,4 +55,16 @@ public class DungeonRoom {
 		return Collections.unmodifiableSet(connections.keySet());
 	}
 
+	/**
+	 * Enables and disables buttons in the {@link DirectionSelector} as appropriate
+	 * to reflect the directions in which a user in this room in a dungeon may move.
+	 * 
+	 * @param selector The selector to prepare.
+	 */
+	public void prepare(DirectionSelector selector) {
+		selector.disableAll();
+		for (var v : connections.keySet())
+			selector.enable(v);
+	}
+
 }
