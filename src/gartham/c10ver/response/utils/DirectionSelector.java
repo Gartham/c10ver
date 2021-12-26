@@ -25,7 +25,7 @@ public class DirectionSelector {
 		default -> throw new IllegalArgumentException("Unexpected value: " + id);
 		};
 	}
-	
+
 	public static Direction getDirectionSelected(ButtonClickEvent event) {
 		return getDirection(event.getComponentId());
 	}
@@ -44,6 +44,29 @@ public class DirectionSelector {
 
 	public void disableDown() {
 		down = down.asDisabled();
+	}
+
+	public void enableUp() {
+		up = up.asEnabled();
+	}
+
+	public void enableLeft() {
+		left = left.asEnabled();
+	}
+
+	public void enableRight() {
+		right = right.asEnabled();
+	}
+
+	public void enableDown() {
+		down = down.asEnabled();
+	}
+
+	public void enableAll() {
+		enableDown();
+		enableLeft();
+		enableRight();
+		enableUp();
 	}
 
 	public Button getButton(Direction direction) {
