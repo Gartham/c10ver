@@ -10,10 +10,16 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 
 public class DirectionSelector {
-	private Button up = Button.primary("up", Emoji.fromMarkdown("\u2B06")),
-			left = Button.primary("left", Emoji.fromMarkdown("\u2B05")),
-			right = Button.primary("right", Emoji.fromMarkdown("\u27A1")),
-			down = Button.primary("down", Emoji.fromMarkdown("\u2B07"));
+
+	public static final Button UP_ENABLED = Button.primary("up", Emoji.fromMarkdown("\u2B06")),
+			LEFT_ENABLED = Button.primary("left", Emoji.fromMarkdown("\u2B05")),
+			RIGHT_ENABLED = Button.primary("right", Emoji.fromMarkdown("\u27A1")),
+			DOWN_ENABLED = Button.primary("down", Emoji.fromMarkdown("\u2B07")),
+			UP_DISABLED = Button.danger("up", Emoji.fromMarkdown("\u2B06")).asDisabled(),
+			LEFT_DISABLED = Button.danger("left", Emoji.fromMarkdown("\u2B05")).asDisabled(),
+			RIGHT_DISABLED = Button.danger("right", Emoji.fromMarkdown("\u27A1")).asDisabled(),
+			DOWN_DISABLED = Button.danger("down", Emoji.fromMarkdown("\u2B07")).asDisabled();
+	private Button up = UP_ENABLED, left = LEFT_ENABLED, right = RIGHT_ENABLED, down = DOWN_ENABLED;
 
 	public static Direction getDirection(String id) {
 		return switch (id) {
@@ -31,35 +37,35 @@ public class DirectionSelector {
 	}
 
 	public void disableUp() {
-		up = up.asDisabled();
+		up = UP_DISABLED;
 	}
 
 	public void disableLeft() {
-		left = left.asDisabled();
+		left = LEFT_DISABLED;
 	}
 
 	public void disableRight() {
-		right = right.asDisabled();
+		right = RIGHT_DISABLED;
 	}
 
 	public void disableDown() {
-		down = down.asDisabled();
+		down = DOWN_DISABLED;
 	}
 
 	public void enableUp() {
-		up = up.asEnabled();
+		up = UP_ENABLED;
 	}
 
 	public void enableLeft() {
-		left = left.asEnabled();
+		left = LEFT_ENABLED;
 	}
 
 	public void enableRight() {
-		right = right.asEnabled();
+		right = RIGHT_ENABLED;
 	}
 
 	public void enableDown() {
-		down = down.asEnabled();
+		down = DOWN_ENABLED;
 	}
 
 	public void enableAll() {
@@ -151,7 +157,19 @@ public class DirectionSelector {
 	}
 
 	public void enable(Direction v) {
-		// TODO Auto-generated method stub
-		
+		switch (v) {
+		case DOWN:
+			enableDown();
+			break;
+		case LEFT:
+			enableLeft();
+			break;
+		case RIGHT:
+			enableRight();
+			break;
+		case UP:
+			enableUp();
+			break;
+		}
 	}
 }
