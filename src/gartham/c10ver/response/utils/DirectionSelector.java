@@ -3,6 +3,7 @@ package gartham.c10ver.response.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import gartham.c10ver.utils.Direction;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
@@ -12,6 +13,55 @@ public class DirectionSelector {
 			left = Button.primary("left", Emoji.fromMarkdown("\u2B05")),
 			right = Button.primary("right", Emoji.fromMarkdown("\u27A1")),
 			down = Button.primary("down", Emoji.fromMarkdown("\u2B07"));
+
+	public void disableUp() {
+		up = up.asDisabled();
+	}
+
+	public void disableLeft() {
+		left = left.asDisabled();
+	}
+
+	public void disableRight() {
+		right = right.asDisabled();
+	}
+
+	public void disableDown() {
+		down = down.asDisabled();
+	}
+
+	public Button getButton(Direction direction) {
+		return switch (direction) {
+		case UP -> up;
+		case LEFT -> left;
+		case DOWN -> down;
+		case RIGHT -> right;
+		};
+	}
+
+	public void disable(Direction direction) {
+		switch (direction) {
+		case DOWN:
+			disableDown();
+			break;
+		case LEFT:
+			disableLeft();
+			break;
+		case RIGHT:
+			disableRight();
+			break;
+		case UP:
+			disableUp();
+			break;
+		}
+	}
+
+	public void disableAll() {
+		disableDown();
+		disableLeft();
+		disableRight();
+		disableUp();
+	}
 
 	public Button getUp() {
 		return up;
