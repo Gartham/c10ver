@@ -8,12 +8,14 @@ import java.util.Map;
 import java.util.Set;
 
 import gartham.c10ver.games.rpg.rooms.RectangularRoom;
+import gartham.c10ver.response.utils.DirectionSelector;
+import gartham.c10ver.utils.Direction;
 
-public class DungeonRoom<C> {
+public class DungeonRoom {
 	private final RectangularRoom room;
-	private final Map<C, DungeonRoom<C>> connections;
+	private final Map<Direction, DungeonRoom> connections;
 
-	public DungeonRoom(RectangularRoom room, Map<C, DungeonRoom<C>> connections) {
+	public DungeonRoom(RectangularRoom room, Map<Direction, DungeonRoom> connections) {
 		this.room = room;
 		this.connections = new HashMap<>(connections);
 	}
@@ -27,7 +29,7 @@ public class DungeonRoom<C> {
 		return room;
 	}
 
-	public Map<C, DungeonRoom<C>> getConnections() {
+	public Map<Direction, DungeonRoom> getConnections() {
 		return Collections.unmodifiableMap(connections);
 	}
 
@@ -39,17 +41,17 @@ public class DungeonRoom<C> {
 	 * @param dir  The direction of the wall that has the connection.
 	 * @param room The {@link DungeonRoom} connected to this {@link DungeonRoom}.
 	 */
-	public void addConnection(C dir, DungeonRoom<C> room) {
+	public void addConnection(Direction dir, DungeonRoom room) {
 		if (connections.containsKey(dir))
 			throw new RuntimeException("Entry already exists.");
 		connections.put(dir, room);
 	}
 
-	public List<C> getConnectionDirections() {
+	public List<Direction> getConnectionDirections() {
 		return new ArrayList<>(connections.keySet());
 	}
 
-	public Set<C> getConnectionDirectionsUnmodifiable() {
+	public Set<Direction> getConnectionDirectionsUnmodifiable() {
 		return Collections.unmodifiableSet(connections.keySet());
 	}
 

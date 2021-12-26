@@ -149,4 +149,9 @@ public class DirectionSelector {
 	public static DirectionSelector directionSelector() {
 		return new DirectionSelector();
 	}
+
+	public void enable(Direction v) {
+		// TODO Auto-generated method stub
+		
+	}
 }

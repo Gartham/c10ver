@@ -8,31 +8,31 @@ import gartham.c10ver.games.rpg.rooms.RectangularRoom;
 import gartham.c10ver.utils.Direction;
 
 public class Dungeon {
-	private final List<DungeonRoom<Direction>> rooms;
+	private final List<DungeonRoom> rooms;
 	private final int finalRoom;
 
-	private Dungeon(List<DungeonRoom<Direction>> rooms, int finalRoom) {
+	private Dungeon(List<DungeonRoom> rooms, int finalRoom) {
 		this.rooms = rooms;
 		this.finalRoom = finalRoom;
 	}
 
-	public DungeonRoom<Direction> getInitialRoom() {
+	public DungeonRoom getInitialRoom() {
 		return rooms.get(0);
 	}
 
-	public DungeonRoom<Direction> getFinalRoom() {
+	public DungeonRoom getFinalRoom() {
 		return rooms.get(finalRoom);
 	}
 
 	public static Dungeon simpleEasyDungeon() {
 		int roomcount = (int) (Math.random() * 11 + 4);
 
-		List<DungeonRoom<Direction>> rooms = new ArrayList<>(), edges = new ArrayList<>();// Always contains a list of
+		List<DungeonRoom> rooms = new ArrayList<>(), edges = new ArrayList<>();// Always contains a list of
 																							// "edges".
 		// These are extended as needed.
 
 		var initialRoom = RectangularRoom.discordSquare((int) (Math.random() * 5 + 8));
-		DungeonRoom<Direction> firstdr = new DungeonRoom<>(initialRoom);
+		DungeonRoom firstdr = new DungeonRoom(initialRoom);
 		rooms.add(firstdr);
 		roomcount--;// First room.
 
@@ -87,9 +87,9 @@ public class Dungeon {
 		return new Dungeon(rooms, (int) (Math.random() * edges.size()));
 	}
 
-	private static DungeonRoom<Direction> build(DungeonRoom<Direction> initial, Direction side) {
+	private static DungeonRoom build(DungeonRoom initial, Direction side) {
 		RectangularRoom connection = RectangularRoom.discordSquare((int) (Math.random() * 5 + 8));
-		DungeonRoom<Direction> dr = new DungeonRoom<>(connection, new HashMap<>());
+		DungeonRoom dr = new DungeonRoom(connection, new HashMap<>());
 		dr.addConnection(side.opposite(), initial);
 		initial.addConnection(side, dr);
 
