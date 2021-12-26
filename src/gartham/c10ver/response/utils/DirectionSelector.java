@@ -5,6 +5,7 @@ import java.util.List;
 
 import gartham.c10ver.utils.Direction;
 import net.dv8tion.jda.api.entities.Emoji;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 
@@ -13,6 +14,21 @@ public class DirectionSelector {
 			left = Button.primary("left", Emoji.fromMarkdown("\u2B05")),
 			right = Button.primary("right", Emoji.fromMarkdown("\u27A1")),
 			down = Button.primary("down", Emoji.fromMarkdown("\u2B07"));
+
+	public static Direction getDirection(String id) {
+		return switch (id) {
+		case "up" -> Direction.UP;
+		case "left" -> Direction.LEFT;
+		case "right" -> Direction.RIGHT;
+		case "down" -> Direction.DOWN;
+		// TODO Consider using Enum's valueOf().
+		default -> throw new IllegalArgumentException("Unexpected value: " + id);
+		};
+	}
+	
+	public static Direction getDirectionSelected(ButtonClickEvent event) {
+		return getDirection(event.getComponentId());
+	}
 
 	public void disableUp() {
 		up = up.asDisabled();
