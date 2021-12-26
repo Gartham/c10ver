@@ -47,23 +47,24 @@ public class RectangularRoom implements Room {
 
 	/**
 	 * Creates an opening in this room on the wall of this room corresponding to the
-	 * specified {@link Side}. The width of the actual opening is the gap width; the
-	 * gap width does not include the 2 characters around the opening that are used
-	 * to convey that there is an opening. The position is how far down (for
-	 * vertical sides, {@link Side#RIGHT} or {@link Side#LEFT}) or how far to the
-	 * right (for horizontal sides, {@link Side#TOP} or {@link Side#BOTTOM}) the
-	 * opening should be. The boundaries of the wall selected are taken into account
-	 * when specifying the gap position and the position is clamped so that the
-	 * opening will fit on the wall. If a gap is too large to fit in a wall, it is
-	 * shrunk to fit. Clamping is prioritized such that if a wall of the specified
-	 * gap-width cannot fit at the specified position, but can fit on the wall, it
-	 * is moved so that it fits. (Position is mutated preferentially to gap-width.)
-	 * Note that this method does not take previous calls (so previous gaps) into
-	 * account, so previous gaps may be overwritten entirely or partially, leading
-	 * to strange rendering anomalies if care is not taken by callers.
+	 * specified {@link Direction}. The width of the actual opening is the gap
+	 * width; the gap width does not include the 2 characters around the opening
+	 * that are used to convey that there is an opening. The position is how far
+	 * down (for vertical sides, {@link Direction#RIGHT} or {@link Direction#LEFT})
+	 * or how far to the right (for horizontal sides, {@link Direction#UP} or
+	 * {@link Direction#DOWN}) the opening should be. The boundaries of the wall
+	 * selected are taken into account when specifying the gap position and the
+	 * position is clamped so that the opening will fit on the wall. If a gap is too
+	 * large to fit in a wall, it is shrunk to fit. Clamping is prioritized such
+	 * that if a wall of the specified gap-width cannot fit at the specified
+	 * position, but can fit on the wall, it is moved so that it fits. (Position is
+	 * mutated preferentially to gap-width.) Note that this method does not take
+	 * previous calls (so previous gaps) into account, so previous gaps may be
+	 * overwritten entirely or partially, leading to strange rendering anomalies if
+	 * care is not taken by callers.
 	 * 
-	 * @param side     The {@link Side} of the room to put an opening in the wall
-	 *                 of.
+	 * @param side     The {@link Direction} of the room to put an opening in the
+	 *                 wall of.
 	 * @param gapwidth The width of the opening. (The number of empty characters
 	 *                 wide the opening should be.)
 	 * @param pos      The shift from the top or right (depending on whether the
