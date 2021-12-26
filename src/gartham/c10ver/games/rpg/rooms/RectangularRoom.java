@@ -2,25 +2,9 @@ package gartham.c10ver.games.rpg.rooms;
 
 import java.util.Arrays;
 
+import gartham.c10ver.utils.Direction;
+
 public class RectangularRoom implements Room {
-
-	public enum Side {
-		TOP, RIGHT, BOTTOM, LEFT;
-
-		private static final Side[] values = values();
-
-		public boolean isHorizontal() {
-			return this == TOP || this == BOTTOM;
-		}
-
-		public boolean isVertical() {
-			return !isHorizontal();
-		}
-
-		public Side opposite() {
-			return values[(ordinal() + 2) % values.length];
-		}
-	}
 
 	// Vertical (Single, Double), Horizontal
 	private static final char[] SIDE = { '\u2502', '\u2551', '\u2500', '\u2550' },
@@ -86,11 +70,11 @@ public class RectangularRoom implements Room {
 	 *                 wall runs vertically or horizontally, respectively) that the
 	 *                 opening should be made.
 	 */
-	public void createOpening(Side side, int gapwidth, int pos) {
+	public void createOpening(Direction side, int gapwidth, int pos) {
 		if (side.isHorizontal())
-			createHorizontalOpening(side == Side.TOP ? map[0] : map[map.length - 1], gapwidth, pos);
+			createHorizontalOpening(side == Direction.UP ? map[0] : map[map.length - 1], gapwidth, pos);
 		else {
-			int shift = side == Side.RIGHT ? width - 1 : 0;
+			int shift = side == Direction.RIGHT ? width - 1 : 0;
 			if ((gapwidth += 2) > height - 2)
 				gapwidth = height - 2;
 			else if (gapwidth < 3)
