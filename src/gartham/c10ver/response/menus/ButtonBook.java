@@ -9,7 +9,7 @@ import org.alixia.javalibrary.JavaTools;
 
 import gartham.c10ver.commands.InputProcessor;
 import gartham.c10ver.commands.consumers.InputConsumer;
-import gartham.c10ver.response.ResponseUtils;
+import gartham.c10ver.response.utils.ResponseUtils;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;

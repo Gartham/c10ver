@@ -1,4 +1,4 @@
-package gartham.c10ver.response;
+package gartham.c10ver.response.utils;
 
 import net.dv8tion.jda.api.interactions.components.Button;
 

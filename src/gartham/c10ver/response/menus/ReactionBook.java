@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 
 import gartham.c10ver.commands.InputProcessor;
 import gartham.c10ver.commands.consumers.InputConsumer;
-import gartham.c10ver.response.ResponseUtils;
+import gartham.c10ver.response.utils.ResponseUtils;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;

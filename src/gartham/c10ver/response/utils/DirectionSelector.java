@@ -3,7 +3,6 @@ package gartham.c10ver.response.utils;
 import java.util.ArrayList;
 import java.util.List;
 
-import gartham.c10ver.response.ResponseUtils;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
