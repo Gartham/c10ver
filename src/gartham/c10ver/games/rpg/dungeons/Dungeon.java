@@ -3,6 +3,7 @@ package gartham.c10ver.games.rpg.dungeons;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import gartham.c10ver.games.rpg.rooms.RectangularRoom;
 import gartham.c10ver.utils.Direction;
@@ -22,7 +23,7 @@ public class Dungeon {
 																					// These are extended as needed.
 
 		var initialRoom = RectangularRoom.discordSquare((int) (Math.random() * 5 + 8));
-		DungeonRoom<Direction> firstdr = new DungeonRoom<>(initialRoom, new HashMap<>());
+		DungeonRoom<Direction> firstdr = new DungeonRoom<>(initialRoom);
 		rooms.add(firstdr);
 		roomcount--;// First room.
 
@@ -80,8 +81,8 @@ public class Dungeon {
 	private static DungeonRoom<Direction> build(DungeonRoom<Direction> initial, Direction side) {
 		RectangularRoom connection = RectangularRoom.discordSquare((int) (Math.random() * 5 + 8));
 		DungeonRoom<Direction> dr = new DungeonRoom<>(connection, new HashMap<>());
-		dr.getConnections().put(side.opposite(), initial);
-		initial.getConnections().put(side, dr);
+		dr.addConnection(side.opposite(), initial);
+		initial.addConnection(side, dr);
 
 		int pos = (int) (Math.random()
 				* ((side.isHorizontal() ? initial.getRoom().getHeight() : initial.getRoom().getWidth()) - 4));
