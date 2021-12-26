@@ -31,15 +31,17 @@ public class InviteTracker {
 		for (Guild g : eventHandler.getClover().getBot().getGuilds()) {
 			Map<String, Integer> invmap = new HashMap<>();
 			invites.put(g.getId(), invmap);
-			for (var i : g.retrieveInvites().complete())
-				invmap.put(i.getCode(), i.getUses());
-			if (g.getSelfMember().hasPermission(Permission.ADMINISTRATOR)) {
-				if (g.getVanityCode() != null) {
+			if (g.getSelfMember().hasPermission(Permission.MANAGE_SERVER)) {
+				for (var i : g.retrieveInvites().complete())
+					invmap.put(i.getCode(), i.getUses());
+				if (g.getSelfMember().hasPermission(Permission.ADMINISTRATOR)) {
+					if (g.getVanityCode() != null) {
 //					System.out.println("Getting Vanity Invite for " + g.getName());
-					invmap.put(g.getVanityCode(), g.retrieveVanityInvite().complete().getUses());
-				} else
-					System.out.println(g.getName()
-							+ " does not have a vanity code! Server excluded from vanity code invite tracking.");
+						invmap.put(g.getVanityCode(), g.retrieveVanityInvite().complete().getUses());
+					} else
+						System.out.println(g.getName()
+								+ " does not have a vanity code! Server excluded from vanity code invite tracking.");
+				}
 			} else
 				System.out.println("No manage server perms on " + g.getName() + " so vanity invite tracking disabled!");
 		}
