@@ -18,8 +18,13 @@ public class DirectionSelector {
 			UP_DISABLED = Button.secondary("up", Emoji.fromMarkdown("\u2B06")).asDisabled(),
 			LEFT_DISABLED = Button.secondary("left", Emoji.fromMarkdown("\u2B05")).asDisabled(),
 			RIGHT_DISABLED = Button.secondary("right", Emoji.fromMarkdown("\u27A1")).asDisabled(),
-			DOWN_DISABLED = Button.secondary("down", Emoji.fromMarkdown("\u2B07")).asDisabled();
-	private Button up = UP_ENABLED, left = LEFT_ENABLED, right = RIGHT_ENABLED, down = DOWN_ENABLED;
+			DOWN_DISABLED = Button.secondary("down", Emoji.fromMarkdown("\u2B07")).asDisabled(),
+			DEFAULT_TOP_LEFT = ResponseUtils.blockedButton("d1"), DEFAULT_TOP_RIGHT = ResponseUtils.blockedButton("d2"),
+			DEFAULT_MIDDLE = ResponseUtils.blockedButton("d3"), DEFAULT_BOTTOM_LEFT = ResponseUtils.blockedButton("d4"),
+			DEFAULT_BOTTOM_RIGHT = ResponseUtils.blockedButton("d5");
+	private Button up = UP_ENABLED, left = LEFT_ENABLED, right = RIGHT_ENABLED, down = DOWN_ENABLED,
+			topLeft = DEFAULT_TOP_LEFT, topRight = DEFAULT_TOP_RIGHT, middle = DEFAULT_MIDDLE,
+			bottomLeft = DEFAULT_BOTTOM_LEFT, bottomRight = DEFAULT_BOTTOM_RIGHT;
 
 	public static Direction getDirection(String id) {
 		return switch (id) {
@@ -42,6 +47,46 @@ public class DirectionSelector {
 
 	public void disableLeft() {
 		left = LEFT_DISABLED;
+	}
+
+	public Button getTopLeft() {
+		return topLeft;
+	}
+
+	public void setTopLeft(Button topLeft) {
+		this.topLeft = topLeft;
+	}
+
+	public Button getTopRight() {
+		return topRight;
+	}
+
+	public void setTopRight(Button topRight) {
+		this.topRight = topRight;
+	}
+
+	public Button getMiddle() {
+		return middle;
+	}
+
+	public void setMiddle(Button middle) {
+		this.middle = middle;
+	}
+
+	public Button getBottomLeft() {
+		return bottomLeft;
+	}
+
+	public void setBottomLeft(Button bottomLeft) {
+		this.bottomLeft = bottomLeft;
+	}
+
+	public Button getBottomRight() {
+		return bottomRight;
+	}
+
+	public void setBottomRight(Button bottomRight) {
+		this.bottomRight = bottomRight;
 	}
 
 	public void disableRight() {
@@ -68,7 +113,7 @@ public class DirectionSelector {
 		down = DOWN_ENABLED;
 	}
 
-	public void enableAll() {
+	public void enableDirections() {
 		enableDown();
 		enableLeft();
 		enableRight();
@@ -101,7 +146,7 @@ public class DirectionSelector {
 		}
 	}
 
-	public void disableAll() {
+	public void disableDirections() {
 		disableDown();
 		disableLeft();
 		disableRight();
@@ -139,13 +184,32 @@ public class DirectionSelector {
 	public void setDown(Button down) {
 		this.down = down;
 	}
-	
+
+	public void resetTopLeft() {
+		topLeft = DEFAULT_TOP_LEFT;
+	}
+
+	public void resetTopRight() {
+		topRight = DEFAULT_TOP_RIGHT;
+	}
+
+	public void resetMiddle() {
+		middle = DEFAULT_MIDDLE;
+	}
+
+	public void resetBottomLeft() {
+		bottomLeft = DEFAULT_BOTTOM_LEFT;
+	}
+
+	public void resetBottomRight() {
+		bottomRight = DEFAULT_BOTTOM_RIGHT;
+	}
 
 	public List<ActionRow> actionRows() {
 		List<ActionRow> row = new ArrayList<>();
-		row.add(ActionRow.of(ResponseUtils.blockedButton("d1"), up, ResponseUtils.blockedButton("d2")));
-		row.add(ActionRow.of(left, ResponseUtils.blockedButton("d3"), right));
-		row.add(ActionRow.of(ResponseUtils.blockedButton("d4"), down, ResponseUtils.blockedButton("d5")));
+		row.add(ActionRow.of(topLeft, up, topRight));
+		row.add(ActionRow.of(left, middle, right));
+		row.add(ActionRow.of(bottomLeft, down, bottomRight));
 		return row;
 	}
 
@@ -172,5 +236,17 @@ public class DirectionSelector {
 			enableUp();
 			break;
 		}
+	}
+
+	public void reset() {
+		up = UP_ENABLED;
+		left = LEFT_ENABLED;
+		right = RIGHT_ENABLED;
+		down = DOWN_ENABLED;
+		topLeft = DEFAULT_TOP_LEFT;
+		topRight = DEFAULT_TOP_RIGHT;
+		middle = DEFAULT_MIDDLE;
+		bottomLeft = DEFAULT_BOTTOM_LEFT;
+		bottomRight = DEFAULT_BOTTOM_RIGHT;
 	}
 }
