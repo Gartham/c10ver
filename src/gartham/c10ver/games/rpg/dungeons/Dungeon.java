@@ -74,7 +74,7 @@ public class Dungeon {
 		// These are extended as needed.
 
 		var initialRoom = RectangularRoom.discordSquare((int) (Math.random() * 5 + 8));
-		DungeonRoom firstdr = new DungeonRoom(initialRoom, generateRandomLoot());
+		DungeonRoom firstdr = new DungeonRoom(initialRoom, new RoomTraits());
 		rooms.add(firstdr);
 		roomcount--;// First room.
 
