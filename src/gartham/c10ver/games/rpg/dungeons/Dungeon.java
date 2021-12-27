@@ -1,10 +1,19 @@
 package gartham.c10ver.games.rpg.dungeons;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import gartham.c10ver.economy.AbstractMultiplier;
+import gartham.c10ver.economy.RewardsOperation;
+import gartham.c10ver.games.rpg.creatures.Creature;
+import gartham.c10ver.games.rpg.creatures.Nymph;
+import gartham.c10ver.games.rpg.dungeons.DungeonRoom.RoomTraits;
+import gartham.c10ver.games.rpg.fighting.battles.app.GarmonFighter;
+import gartham.c10ver.games.rpg.fighting.battles.app.GarmonTeam;
 import gartham.c10ver.games.rpg.rooms.RectangularRoom;
 import gartham.c10ver.utils.Direction;
 
@@ -33,6 +42,30 @@ public class Dungeon {
 		return rooms.get(finalRoom);
 	}
 
+	public static RoomTraits generateRandomLoot() {
+		var rand = Math.random();
+		if (rand < .4) {
+			return new RoomTraits();
+		} else if (rand < 0.5) {
+			List<Creature> creechurrs = new ArrayList<>();
+			var enemy = new Nymph();
+			if (Math.random() < 0.3)
+				creechurrs.add(new Nymph());
+			GarmonTeam team = new GarmonTeam("Wilderness", new GarmonFighter(enemy));
+			return new RoomTraits(team);
+		} else if (rand < 0.75) {
+			return new RoomTraits(BigInteger.valueOf((long) (Math.random() * 158 + 32)));
+		} else {
+			var ro = new RewardsOperation();
+			ro.getMults().put(AbstractMultiplier.ofMin(Math.random() < .5 ? 5 : 10,
+					BigDecimal.valueOf(Math.random() < .5 ? .5 : Math.random() < .5 ? 1 : 2)), 1);
+			if (Math.random() < .2)
+				ro.getMults().put(AbstractMultiplier.ofMin(Math.random() < .5 ? 5 : 10,
+						BigDecimal.valueOf(Math.random() < .5 ? .5 : Math.random() < .5 ? 1 : 2)), 1);
+			return new RoomTraits(ro);
+		}
+	}
+
 	public static Dungeon simpleEasyDungeon() {
 		int roomcount = (int) (Math.random() * 11 + 4);
 
@@ -41,7 +74,7 @@ public class Dungeon {
 		// These are extended as needed.
 
 		var initialRoom = RectangularRoom.discordSquare((int) (Math.random() * 5 + 8));
-		DungeonRoom firstdr = new DungeonRoom(initialRoom);
+		DungeonRoom firstdr = new DungeonRoom(initialRoom, generateRandomLoot());
 		rooms.add(firstdr);
 		roomcount--;// First room.
 
@@ -98,7 +131,7 @@ public class Dungeon {
 
 	private static DungeonRoom build(DungeonRoom initial, Direction side) {
 		RectangularRoom connection = RectangularRoom.discordSquare((int) (Math.random() * 5 + 8));
-		DungeonRoom dr = new DungeonRoom(connection, new HashMap<>());
+		DungeonRoom dr = new DungeonRoom(connection, new HashMap<>(), generateRandomLoot());
 		dr.addConnection(side.opposite(), initial);
 		initial.addConnection(side, dr);
 
