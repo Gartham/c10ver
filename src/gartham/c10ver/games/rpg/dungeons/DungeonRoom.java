@@ -67,4 +67,16 @@ public class DungeonRoom {
 			selector.enable(v);
 	}
 
+	/**
+	 * Gets the {@link DungeonRoom} connected to this {@link DungeonRoom} in the
+	 * {@link Direction} specified.
+	 * 
+	 * @param direction The direction.
+	 * @return The {@link DungeonRoom}, or <code>null</code> if no
+	 *         {@link DungeonRoom} exists in that {@link Direction}.
+	 */
+	public DungeonRoom getRoom(Direction direction) {
+		return connections.get(direction);
+	}
+
 }
