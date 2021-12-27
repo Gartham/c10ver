@@ -15,10 +15,10 @@ public class DirectionSelector {
 			LEFT_ENABLED = Button.primary("left", Emoji.fromMarkdown("\u2B05")),
 			RIGHT_ENABLED = Button.primary("right", Emoji.fromMarkdown("\u27A1")),
 			DOWN_ENABLED = Button.primary("down", Emoji.fromMarkdown("\u2B07")),
-			UP_DISABLED = Button.danger("up", Emoji.fromMarkdown("\u2B06")).asDisabled(),
-			LEFT_DISABLED = Button.danger("left", Emoji.fromMarkdown("\u2B05")).asDisabled(),
-			RIGHT_DISABLED = Button.danger("right", Emoji.fromMarkdown("\u27A1")).asDisabled(),
-			DOWN_DISABLED = Button.danger("down", Emoji.fromMarkdown("\u2B07")).asDisabled();
+			UP_DISABLED = Button.secondary("up", Emoji.fromMarkdown("\u2B06")).asDisabled(),
+			LEFT_DISABLED = Button.secondary("left", Emoji.fromMarkdown("\u2B05")).asDisabled(),
+			RIGHT_DISABLED = Button.secondary("right", Emoji.fromMarkdown("\u27A1")).asDisabled(),
+			DOWN_DISABLED = Button.secondary("down", Emoji.fromMarkdown("\u2B07")).asDisabled();
 	private Button up = UP_ENABLED, left = LEFT_ENABLED, right = RIGHT_ENABLED, down = DOWN_ENABLED;
 
 	public static Direction getDirection(String id) {
@@ -139,6 +139,7 @@ public class DirectionSelector {
 	public void setDown(Button down) {
 		this.down = down;
 	}
+	
 
 	public List<ActionRow> actionRows() {
 		List<ActionRow> row = new ArrayList<>();
