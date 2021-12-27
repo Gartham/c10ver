@@ -13,6 +13,8 @@ import gartham.c10ver.games.rpg.fighting.battles.app.GarmonTeam;
 import gartham.c10ver.games.rpg.rooms.RectangularRoom;
 import gartham.c10ver.response.utils.DirectionSelector;
 import gartham.c10ver.utils.Direction;
+import net.dv8tion.jda.api.entities.Emoji;
+import net.dv8tion.jda.api.interactions.components.Button;
 
 public class DungeonRoom {
 	private final RectangularRoom room;
@@ -129,16 +131,18 @@ public class DungeonRoom {
 		return Collections.unmodifiableSet(connections.keySet());
 	}
 
-	/**
-	 * Enables and disables buttons in the {@link DirectionSelector} as appropriate
-	 * to reflect the directions in which a user in this room in a dungeon may move.
-	 * 
-	 * @param selector The selector to prepare.
-	 */
-	public void prepare(DirectionSelector selector) {
-		selector.disableAll();
+	@SuppressWarnings("incomplete-switch")
+	public void prepare(DirectionSelector selector, Button actionButton) {
+		selector.reset();
+		selector.disableDirections();
 		for (var v : connections.keySet())
 			selector.enable(v);
+		if (!isClaimed())
+			switch (traits.type) {
+			case CLOVES:
+			case LOOT:
+				selector.setMiddle(actionButton);
+			}
 	}
 
 	/**
