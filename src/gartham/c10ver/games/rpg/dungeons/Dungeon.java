@@ -1,6 +1,7 @@
 package gartham.c10ver.games.rpg.dungeons;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -10,6 +11,14 @@ import gartham.c10ver.utils.Direction;
 public class Dungeon {
 	private final List<DungeonRoom> rooms;
 	private final int finalRoom;
+
+	public List<DungeonRoom> getRooms() {
+		return Collections.unmodifiableList(rooms);
+	}
+
+	public int index(DungeonRoom dr) {
+		return rooms.indexOf(dr);
+	}
 
 	private Dungeon(List<DungeonRoom> rooms, int finalRoom) {
 		this.rooms = rooms;
@@ -28,7 +37,7 @@ public class Dungeon {
 		int roomcount = (int) (Math.random() * 11 + 4);
 
 		List<DungeonRoom> rooms = new ArrayList<>(), edges = new ArrayList<>();// Always contains a list of
-																							// "edges".
+																				// "edges".
 		// These are extended as needed.
 
 		var initialRoom = RectangularRoom.discordSquare((int) (Math.random() * 5 + 8));
