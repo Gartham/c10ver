@@ -13,7 +13,6 @@ import gartham.c10ver.games.rpg.fighting.battles.app.GarmonTeam;
 import gartham.c10ver.games.rpg.rooms.RectangularRoom;
 import gartham.c10ver.response.utils.DirectionSelector;
 import gartham.c10ver.utils.Direction;
-import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.interactions.components.Button;
 
 public class DungeonRoom {
