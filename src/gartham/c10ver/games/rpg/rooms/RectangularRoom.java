@@ -124,7 +124,7 @@ public class RectangularRoom implements StringRoom {
 			shift = 0;
 
 		arr[shift + 1] = SPLITTERS[3];
-		Arrays.fill(arr, shift + 2, shift + width, ' ');
+		Arrays.fill(arr, shift + 2, shift + width, " ");
 		arr[shift + width] = SPLITTERS[2];
 	}
 
