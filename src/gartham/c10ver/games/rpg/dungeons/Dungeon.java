@@ -44,26 +44,32 @@ public class Dungeon {
 
 	public static RoomTraits generateRandomLoot() {
 		var rand = Math.random();
-		if (rand < .4) {
+		if (rand < .7) {
 			return new RoomTraits();
-		} else if (rand < 0.5) {
+		} else if (rand < 0.8) {
 			List<Creature> creechurrs = new ArrayList<>();
 			var enemy = new Nymph();
 			if (Math.random() < 0.3)
 				creechurrs.add(new Nymph());
 			GarmonTeam team = new GarmonTeam("Wilderness", new GarmonFighter(enemy));
 			return new RoomTraits(team);
-		} else if (rand < 0.75) {
+		} else if (rand < 0.95) {
 			return new RoomTraits(BigInteger.valueOf((long) (Math.random() * 158 + 32)));
 		} else {
 			var ro = new RewardsOperation();
-			ro.getMults().put(AbstractMultiplier.ofMin(Math.random() < .5 ? 5 : 10,
-					BigDecimal.valueOf(Math.random() < .5 ? .5 : Math.random() < .5 ? 1 : 2)), 1);
-			if (Math.random() < .2)
-				ro.getMults().put(AbstractMultiplier.ofMin(Math.random() < .5 ? 5 : 10,
-						BigDecimal.valueOf(Math.random() < .5 ? .5 : Math.random() < .5 ? 1 : 2)), 1);
+			ro.getMults().put(generateRandomMultiplier(), 1);
+			if (Math.random() < .2) {
+				AbstractMultiplier val = generateRandomMultiplier();
+				if (ro.getMults().containsKey(val))
+					ro.getMults().put(val, ro.getMults().get(val) + 1);
+			}
 			return new RoomTraits(ro);
 		}
+	}
+
+	private static AbstractMultiplier generateRandomMultiplier() {
+		return AbstractMultiplier.ofMin(Math.random() < .5 ? 1 : Math.random() < .5 ? 5 : 10, // TODO
+				BigDecimal.valueOf(Math.random() < .5 ? .5 : Math.random() < .1 ? .15 : .25));
 	}
 
 	public static Dungeon simpleEasyDungeon() {
@@ -131,7 +137,8 @@ public class Dungeon {
 
 	private static DungeonRoom build(DungeonRoom initial, Direction side) {
 		RectangularRoom connection = RectangularRoom.discordSquare((int) (Math.random() * 5 + 8));
-		DungeonRoom dr = new DungeonRoom(connection, new HashMap<>(), generateRandomLoot());
+		DungeonRoom dr = new DungeonRoom(connection, new HashMap<>(), generateRandomLoot());// TODO Sparkle rooms with
+																							// loot.
 		dr.addConnection(side.opposite(), initial);
 		initial.addConnection(side, dr);
 
