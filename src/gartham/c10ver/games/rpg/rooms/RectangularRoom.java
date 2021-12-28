@@ -112,7 +112,7 @@ public class RectangularRoom implements Room {
 	}
 
 	@Override
-	public char[][] layout() {
+	public char[][] tilemap() {
 		var cl = new char[map.length][];
 		for (int i = 0; i < map.length; i++)
 			cl[i] = map[i].clone();
