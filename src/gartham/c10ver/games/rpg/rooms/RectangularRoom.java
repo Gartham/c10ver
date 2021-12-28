@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 import gartham.c10ver.utils.Direction;
 
-public class RectangularRoom implements Room {
+public class RectangularRoom implements StringRoom {
 
 	// Vertical (Single, Double), Horizontal
 	private static final char[] SIDE = { '\u2502', '\u2551', '\u2500', '\u2550' },
