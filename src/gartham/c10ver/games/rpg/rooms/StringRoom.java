@@ -17,7 +17,7 @@ public interface StringRoom extends Room<String> {
 		var layout = tilemap();
 		var lines = new String[layout.length];
 		for (int i = 0; i < layout.length; i++)
-			lines[i] = new String(String.join("", layout[i]));
+			lines[i] = String.join("", layout[i]);
 		return lines;
 	}
 
