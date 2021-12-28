@@ -37,6 +37,16 @@ public class RectangularRoom implements StringRoom {
 	}
 
 	private final Set<Opening> openings = new HashSet<>();
+	private final Set<Graphic> graphics = new HashSet<>();
+
+	public interface Graphic {
+		/**
+		 * Renders this {@link Graphic} onto the provided map.
+		 * 
+		 * @param map The map to render onto.
+		 */
+		void render(String[][] map);
+	}
 
 	public static class Opening {
 		private final Direction direction;
@@ -102,8 +112,31 @@ public class RectangularRoom implements StringRoom {
 	 *                 wall runs vertically or horizontally, respectively) that the
 	 *                 opening should be made.
 	 */
-	public void createOpening(Direction side, int gapwidth, int pos) {
-		openings.add(new Opening(side, gapwidth, pos));
+	public Opening createOpening(Direction side, int gapwidth, int pos) {
+		Opening opening = new Opening(side, gapwidth, pos);
+		openings.add(opening);
+		return opening;
+	}
+
+	public Graphic createIcon(int depth, int breadth, String icon) {
+		Graphic gr = map -> map[depth][breadth] = icon;
+		graphics.add(gr);
+		return gr;
+	}
+
+	/**
+	 * Creates an icon in a randomized position that is not any tile in which a wall
+	 * is rendered.
+	 * 
+	 * @param icon The icon to put.
+	 * @return The {@link Graphic} created.
+	 */
+	public Graphic createRandIcon(String icon) {
+		return createIcon(((int) Math.random() * (height - 2)) + 1, (int) (Math.random() * (width - 2)) + 1, icon);
+	}
+
+	public Set<Graphic> getGraphics() {
+		return graphics;
 	}
 
 	public Set<Opening> getOpenings() {
