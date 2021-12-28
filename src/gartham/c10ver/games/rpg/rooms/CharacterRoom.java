@@ -1,24 +1,13 @@
 package gartham.c10ver.games.rpg.rooms;
 
-public interface CharRoom {
-	/**
-	 * Returns a <code>char[][]</code> of the layout of the {@link Room}. The first
-	 * dimension (i.e., <code>layout()[x]</code>) indexes the rows, i.e., each line
-	 * of the room (AKA the y-axis), with index <code>0</code> referring to the top
-	 * of the room. The second dimension indexes the columns of the room, with the
-	 * first index (i.e. index <code>0</code>) being the leftmost value. The result
-	 * of this method is a matrix (i.e. it is not jagged).
-	 * 
-	 * @return The layout, as a 2D char array.
-	 */
-	public char[][] tilemap();
-	
-	default CharacterRoom toCharacterRoom() {
+public interface CharacterRoom extends Room<Character> {
+
+	default CharRoom toCharRoom() {
 		return () -> {
-			var tm = CharRoom.this.tilemap();
-			var ntm = new Character[tm.length][];
+			var tm = CharacterRoom.this.tilemap();
+			var ntm = new char[tm.length][];
 			for (int i = 0; i < ntm.length; i++)
-				ntm[i] = new Character[tm[i].length];
+				ntm[i] = new char[tm[i].length];
 			return ntm;
 		};
 	}
@@ -36,11 +25,7 @@ public interface CharRoom {
 	 *         char matrix returned from {@link #tilemap()}.
 	 */
 	default String[] tilemapLines() {
-		var layout = tilemap();
-		var lines = new String[layout.length];
-		for (int i = 0; i < layout.length; i++)
-			lines[i] = new String(layout[i]);
-		return lines;
+		return toCharRoom().tilemapLines();
 	}
 
 	/**
