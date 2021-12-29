@@ -275,8 +275,7 @@ public class Battle<F extends Fighter, T extends Team<F>> {
 		// because we want revived fighters to appear as if they were revived "during"
 		// the #currentFighter's turn, so if the #currentFighter gets to the end of the
 		// queue as a result of its move, all the revived fighters will go before it
-		// (unless it ties with what was previously there). If a deeper explanation is
-		// desired then contact me!
+		// (unless it ties with what was previously there).
 		sort();
 		var maxf = battleQueue.get(battleQueue.size() - 1);// Get last fighter, (has the most ticks).
 		setTicks(getCurrentFighter(), getTicks(getCurrentFighter()) + ticks);
