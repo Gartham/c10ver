@@ -201,6 +201,9 @@ public class RectangularRoom implements StringRoom {
 			}
 		}
 
+		for (var v : graphics)
+			v.render(map);
+
 		return map;
 	}
 
