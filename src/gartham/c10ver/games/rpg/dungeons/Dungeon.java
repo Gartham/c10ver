@@ -42,26 +42,35 @@ public class Dungeon {
 		return rooms.get(finalRoom);
 	}
 
-	public static RoomTraits generateRandomLoot() {
+	public static RoomTraits generateRandomLoot(RectangularRoom room) {
 		var rand = Math.random();
 		if (rand < .7) {
 			return new RoomTraits();
 		} else if (rand < 0.8) {
 			List<Creature> creechurrs = new ArrayList<>();
 			var enemy = new Nymph();
-			if (Math.random() < 0.3)
+			if (Math.random() < 0.3) {
 				creechurrs.add(new Nymph());
+				room.createRandRectangularImage(new String[][] {
+						{ "\uD83D\uDC3A", "", "", "", "", "", "", "", "\u3000", "\u3000", "\u3000" } });
+			}
+			room.createRandRectangularImage(
+					new String[][] { { "\uD83D\uDC3A", "", "", "", "", "", "", "", "\u3000", "\u3000", "\u3000" } });
 			GarmonTeam team = new GarmonTeam("Wilderness", new GarmonFighter(enemy));
 			return new RoomTraits(team);
 		} else if (rand < 0.95) {
+			room.createRandRectangularImage(
+					new String[][] { { "\uD83D\uDCB2", "", "", "", "", "", "", "\u3000", "\u3000", "\u3000" } });
 			return new RoomTraits(BigInteger.valueOf((long) (Math.random() * 158 + 32)));
 		} else {
 			var ro = new RewardsOperation();
 			ro.getMults().put(generateRandomMultiplier(), 1);
+			room.createRandRectangularImage(new String[][] { { "\uD83D\uDCB0", "" } });
 			if (Math.random() < .2) {
 				AbstractMultiplier val = generateRandomMultiplier();
 				if (ro.getMults().containsKey(val))
 					ro.getMults().put(val, ro.getMults().get(val) + 1);
+				room.createRandRectangularImage(new String[][] { { "\uD83D\uDCB0", "" } });
 			}
 			return new RoomTraits(ro);
 		}
@@ -79,7 +88,7 @@ public class Dungeon {
 																				// "edges".
 		// These are extended as needed.
 
-		var initialRoom = RectangularRoom.discordSquare((int) (Math.random() * 5 + 8));
+		var initialRoom = RectangularRoom.discordSquare(5);
 		DungeonRoom firstdr = new DungeonRoom(initialRoom, new RoomTraits());
 		rooms.add(firstdr);
 		roomcount--;// First room.
@@ -136,9 +145,8 @@ public class Dungeon {
 	}
 
 	private static DungeonRoom build(DungeonRoom initial, Direction side) {
-		RectangularRoom connection = RectangularRoom.discordSquare((int) (Math.random() * 5 + 8));
-		DungeonRoom dr = new DungeonRoom(connection, new HashMap<>(), generateRandomLoot());// TODO Sparkle rooms with
-																							// loot.
+		RectangularRoom connection = RectangularRoom.discordSquare((int) (Math.random() * 6 + 14));
+		DungeonRoom dr = new DungeonRoom(connection, new HashMap<>(), generateRandomLoot(connection));
 		dr.addConnection(side.opposite(), initial);
 		initial.addConnection(side, dr);
 
