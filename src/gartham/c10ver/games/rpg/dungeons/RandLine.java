@@ -57,7 +57,7 @@ class RandLines implements Graphic {
 			pos += pp;// TODO Verify.
 			Collections.shuffle(Arrays.asList(elements));// String is an OBJECT, not a primitive type (so this works
 															// :-).
-			System.arraycopy(elements, 0, map[pos], (int) (Math.random() * (map[pos].length - rl.length - 1) + 1),
+			System.arraycopy(rl, 0, map[pos], (int) (Math.random() * (map[pos].length - rl.length - 1) + 1),
 					rl.length);
 			positions.add(-Collections.binarySearch(positions, pos) - 1, pos);
 		}
