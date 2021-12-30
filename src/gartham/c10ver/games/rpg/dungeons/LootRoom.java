@@ -24,13 +24,13 @@ public class LootRoom extends DungeonRoom {
 		lines = new RandLines(l);
 
 		if (!rewards.hasMults() && !rewards.hasItems())
-			l.add(new String[] { "\uD83D\uDCB2", "", "", "", "", "", "", "\u3000", "\u3000", "\u3000" });
+			l.add(new String[] { "\uD83D\uDCB2", "", "", "", "\u3000", "\u3000", "\u3000" });
 		else {
 			assert rewards.hasItems() || rewards.hasMults()
 					: "RewardsOperation object provided to LootRoom constructor should have *some* type of rewards.";
-			l.add(new String[] { "\uD83D\uDCB0", "" });
+			l.add(new String[] { "\uD83D\uDCB0", "\u3000", "", "" });
 			if (rewards.getMults().size() > 1)
-				l.add(new String[] { "\uD83D\uDCB0", "" });
+				l.add(new String[] { "\uD83D\uDCB0", "\u3000", "", "" });
 		}
 		var room = getRoom();
 		room.getGraphics().add(lines);
