@@ -72,6 +72,18 @@ public class RectangularRoom implements StringRoom {
 		private final Direction direction;
 		private final int gapwidth, position;
 
+		public Direction getDirection() {
+			return direction;
+		}
+
+		public int getGapwidth() {
+			return gapwidth;
+		}
+
+		public int getPosition() {
+			return position;
+		}
+
 		private Opening(Direction direction, int gapwidth, int position) {
 			this.direction = direction;
 			this.gapwidth = gapwidth;
@@ -107,6 +119,7 @@ public class RectangularRoom implements StringRoom {
 	}
 
 	/**
+	 * <p>
 	 * Creates an opening in this room on the wall of this room corresponding to the
 	 * specified {@link Direction}. The width of the actual opening is the gap
 	 * width; the gap width does not include the 2 characters around the opening
@@ -123,6 +136,14 @@ public class RectangularRoom implements StringRoom {
 	 * previous calls (so previous gaps) into account, so previous gaps may be
 	 * overwritten entirely or partially, leading to strange rendering anomalies if
 	 * care is not taken by callers.
+	 * </p>
+	 * <p>
+	 * Although the gapwidth does not include the two characters used to indicate
+	 * that there is a gap in a wall, the position does. Furthermore, the position
+	 * begins in the first non-corner tile, so a position of 0 will indicate that
+	 * the splitter tile used to indicate that there is an opening for this opening
+	 * will come immediately after the corner tile in the {@link RectangularRoom}.
+	 * </p>
 	 * 
 	 * @param side     The {@link Direction} of the room to put an opening in the
 	 *                 wall of.
@@ -208,7 +229,7 @@ public class RectangularRoom implements StringRoom {
 		// Width is now the width of the gap + the two splitter characters.
 
 		if (shift + width > arr.length - 2)
-			shift -= shift + width - arr.length + 2;
+			shift = -(width - arr.length + 2);
 		else if (shift < 0)
 			shift = 0;
 
