@@ -4,6 +4,9 @@ import java.util.ArrayList;
 
 import gartham.c10ver.economy.RewardsOperation;
 import gartham.c10ver.games.rpg.rooms.RectangularRoom;
+import gartham.c10ver.response.utils.DirectionSelector;
+import net.dv8tion.jda.api.entities.Emoji;
+import net.dv8tion.jda.api.interactions.components.Button;
 
 public class LootRoom extends DungeonRoom {
 
@@ -31,6 +34,12 @@ public class LootRoom extends DungeonRoom {
 		}
 		var room = getRoom();
 		room.getGraphics().add(lines);
+	}
+
+	@Override
+	public void prepare(DirectionSelector selector, String actionButtonID) {
+		super.prepare(selector, actionButtonID);
+		selector.setMiddle(Button.success(actionButtonID, Emoji.fromMarkdown("\uD83D\uDCB0")).withLabel("Collect"));
 	}
 
 }

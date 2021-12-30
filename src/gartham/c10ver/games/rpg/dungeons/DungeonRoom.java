@@ -145,18 +145,11 @@ public class DungeonRoom {
 		return Collections.unmodifiableSet(connections.keySet());
 	}
 
-	public void prepare(DirectionSelector selector, Button actionButton) {
+	public void prepare(DirectionSelector selector, String actionButtonID) {
 		selector.reset();
 		selector.disableDirections();
 		for (var v : connections.keySet())
 			selector.enable(v);
-		// TODO Add in subclasses.
-//		if (!isClaimed())
-//			switch (traits.type) {
-//			case CLOVES:
-//			case LOOT:
-//				selector.setMiddle(actionButton);
-//			}
 	}
 
 	/**
