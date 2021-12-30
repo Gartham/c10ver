@@ -50,7 +50,7 @@ class RandLines implements Graphic {
 					"There are too many random lines in this RandLines object to render to the specified tile map.");
 		List<Integer> positions = new ArrayList<>();
 		for (var rl : elements) {
-			int pos = (int) (Math.random() * (map.length - 2 - positions.size()) + 1);
+			int pos = (int) (Math.random() * (map.length - 3 - positions.size()) + 1);
 			var pp = Collections.binarySearch(positions, pos);
 			if (pp < 0)
 				pp = -pp;
