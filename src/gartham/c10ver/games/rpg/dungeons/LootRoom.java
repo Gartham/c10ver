@@ -39,7 +39,8 @@ public class LootRoom extends DungeonRoom {
 	@Override
 	public void prepare(DirectionSelector selector, String actionButtonID) {
 		super.prepare(selector, actionButtonID);
-		selector.setMiddle(Button.success(actionButtonID, Emoji.fromMarkdown("\uD83D\uDCB0")).withLabel("Collect"));
+		if (!isClaimed())
+			selector.setMiddle(Button.success(actionButtonID, Emoji.fromMarkdown("\uD83D\uDCB0")).withLabel("Collect"));
 	}
 
 }
