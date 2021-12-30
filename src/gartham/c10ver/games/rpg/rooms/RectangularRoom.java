@@ -48,6 +48,26 @@ public class RectangularRoom implements StringRoom {
 		void render(String[][] map);
 	}
 
+	public static class Image implements Graphic {
+
+		private String[][] image;
+		private int breadth, depth;// "Width" coordinate, "height" coordinate
+
+		private Image(String[][] image, int depth, int breadth) {
+			this.image = image;
+			this.breadth = breadth;
+			this.depth = depth;
+		}
+
+		@Override
+		public void render(String[][] map) {
+			for (int i = 0; i < image.length; i++)
+				System.arraycopy(image[i], 0, map[i + depth], breadth, image[i].length);
+
+		}
+
+	}
+
 	public static class Opening {
 		private final Direction direction;
 		private final int gapwidth, position;
@@ -133,6 +153,42 @@ public class RectangularRoom implements StringRoom {
 	 */
 	public Graphic createRandIcon(String icon) {
 		return createIcon(((int) Math.random() * (height - 2)) + 1, (int) (Math.random() * (width - 2)) + 1, icon);
+	}
+
+	public Image createImage(int depth, int breadth, String[][] image) {
+		var img = new Image(image, depth, breadth);
+		graphics.add(img);
+		return img;
+	}
+
+	public Image createRandIamge(String[][] image) {
+		var md = image.length;
+		var mw = 0;
+		for (var s : image)
+			if (s.length > mw)
+				mw = s.length;
+		return createImage((int) (Math.random() * (height - 1 - md) + 1), (int) (Math.random() * (width - 1 - mw) + 1),
+				image);
+	}
+
+	/**
+	 * Used for ASCII "images" being rendered onto the {@link RectangularRoom} that
+	 * are rectangular, i.e. the provided <code>icon</code> parameter is a
+	 * rectangular matrix (i.e. it is <em>not</em> jagged). This method is extremely
+	 * similar to {@link #createRandIamge(String[][])}, but it can be used with
+	 * rectangular icons (where every 1D array in the provided 2D array argument is
+	 * of the same size) to speed up processing (because it takes the maximum width
+	 * of the image to be the length of the first 1D array, rather than the max
+	 * length of the 1D arrays).
+	 * 
+	 * @param image The rectangular image to render.
+	 * @return The {@link Image} object built from the provided parameter.
+	 */
+	public Image createRandRectangularImage(String[][] image) {
+		var md = image.length;
+		var mw = image[0].length;
+		return createImage((int) (Math.random() * (height - 1 - md) + 1), (int) (Math.random() * (width - 1 - mw) + 1),
+				image);
 	}
 
 	public Set<Graphic> getGraphics() {
