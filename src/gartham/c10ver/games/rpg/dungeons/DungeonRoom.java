@@ -18,7 +18,7 @@ import net.dv8tion.jda.api.interactions.components.Button;
 public class DungeonRoom {
 	private final RectangularRoom room;
 	private final Map<Direction, DungeonRoom> connections;
-	private final RoomTraits traits;
+
 	private boolean claimed;
 
 	public boolean isClaimed() {
@@ -84,20 +84,14 @@ public class DungeonRoom {
 		}
 	}
 
-	public DungeonRoom(RectangularRoom room, Map<Direction, DungeonRoom> connections, RoomTraits traits) {
+	public DungeonRoom(RectangularRoom room, Map<Direction, DungeonRoom> connections) {
 		this.room = room;
 		this.connections = new HashMap<>(connections);
-		this.traits = traits;
 	}
 
-	public DungeonRoom(RectangularRoom room, RoomTraits traits) {
+	public DungeonRoom(RectangularRoom room) {
 		this.room = room;
 		this.connections = new HashMap<>();
-		this.traits = traits;
-	}
-
-	public RoomTraits getTraits() {
-		return traits;
 	}
 
 	public RectangularRoom getRoom() {
@@ -122,6 +116,27 @@ public class DungeonRoom {
 		connections.put(dir, room);
 	}
 
+	/**
+	 * Connects this {@link DungeonRoom} to the specified {@link DungeonRoom}. This
+	 * is similar to {@link #addConnection(Direction, DungeonRoom)}, but this method
+	 * maintains consistency of the dungeon by calling
+	 * {@link #addConnection(Direction, DungeonRoom)} on the other dungeon room with
+	 * the arguments {@link Direction#opposite()} and <code>this</code>. This method
+	 * will fail if either {@link DungeonRoom} has a connection in the requisite
+	 * directions already.
+	 * 
+	 * @param dir   The {@link Direction} from the center of this
+	 *              {@link DungeonRoom} of the wall that the other
+	 *              {@link DungeonRoom} connects to.
+	 * @param other The other {@link DungeonRoom}.
+	 */
+	public void connect(Direction dir, DungeonRoom other) {
+		if (connections.containsKey(dir) || other.connections.containsKey(dir.opposite()))
+			throw new IllegalStateException("At least one of the DungeonRooms is already connected.");
+		connections.put(dir, other);
+		other.connections.put(dir.opposite(), this);
+	}
+
 	public List<Direction> getConnectionDirections() {
 		return new ArrayList<>(connections.keySet());
 	}
@@ -130,18 +145,18 @@ public class DungeonRoom {
 		return Collections.unmodifiableSet(connections.keySet());
 	}
 
-	@SuppressWarnings("incomplete-switch")
 	public void prepare(DirectionSelector selector, Button actionButton) {
 		selector.reset();
 		selector.disableDirections();
 		for (var v : connections.keySet())
 			selector.enable(v);
-		if (!isClaimed())
-			switch (traits.type) {
-			case CLOVES:
-			case LOOT:
-				selector.setMiddle(actionButton);
-			}
+		// TODO Add in subclasses.
+//		if (!isClaimed())
+//			switch (traits.type) {
+//			case CLOVES:
+//			case LOOT:
+//				selector.setMiddle(actionButton);
+//			}
 	}
 
 	/**
