@@ -19,16 +19,15 @@ public class EnemyRoom extends DungeonRoom {
 		this.enemies = enemies;
 		ArrayList<String[]> l = new ArrayList<>();
 		lines = new RandLines(l);
-		l.add(new String[] { "\uD83D\uDC3A", "", "", "", "", "", "", "", "\u3000", "\u3000", "\u3000" });
+		l.add(new String[] { "\uD83D\uDC3A", "", "", "", "", "\u3000", "\u3000", "\u3000" });
 		if (enemies.memberView().size() > 2) {
-			l.add(new String[] { "\uD83D\uDC3A", "", "", "", "", "", "", "", "\u3000", "\u3000", "\u3000" });
+			l.add(new String[] { "\uD83D\uDC3A", "", "", "", "", "\u3000", "\u3000", "\u3000" });
 			if (enemies.memberView().size() > 4) {
-				l.add(new String[] { "\uD83D\uDC3A", "", "", "", "", "", "", "", "\u3000", "\u3000", "\u3000" });
+				l.add(new String[] { "\uD83D\uDC3A", "", "", "", "", "\u3000", "\u3000", "\u3000" });
 				if (enemies.memberView().size() > 7) {
-					l.add(new String[] { "\uD83D\uDC3A", "", "", "", "", "", "", "", "\u3000", "\u3000", "\u3000" });
+					l.add(new String[] { "\uD83D\uDC3A", "", "", "", "", "\u3000", "\u3000", "\u3000" });
 					if (enemies.memberView().size() > 10)
-						l.add(new String[] { "\uD83D\uDC3A", "", "", "", "", "", "", "", "\u3000", "\u3000",
-								"\u3000" });
+						l.add(new String[] { "\uD83D\uDC3A", "", "", "", "", "\u3000", "\u3000", "\u3000" });
 				}
 			}
 		}
