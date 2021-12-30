@@ -4,17 +4,14 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
 import gartham.c10ver.economy.AbstractMultiplier;
 import gartham.c10ver.economy.RewardsOperation;
 import gartham.c10ver.games.rpg.creatures.Creature;
 import gartham.c10ver.games.rpg.creatures.Nymph;
-import gartham.c10ver.games.rpg.dungeons.DungeonRoom.RoomTraits;
 import gartham.c10ver.games.rpg.fighting.battles.app.GarmonFighter;
 import gartham.c10ver.games.rpg.fighting.battles.app.GarmonTeam;
-import gartham.c10ver.games.rpg.rooms.RectangularRoom;
 import gartham.c10ver.utils.Direction;
 
 public class Dungeon {
@@ -42,37 +39,29 @@ public class Dungeon {
 		return rooms.get(finalRoom);
 	}
 
-	public static RoomTraits generateRandomLoot(RectangularRoom room) {
+	public static DungeonRoom generateRandomRoom() {
 		var rand = Math.random();
 		if (rand < .7) {
-			return new RoomTraits();
+			return new EmptyRoom();
 		} else if (rand < 0.8) {
 			List<Creature> creechurrs = new ArrayList<>();
 			var enemy = new Nymph();
-			if (Math.random() < 0.3) {
+			if (Math.random() < 0.3)
 				creechurrs.add(new Nymph());
-				room.createRandRectangularImage(new String[][] {
-						{ "\uD83D\uDC3A", "", "", "", "", "", "", "", "\u3000", "\u3000", "\u3000" } });
-			}
-			room.createRandRectangularImage(
-					new String[][] { { "\uD83D\uDC3A", "", "", "", "", "", "", "", "\u3000", "\u3000", "\u3000" } });
 			GarmonTeam team = new GarmonTeam("Wilderness", new GarmonFighter(enemy));
-			return new RoomTraits(team);
-		} else if (rand < 0.95) {
-			room.createRandRectangularImage(
-					new String[][] { { "\uD83D\uDCB2", "", "", "", "", "", "", "\u3000", "\u3000", "\u3000" } });
-			return new RoomTraits(BigInteger.valueOf((long) (Math.random() * 158 + 32)));
-		} else {
+			return new EnemyRoom(team);
+		} else if (rand < 0.95)
+			return new LootRoom(
+					new RewardsOperation().setCloves(BigInteger.valueOf((long) (Math.random() * 158 + 32))));
+		else {
 			var ro = new RewardsOperation();
 			ro.getMults().put(generateRandomMultiplier(), 1);
-			room.createRandRectangularImage(new String[][] { { "\uD83D\uDCB0", "" } });
 			if (Math.random() < .2) {
 				AbstractMultiplier val = generateRandomMultiplier();
 				if (ro.getMults().containsKey(val))
 					ro.getMults().put(val, ro.getMults().get(val) + 1);
-				room.createRandRectangularImage(new String[][] { { "\uD83D\uDCB0", "" } });
 			}
-			return new RoomTraits(ro);
+			return new LootRoom(ro);
 		}
 	}
 
@@ -88,8 +77,7 @@ public class Dungeon {
 																				// "edges".
 		// These are extended as needed.
 
-		var initialRoom = RectangularRoom.discordSquare(5);
-		DungeonRoom firstdr = new DungeonRoom(initialRoom, new RoomTraits());
+		DungeonRoom firstdr = new InitialRoom();
 		rooms.add(firstdr);
 		roomcount--;// First room.
 
@@ -112,11 +100,11 @@ public class Dungeon {
 		while (roomcount > 0) {
 			int index = (int) (Math.random() * edges.size());
 			var e = edges.get(index);
-			var entry = e.getConnections().entrySet().iterator().next();
+			var entry = e.getConnectionDirectionsUnmodifiable().iterator().next();
 			List<Direction> potentialSides = new ArrayList<>(Direction.VALUES);
-			potentialSides.remove(entry.getKey());// e (which is an edge) is connected to its parent via this side, so
-													// for us to spawn a child off of e, we need to have the child
-													// connect through a different side.
+			potentialSides.remove(entry);// e (which is an edge) is connected to its parent via this side, so for us to
+											// spawn a child off of e, we need to have the child connect through a
+											// different side.
 			var s = potentialSides.get((int) (Math.random() * potentialSides.size()));
 			var child = build(e, s);
 			rooms.add(child);
@@ -145,17 +133,8 @@ public class Dungeon {
 	}
 
 	private static DungeonRoom build(DungeonRoom initial, Direction side) {
-		RectangularRoom connection = RectangularRoom.discordSquare((int) (Math.random() * 6 + 14));
-		DungeonRoom dr = new DungeonRoom(connection, new HashMap<>(), generateRandomLoot(connection));
-		dr.addConnection(side.opposite(), initial);
-		initial.addConnection(side, dr);
-
-		int pos = (int) (Math.random()
-				* ((side.isHorizontal() ? initial.getRoom().getHeight() : initial.getRoom().getWidth()) - 4));
-		initial.getRoom().createOpening(side, 4, pos);
-		connection.createOpening(side.opposite(), 4,
-				(int) (Math.random() * ((side.isHorizontal() ? connection.getHeight() : connection.getWidth()) - 4)));
-
+		DungeonRoom dr = generateRandomRoom();
+		initial.connect(side, dr);
 		return dr;
 	}
 
