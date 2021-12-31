@@ -74,7 +74,3 @@ class RandLines implements Graphic {
 		}
 	}
 }
-
-class HardcodedRandLines {
-
-}
