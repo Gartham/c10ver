@@ -9,14 +9,13 @@ import org.alixia.javalibrary.JavaTools;
 
 import gartham.c10ver.commands.InputProcessor;
 import gartham.c10ver.commands.consumers.InputConsumer;
-import gartham.c10ver.response.ResponseUtils;
+import gartham.c10ver.response.utils.ResponseUtils;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
-import net.dv8tion.jda.api.interactions.components.Component;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 public class ButtonBook {
@@ -55,18 +54,26 @@ public class ButtonBook {
 					case "left-all":
 						if (this.page > 0)
 							this.pageHandler.accept(this.page = 0, event);
+						else
+							event.reply("You're on the first page.").setEphemeral(true).queue();
 						return true;
 					case "left-one":
 						if (this.page > 0)
 							this.pageHandler.accept(--this.page, event);
+						else
+							event.reply("You're on the first page.").setEphemeral(true).queue();
 						return true;
 					case "right-one":
 						if (this.page < this.maxPage)
 							this.pageHandler.accept(++this.page, event);
+						else
+							event.reply("You're on the last page.").setEphemeral(true).queue();
 						return true;
 					case "right-all":
 						if (this.page < this.maxPage)
 							this.pageHandler.accept(this.page = this.maxPage, event);
+						else
+							event.reply("You're on the last page.").setEphemeral(true).queue();
 						return true;
 					}
 				}
