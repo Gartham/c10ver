@@ -1,6 +1,7 @@
 package gartham.c10ver.response.menus;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -17,6 +18,7 @@ import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import static org.alixia.javalibrary.JavaTools.*;
 
 public class ButtonBook {
 	// TODO This class (and the surrounding class) are in desparate need of
@@ -31,17 +33,61 @@ public class ButtonBook {
 		private BiConsumer<Integer, ButtonClickEvent> pageHandler;
 		private final InputProcessor<ButtonClickEvent> processor;
 		private User target;
+		private final List<Button> buttons;
+		private final boolean edgeButtons;
 
-		private ActiveButtonBook(Consumer<ButtonClickEvent> handler, BiConsumer<Integer, ButtonClickEvent> pageHandler,
-				int maxPage, User target, Message message, InputProcessor<ButtonClickEvent> processor) {
+		private static List<ActionRow> genRows(Iterator<Button> buttons) {
+			List<ActionRow> rows = new ArrayList<>();
+			List<Button> bs = new ArrayList<>();
+			while (buttons.hasNext()) {
+				if (bs.size() == 5) {
+					rows.add(ActionRow.of(bs));
+					bs = new ArrayList<>();
+				}
+				bs.add(buttons.next());
+			}
+			if (!bs.isEmpty())
+				rows.add(ActionRow.of(bs));
+			return rows;
+		}
+
+		private Button disableLeft(Button button) {
+			return page == 0 ? button.asDisabled() : button;
+		}
+
+		private Button disableRight(Button button) {
+			return page == maxPage ? button.asDisabled() : button;
+		}
+
+		private List<ActionRow> genRows() {
+			var itr = concat(
+					iterator(disableLeft(Button.primary("left-one", Emoji.fromMarkdown(ResponseUtils.LEFT_ONE)))),
+					buttons.iterator(),
+					iterator(disableRight(Button.primary("right-one", Emoji.fromMarkdown(ResponseUtils.RIGHT_ONE)))));
+			if (edgeButtons)
+				itr = concat(
+						iterator(disableLeft(Button.primary("left-all", Emoji.fromMarkdown(ResponseUtils.LEFT_ALL)))),
+						itr, iterator(disableRight(
+								Button.primary("right-all", Emoji.fromMarkdown(ResponseUtils.RIGHT_ALL)))));
+			return genRows(itr);
+		}
+
+		private ActiveButtonBook(MessageAction msg, Consumer<ButtonClickEvent> handler,
+				BiConsumer<Integer, ButtonClickEvent> pageHandler, int maxPage, User target, List<Button> buttons,
+				InputProcessor<ButtonClickEvent> processor, boolean edgeButtons) {
 			this.handler = handler;
 			this.pageHandler = pageHandler;
 			this.maxPage = maxPage;
 			this.target = target;
+			this.buttons = buttons;
+			this.edgeButtons = edgeButtons;
+
+			msg.setActionRows(genRows());
+			var m = msg.complete();
 
 			inc = (event, p, consumer) -> {
 
-				if (event.getMessageIdLong() != message.getIdLong())
+				if (event.getMessageIdLong() != m.getIdLong())
 					return false;
 				if (this.target != null && !this.target.equals(event.getUser())) {
 					event.reply("That's not for you!").setEphemeral(true).queue();
@@ -49,33 +95,48 @@ public class ButtonBook {
 				}
 
 				String e = event.getComponentId();
+
+				switch (e) { // If it is a page button, handle, but do not unregister the consumer.
+				case "left-all":
+					if (this.page > 0) {
+						page = 0;
+						event.editComponents(genRows());
+						this.pageHandler.accept(0, event);
+					} else
+						assert false : "A disabled \"left-all\" button was clicked?";
+					return true;
+				case "left-one":
+					if (this.page > 0) {
+						if (--page == 0)
+							event.editComponents(genRows());
+						else
+							event.deferEdit().queue();
+						this.pageHandler.accept(this.page, event);
+					} else
+						assert false : "A disabled \"left-one\" button was clicked?";
+					return true;
+				case "right-one":
+					if (this.page < this.maxPage) {
+						if (++page == maxPage)
+							event.editComponents(genRows());
+						else
+							event.deferEdit().queue();
+						this.pageHandler.accept(this.page, event);
+					} else
+						assert false : "A disabled \"right-one\" button was clicked?";
+					return true;
+				case "right-all":
+					if (this.page < this.maxPage) {
+						page = maxPage;
+						event.editComponents(genRows());
+						this.pageHandler.accept(this.page = this.maxPage, event);
+					} else
+						assert false : "A disabled \"right-all\" button was clicked?";
+					return true;
+				}
+
 				if (this.pageHandler != null) {
-					switch (e) { // If it is a page button, handle, but do not unregister the consumer.
-					case "left-all":
-						if (this.page > 0)
-							this.pageHandler.accept(this.page = 0, event);
-						else
-							event.reply("You're on the first page.").setEphemeral(true).queue();
-						return true;
-					case "left-one":
-						if (this.page > 0)
-							this.pageHandler.accept(--this.page, event);
-						else
-							event.reply("You're on the first page.").setEphemeral(true).queue();
-						return true;
-					case "right-one":
-						if (this.page < this.maxPage)
-							this.pageHandler.accept(++this.page, event);
-						else
-							event.reply("You're on the last page.").setEphemeral(true).queue();
-						return true;
-					case "right-all":
-						if (this.page < this.maxPage)
-							this.pageHandler.accept(this.page = this.maxPage, event);
-						else
-							event.reply("You're on the last page.").setEphemeral(true).queue();
-						return true;
-					}
+
 				}
 
 				this.handler.accept(event);
@@ -84,7 +145,7 @@ public class ButtonBook {
 				return true;
 			};
 			(this.processor = processor).registerInputConsumer(inc);
-			this.message = message;
+			this.message = m;
 
 		}
 
@@ -243,28 +304,8 @@ public class ButtonBook {
 
 	public ActiveButtonBook attachAndSend(MessageAction msg) {
 		List<Button> buttons = new ArrayList<>(this.buttons);
-		buttons.add(0, Button.primary("left-one", Emoji.fromMarkdown(ResponseUtils.LEFT_ONE)));
-		buttons.add(Button.primary("right-one", Emoji.fromMarkdown(ResponseUtils.RIGHT_ONE)));
-		if (edgeButtons) {
-			buttons.add(0, Button.primary("left-all", Emoji.fromMarkdown(ResponseUtils.LEFT_ALL)));
-			buttons.add(Button.primary("right-all", Emoji.fromMarkdown(ResponseUtils.RIGHT_ALL)));
-		}
 
-		List<ActionRow> rows = new ArrayList<>();
-		List<Button> bs = new ArrayList<>();
-		for (var b : buttons) {
-			if (bs.size() == 5) {
-				rows.add(ActionRow.of(bs));
-				bs = new ArrayList<>();
-			}
-			bs.add(b);
-		}
-		if (!bs.isEmpty())
-			rows.add(ActionRow.of(bs));
-
-		msg.setActionRows(rows);
-		var m = msg.complete();
-		return new ActiveButtonBook(handler, pageHandler, maxPage, target, m, processor);
+		return new ActiveButtonBook(msg, handler, pageHandler, maxPage, target, buttons, processor, edgeButtons);
 	}
 
 	public List<Button> getButtons() {
