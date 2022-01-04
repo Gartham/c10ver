@@ -100,7 +100,7 @@ public class ButtonBook {
 				case "left-all":
 					if (this.page > 0) {
 						page = 0;
-						event.editComponents(genRows());
+						event.editComponents(genRows()).queue();
 						this.pageHandler.accept(0, event);
 					} else
 						assert false : "A disabled \"left-all\" button was clicked?";
@@ -108,7 +108,7 @@ public class ButtonBook {
 				case "left-one":
 					if (this.page > 0) {
 						if (--page == 0)
-							event.editComponents(genRows());
+							event.editComponents(genRows()).queue();
 						else
 							event.deferEdit().queue();
 						this.pageHandler.accept(this.page, event);
@@ -118,7 +118,7 @@ public class ButtonBook {
 				case "right-one":
 					if (this.page < this.maxPage) {
 						if (++page == maxPage)
-							event.editComponents(genRows());
+							event.editComponents(genRows()).queue();
 						else
 							event.deferEdit().queue();
 						this.pageHandler.accept(this.page, event);
@@ -128,15 +128,11 @@ public class ButtonBook {
 				case "right-all":
 					if (this.page < this.maxPage) {
 						page = maxPage;
-						event.editComponents(genRows());
+						event.editComponents(genRows()).queue();
 						this.pageHandler.accept(this.page = this.maxPage, event);
 					} else
 						assert false : "A disabled \"right-all\" button was clicked?";
 					return true;
-				}
-
-				if (this.pageHandler != null) {
-
 				}
 
 				this.handler.accept(event);
@@ -303,9 +299,8 @@ public class ButtonBook {
 	}
 
 	public ActiveButtonBook attachAndSend(MessageAction msg) {
-		List<Button> buttons = new ArrayList<>(this.buttons);
-
-		return new ActiveButtonBook(msg, handler, pageHandler, maxPage, target, buttons, processor, edgeButtons);
+		return new ActiveButtonBook(msg, handler, pageHandler, maxPage, target, new ArrayList<>(this.buttons),
+				processor, edgeButtons);
 	}
 
 	public List<Button> getButtons() {
