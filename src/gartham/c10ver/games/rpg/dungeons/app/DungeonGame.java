@@ -78,6 +78,8 @@ public class DungeonGame {
 						synchronized (this) {
 							res = abb.getPage();
 							notify();
+							t.deferEdit().complete();
+							abb.complete();
 						}
 					});
 					try {
