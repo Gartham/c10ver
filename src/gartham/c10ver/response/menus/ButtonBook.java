@@ -96,7 +96,7 @@ public class ButtonBook {
 
 				String e = event.getComponentId();
 
-				switch (e) { // If it is a page button, handle, but do not unregister the consumer.
+				switch (e) {
 				case "left-all":
 					if (this.page > 0) {
 						page = 0;
@@ -107,7 +107,7 @@ public class ButtonBook {
 					return true;
 				case "left-one":
 					if (this.page > 0) {
-						if (--page == 0)
+						if (page == maxPage | --page == 0)
 							event.editComponents(genRows()).queue();
 						else
 							event.deferEdit().queue();
@@ -117,7 +117,7 @@ public class ButtonBook {
 					return true;
 				case "right-one":
 					if (this.page < this.maxPage) {
-						if (++page == maxPage)
+						if (++page == maxPage || page == 1)
 							event.editComponents(genRows()).queue();
 						else
 							event.deferEdit().queue();
