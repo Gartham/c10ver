@@ -59,7 +59,28 @@ public class ButtonBook {
 			return page == maxPage ? button.asDisabled() : button;
 		}
 
+		/**
+		 * Disables all the buttons of this {@link ButtonBook} so that it can no longer
+		 * be used.
+		 */
+		public void complete() {
+			var itr = concat(
+					iterator(Button.primary("left-one", Emoji.fromMarkdown(ResponseUtils.LEFT_ONE)).asDisabled()),
+					mask(buttons.iterator(), Button::asDisabled),
+					iterator(Button.primary("right-one", Emoji.fromMarkdown(ResponseUtils.RIGHT_ONE)).asDisabled()));
+			if (edgeButtons)
+				itr = concat(
+						iterator(Button.primary("left-all", Emoji.fromMarkdown(ResponseUtils.LEFT_ALL)).asDisabled()),
+						itr, iterator(
+								Button.primary("right-all", Emoji.fromMarkdown(ResponseUtils.RIGHT_ALL)).asDisabled()));
+			message.editMessageComponents(genRows(itr)).queue();
+		}
+
 		private List<ActionRow> genRows() {
+			return genRows(buttons());
+		}
+
+		private Iterator<Button> buttons() {
 			var itr = concat(
 					iterator(disableLeft(Button.primary("left-one", Emoji.fromMarkdown(ResponseUtils.LEFT_ONE)))),
 					buttons.iterator(),
@@ -69,7 +90,7 @@ public class ButtonBook {
 						iterator(disableLeft(Button.primary("left-all", Emoji.fromMarkdown(ResponseUtils.LEFT_ALL)))),
 						itr, iterator(disableRight(
 								Button.primary("right-all", Emoji.fromMarkdown(ResponseUtils.RIGHT_ALL)))));
-			return genRows(itr);
+			return itr;
 		}
 
 		private ActiveButtonBook(MessageAction msg, Consumer<ButtonClickEvent> handler,
