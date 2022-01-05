@@ -269,6 +269,7 @@ public class ButtonBook {
 
 		public void unregister() {
 			processor.removeInputConsumer(inc);
+			complete();
 		}
 
 		/**

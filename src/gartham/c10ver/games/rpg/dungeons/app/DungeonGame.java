@@ -31,32 +31,44 @@ public class DungeonGame {
 
 	}
 
+	private final User target;
+	private final MessageChannel channel;
+	private final InputProcessor<ButtonClickEvent> buttonProcessor;
+
+	/**
+	 * @param target          The target {@link User} to prompt. (This {@link User}
+	 *                        will be able to make a selection.)
+	 * @param channel         The {@link MessageChannel} to prompt the user in.
+	 * @param buttonProcessor The {@link InputProcessor} on which the button clicks
+	 *                        for the {@link ButtonBook} prompt will be received.
+	 *                        The {@link Action} will wait until the
+	 *                        {@link InputProcessor} receives the clicks, and will
+	 *                        then result in a page number.
+	 */
+	public DungeonGame(User target, MessageChannel channel, InputProcessor<ButtonClickEvent> buttonProcessor) {
+		this.target = target;
+		this.channel = channel;
+		this.buttonProcessor = buttonProcessor;
+	}
+
 	/**
 	 * Returns an {@link Action} of prompting the target user in the specified
 	 * channel for what dungeon they would like to play. The returned {@link Action}
 	 * sends the built prompt to the user and waits for a reply from the user,
 	 * returning the selected page.
 	 * 
-	 * @param target    The target {@link User} to prompt. (This {@link User} will
-	 *                  be able to make a selection.)
-	 * @param channel   The {@link MessageChannel} to prompt the user in.
-	 * @param processor The {@link InputProcessor} on which the button clicks for
-	 *                  the {@link ButtonBook} prompt will be received. The
-	 *                  {@link Action} will wait until the {@link InputProcessor}
-	 *                  receives the clicks, and will then result in a page number.
-	 * @param dungeons  The {@link DungeonCover}s to show to the user in the prompt.
+	 * @param dungeons The {@link DungeonCover}s to show to the user in the prompt.
 	 * @return A new {@link Action} that, when invoked, prompts the user and waits
 	 *         until the user has answered. The answer is the page number (dungeon
 	 *         number) that the user has selected).
 	 */
-	public Action<Integer> promptDungeon(User target, MessageChannel channel,
-			InputProcessor<ButtonClickEvent> processor, DungeonCover... dungeons) {
+	public Action<Integer> promptDungeon(DungeonCover... dungeons) {
 		EmbedBuilder eb = new EmbedBuilder();
 		eb.setColor(new Color(0x5E2A03));
 		eb.setTitle("World Selector").setDescription("Select a world to explore " + target.getAsMention() + ":")
 				.setImage(dungeons[0].graphic).setFooter("Page 1 of " + dungeons.length);
 
-		var bb = new ButtonBook(processor);
+		var bb = new ButtonBook(buttonProcessor);
 		bb.add("\u2705");
 		bb.setTarget(target);
 		bb.setMaxPage(dungeons.length - 1);
@@ -79,7 +91,7 @@ public class DungeonGame {
 							res = abb.getPage();
 							notify();
 							t.deferEdit().complete();
-							abb.complete();
+							abb.unregister();
 						}
 					});
 					try {
@@ -259,9 +271,6 @@ public class DungeonGame {
 //
 //		});
 
-	}
-
-	public void start(User target, MessageChannel channel, InputProcessor<ButtonClickEvent> processor) {
 	}
 
 }
