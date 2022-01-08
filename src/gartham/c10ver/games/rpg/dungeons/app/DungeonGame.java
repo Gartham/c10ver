@@ -118,7 +118,7 @@ public class DungeonGame {
 		var initialRoom = dungeon.getInitialRoom();
 
 		var dirsel = new CustomDirsel();
-		dirsel.disableManaged();
+		dirsel.disableDirections();
 		for (var d : initialRoom.getConnectionDirectionsUnmodifiable())
 			dirsel.enable(d);
 
