@@ -2,6 +2,7 @@ package gartham.c10ver.games.rpg.dungeons.app;
 
 import java.awt.Color;
 import java.math.BigInteger;
+import java.util.List;
 
 import gartham.apps.garthchat.api.execution.Action;
 import gartham.c10ver.Clover;
@@ -26,13 +27,15 @@ import gartham.c10ver.response.utils.DirectionSelector;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.Button;
 
 public class DungeonGame {
 
@@ -114,8 +117,8 @@ public class DungeonGame {
 		var dungeon = Dungeon.simpleEasyDungeon();
 		var initialRoom = dungeon.getInitialRoom();
 
-		var dirsel = DirectionSelector.directionSelector();
-		dirsel.disableDirections();
+		var dirsel = new CustomDirsel();
+		dirsel.disableManaged();
 		for (var d : initialRoom.getConnectionDirectionsUnmodifiable())
 			dirsel.enable(d);
 
@@ -153,6 +156,12 @@ public class DungeonGame {
 					t.reply(target.getAsMention() + ", you earned:\n\n" + Utilities.listRewards(receipt)).queue();
 
 					// Resend message? Send ephemeral rewards?
+				} else if (event.getComponentId().equals("repeat")) {
+					var dsn = new CustomDirsel();
+					dsn.disableManaged();
+					var s = channel.sendMessageEmbeds(event.getMessage().getEmbeds())
+							.setActionRows(event.getMessage().getActionRows());
+					event.editComponents(dsn.actionRows()).queue(x -> s.queue(q -> t = q));
 				} else {
 					var dir = DirectionSelector.getDirectionSelected(event);
 					currentRoom = currentRoom.getRoom(dir);
@@ -177,7 +186,7 @@ public class DungeonGame {
 						team.setController(new CreatureAI(battle, channel));
 
 						dirsel.reset();
-						dirsel.disableDirections();
+						dirsel.disableManaged();
 						event.editComponents(dirsel.actionRows()).setContent("**You got into a fight!!!**")
 								.setEmbeds(new EmbedBuilder().setColor(new Color(0xFF0000))
 										.setTitle("Room #" + (dungeon.index(currentRoom) + 1))
@@ -221,6 +230,42 @@ public class DungeonGame {
 		t.editMessage(new MessageBuilder().setEmbeds(new EmbedBuilder().setTitle("W1-1")
 				.setDescription("```" + initialRoom.getRoom().tilemapString() + "```").setFooter("Choose a path.")
 				.build()).setActionRows(dirsel.actionRows()).build()).queue();
+	}
+
+	private static class CustomDirsel extends DirectionSelector {
+
+		private boolean repeatDisabled;
+
+		public void disableRepeat() {
+			repeatDisabled = true;
+		}
+
+		public void enableRepeat() {
+			repeatDisabled = false;
+		}
+
+		/**
+		 * Disables all the {@link Button}s that are managed by this
+		 * {@link CustomDirsel}.
+		 */
+		public void disableManaged() {
+			disableDirections();
+			disableRepeat();
+		}
+
+		private Button repeatButton() {
+			var rpb = Button.primary("repeat", Emoji.fromMarkdown("\uD83D\uDD01")).withLabel("Resend");
+			if (repeatDisabled)
+				rpb = rpb.asDisabled();
+			return rpb;
+		}
+
+		@Override
+		public List<ActionRow> actionRows() {
+			List<ActionRow> rows = super.actionRows();
+			rows.add(ActionRow.of(repeatButton()));
+			return rows;
+		}
 	}
 
 	/**
