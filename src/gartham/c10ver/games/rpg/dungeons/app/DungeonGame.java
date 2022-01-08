@@ -167,23 +167,9 @@ public class DungeonGame {
 					currentRoom = currentRoom.getRoom(dir);
 					if (currentRoom == null) {// Player moved in the wrong direction.
 						event.reply("You are not supposed to be able to click that!").setEphemeral(true).queue();
-						processor.removeInputConsumer(consumer);
+						return true;
+//						processor.removeInputConsumer(consumer);
 					} else if (!currentRoom.isClaimed() && currentRoom instanceof EnemyRoom) {
-						// TODO Player has encountered a fight. Force them into a
-						// battle before they can continue.
-
-						var room = (EnemyRoom) currentRoom;
-
-						currentRoom.setClaimed(true);
-
-						GarmonTeam player = new GarmonTeam(target.getAsTag(),
-								new PlayerFighter(target.getName(), target.getEffectiveAvatarUrl(),
-										BigInteger.valueOf(25), BigInteger.valueOf(100), BigInteger.valueOf(100),
-										BigInteger.valueOf(25), BigInteger.valueOf(5)));
-						var team = room.getEnemies();
-						GarmonBattle battle = new GarmonBattle(player, team);
-						player.setController(new PlayerController(battle, clover, target, channel));
-						team.setController(new CreatureAI(battle, channel));
 
 						dirsel.reset();
 						dirsel.disableManaged();
@@ -193,23 +179,43 @@ public class DungeonGame {
 										.setDescription("```" + currentRoom.getRoom().tilemapString() + "```")
 										.setFooter("Choose a path.").build())
 								.queue();
-						battle.startAsync(true, winner -> {
+						channel.sendMessage("The room was full of enemies!").queue(x -> {
+							channel.sendTyping().queue(x0 -> {
+								var room = (EnemyRoom) currentRoom;
 
-							if (winner == player) {
-								EconomyUser user = clover.getEconomy().getUser(target.getId());
-								RewardsOperation rewop = RewardsOperation.build(user, channel.getGuild(),
-										BigInteger.valueOf((long) (Math.random() * 142 + 25)),
-										new ItemBunch<>(new VoteToken(
-												gartham.c10ver.economy.items.valuables.VoteToken.Type.NORMAL)));
-								currentRoom.prepare(dirsel, "act");
-								channel.sendMessage(target.getAsMention() + ", you won the fight!\nYou earned:\n\n"
-										+ Utilities.listRewards(user.reward(rewop)))
-										.setEmbeds(new EmbedBuilder().setColor(new Color(0xFF00))
-												.setTitle("Room #" + (dungeon.index(currentRoom) + 1))
-												.setDescription("```" + currentRoom.getRoom().tilemapString() + "```")
-												.setFooter("Choose a path.").build())
-										.setActionRows(dirsel.actionRows()).queue(x -> t = x);
-							}
+								currentRoom.setClaimed(true);
+
+								GarmonTeam player = new GarmonTeam(target.getAsTag(),
+										new PlayerFighter(target.getName(), target.getEffectiveAvatarUrl(),
+												BigInteger.valueOf(25), BigInteger.valueOf(100),
+												BigInteger.valueOf(100), BigInteger.valueOf(25),
+												BigInteger.valueOf(5)));
+								var team = room.getEnemies();
+								GarmonBattle battle = new GarmonBattle(player, team);
+								player.setController(new PlayerController(battle, clover, target, channel));
+								team.setController(new CreatureAI(battle, channel));
+
+								battle.startAsync(true, winner -> {
+									if (winner == player) {
+										EconomyUser user = clover.getEconomy().getUser(target.getId());
+										RewardsOperation rewop = RewardsOperation.build(user, channel.getGuild(),
+												BigInteger.valueOf((long) (Math.random() * 142 + 25)),
+												new ItemBunch<>(new VoteToken(
+														gartham.c10ver.economy.items.valuables.VoteToken.Type.NORMAL)));
+										currentRoom.prepare(dirsel, "act");
+										channel.sendMessage(
+												target.getAsMention() + ", you won the fight!\nYou earned:\n\n"
+														+ Utilities.listRewards(user.reward(rewop)))
+												.setEmbeds(new EmbedBuilder().setColor(new Color(0xFF00))
+														.setTitle("Room #" + (dungeon.index(currentRoom) + 1))
+														.setDescription(
+																"```" + currentRoom.getRoom().tilemapString() + "```")
+														.setFooter("Choose a path.").build())
+												.setActionRows(dirsel.actionRows()).queue(msg -> t = msg);
+									}
+								}, (long) (2000 + Math.random() * 1000));
+
+							});
 						});
 
 					} else {
