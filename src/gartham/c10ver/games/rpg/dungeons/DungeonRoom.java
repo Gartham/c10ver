@@ -71,10 +71,10 @@ public class DungeonRoom {
 	 */
 	public Path addRandomPath(Direction dir, DungeonRoom room) {
 		var size = dir.isHorizontal() ? getRoom().getHeight() : getRoom().getWidth();
-		var gw = (int) Math.random() * (size - 4) + 1;
-		
+		var gw = (int) (Math.random() * (size - 4)) + 1;
+
 		// Position should be Math.random() * (size - gw - 4 + 1).
-		return addPath(room, getRoom().createOpening(dir, gw, (int) Math.random() * (size - gw - 3)));
+		return addPath(room, getRoom().createOpening(dir, gw, (int) (Math.random() * (size - gw - 3))));
 	}
 
 	public class Path {
