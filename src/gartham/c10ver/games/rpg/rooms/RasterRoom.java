@@ -90,4 +90,8 @@ public class RasterRoom<T> implements Room<T> {
 				elements[i][j] = rasterizer.rasterize(i, j);
 	}
 
+	public static <T> RasterRoom<T> discordSquare(int size) {
+		return new RasterRoom<>((int) (2.2 * size), size);
+	}
+
 }
