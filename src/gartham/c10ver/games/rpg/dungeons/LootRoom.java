@@ -3,7 +3,7 @@ package gartham.c10ver.games.rpg.dungeons;
 import java.util.ArrayList;
 
 import gartham.c10ver.economy.RewardsOperation;
-import gartham.c10ver.games.rpg.rooms.RectangularRoom;
+import gartham.c10ver.games.rpg.rooms.RectangularDungeonRoom;
 import gartham.c10ver.response.utils.DirectionSelector;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.interactions.components.Button;
@@ -18,7 +18,7 @@ public class LootRoom extends DungeonRoom {
 	}
 
 	public LootRoom(RewardsOperation rewards) {
-		super(RectangularRoom.discordSquare(15));
+		super(RectangularDungeonRoom.discordSquare(15));
 		this.rewards = rewards;
 		ArrayList<String[]> l = new ArrayList<>();
 		lines = new RandLines(l);

@@ -3,7 +3,7 @@ package gartham.c10ver.games.rpg.dungeons;
 import java.util.ArrayList;
 
 import gartham.c10ver.games.rpg.fighting.battles.app.GarmonTeam;
-import gartham.c10ver.games.rpg.rooms.RectangularRoom;
+import gartham.c10ver.games.rpg.rooms.RectangularDungeonRoom;
 
 public class EnemyRoom extends DungeonRoom {
 
@@ -15,7 +15,7 @@ public class EnemyRoom extends DungeonRoom {
 	}
 
 	public EnemyRoom(GarmonTeam enemies) {
-		super(RectangularRoom.discordSquare((int) (Math.random() * 6 + 14)));
+		super(RectangularDungeonRoom.discordSquare((int) (Math.random() * 6 + 14)));
 		this.enemies = enemies;
 		ArrayList<String[]> l = new ArrayList<>();
 		lines = new RandLines(l);

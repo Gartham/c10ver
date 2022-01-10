@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import gartham.c10ver.games.rpg.rooms.RectangularRoom;
-import gartham.c10ver.games.rpg.rooms.RectangularRoom.Opening;
+import gartham.c10ver.games.rpg.rooms.RectangularDungeonRoom;
+import gartham.c10ver.games.rpg.rooms.RectangularDungeonRoom.Opening;
 import gartham.c10ver.response.utils.DirectionSelector;
 import gartham.c10ver.utils.Direction;
 
 public class DungeonRoom {
-	private final RectangularRoom room;
+	private final RectangularDungeonRoom room;
 	private final Map<Direction, DungeonRoom> connections;
 
 	private boolean claimed;
@@ -26,17 +26,17 @@ public class DungeonRoom {
 		this.claimed = claimed;
 	}
 
-	public DungeonRoom(RectangularRoom room, Map<Direction, DungeonRoom> connections) {
+	public DungeonRoom(RectangularDungeonRoom room, Map<Direction, DungeonRoom> connections) {
 		this.room = room;
 		this.connections = new HashMap<>(connections);
 	}
 
-	public DungeonRoom(RectangularRoom room) {
+	public DungeonRoom(RectangularDungeonRoom room) {
 		this.room = room;
 		this.connections = new HashMap<>();
 	}
 
-	public RectangularRoom getRoom() {
+	public RectangularDungeonRoom getRoom() {
 		return room;
 	}
 
