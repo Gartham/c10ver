@@ -91,6 +91,10 @@ public class Clover {
 	private final List<String> wordlist;
 	private final List<InfoPopup> tiplist;
 
+	public CloverConfiguration getConfig() {
+		return config;
+	}
+
 	/**
 	 * Returns a new {@link File} representing the directory of the random storage
 	 * namespace requested. Any part of Clover (particularly, parts that are not big
