@@ -10,7 +10,7 @@ public class RasterRoom<T> implements Room<T> {
 	private final T[][] elements;
 
 	@SuppressWarnings("unchecked")
-	public RasterRoom(int height, int width) {
+	public RasterRoom(int width, int height) {
 		elements = (T[][]) new Object[height][width];
 	}
 

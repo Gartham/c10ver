@@ -2,7 +2,7 @@ package gartham.c10ver.games.rpg.rooms;
 
 public class StringRasterRoom extends RasterRoom<String> implements StringRoom {
 
-	public StringRasterRoom(int height, int width) {
+	public StringRasterRoom(int width, int height) {
 		super(height, width, String.class);
 	}
 
