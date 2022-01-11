@@ -268,7 +268,7 @@ public class EventHandler implements EventListener {
 								var gen = ge.getGuild().getTextChannelById(g.getGeneralChannel());
 								if (gen != null)
 									gen.sendMessage(ge.getUser().getAsMention()
-											+ " welcome back to the server. ^w^\nYou were invited back by: "
+											+ " welcome back to the server.\nYou were invited back by: "
 											+ (inv == null ? "a deleted user" : inv.getAsMention()) + ".").queue();
 							}
 						}
@@ -288,11 +288,11 @@ public class EventHandler implements EventListener {
 								var gen = ge.getGuild().getTextChannelById(g.getGeneralChannel());
 								if (gen != null)
 									gen.sendMessage(
-											ge.getUser().getAsMention() + " welcome to the server. ^w^\nYou and "
+											ge.getUser().getAsMention() + " welcome to the server. \nYou and "
 													+ inviter.getUser().getUser().getAsMention()
-													+ " both received a multiplier of "
+													+ " both got a "
 													+ Utilities.prettyPrintMultiplier(BigDecimal.ONE)
-													+ " that lasts for **3h**.")
+													+ " multiplier that lasts for **3h**.")
 											.queue();
 							}
 						}
