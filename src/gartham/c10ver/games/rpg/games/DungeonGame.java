@@ -1,4 +1,4 @@
-package gartham.c10ver.games.rpg.dungeons.app;
+package gartham.c10ver.games.rpg.games;
 
 import java.awt.Color;
 import java.math.BigInteger;
