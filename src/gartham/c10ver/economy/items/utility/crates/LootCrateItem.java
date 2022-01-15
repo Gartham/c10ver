@@ -4,6 +4,7 @@ import org.alixia.javalibrary.json.JSONObject;
 
 import gartham.c10ver.economy.RewardsOperation;
 import gartham.c10ver.economy.items.Item;
+import gartham.c10ver.economy.items.ItemCategory;
 
 public abstract class LootCrateItem extends Item {
 
@@ -47,12 +48,12 @@ public abstract class LootCrateItem extends Item {
 	}
 
 	public LootCrateItem(JSONObject props) {
-		super(ITEM_TYPE, props);// Item class does a check on item property with JSON input.
+		super(ITEM_TYPE, ItemCategory.CRATE, props);// Item class does a check on item property with JSON input.
 		load(crateTypeProperty(), props);
 	}
 
 	public LootCrateItem() {
-		super(ITEM_TYPE);
+		super(ITEM_TYPE, ItemCategory.CRATE);
 	}
 
 	public static LootCrateItem decipher(JSONObject obj) {

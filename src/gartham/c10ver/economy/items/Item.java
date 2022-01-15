@@ -140,8 +140,9 @@ public abstract class Item extends PropertyObject implements Cloneable {
 		categoryProperty().set(category);
 	}
 
-	public Item(String type, JSONObject properties) {
+	public Item(String type, ItemCategory category, JSONObject properties) {
 		load(itemTypeProperty(), properties);
+		setCategory(category);
 		if (!Objects.equals(type, getItemType()))
 			throw new IllegalArgumentException("Invalid item type: " + getItemType());
 	}
