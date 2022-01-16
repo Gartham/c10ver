@@ -16,6 +16,7 @@ import gartham.c10ver.economy.items.Inventory.Entry;
 import gartham.c10ver.economy.items.ItemCategory;
 import gartham.c10ver.economy.items.UserInventory;
 import gartham.c10ver.response.menus.ButtonPaginator;
+import gartham.c10ver.utils.MessageActionHandler;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Emoji;
@@ -41,12 +42,17 @@ public class InventoryCommand extends MatchBasedCommand {
 		StringBuilder sb = new StringBuilder();
 		sb.append(inv.event.getAuthor().getAsMention()).append("'s ").append(category.getIcon()).append(' ')
 				.append(category.getDisplayName()).append(" items:\n\n");
+
+		MessageActionHandler mah = new MessageActionHandler();
 		for (var e : inventory)
 			for (var is : e)
-				if (is.getItem().getCategory() == category)
+				if (is.getItem().getCategory() == category) {
 					sb.append('`').append(Utilities.formatNumber(is.getCount())).append("`x ").append(is.getIcon())
 							.append(' ').append(is.getEffectiveName()).append('\n');
-		message.editMessageEmbeds().content(sb.toString()).setActionRows().queue();
+					
+					mah.new Action(Button.primary(is.getItem().getItemType(), Emoji.fromMarkdown(is.getIcon())));
+				}
+		message.editMessageEmbeds().content(sb.toString()).setActionRows(mah.generate()).queue();
 	}
 
 	private void displayRoot(CommandInvocation inv) {
@@ -79,7 +85,7 @@ public class InventoryCommand extends MatchBasedCommand {
 
 			bp.setTarget(inv.event.getAuthor());
 
-			bp.getMah().new Action(Button.secondary("sel", "\u200b").asDisabled()).reposition(2);
+			bp.getMah().new Action(Button.primary("sel", "\u200b").asDisabled()).reposition(2);
 			bp.setHandler(t -> {
 				var cat = ItemCategory.valueOf(t.getComponentId());
 				displayCategory(cat, inv, bp.getMsg());
