@@ -15,8 +15,11 @@ import gartham.c10ver.data.PropertyObject;
 import gartham.c10ver.economy.items.Inventory.Entry;
 import gartham.c10ver.economy.items.ItemCategory;
 import gartham.c10ver.economy.items.UserInventory;
+import gartham.c10ver.response.menus.ButtonPaginator;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Emoji;
+import net.dv8tion.jda.api.interactions.components.Button;
 
 public class InventoryCommand extends MatchBasedCommand {
 
@@ -38,6 +41,7 @@ public class InventoryCommand extends MatchBasedCommand {
 		if (inventory.isEmpty()) {
 			eb.appendDescription("Your inventory is empty!");
 			eb.setColor(new Color(0xc20000));
+			inv.event.getChannel().sendMessageEmbeds(eb.build()).queue();
 		} else {
 			Map<ItemCategory, BigInteger> ics = new HashMap<>();
 			for (var e : inventory)
@@ -50,11 +54,40 @@ public class InventoryCommand extends MatchBasedCommand {
 			eb.appendDescription(
 					"You have **" + Utilities.formatNumber(inventory.getTotalItemCount()) + "** items.\n\n");
 
-			for (var i : ics.entrySet())
-				eb.appendDescription(i.getKey().getIcon() + ' ' + i.getKey().getDisplayName() + " **("
-						+ Utilities.formatNumber(i.getValue()) + ")**\n");
+			eb.setTitle(inv.event.getAuthor().getAsTag() + "'s Inventory")
+					.setAuthor(
+							inv.event.isFromGuild() ? inv.event.getMember().getEffectiveName()
+									: inv.event.getAuthor().getName(),
+							null, inv.event.getAuthor().getEffectiveAvatarUrl());
+			eb.appendDescription("Page **1** of **1**.");
+
+			ButtonPaginator bp = new ButtonPaginator(clover.getEventHandler().getButtonClickProcessor());
+
+			bp.setTarget(inv.event.getAuthor());
+
+			bp.getMah().new Action(Button.secondary("sel", "\u200b").asDisabled()).reposition(2);
+			bp.setHandler(t -> {
+				var cat = ItemCategory.valueOf(t.getComponentId());
+				inv.event.getChannel()
+						.sendMessage("You selected the " + cat.getIcon() + " " + cat.getDisplayName() + " category.")
+						.queue();
+				return false;// return whether we updated the event.
+			});
+			bp.setMaxPage(0);
+			bp.setOneTime(true);
+
+			for (var i : ics.entrySet()) {
+				eb.addField(i.getKey().getDisplayName() + " " + i.getKey().getIcon(),
+						"Items: " + (i.getValue().equals(BigInteger.ZERO) ? "None"
+								: "**" + Utilities.formatNumber(i.getValue()) + "**"),
+						true);
+				bp.getMah().new Action(Button.success(i.getKey().name(), Emoji.fromMarkdown(i.getKey().getIcon()))
+						.withLabel(i.getKey().getDisplayName()));
+			}
+
+			bp.attachAndSend(inv.event.getChannel().sendMessageEmbeds(eb.build()));
 		}
-		inv.event.getChannel().sendMessageEmbeds(eb.build()).queue();
+
 	}
 
 	@Override
