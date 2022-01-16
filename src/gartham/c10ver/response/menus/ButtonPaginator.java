@@ -33,6 +33,20 @@ public class ButtonPaginator {
 		this.mah = mah;
 	}
 
+	public void hideEdgeButtons() {
+		leftall.remove();
+		rightall.remove();
+	}
+
+	public void showEdgeButtons() {
+		leftall.add(0);
+		rightall.add();
+	}
+
+	public MessageActionHandler getMah() {
+		return mah;
+	}
+
 	public ButtonPaginator(InputProcessor<ButtonClickEvent> processor) {
 		this(new MessageActionHandler(), processor);
 	}
@@ -53,7 +67,6 @@ public class ButtonPaginator {
 		return rightall;
 	}
 
-	private boolean edgeButtons;
 	private Function<ButtonClickEvent, Boolean> handler;
 	private int maxPage = Integer.MAX_VALUE;
 	private BiFunction<Integer, ButtonClickEvent, Boolean> pageHandler;// Returns true if handles message response.
@@ -64,12 +77,48 @@ public class ButtonPaginator {
 	private int page;
 	private boolean oneTime;
 
-	public boolean isEdgeButtons() {
-		return edgeButtons;
+	public Function<ButtonClickEvent, Boolean> getHandler() {
+		return handler;
 	}
 
-	public void setEdgeButtons(boolean edgeButtons) {
-		this.edgeButtons = edgeButtons;
+	public void setHandler(Function<ButtonClickEvent, Boolean> handler) {
+		this.handler = handler;
+	}
+
+	public int getMaxPage() {
+		return maxPage;
+	}
+
+	public void setMaxPage(int maxPage) {
+		this.maxPage = maxPage;
+	}
+
+	public BiFunction<Integer, ButtonClickEvent, Boolean> getPageHandler() {
+		return pageHandler;
+	}
+
+	public void setPageHandler(BiFunction<Integer, ButtonClickEvent, Boolean> pageHandler) {
+		this.pageHandler = pageHandler;
+	}
+
+	public User getTarget() {
+		return target;
+	}
+
+	public void setTarget(User target) {
+		this.target = target;
+	}
+
+	public int getPage() {
+		return page;
+	}
+
+	public void setPage(int page) {
+		this.page = page;
+	}
+
+	public Message getMsg() {
+		return msg;
 	}
 
 	public boolean isOneTime() {
@@ -80,9 +129,28 @@ public class ButtonPaginator {
 		this.oneTime = oneTime;
 	}
 
+	private void prepareButtons() {
+		if (page == 0) {
+			left.disable();
+			leftall.disable();
+		} else {
+			left.enable();
+			leftall.enable();
+		}
+
+		if (page == maxPage) {
+			right.disable();
+			rightall.disable();
+		} else {
+			right.enable();
+			rightall.enable();
+		}
+	}
+
 	public void attachAndSend(MessageAction msg) {
 		if (inc != null)
 			throw new IllegalStateException("Already sent.");
+		prepareButtons();
 		msg.setActionRows(mah.generate());
 		this.msg = msg.complete();
 
@@ -100,8 +168,7 @@ public class ButtonPaginator {
 				if (page > 0) {
 					page = 0;
 
-					left.disable();
-					leftall.disable();
+					prepareButtons();
 
 					var r = pageHandler.apply(0, e);
 					if (r == null || !r)
@@ -111,10 +178,8 @@ public class ButtonPaginator {
 				return true;
 			case "left-one":
 				if (page > 0) {
-					if (--page == 0) {
-						left.disable();
-						leftall.disable();
-					}
+					page--;
+					prepareButtons();
 
 					var r = pageHandler.apply(0, e);
 					if (r == null || !r)
@@ -129,10 +194,8 @@ public class ButtonPaginator {
 				return true;
 			case "right-one":
 				if (page < maxPage) {
-					if (++page == maxPage) {
-						right.disable();
-						rightall.disable();
-					}
+					page++;
+					prepareButtons();
 
 					var r = pageHandler.apply(page, e);
 					if (r == null || !r)
@@ -149,8 +212,7 @@ public class ButtonPaginator {
 				if (page < maxPage) {
 					page = maxPage;
 
-					right.disable();
-					rightall.disable();
+					prepareButtons();
 
 					var r = pageHandler.apply(maxPage, e);
 					if (r == null || !r)
@@ -161,10 +223,12 @@ public class ButtonPaginator {
 			}
 
 			var r = this.handler.apply(e);
-			if (r == null || !r)
-				mah.convert(Action::disable);
-			if (oneTime)
+			if (oneTime) {
 				p.removeInputConsumer(c);
+				mah.convert(Action::disable);
+				if (r == null || !r)
+					e.editComponents(mah.generate()).queue();
+			}
 
 			return true;
 		};
