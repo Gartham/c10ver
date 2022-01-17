@@ -16,7 +16,6 @@ import java.util.function.Consumer;
 import javax.security.auth.login.LoginException;
 
 import org.alixia.javalibrary.strings.matching.Matching;
-import org.alixia.javalibrary.util.KeyMap;
 
 import gartham.c10ver.changelog.Changelog;
 import gartham.c10ver.commands.CommandParser;
@@ -30,9 +29,10 @@ import gartham.c10ver.transactions.TransactionHandler;
 import gartham.c10ver.transactions.sockets.SocketTransactionHandler;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import zeale.apps.stuff.api.appprops.ApplicationProperties;
 
 public class Clover {
 	{
@@ -230,6 +230,7 @@ public class Clover {
 			System.out.println("Dev mode enabled!");
 		commandParser = new CommandParser(Matching.build(devmode ? "$" : "~").or(
 				Matching.build("<@").possibly("!").then(bot.getSelfUser().getId() + ">").then(Matching.whitespace())));
+		jda.getPresence().setPresence(OnlineStatus.ONLINE, Activity.playing("Ping me for help!"));
 		bot.addEventListener(eventHandler);
 		eventHandler.initialize();
 
