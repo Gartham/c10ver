@@ -30,6 +30,14 @@ public class MessageActionHandler {
 		}
 	}
 
+	public void addBreak(int pos) {
+		actions.add(pos, null);
+	}
+
+	public void remove(int pos) {
+		actions.remove(pos);
+	}
+
 	public class Action {
 		private Button button;
 
@@ -164,7 +172,16 @@ public class MessageActionHandler {
 		var itr = actions.iterator();
 		List<Button> b = new ArrayList<>(5);
 		while (itr.hasNext()) {
-			b.add(itr.next().getButton());
+			Action a = itr.next();
+			if (a == null) {
+				if (!b.isEmpty()) {
+					i = 0;
+					ar.add(ActionRow.of(b));
+					b = new ArrayList<>(5);
+				}
+				continue;
+			}
+			b.add(a.getButton());
 			if (++i == 5) {
 				i = 0;
 				ar.add(ActionRow.of(b));
