@@ -1,14 +1,15 @@
 package gartham.c10ver.response.menus;
 
+import java.util.Collection;
 import java.util.List;
 
 import gartham.c10ver.commands.InputProcessor;
 import gartham.c10ver.response.menus.SimpleMenu.SimpleMenuItem;
 import gartham.c10ver.utils.MessageActionHandler;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 public class SimpleMenu extends Menu<SimpleMenuItem> {
 
@@ -20,17 +21,17 @@ public class SimpleMenu extends Menu<SimpleMenuItem> {
 		super(mah, processor, SimpleMenuItem.class);
 	}
 
-	public class SimpleMenuItem extends Menu<SimpleMenuItem>.MenuItem {
+	public class SimpleMenuItem extends Menu<SimpleMenuItem>.Page.MenuItem {
 
 		private final String description;
 
-		public SimpleMenuItem(String emoji, String label, String description, String id) {
-			super(Button.secondary(id, emoji).withLabel(label));
+		public SimpleMenuItem(Page owner, String emoji, String label, String description, String id) {
+			owner.super(Button.secondary(id, emoji).withLabel(label));
 			this.description = description;
 		}
 
-		public SimpleMenuItem(Button button, String description) {
-			super(button);
+		public SimpleMenuItem(Page owner, Button button, String description) {
+			owner.super(button);
 			this.description = description;
 		}
 
@@ -48,7 +49,7 @@ public class SimpleMenu extends Menu<SimpleMenuItem> {
 	}
 
 	@Override
-	protected void process(MessageAction action, List<SimpleMenuItem> items) {
-		action.setEmbeds(generateEmbed(items).build());
+	protected Collection<MessageEmbed> process(List<SimpleMenuItem> items) {
+		return List.of(generateEmbed(items).build());
 	}
 }
