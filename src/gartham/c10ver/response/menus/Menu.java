@@ -1,5 +1,6 @@
 package gartham.c10ver.response.menus;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import gartham.c10ver.commands.InputProcessor;
@@ -11,6 +12,8 @@ import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 public abstract class Menu<M extends gartham.c10ver.response.menus.Menu<M>.MenuItem> extends ButtonPaginator {
 
+	private final Class<M> menuItem;
+
 	protected abstract void process(MessageAction action, List<M> items);
 
 	public class MenuItem extends Action {
@@ -21,12 +24,26 @@ public abstract class Menu<M extends gartham.c10ver.response.menus.Menu<M>.MenuI
 
 	}
 
-	public Menu(InputProcessor<ButtonClickEvent> processor) {
+	protected Menu(InputProcessor<ButtonClickEvent> processor, Class<M> menuItemType) {
 		super(processor);
+		menuItem = menuItemType;
 	}
 
-	public Menu(MessageActionHandler mah, InputProcessor<ButtonClickEvent> processor) {
+	protected Menu(MessageActionHandler mah, InputProcessor<ButtonClickEvent> processor, Class<M> menuItemType) {
 		super(mah, processor);
+		menuItem = menuItemType;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void attachAndSend(MessageAction msg) {
+		var actions = getMah().getActions();
+		List<M> m = new ArrayList<>();
+		for (var v : actions)
+			if (menuItem.isInstance(v))
+				m.add((M) v);
+		process(msg, m);
+		super.attachAndSend(msg);
 	}
 
 }
