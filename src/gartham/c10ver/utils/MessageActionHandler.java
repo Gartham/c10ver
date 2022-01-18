@@ -15,6 +15,10 @@ public class MessageActionHandler {
 
 	private final List<Action> actions = new ArrayList<>();
 
+	public List<Action> getActions() {
+		return Collections.unmodifiableList(actions);
+	}
+
 	public void convert(Function<Action, Action> converter) {
 		var li = actions.listIterator();
 		while (li.hasNext()) {
