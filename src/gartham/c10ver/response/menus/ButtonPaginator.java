@@ -121,6 +121,10 @@ public class ButtonPaginator {
 		return msg;
 	}
 
+	public boolean isStarted() {
+		return msg != null;
+	}
+
 	public boolean isOneTime() {
 		return oneTime;
 	}
