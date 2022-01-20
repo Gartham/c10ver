@@ -7,10 +7,11 @@ import java.util.List;
 import gartham.c10ver.commands.InputProcessor;
 import gartham.c10ver.utils.MessageActionHandler;
 import gartham.c10ver.utils.MessageActionHandler.Action;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 public abstract class Menu {
@@ -30,6 +31,8 @@ public abstract class Menu {
 			pages.add(this);
 		}
 
+		// Any MenuItem can be added to this, so subclasses should use instanceof and
+		// throw UnsupportedOperationExceptions when they can't render a menu item.
 		private final List<MenuItem> items = new ArrayList<>();
 
 		public List<MenuItem> getItems() {
@@ -46,8 +49,6 @@ public abstract class Menu {
 				v.remove();
 		}
 
-		protected abstract void generateMessageAction(MessageChannel channel);
-
 		protected abstract Collection<MessageEmbed> generateEmbeds();
 
 		public class MenuItem extends Action {
@@ -61,6 +62,10 @@ public abstract class Menu {
 
 			public MenuItem(Button button) {
 				paginator.getMah().super(button);
+			}
+
+			public MenuItem(String emoji, String label, String id, ButtonStyle style) {
+				this(Button.of(style, id, label, Emoji.fromMarkdown(emoji)));
 			}
 
 		}
@@ -87,7 +92,9 @@ public abstract class Menu {
 	}
 
 	public void attachAndSend(MessageAction msg) {
-		pages.get(0).showPageButtons();
+		Page<?> fp = pages.get(0);
+		fp.showPageButtons();
+		msg.setEmbeds(fp.generateEmbeds());
 		paginator.attachAndSend(msg);
 	}
 
