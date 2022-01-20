@@ -1,6 +1,6 @@
 package gartham.c10ver.response.menus;
 
-import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import gartham.c10ver.commands.InputProcessor;
@@ -69,7 +69,7 @@ public class ButtonPaginator {
 
 	private Function<ButtonClickEvent, Boolean> handler;
 	private int maxPage = Integer.MAX_VALUE;
-	private BiFunction<Integer, ButtonClickEvent, Boolean> pageHandler;// Returns true if handles message response.
+	private Consumer<PageChangeEvent> pageHandler;// Returns true if handles message response.
 	private final InputProcessor<ButtonClickEvent> processor;
 	private User target;
 	private InputConsumer<ButtonClickEvent> inc;
@@ -93,11 +93,11 @@ public class ButtonPaginator {
 		this.maxPage = maxPage;
 	}
 
-	public BiFunction<Integer, ButtonClickEvent, Boolean> getPageHandler() {
+	public Consumer<PageChangeEvent> getPageHandler() {
 		return pageHandler;
 	}
 
-	public void setPageHandler(BiFunction<Integer, ButtonClickEvent, Boolean> pageHandler) {
+	public void setPageHandler(Consumer<PageChangeEvent> pageHandler) {
 		this.pageHandler = pageHandler;
 	}
 
@@ -119,6 +119,10 @@ public class ButtonPaginator {
 
 	public Message getMsg() {
 		return msg;
+	}
+
+	public boolean isStarted() {
+		return msg != null;
 	}
 
 	public boolean isOneTime() {
@@ -147,6 +151,42 @@ public class ButtonPaginator {
 		}
 	}
 
+	public class PageChangeEvent {
+		private final int oldPage, newPage;
+		private final ButtonClickEvent e;
+		private boolean consumed;
+
+		public ButtonPaginator getPaginator() {
+			return ButtonPaginator.this;
+		}
+
+		public PageChangeEvent(int oldPage, int newPage, ButtonClickEvent e) {
+			this.oldPage = oldPage;
+			this.newPage = newPage;
+			this.e = e;
+		}
+
+		public int getOldPage() {
+			return oldPage;
+		}
+
+		public int getNewPage() {
+			return newPage;
+		}
+
+		public ButtonClickEvent getE() {
+			return e;
+		}
+
+		public boolean isConsumed() {
+			return consumed;
+		}
+
+		public void consume() {
+			consumed = true;
+		}
+	}
+
 	public void attachAndSend(MessageAction msg) {
 		if (inc != null)
 			throw new IllegalStateException("Already sent.");
@@ -166,23 +206,24 @@ public class ButtonPaginator {
 			switch (id) {
 			case "left-all":
 				if (page > 0) {
+					PageChangeEvent pce = new PageChangeEvent(page, page = 0, e);
 					page = 0;
 
 					prepareButtons();
 
-					var r = pageHandler.apply(0, e);
-					if (r == null || !r)
+					pageHandler.accept(pce);
+					if (!pce.consumed)
 						e.editComponents(mah.generate()).queue();
 				} else
 					assert false : "A disabled \"left-all\" button was clicked in a ButtonPaginator.";
 				return true;
 			case "left-one":
 				if (page > 0) {
-					page--;
+					PageChangeEvent pce = new PageChangeEvent(page--, page, e);
 					prepareButtons();
 
-					var r = pageHandler.apply(0, e);
-					if (r == null || !r)
+					pageHandler.accept(pce);
+					if (!pce.consumed)
 						if (page == 0)
 							e.editComponents(mah.generate()).queue();
 						else
@@ -194,11 +235,11 @@ public class ButtonPaginator {
 				return true;
 			case "right-one":
 				if (page < maxPage) {
-					page++;
+					PageChangeEvent pce = new PageChangeEvent(page++, page, e);
 					prepareButtons();
 
-					var r = pageHandler.apply(page, e);
-					if (r == null || !r)
+					pageHandler.accept(pce);
+					if (!pce.consumed)
 						if (page == maxPage)
 							e.editComponents(mah.generate()).queue();
 						else
@@ -210,12 +251,11 @@ public class ButtonPaginator {
 				return true;
 			case "right-all":
 				if (page < maxPage) {
-					page = maxPage;
-
+					PageChangeEvent pce = new PageChangeEvent(page, page = maxPage, e);
 					prepareButtons();
 
-					var r = pageHandler.apply(maxPage, e);
-					if (r == null || !r)
+					pageHandler.accept(pce);
+					if (!pce.consumed)
 						e.editComponents(mah.generate()).queue();
 				} else
 					assert false : "A disabled \"right-all\" button was clicked in a ButtonPaginator.";
