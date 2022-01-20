@@ -72,15 +72,15 @@ public class Menu {
 
 	}
 
-	protected Menu(InputProcessor<ButtonClickEvent> processor) {
+	public Menu(InputProcessor<ButtonClickEvent> processor) {
 		this(new ButtonPaginator(processor));
 	}
 
-	protected Menu(MessageActionHandler mah, InputProcessor<ButtonClickEvent> processor) {
+	public Menu(MessageActionHandler mah, InputProcessor<ButtonClickEvent> processor) {
 		this(new ButtonPaginator(mah, processor));
 	}
 
-	protected Menu(ButtonPaginator paginator) {
+	public Menu(ButtonPaginator paginator) {
 		this.paginator = paginator;
 		paginator.setPageHandler(t -> {
 			pages.get(t.getOldPage()).hidePageButtons();
