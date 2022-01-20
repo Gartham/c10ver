@@ -14,7 +14,7 @@ import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
-public abstract class Menu {
+public class Menu {
 
 	private final ButtonPaginator paginator;
 	private final List<Page<?>> pages = new ArrayList<>();
