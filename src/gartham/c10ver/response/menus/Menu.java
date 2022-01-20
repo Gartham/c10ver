@@ -8,6 +8,7 @@ import gartham.c10ver.commands.InputProcessor;
 import gartham.c10ver.utils.MessageActionHandler;
 import gartham.c10ver.utils.MessageActionHandler.Action;
 import net.dv8tion.jda.api.entities.Emoji;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
@@ -89,6 +90,12 @@ public class Menu {
 			t.getE().editComponents(getPaginator().getMah().generate()).setEmbeds(np.generateEmbeds()).complete();
 			t.consume();
 		});
+	}
+
+	public void send(MessageChannel channel) {
+		Page<?> fp = pages.get(0);
+		fp.showPageButtons();
+		paginator.attachAndSend(channel.sendMessageEmbeds(fp.generateEmbeds()));
 	}
 
 	public void attachAndSend(MessageAction msg) {
