@@ -3,7 +3,6 @@ package gartham.c10ver.response.menus;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.BiFunction;
 
 import gartham.c10ver.commands.InputProcessor;
 import gartham.c10ver.utils.MessageActionHandler;
@@ -14,20 +13,16 @@ import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
-public abstract class Menu<M extends gartham.c10ver.response.menus.Menu<M>.Page.MenuItem> {
+public abstract class Menu {
 
 	private final ButtonPaginator paginator;
-	private final List<Page> pages = new ArrayList<>();
+	private final List<Page<?>> pages = new ArrayList<>();
 
 	public ButtonPaginator getPaginator() {
 		return paginator;
 	}
 
-	private final Class<M> menuItem;
-
-	protected abstract Collection<MessageEmbed> process(List<M> items);
-
-	public class Page {
+	public abstract class Page<M extends Page<M>.MenuItem> {
 
 		{
 			if (paginator.isStarted())
@@ -37,12 +32,31 @@ public abstract class Menu<M extends gartham.c10ver.response.menus.Menu<M>.Page.
 
 		private final List<MenuItem> items = new ArrayList<>();
 
+		public List<MenuItem> getItems() {
+			return items;
+		}
+
+		private void showPageButtons() {
+			for (var v : items)
+				v.add();
+		}
+
+		private void hidePageButtons() {
+			for (var v : items)
+				v.remove();
+		}
+
+		protected abstract void generateMessageAction(MessageChannel channel);
+
+		protected abstract Collection<MessageEmbed> generateEmbeds();
+
 		public class MenuItem extends Action {
 
 			{
 				if (paginator.isStarted())
 					throw new IllegalStateException();
 				items.add(this);
+				remove();
 			}
 
 			public MenuItem(Button button) {
@@ -53,33 +67,28 @@ public abstract class Menu<M extends gartham.c10ver.response.menus.Menu<M>.Page.
 
 	}
 
-	protected Menu(InputProcessor<ButtonClickEvent> processor, Class<M> menuItemType) {
-		paginator = new ButtonPaginator(processor);
-		menuItem = menuItemType;
-		paginator.setPageHandler(new BiFunction<Integer, ButtonClickEvent, Boolean>() {
+	protected Menu(InputProcessor<ButtonClickEvent> processor) {
+		this(new ButtonPaginator(processor));
+	}
 
-			@Override
-			public Boolean apply(Integer t, ButtonClickEvent u) {
+	protected Menu(MessageActionHandler mah, InputProcessor<ButtonClickEvent> processor) {
+		this(new ButtonPaginator(mah, processor));
+	}
 
-				return false;
-			}
+	protected Menu(ButtonPaginator paginator) {
+		this.paginator = paginator;
+		paginator.setPageHandler(t -> {
+			pages.get(t.getOldPage()).hidePageButtons();
+			Page<?> np = pages.get(t.getNewPage());
+			np.showPageButtons();
+			t.getE().editComponents(getPaginator().getMah().generate()).setEmbeds(np.generateEmbeds()).complete();
+			t.consume();
 		});
 	}
 
-	protected Menu(MessageActionHandler mah, InputProcessor<ButtonClickEvent> processor, Class<M> menuItemType) {
-		paginator = new ButtonPaginator(mah, processor);
-		menuItem = menuItemType;
-	}
-
-	@SuppressWarnings("unchecked")
-	public void send(MessageChannel channel) {
-		var actions = paginator.getMah().getActions();
-		List<M> m = new ArrayList<>();
-		for (var v : actions)
-			if (menuItem.isInstance(v))
-				m.add((M) v);
-		MessageAction action = channel.sendMessageEmbeds(process(m));
-		paginator.attachAndSend(action);
+	public void attachAndSend(MessageAction msg) {
+		pages.get(0).showPageButtons();
+		paginator.attachAndSend(msg);
 	}
 
 }
