@@ -93,12 +93,14 @@ public class Menu {
 	}
 
 	public void send(MessageChannel channel) {
+		paginator.setMaxPage(pages.size() - 1);
 		Page<?> fp = pages.get(0);
 		fp.showPageButtons();
 		paginator.attachAndSend(channel.sendMessageEmbeds(fp.generateEmbeds()));
 	}
 
 	public void attachAndSend(MessageAction msg) {
+		paginator.setMaxPage(pages.size() - 1);
 		Page<?> fp = pages.get(0);
 		fp.showPageButtons();
 		msg.setEmbeds(fp.generateEmbeds());
