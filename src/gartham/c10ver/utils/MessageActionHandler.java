@@ -23,10 +23,24 @@ public class MessageActionHandler {
 		actions.clear();
 	}
 
-	public void convert(Function<Action, Action> converter) {
+	public void convertAll(Function<Action, Action> converter) {
 		var li = actions.listIterator();
 		while (li.hasNext()) {
 			var res = converter.apply(li.next());
+			if (res == null)
+				li.remove();
+			else
+				li.set(res);
+		}
+	}
+
+	public void convert(Function<Action, Action> converter) {
+		var li = actions.listIterator();
+		while (li.hasNext()) {
+			Action next = li.next();
+			if (next == null)
+				continue;
+			var res = converter.apply(next);
 			if (res == null)
 				li.remove();
 			else

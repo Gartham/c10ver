@@ -31,20 +31,27 @@ public class CloverMenuHandler implements MessageInputConsumer {
 		Menu menu = new Menu(clover.getEventHandler().getButtonClickProcessor());
 		menu.getPaginator().setTarget(event.getAuthor());
 		var p1 = new SimplePage(menu);
-		p1.new MenuItem("\u2694\ufe0f", "Inventory", "inv",
-				"See your Items, Balance, Creatures, and everything else you own.");
-		p1.new MenuItem("\uD83E\uDD54", "Potato", "pot",
-				"The all-powerful potato button. (Does nothing, powerfully. :muscle:)");
-		p1.new MenuItem("\uD83C\uDFFA", "Amphora", "amph",
-				"Contains the essence of really powerful creatures. No one knows how it got there.");
-		var p2 = new SimplePage(menu);
-		p2.new MenuItem("\uD83E\uDDC3", "Orange Juice", "oj",
-				"Replenishes all of your stamina, but also has a small chance of giving you diabetes and permanently impairing your gameplay.");
+		p1.new MenuItem("\ud83d\uddc3\ufe0f", "Inventory", "inv",
+				"See your items, balance (cloves), creatures, and everything else you own. You can open/use items, manage/upgrade your creatures and team, and see everything you own from here.");
+		p1.new MenuItem("\u2694\ufe0f", "Explore", "exp",
+				"You can play *dungeons* or explore the *wilderness* from here. Both will give you loot (items, cloves, multipliers, etc.) and experience to level you and your creatures up.");
+		p1.new MenuItem("\uD83D\uDCCA", "Stats", "stat",
+				"Check your level, rank, balance, and interesting data about your use of the bot.");
+		p1.new MenuItem("\u2699", "Settings", "set",
+				"Go here to configure settings (like vote reminders or loot notifications).");
 		menu.getPaginator().setHandler(t -> {
 			MessageActionHandler mah = menu.getPaginator().getMah();
 			mah.convert(Action::disable);
 			menu.getPaginator().getMsg().editMessageComponents(mah.generate()).queue();
-			t.reply("G fuel.").queue();
+
+			t.reply("The " + switch (t.getComponentId()) {
+			case "inv" -> "Inventory";
+			case "exp" -> "Exploration";
+			case "stat" -> "Statistics";
+			case "set" -> "Settings";
+			default -> throw new IllegalArgumentException("Unexpected value: " + t.getComponentId());
+			} + " menu has not yet been set up!").queue();
+
 			return true;// Handled.
 		});
 		menu.getPaginator().setOneTime(true);
