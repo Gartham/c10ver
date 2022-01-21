@@ -1,4 +1,4 @@
-package gartham.c10ver.games.rpg.games;
+package gartham.c10ver.games.rpg.dungeons;
 
 import java.awt.Color;
 import java.math.BigInteger;
@@ -13,10 +13,6 @@ import gartham.c10ver.economy.items.ItemBunch;
 import gartham.c10ver.economy.items.valuables.VoteToken;
 import gartham.c10ver.economy.users.EconomyUser;
 import gartham.c10ver.economy.users.EconomyUser.Receipt;
-import gartham.c10ver.games.rpg.dungeons.Dungeon;
-import gartham.c10ver.games.rpg.dungeons.DungeonRoom;
-import gartham.c10ver.games.rpg.dungeons.EnemyRoom;
-import gartham.c10ver.games.rpg.dungeons.LootRoom;
 import gartham.c10ver.games.rpg.fighting.battles.app.CreatureAI;
 import gartham.c10ver.games.rpg.fighting.battles.app.GarmonBattle;
 import gartham.c10ver.games.rpg.fighting.battles.app.GarmonTeam;
