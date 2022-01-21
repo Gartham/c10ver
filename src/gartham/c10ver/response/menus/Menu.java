@@ -90,6 +90,7 @@ public class Menu {
 			t.getE().editComponents(getPaginator().getMah().generate()).setEmbeds(np.generateEmbeds()).complete();
 			t.consume();
 		});
+		paginator.getMah().addBreak(4);// Add a line break immediately after the ButtonPaginator's navigation buttons.
 	}
 
 	public void send(MessageChannel channel) {
