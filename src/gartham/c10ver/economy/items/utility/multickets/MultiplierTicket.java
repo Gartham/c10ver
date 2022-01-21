@@ -9,6 +9,7 @@ import org.alixia.javalibrary.json.JSONObject;
 import gartham.c10ver.Clover;
 import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.items.Item;
+import gartham.c10ver.economy.items.ItemCategory;
 import gartham.c10ver.economy.users.EconomyUser;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.entities.Guild;
@@ -59,7 +60,7 @@ public class MultiplierTicket extends Item {
 	}
 
 	public MultiplierTicket(JSONObject properties) {
-		super(ITEM_TYPE, properties);
+		super(ITEM_TYPE, ItemCategory.MISC, properties);
 		load(iconProperty(), properties);
 		load(amountProperty(), properties);
 		load(durationProperty(), properties);
@@ -72,7 +73,7 @@ public class MultiplierTicket extends Item {
 	}
 
 	public MultiplierTicket(String icon, BigDecimal amount, Duration duration) {
-		super(ITEM_TYPE);
+		super(ITEM_TYPE, ItemCategory.MISC);
 		setIcon(icon);
 		amountProperty().set(amount);
 		durationProperty().set(duration);
