@@ -32,6 +32,7 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 public class Clover {
@@ -232,6 +233,7 @@ public class Clover {
 				Matching.build("<@").possibly("!").then(bot.getSelfUser().getId() + ">").then(Matching.whitespace())));
 		jda.getPresence().setPresence(OnlineStatus.ONLINE, Activity.playing("Ping me for help!"));
 		bot.addEventListener(eventHandler);
+		eventHandler.getProcessor(MessageReceivedEvent.class).registerInputConsumer(new CloverMenuHandler(this));
 		eventHandler.initialize();
 
 		if (!configuration.isDisableTransactionHandler())

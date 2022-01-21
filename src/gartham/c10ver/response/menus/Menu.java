@@ -8,13 +8,14 @@ import gartham.c10ver.commands.InputProcessor;
 import gartham.c10ver.utils.MessageActionHandler;
 import gartham.c10ver.utils.MessageActionHandler.Action;
 import net.dv8tion.jda.api.entities.Emoji;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
-public abstract class Menu {
+public class Menu {
 
 	private final ButtonPaginator paginator;
 	private final List<Page<?>> pages = new ArrayList<>();
@@ -72,15 +73,15 @@ public abstract class Menu {
 
 	}
 
-	protected Menu(InputProcessor<ButtonClickEvent> processor) {
+	public Menu(InputProcessor<ButtonClickEvent> processor) {
 		this(new ButtonPaginator(processor));
 	}
 
-	protected Menu(MessageActionHandler mah, InputProcessor<ButtonClickEvent> processor) {
+	public Menu(MessageActionHandler mah, InputProcessor<ButtonClickEvent> processor) {
 		this(new ButtonPaginator(mah, processor));
 	}
 
-	protected Menu(ButtonPaginator paginator) {
+	public Menu(ButtonPaginator paginator) {
 		this.paginator = paginator;
 		paginator.setPageHandler(t -> {
 			pages.get(t.getOldPage()).hidePageButtons();
@@ -91,7 +92,15 @@ public abstract class Menu {
 		});
 	}
 
+	public void send(MessageChannel channel) {
+		paginator.setMaxPage(pages.size() - 1);
+		Page<?> fp = pages.get(0);
+		fp.showPageButtons();
+		paginator.attachAndSend(channel.sendMessageEmbeds(fp.generateEmbeds()));
+	}
+
 	public void attachAndSend(MessageAction msg) {
+		paginator.setMaxPage(pages.size() - 1);
 		Page<?> fp = pages.get(0);
 		fp.showPageButtons();
 		msg.setEmbeds(fp.generateEmbeds());
