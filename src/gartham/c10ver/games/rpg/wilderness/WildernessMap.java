@@ -1,5 +1,6 @@
 package gartham.c10ver.games.rpg.wilderness;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,9 +9,10 @@ import org.alixia.javalibrary.JavaTools;
 public class WildernessMap {
 
 	private final Map<Location, WildernessTile> tilemap = new HashMap<>();
-	private final WildernessTile origin = new WildernessTile();
-	{
-		tilemap.put(Location.of(0, 0), origin);
+	private final WildernessTile origin = new WildernessTile(0, 0);
+
+	public WildernessTile getOrigin() {
+		return origin;
 	}
 
 	private final static class Location {
@@ -38,6 +40,38 @@ public class WildernessMap {
 
 	public WildernessTile get(int x, int y) {
 		return tilemap.get(new Location(x, y));
+	}
+
+	public class WildernessTile {
+		private final Map<LinkType, WildernessTile> linkedTiles = new HashMap<>(2);
+		private final Location location;
+
+		public Location getLocation() {
+			return location;
+		}
+
+		public Map<LinkType, WildernessTile> getLinkedTiles() {
+			return Collections.unmodifiableMap(linkedTiles);
+		}
+
+		public WildernessTile get(LinkType link) {
+			return linkedTiles.get(link);
+		}
+
+		private WildernessTile(int x, int y) {
+			tilemap.put(location = Location.of(x, y), this);
+		}
+
+		public WildernessTile go(LinkType link) {
+			if (linkedTiles.containsKey(link))
+				return linkedTiles.get(link);
+			else
+				return generateTile(link);
+		}
+
+		protected WildernessTile generateTile(LinkType link) {
+			// TODO Logic for generating a tile at the new linked location.
+		}
 	}
 
 }
