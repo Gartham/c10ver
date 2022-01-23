@@ -9,7 +9,11 @@ import org.alixia.javalibrary.JavaTools;
 public class WildernessMap {
 
 	private final Map<Location, WildernessTile> tilemap = new HashMap<>();
-	private final WildernessTile origin = new WildernessTile(0, 0);
+	private final WildernessTile origin;
+
+	protected WildernessMap(WildernessTile origin) {
+		this.origin = origin;
+	}
 
 	public WildernessTile getOrigin() {
 		return origin;
@@ -42,7 +46,7 @@ public class WildernessMap {
 		return tilemap.get(new Location(x, y));
 	}
 
-	public class WildernessTile {
+	public abstract class WildernessTile {
 		private final Map<LinkType, WildernessTile> linkedTiles = new HashMap<>(2);
 		private final Location location;
 
@@ -63,15 +67,11 @@ public class WildernessMap {
 		}
 
 		public WildernessTile go(LinkType link) {
-			if (linkedTiles.containsKey(link))
-				return linkedTiles.get(link);
-			else
-				return generateTile(link);
+			return linkedTiles.containsKey(link) ? linkedTiles.get(link) : generateTile(link);
 		}
 
-		protected WildernessTile generateTile(LinkType link) {
-			// TODO Logic for generating a tile at the new linked location.
-		}
+		// TODO Contains logic for generating a tile at the new linked location.
+		protected abstract WildernessTile generateTile(LinkType link);
 	}
 
 }
