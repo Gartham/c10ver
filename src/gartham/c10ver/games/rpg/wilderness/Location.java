@@ -10,6 +10,14 @@ final class Location {
 		this.y = y;
 	}
 
+	public int getX() {
+		return x;
+	}
+
+	public int getY() {
+		return y;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		return obj instanceof Location && ((Location) obj).x == x && ((Location) obj).y == y;
