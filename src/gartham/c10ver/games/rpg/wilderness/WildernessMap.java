@@ -55,8 +55,6 @@ public class WildernessMap<W extends gartham.c10ver.games.rpg.wilderness.Wildern
 			// provided tile may not always be exactly of the type W (it may be a subtype).
 			tilemap.put(location = l, (W) this);
 
-			// TODO Link this tile (and any adjacent tiles) as dictated by
-			// LinkType#AdjacencyLink.
 			for (var v : LinkType.AdjacencyLink.list()) {
 				var other = tilemap.get(v.travelLink(l));
 				if (other != null) {
