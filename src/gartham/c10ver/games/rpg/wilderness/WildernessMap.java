@@ -6,16 +6,16 @@ import java.util.Map;
 
 import org.alixia.javalibrary.JavaTools;
 
-public class WildernessMap {
+public class WildernessMap<W extends gartham.c10ver.games.rpg.wilderness.WildernessMap<W>.WildernessTile> {
 
-	private final Map<Location, WildernessTile> tilemap = new HashMap<>();
-	private final WildernessTile origin;
+	private final Map<Location, W> tilemap = new HashMap<>();
+	private final W origin;
 
-	protected WildernessMap(WildernessTile origin) {
+	protected WildernessMap(W origin) {
 		this.origin = origin;
 	}
 
-	public WildernessTile getOrigin() {
+	public W getOrigin() {
 		return origin;
 	}
 
@@ -42,36 +42,43 @@ public class WildernessMap {
 		}
 	}
 
-	public WildernessTile get(int x, int y) {
+	public W get(int x, int y) {
 		return tilemap.get(new Location(x, y));
 	}
 
 	public abstract class WildernessTile {
-		private final Map<LinkType, WildernessTile> linkedTiles = new HashMap<>(2);
+		private final Map<LinkType, W> linkedTiles = new HashMap<>(2);
 		private final Location location;
 
 		public Location getLocation() {
 			return location;
 		}
 
-		public Map<LinkType, WildernessTile> getLinkedTiles() {
+		public Map<LinkType, W> getLinkedTiles() {
 			return Collections.unmodifiableMap(linkedTiles);
 		}
 
-		public WildernessTile get(LinkType link) {
+		public W get(LinkType link) {
 			return linkedTiles.get(link);
 		}
 
+		@SuppressWarnings("unchecked")
 		private WildernessTile(int x, int y) {
-			tilemap.put(location = Location.of(x, y), this);
+			// TODO (Document that) subclasses of WildernessMap should only create their
+			// chosen type of WildernessTile on that map.
+
+			// This problem could be pushed around by grabbing the class type of the origin
+			// tile and using that to sanitize tile constructions on the map, however, the
+			// provided tile may not always be exactly of the type W (it may be a subtype).
+			tilemap.put(location = Location.of(x, y), (W) this);
 		}
 
-		public WildernessTile go(LinkType link) {
+		public W go(LinkType link) {
 			return linkedTiles.containsKey(link) ? linkedTiles.get(link) : generateTile(link);
 		}
 
 		// TODO Contains logic for generating a tile at the new linked location.
-		protected abstract WildernessTile generateTile(LinkType link);
+		protected abstract W generateTile(LinkType link);
 	}
 
 }
