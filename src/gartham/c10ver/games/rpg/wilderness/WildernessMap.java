@@ -9,10 +9,9 @@ import org.alixia.javalibrary.JavaTools;
 public class WildernessMap<W extends gartham.c10ver.games.rpg.wilderness.WildernessMap<W>.WildernessTile> {
 
 	private final Map<Location, W> tilemap = new HashMap<>();
-	private final W origin;
+	private W origin;
 
-	protected WildernessMap(W origin) {
-		this.origin = origin;
+	protected WildernessMap() {
 	}
 
 	public W getOrigin() {
@@ -63,7 +62,13 @@ public class WildernessMap<W extends gartham.c10ver.games.rpg.wilderness.Wildern
 		}
 
 		@SuppressWarnings("unchecked")
-		private WildernessTile(int x, int y) {
+		protected WildernessTile(int x, int y) {
+			if (origin != null && x == 0 && y == 0)
+				throw new IllegalStateException("Map already initialized with initial tile.");
+			else if (origin == null && (x != 0 || y != 0))
+				throw new IllegalStateException(
+						"Map must be initialized (by creating a tile at 0,0) before other tiles may be created.");
+
 			// TODO (Document that) subclasses of WildernessMap should only create their
 			// chosen type of WildernessTile on that map.
 
@@ -71,6 +76,9 @@ public class WildernessMap<W extends gartham.c10ver.games.rpg.wilderness.Wildern
 			// tile and using that to sanitize tile constructions on the map, however, the
 			// provided tile may not always be exactly of the type W (it may be a subtype).
 			tilemap.put(location = Location.of(x, y), (W) this);
+
+			// TODO Link this tile (and any adjacent tiles) as dictated by
+			// LinkType#AdjacencyLink.
 		}
 
 		public W go(LinkType link) {
