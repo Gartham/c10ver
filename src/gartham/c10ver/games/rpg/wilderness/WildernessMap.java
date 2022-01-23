@@ -4,8 +4,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.alixia.javalibrary.JavaTools;
-
 public class WildernessMap<W extends gartham.c10ver.games.rpg.wilderness.WildernessMap<W>.WildernessTile> {
 
 	private final Map<Location, W> tilemap = new HashMap<>();
@@ -16,29 +14,6 @@ public class WildernessMap<W extends gartham.c10ver.games.rpg.wilderness.Wildern
 
 	public W getOrigin() {
 		return origin;
-	}
-
-	private final static class Location {
-		private final int x, y;
-
-		public Location(int x, int y) {
-			this.x = x;
-			this.y = y;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			return obj instanceof Location && ((Location) obj).x == x && ((Location) obj).y == y;
-		}
-
-		@Override
-		public int hashCode() {
-			return JavaTools.hash(x, y);
-		}
-
-		private final static Location of(int x, int y) {
-			return new Location(x, y);
-		}
 	}
 
 	public W get(int x, int y) {
@@ -79,6 +54,7 @@ public class WildernessMap<W extends gartham.c10ver.games.rpg.wilderness.Wildern
 
 			// TODO Link this tile (and any adjacent tiles) as dictated by
 			// LinkType#AdjacencyLink.
+			
 		}
 
 		public W go(LinkType link) {
