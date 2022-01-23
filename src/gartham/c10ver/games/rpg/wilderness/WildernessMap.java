@@ -43,6 +43,9 @@ public class WildernessMap<W extends gartham.c10ver.games.rpg.wilderness.Wildern
 			else if (origin == null && (x != 0 || y != 0))
 				throw new IllegalStateException(
 						"Map must be initialized (by creating a tile at 0,0) before other tiles may be created.");
+			Location l = Location.of(x, y);
+			if (tilemap.containsKey(l))
+				throw new IllegalStateException("A tile already exists at that position.");
 
 			// TODO (Document that) subclasses of WildernessMap should only create their
 			// chosen type of WildernessTile on that map.
@@ -50,11 +53,17 @@ public class WildernessMap<W extends gartham.c10ver.games.rpg.wilderness.Wildern
 			// This problem could be pushed around by grabbing the class type of the origin
 			// tile and using that to sanitize tile constructions on the map, however, the
 			// provided tile may not always be exactly of the type W (it may be a subtype).
-			tilemap.put(location = Location.of(x, y), (W) this);
+			tilemap.put(location = l, (W) this);
 
 			// TODO Link this tile (and any adjacent tiles) as dictated by
 			// LinkType#AdjacencyLink.
-			
+			for (var v : LinkType.AdjacencyLink.list()) {
+				var other = tilemap.get(v.travelLink(l));
+				if (other != null) {
+					linkedTiles.put(v, other);
+					((WildernessTile) other).linkedTiles.put(v.opposite(), (W) this);
+				}
+			}
 		}
 
 		public W go(LinkType link) {
