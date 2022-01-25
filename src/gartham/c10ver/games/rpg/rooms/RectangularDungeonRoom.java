@@ -37,9 +37,9 @@ public class RectangularDungeonRoom implements StringRoom {
 	}
 
 	private final Set<Opening> openings = new HashSet<>();
-	private final Set<Graphic> graphics = new HashSet<>();
+	private final Set<RoomGraphic> graphics = new HashSet<>();
 
-	public static class Image implements Graphic {
+	public static class Image implements RoomGraphic {
 
 		private String[][] image;
 		private int breadth, depth;// "Width" coordinate, "height" coordinate
@@ -150,8 +150,8 @@ public class RectangularDungeonRoom implements StringRoom {
 		return opening;
 	}
 
-	public Graphic createIcon(int depth, int breadth, String icon) {
-		Graphic gr = map -> map[depth][breadth] = icon;
+	public RoomGraphic createIcon(int depth, int breadth, String icon) {
+		RoomGraphic gr = map -> map[depth][breadth] = icon;
 		graphics.add(gr);
 		return gr;
 	}
@@ -161,9 +161,9 @@ public class RectangularDungeonRoom implements StringRoom {
 	 * is rendered.
 	 * 
 	 * @param icon The icon to put.
-	 * @return The {@link Graphic} created.
+	 * @return The {@link RoomGraphic} created.
 	 */
-	public Graphic createRandIcon(String icon) {
+	public RoomGraphic createRandIcon(String icon) {
 		return createIcon(((int) Math.random() * (height - 2)) + 1, (int) (Math.random() * (width - 2)) + 1, icon);
 	}
 
@@ -203,7 +203,7 @@ public class RectangularDungeonRoom implements StringRoom {
 				image);
 	}
 
-	public Set<Graphic> getGraphics() {
+	public Set<RoomGraphic> getGraphics() {
 		return graphics;
 	}
 

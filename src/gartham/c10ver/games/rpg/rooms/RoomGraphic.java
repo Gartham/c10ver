@@ -1,8 +1,8 @@
 package gartham.c10ver.games.rpg.rooms;
 
-public interface Graphic {
+public interface RoomGraphic {
 	/**
-	 * Renders this {@link Graphic} onto the provided map.
+	 * Renders this {@link RoomGraphic} onto the provided map.
 	 * 
 	 * @param map The map to render onto.
 	 */
