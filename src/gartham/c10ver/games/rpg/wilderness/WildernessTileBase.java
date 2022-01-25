@@ -1,9 +1,12 @@
 package gartham.c10ver.games.rpg.wilderness;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.alixia.javalibrary.JavaTools;
 
+import gartham.c10ver.games.rpg.rooms.RoomGraphic;
 import gartham.c10ver.games.rpg.rooms.StringRoom;
 
 public class WildernessTileBase extends WildernessMap<WildernessTileBase>.WildernessTile implements StringRoom {
@@ -13,6 +16,8 @@ public class WildernessTileBase extends WildernessMap<WildernessTileBase>.Wilder
 
 	private String backgroundPixel;
 	private final int width, height;
+
+	private final Set<RoomGraphic> graphix = new HashSet<>();
 
 	public String getBackgroundPixel() {
 		return backgroundPixel;
@@ -47,12 +52,17 @@ public class WildernessTileBase extends WildernessMap<WildernessTileBase>.Wilder
 		this(enclosingMapInstance, x, y, DEFAULT_BACKGROUND_STR);
 	}
 
+	public Set<RoomGraphic> getGraphix() {
+		return graphix;
+	}
+
 	@Override
 	public String[][] tilemap() {
 		String[][] map = new String[height][width];
-		for (var s : map)
-			Arrays.fill(s, backgroundPixel);
-		return null;
+		JavaTools.fill(map, backgroundPixel);
+		for (var rg : graphix)
+			rg.render(map);
+		return map;
 	}
 
 	@Override
