@@ -39,15 +39,6 @@ public class RectangularDungeonRoom implements StringRoom {
 	private final Set<Opening> openings = new HashSet<>();
 	private final Set<Graphic> graphics = new HashSet<>();
 
-	public interface Graphic {
-		/**
-		 * Renders this {@link Graphic} onto the provided map.
-		 * 
-		 * @param map The map to render onto.
-		 */
-		void render(String[][] map);
-	}
-
 	public static class Image implements Graphic {
 
 		private String[][] image;

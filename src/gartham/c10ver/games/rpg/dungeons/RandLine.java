@@ -8,7 +8,7 @@ import java.util.Random;
 
 import org.alixia.javalibrary.JavaTools;
 
-import gartham.c10ver.games.rpg.rooms.RectangularDungeonRoom.Graphic;
+import gartham.c10ver.games.rpg.rooms.Graphic;
 
 class RandLine implements Graphic {
 
