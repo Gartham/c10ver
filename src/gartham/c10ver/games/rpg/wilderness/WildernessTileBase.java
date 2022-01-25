@@ -3,11 +3,11 @@ package gartham.c10ver.games.rpg.wilderness;
 import gartham.c10ver.games.rpg.rooms.StringRoom;
 import gartham.c10ver.games.rpg.wilderness.WildernessMap.WildernessTile;
 
-public class WildernessRoomTile extends WildernessMap<WildernessRoomTile>.WildernessTile implements StringRoom {
+public class WildernessTileBase extends WildernessMap<WildernessTileBase>.WildernessTile implements StringRoom {
 
 	private String backgroundTile;
 
-	protected WildernessRoomTile(WildernessMap<WildernessRoomTile> enclosingMapInstance, int x, int y,
+	protected WildernessTileBase(WildernessMap<WildernessTileBase> enclosingMapInstance, int x, int y,
 			String backgroundTile) {
 		enclosingMapInstance.super(x, y);
 		this.backgroundTile = backgroundTile;
@@ -20,7 +20,7 @@ public class WildernessRoomTile extends WildernessMap<WildernessRoomTile>.Wilder
 	}
 
 	@Override
-	protected WildernessRoomTile generateTile(LinkType link) {
+	protected WildernessTileBase generateTile(LinkType link) {
 		// TODO Auto-generated method stub
 		return null;
 	}
