@@ -1,7 +1,7 @@
 package gartham.c10ver.games.rpg.wilderness;
 
 public class CloverWildernessMap extends WildernessMap<CloverWildernessMap.CloverWildernessTile> {
-	public CloverWildernessMap() {
+	{
 		new CloverWildernessTile();
 	}
 
