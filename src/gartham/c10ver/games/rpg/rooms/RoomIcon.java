@@ -3,7 +3,7 @@ package gartham.c10ver.games.rpg.rooms;
 public class RoomIcon implements RoomGraphic {
 
 	private final String[][] icon;
-	private final int d, w;
+	private final int d, b;
 	/**
 	 * <ul>
 	 * <li>If <code>false</code>, {@link #render(String[][])} will function in
@@ -25,14 +25,14 @@ public class RoomIcon implements RoomGraphic {
 	public RoomIcon(String[][] icon, int d, int w, boolean solid) {
 		this.icon = icon;
 		this.d = d;
-		this.w = w;
+		this.b = w;
 		this.solid = solid;
 	}
 
 	public RoomIcon(int d, int w, boolean solid, String[]... icon) {
 		this.icon = icon;
 		this.d = d;
-		this.w = w;
+		this.b = w;
 		this.solid = solid;
 	}
 
@@ -44,8 +44,8 @@ public class RoomIcon implements RoomGraphic {
 		return d;
 	}
 
-	public int getW() {
-		return w;
+	public int getB() {
+		return b;
 	}
 
 	public boolean isSolid() {
