@@ -1,6 +1,5 @@
 package gartham.c10ver.games.rpg.wilderness;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -9,7 +8,8 @@ import org.alixia.javalibrary.JavaTools;
 import gartham.c10ver.games.rpg.rooms.RoomGraphic;
 import gartham.c10ver.games.rpg.rooms.StringRoom;
 
-public class WildernessTileBase extends WildernessMap<WildernessTileBase>.WildernessTile implements StringRoom {
+public abstract class WildernessTileBase extends WildernessMap<WildernessTileBase>.WildernessTile
+		implements StringRoom {
 
 	public static final String DEFAULT_BACKGROUND_STR = "\u2B1B";
 	public static final int DEFAULT_BACKGROUND_WIDTH = 24, DEFAULT_BACKGROUND_HEIGHT = 30;
@@ -63,12 +63,6 @@ public class WildernessTileBase extends WildernessMap<WildernessTileBase>.Wilder
 		for (var rg : graphix)
 			rg.render(map);
 		return map;
-	}
-
-	@Override
-	protected WildernessTileBase generateTile(LinkType link) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }
