@@ -21,4 +21,10 @@ public class CloverWildernessMap extends WildernessMap<CloverWildernessMap.Clove
 		}
 
 	}
+
+	@Override
+	protected CloverWildernessTile generateTile(CloverWildernessTile from, LinkType link) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
