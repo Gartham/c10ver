@@ -54,14 +54,7 @@ public class RoomIcon implements RoomGraphic {
 
 	@Override
 	public void render(String[][] map) {
-		// Nulls are treated as no-op.
-		if (solid)
-			for (int i = d; i < icon.length + d; i++)
-				System.arraycopy(icon[i - d], 0, map[i], w, icon[i].length);
-		else
-			for (int i = d; i < icon.length + d; i++)
-				for (int j = w; j < icon[i].length + w; j++)
-					map[i][j] = icon[i - d][j - w];
+		RoomGraphic.render(map, d, b, solid, map);
 	}
 
 }
