@@ -8,8 +8,8 @@ import org.alixia.javalibrary.JavaTools;
 import gartham.c10ver.games.rpg.rooms.RoomGraphic;
 import gartham.c10ver.games.rpg.rooms.StringRoom;
 
-public abstract class WildernessTileBase extends WildernessMap<WildernessTileBase>.WildernessTile
-		implements StringRoom {
+public abstract class WildernessTileBase<T extends WildernessMap<T>.WildernessTile>
+		extends WildernessMap<T>.WildernessTile implements StringRoom {
 
 	public static final String DEFAULT_BACKGROUND_STR = "\u2B1B";
 	public static final int DEFAULT_BACKGROUND_WIDTH = 24, DEFAULT_BACKGROUND_HEIGHT = 30;
@@ -35,12 +35,12 @@ public abstract class WildernessTileBase extends WildernessMap<WildernessTileBas
 		return height;
 	}
 
-	public WildernessTileBase(WildernessMap<WildernessTileBase> enclosingMapInstance, int x, int y,
+	public WildernessTileBase(WildernessMap<T> enclosingMapInstance, int x, int y,
 			String backgroundPixel) {
 		this(enclosingMapInstance, x, y, backgroundPixel, DEFAULT_BACKGROUND_WIDTH, DEFAULT_BACKGROUND_HEIGHT);
 	}
 
-	public WildernessTileBase(WildernessMap<WildernessTileBase> enclosingMapInstance, int x, int y,
+	public WildernessTileBase(WildernessMap<T> enclosingMapInstance, int x, int y,
 			String backgroundPixel, int width, int height) {
 		enclosingMapInstance.super(x, y);
 		this.backgroundPixel = backgroundPixel;
@@ -48,7 +48,7 @@ public abstract class WildernessTileBase extends WildernessMap<WildernessTileBas
 		this.height = height;
 	}
 
-	public WildernessTileBase(WildernessMap<WildernessTileBase> enclosingMapInstance, int x, int y) {
+	public WildernessTileBase(WildernessMap<T> enclosingMapInstance, int x, int y) {
 		this(enclosingMapInstance, x, y, DEFAULT_BACKGROUND_STR);
 	}
 
