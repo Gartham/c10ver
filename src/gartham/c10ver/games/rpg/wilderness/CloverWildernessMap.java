@@ -16,7 +16,7 @@ public class CloverWildernessMap extends WildernessMap<CloverWildernessMap.Clove
 		}
 
 		private CloverWildernessTile() {
-			super(CloverWildernessMap.this, 0, 0);
+			super(CloverWildernessMap.this, 0, 0, 23, 31);
 			getGraphix().add(new ExitGraphic());
 		}
 
