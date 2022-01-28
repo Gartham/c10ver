@@ -12,7 +12,7 @@ public abstract class WildernessTileBase<T extends WildernessMap<T>.WildernessTi
 		extends WildernessMap<T>.WildernessTile implements StringRoom {
 
 	public static final String DEFAULT_BACKGROUND_STR = "\u2B1B";
-	public static final int DEFAULT_BACKGROUND_WIDTH = 24, DEFAULT_BACKGROUND_HEIGHT = 30;
+	public static final int DEFAULT_BACKGROUND_WIDTH = 24, DEFAULT_BACKGROUND_HEIGHT = 31;
 
 	private String backgroundPixel;
 	private final int width, height;
