@@ -3,6 +3,7 @@ package gartham.c10ver.economy.items.valuables;
 import org.alixia.javalibrary.json.JSONObject;
 
 import gartham.c10ver.economy.items.Item;
+import gartham.c10ver.economy.items.ItemCategory;
 
 public class VoteToken extends Item {
 	public static final String ITEM_TYPE = "vote-token", ITEM_NAME = "Vote Token";
@@ -51,7 +52,7 @@ public class VoteToken extends Item {
 	}
 
 	public VoteToken(Type type) {
-		super(ITEM_TYPE);
+		super(ITEM_TYPE, ItemCategory.MISC);
 		tokenTypeProperty().set(type);
 		setIcon(type.icon);
 		if (type.name != null)
@@ -59,7 +60,7 @@ public class VoteToken extends Item {
 	}
 
 	public VoteToken(JSONObject props) {
-		super(ITEM_TYPE, props);
+		super(ITEM_TYPE, ItemCategory.MISC, props);
 		load(tokenTypeProperty(), props);
 		setIcon(getTokenType().icon);
 		if (getTokenType().name != null)

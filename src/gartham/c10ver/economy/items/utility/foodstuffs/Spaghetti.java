@@ -7,7 +7,7 @@ import org.alixia.javalibrary.json.JSONObject;
 public class Spaghetti extends Foodstuff {
 
 	// Every item needs a name, type, and icon.
-	public static final String ITEM_TYPE = "spaghetti", ITEM_NAME = "Spaghetti", ITEM_ICON = ":spaghetti:";
+	public static final String ITEM_TYPE = "spaghetti", ITEM_NAME = "Spaghetti", ITEM_ICON = "\uD83C\uDF5D";
 
 	public static final BigDecimal ITEM_MULT = BigDecimal.valueOf(5, 1);// A value of 5, shifted to the right 1 time.
 

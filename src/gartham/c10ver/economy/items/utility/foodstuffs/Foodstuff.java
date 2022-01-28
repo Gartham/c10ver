@@ -10,6 +10,7 @@ import org.alixia.javalibrary.json.JSONObject;
 import gartham.c10ver.economy.AbstractMultiplier;
 import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.items.Item;
+import gartham.c10ver.economy.items.ItemCategory;
 import gartham.c10ver.economy.items.utility.Consumable;
 import gartham.c10ver.economy.users.EconomyUser;
 
@@ -132,12 +133,12 @@ public class Foodstuff extends Item implements Consumable {
 	}
 
 	public Foodstuff(String type, JSONObject properties) {
-		super(type, properties);
+		super(type, ItemCategory.FOOD, properties);
 		load(multiplierProperty(), properties);
 	}
 
 	public Foodstuff(String type) {
-		super(type);
+		super(type, ItemCategory.FOOD);
 	}
 
 	@Override

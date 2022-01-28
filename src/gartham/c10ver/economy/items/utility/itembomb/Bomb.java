@@ -7,6 +7,7 @@ import org.alixia.javalibrary.json.JSONObject;
 import gartham.c10ver.Clover;
 import gartham.c10ver.economy.RewardsOperation;
 import gartham.c10ver.economy.items.Item;
+import gartham.c10ver.economy.items.ItemCategory;
 import gartham.c10ver.economy.users.EconomyUser;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -42,11 +43,11 @@ public class Bomb extends Item {
 	}
 
 	public Bomb(JSONObject properties) {
-		super(ITEM_TYPE, properties);
+		super(ITEM_TYPE, ItemCategory.MISC, properties);
 	}
 
 	public Bomb() {
-		super(ITEM_TYPE);
+		super(ITEM_TYPE, ItemCategory.MISC);
 	}
 
 }
