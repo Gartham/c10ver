@@ -39,7 +39,8 @@ import gartham.c10ver.economy.users.EconomyUser.Receipt;
 
 public final class Utilities {
 
-	public final static String CURRENCY_SYMBOL = "\u058D";
+	public final static String CURRENCY_SYMBOL = "\u058D", ZERO_WIDTH_SPACE = "\u200B",
+			UNICODE_EMOJI_ICON_VARIATION_SELECTOR = "\uFE0F";
 
 	private static final MoneyUnit[] MONEY_UNITS = MoneyUnit.values();
 
