@@ -19,6 +19,10 @@ public interface RoomGraphic {
 					map[i][j] = icon[i - d][j - b];
 	}
 
+	static void renderAtMapCenter(String[][] map, boolean solid, String[]... icon) {
+		render(map, centerHeight(map), centerWidth(map), solid, icon);
+	}
+
 	static void renderSolid(String[][] map, int d, int b, String[]... icon) {
 		render(map, d, b, true, icon);
 	}
