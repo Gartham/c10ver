@@ -40,11 +40,16 @@ public abstract class WildernessMap<W extends gartham.c10ver.games.rpg.wildernes
 
 		@SuppressWarnings("unchecked")
 		protected WildernessTile(int x, int y) {
-			if (origin != null && x == 0 && y == 0)
-				throw new IllegalStateException("Map already initialized with initial tile.");
+
+			if (origin == null)
+				if (x == 0 && y == 0)
+					origin = (W) this;
+				else
+					throw new IllegalStateException("Map already initialized with initial tile.");
 			else if (origin == null && (x != 0 || y != 0))
 				throw new IllegalStateException(
 						"Map must be initialized (by creating a tile at 0,0) before other tiles may be created.");
+
 			Location l = Location.of(x, y);
 			if (tilemap.containsKey(l))
 				throw new IllegalStateException("A tile already exists at that position.");
