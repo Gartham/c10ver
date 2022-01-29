@@ -21,7 +21,7 @@ class WildernessGamepad extends ButtonGroup {
 			PAGE_RIGHT = ButtonBook.RIGHT_ONE;
 
 	public final static Button blank(String id) {
-		return Button.secondary(id, Utilities.ZERO_WIDTH_SPACE);
+		return Button.secondary(id, Utilities.ZERO_WIDTH_SPACE).asDisabled();
 	}
 
 	private final MutableButton d1 = create(D1), moveUp = create(DirectionSelector.UP_ENABLED), d2 = create(D2),
