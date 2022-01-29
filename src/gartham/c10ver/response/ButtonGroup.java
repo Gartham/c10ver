@@ -11,7 +11,26 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 
 public class ButtonGroup {
+
+	public static final String AUTOMATED_BUTTON_ID = "-$b";
+
 	private final List<MutableButton> buttons = new ArrayList<>();
+
+	public MutableButton create(Button button) {
+		MutableButton mb = new MutableButton(button);
+		buttons.add(mb);
+		return mb;
+	}
+
+	public MutableButton create(String id) {
+		MutableButton mb = new MutableButton(id);
+		buttons.add(mb);
+		return mb;
+	}
+
+	public MutableButton create() {
+		return create(String.valueOf(buttons.size()) + AUTOMATED_BUTTON_ID);
+	}
 
 	public List<MutableButton> getButtons() {
 		return buttons;
