@@ -61,10 +61,15 @@ public class MessageActionHandler {
 		private Button button;
 
 		public Action(Button button) {
+			this(button, true);
+		}
+
+		public Action(Button button, boolean add) {
 			if (button == null)
 				throw null;
 			this.button = button;
-			actions.add(this);
+			if (add)
+				actions.add(this);
 		}
 
 		public Button getButton() {
@@ -191,6 +196,25 @@ public class MessageActionHandler {
 		public Action setStyle(ButtonStyle style) {
 			button = button.withStyle(style);
 			return this;
+		}
+
+	}
+
+	public class Group {
+		private final List<Action> actions = new ArrayList<>();
+
+		public List<Action> getActions() {
+			return actions;
+		}
+
+		public void show() {
+			MessageActionHandler.this.actions.clear();
+			MessageActionHandler.this.actions.addAll(actions);
+		}
+
+		public void add(Action... actions) {
+			for (var v : actions)
+				this.actions.add(v);
 		}
 
 	}
