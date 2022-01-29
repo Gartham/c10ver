@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
+import org.alixia.javalibrary.JavaTools;
+
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
@@ -217,8 +219,20 @@ public class MessageActionHandler {
 				this.actions.add(v);
 		}
 
+		public void add(Button... buttons) {
+			add(JavaTools.convert(t -> new Action(t, false), buttons));
+		}
+
 		public Group(Action... actions) {
 			add(actions);
+		}
+
+		public Group(Button... buttons) {
+			add(buttons);
+		}
+		
+		public Action disabledButton() {
+			return MessageActionHandler.this.disabledButton(false);
 		}
 
 	}
@@ -232,6 +246,11 @@ public class MessageActionHandler {
 	public Action disabledButton() {
 		return new Action(Button.of(ButtonStyle.SECONDARY, String.valueOf(actions.size()) + AUTOMATED_BUTTON_ID,
 				Utilities.ZERO_WIDTH_SPACE).asDisabled());
+	}
+
+	public Action disabledButton(boolean add) {
+		return new Action(Button.of(ButtonStyle.SECONDARY, String.valueOf(actions.size()) + AUTOMATED_BUTTON_ID,
+				Utilities.ZERO_WIDTH_SPACE).asDisabled(), add);
 	}
 
 	public List<ActionRow> generate() {
