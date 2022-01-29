@@ -14,23 +14,27 @@ class WildernessGamepad extends ButtonGroup {
 	public static final Button D1 = blank("d1"), MOVE_UP = (DirectionSelector.UP_ENABLED), D2 = blank("d2"),
 			MOVE_LEFT = (DirectionSelector.LEFT_ENABLED), D3 = blank("d3"),
 			MOVE_RIGHT = (DirectionSelector.RIGHT_ENABLED), D4 = blank("d4"),
-			MOVE_DOWN = (DirectionSelector.DOWN_ENABLED), D5 = blank("d5"), RB1 = blank("rb1"), RB2 = blank("rb2"),
-			RB3 = blank("rb3"), RB4 = blank("rb4"), RB5 = blank("rb5"), RB6 = blank("rb6"), BB1 = blank("bb1"),
-			BB2 = blank("bb2"), BB3 = blank("bb3"), BB4 = blank("bb4"), BB5 = blank("bb5"),
-			PAGE_LEFT = ButtonBook.LEFT_ONE, BB6 = blank("bb6"), BB7 = blank("bb7"), BB8 = blank("bb8"),
-			PAGE_RIGHT = ButtonBook.RIGHT_ONE;
+			MOVE_DOWN = (DirectionSelector.DOWN_ENABLED), D5 = blank("d5"), RB1 = redBlank("rb1"),
+			RB2 = redBlank("rb2"), RB3 = redBlank("rb3"), RB4 = redBlank("rb4"), RB5 = redBlank("rb5"),
+			RB6 = redBlank("rb6"), BB1 = blank("bb1"), BB2 = blank("bb2"), BB3 = blank("bb3"), BB4 = blank("bb4"),
+			BB5 = blank("bb5"), PAGE_LEFT = ButtonBook.LEFT_ONE, BB6 = blank("bb6"), BB7 = blank("bb7"),
+			BB8 = blank("bb8"), PAGE_RIGHT = ButtonBook.RIGHT_ONE;
 
 	public final static Button blank(String id) {
 		return Button.secondary(id, Utilities.ZERO_WIDTH_SPACE).asDisabled();
 	}
 
+	public static final Button redBlank(String id) {
+		return Button.danger(id, Utilities.ZERO_WIDTH_SPACE).asDisabled();
+	}
+
 	private final MutableButton d1 = create(D1), moveUp = create(DirectionSelector.UP_ENABLED), d2 = create(D2),
-			moveLeft = create(DirectionSelector.LEFT_ENABLED), d3 = create(D3),
-			moveRight = create(DirectionSelector.RIGHT_ENABLED), d4 = create(D4),
-			moveDown = create(DirectionSelector.DOWN_ENABLED), d5 = create(D5), rb1 = create(RB1), rb2 = create(RB2),
-			rb3 = create(RB3), rb4 = create(RB4), rb5 = create(RB5), rb6 = create(RB6), bb1 = create(BB1),
-			bb2 = create(BB2), bb3 = create(BB3), bb4 = create(BB4), bb5 = create(BB5), pageLeft = create(PAGE_LEFT),
-			bb6 = create(BB6), bb7 = create(BB7), bb8 = create(BB8), pageRight = create(PAGE_RIGHT);
+			rb1 = create(RB1), rb2 = create(RB2), moveLeft = create(DirectionSelector.LEFT_ENABLED), d3 = create(D3),
+			moveRight = create(DirectionSelector.RIGHT_ENABLED), rb3 = create(RB3), rb4 = create(RB4), d4 = create(D4),
+			moveDown = create(DirectionSelector.DOWN_ENABLED), d5 = create(D5), rb5 = create(RB5), rb6 = create(RB6),
+			bb1 = create(BB1), bb2 = create(BB2), bb3 = create(BB3), bb4 = create(BB4), bb5 = create(BB5),
+			pageLeft = create(PAGE_LEFT), bb6 = create(BB6), bb7 = create(BB7), bb8 = create(BB8),
+			pageRight = create(PAGE_RIGHT);
 
 	public static final long RIGHT_BUTTON_COUNT = 6, BOTTOM_BUTTON_COUNT = 8;
 
