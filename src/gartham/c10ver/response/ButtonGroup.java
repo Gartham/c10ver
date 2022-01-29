@@ -22,6 +22,11 @@ public class ButtonGroup {
 		return mb;
 	}
 
+	public void create(Button... buttons) {
+		for (var b : buttons)
+			create(b);
+	}
+
 	public MutableButton create(String id) {
 		MutableButton mb = new MutableButton(id);
 		buttons.add(mb);
