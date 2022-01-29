@@ -21,9 +21,15 @@ import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import static org.alixia.javalibrary.JavaTools.*;
 
 public class ButtonBook {
+	public static final Button LEFT_ONE = Button.primary("left-one", Emoji.fromMarkdown(ResponseUtils.LEFT_ONE)),
+			RIGHT_ONE = Button.primary("right-one", Emoji.fromMarkdown(ResponseUtils.RIGHT_ONE)),
+			LEFT_ALL = Button.primary("left-all", Emoji.fromMarkdown(ResponseUtils.LEFT_ALL)),
+			RIGHT_ALL = Button.primary("right-all", Emoji.fromMarkdown(ResponseUtils.RIGHT_ALL));
+
 	// TODO This class (and the surrounding class) are in desparate need of
 	// documentation.
 	public static final class ActiveButtonBook {
+
 		private Consumer<ButtonClickEvent> handler;
 		private final InputConsumer<ButtonClickEvent> inc;
 		private int maxPage;
@@ -64,15 +70,10 @@ public class ButtonBook {
 		 * be used.
 		 */
 		public void complete() {
-			var itr = concat(
-					iterator(Button.primary("left-one", Emoji.fromMarkdown(ResponseUtils.LEFT_ONE)).asDisabled()),
-					mask(buttons.iterator(), Button::asDisabled),
-					iterator(Button.primary("right-one", Emoji.fromMarkdown(ResponseUtils.RIGHT_ONE)).asDisabled()));
+			var itr = concat(iterator(LEFT_ONE.asDisabled()), mask(buttons.iterator(), Button::asDisabled),
+					iterator(RIGHT_ONE.asDisabled()));
 			if (edgeButtons)
-				itr = concat(
-						iterator(Button.primary("left-all", Emoji.fromMarkdown(ResponseUtils.LEFT_ALL)).asDisabled()),
-						itr, iterator(
-								Button.primary("right-all", Emoji.fromMarkdown(ResponseUtils.RIGHT_ALL)).asDisabled()));
+				itr = concat(iterator(LEFT_ALL.asDisabled()), itr, iterator(RIGHT_ALL.asDisabled()));
 			message.editMessageComponents(genRows(itr)).queue();
 		}
 
@@ -81,15 +82,9 @@ public class ButtonBook {
 		}
 
 		private Iterator<Button> buttons() {
-			var itr = concat(
-					iterator(disableLeft(Button.primary("left-one", Emoji.fromMarkdown(ResponseUtils.LEFT_ONE)))),
-					buttons.iterator(),
-					iterator(disableRight(Button.primary("right-one", Emoji.fromMarkdown(ResponseUtils.RIGHT_ONE)))));
+			var itr = concat(iterator(disableLeft(LEFT_ONE)), buttons.iterator(), iterator(disableRight(RIGHT_ONE)));
 			if (edgeButtons)
-				itr = concat(
-						iterator(disableLeft(Button.primary("left-all", Emoji.fromMarkdown(ResponseUtils.LEFT_ALL)))),
-						itr, iterator(disableRight(
-								Button.primary("right-all", Emoji.fromMarkdown(ResponseUtils.RIGHT_ALL)))));
+				itr = concat(iterator(disableLeft(LEFT_ALL)), itr, iterator(disableRight(RIGHT_ALL)));
 			return itr;
 		}
 
