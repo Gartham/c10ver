@@ -29,34 +29,6 @@ public class WildernessGame {
 	private CloverWildernessTile tile = cwm.getOrigin();
 	private boolean active;
 
-	private final MessageActionHandler buttonpad = new MessageActionHandler();
-	private final List<Action> layoutActions = new ArrayList<>(16);
-	private final Group main;
-	{
-		Action la1 = buttonpad.disabledButton(false), la2 = buttonpad.disabledButton(false),
-				la3 = buttonpad.disabledButton(false), la4 = buttonpad.disabledButton(false),
-				la5 = buttonpad.disabledButton(false), la6 = buttonpad.disabledButton(false);
-		main = buttonpad.new Group(buttonpad.disabledButton(false), buttonpad.new Action(UP_ENABLED, false),
-				buttonpad.disabledButton(false), la1, la2, buttonpad.new Action(LEFT_ENABLED, false),
-				buttonpad.disabledButton(false), buttonpad.new Action(RIGHT_ENABLED, false), la3, la4,
-				buttonpad.disabledButton(false), buttonpad.new Action(DOWN_ENABLED, false),
-				buttonpad.disabledButton(false), la5, la6);
-		layoutActions.add(la1);
-		layoutActions.add(la2);
-		layoutActions.add(la3);
-		layoutActions.add(la4);
-		layoutActions.add(la5);
-		layoutActions.add(la6);
-		for (int i = 0; i < 5; i++) {
-			Action b = buttonpad.disabledButton(false);
-			main.add(b);
-			layoutActions.add(b);
-		}
-
-		main.add(buttonpad.new Action(ButtonBook.LEFT_ONE, false));
-
-	}
-
 	public boolean isActive() {
 		return active;
 	}
