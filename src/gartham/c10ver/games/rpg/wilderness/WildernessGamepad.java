@@ -9,7 +9,7 @@ import gartham.c10ver.response.utils.DirectionSelector;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.interactions.components.Button;
 
-class WildernessButtonGroup extends ButtonGroup {
+class WildernessGamepad extends ButtonGroup {
 
 	public static final Button D1 = blank("d1"), MOVE_UP = (DirectionSelector.UP_ENABLED), D2 = blank("d2"),
 			MOVE_LEFT = (DirectionSelector.LEFT_ENABLED), D3 = blank("d3"),
