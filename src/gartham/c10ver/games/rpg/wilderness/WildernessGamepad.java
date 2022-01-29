@@ -187,6 +187,13 @@ class WildernessGamepad extends ButtonGroup {
 		pageRight.setButton(PAGE_RIGHT);
 	}
 
+	public void reset() {
+		applyDirectionSelector();
+		clearRightButtons();
+		clearBottomButtons();
+		applyPageNavigationButtons();
+	}
+
 	public MutableButton getD5() {
 		return d5;
 	}
