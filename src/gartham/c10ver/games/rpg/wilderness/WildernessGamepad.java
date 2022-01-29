@@ -16,9 +16,9 @@ class WildernessGamepad extends ButtonGroup {
 			MOVE_RIGHT = (DirectionSelector.RIGHT_ENABLED), D4 = blank("d4"),
 			MOVE_DOWN = (DirectionSelector.DOWN_ENABLED), D5 = blank("d5"), RB1 = redBlank("rb1"),
 			RB2 = redBlank("rb2"), RB3 = redBlank("rb3"), RB4 = redBlank("rb4"), RB5 = redBlank("rb5"),
-			RB6 = redBlank("rb6"), BB1 = blank("bb1"), BB2 = blank("bb2"), BB3 = blank("bb3"), BB4 = blank("bb4"),
-			BB5 = blank("bb5"), PAGE_LEFT = ButtonBook.LEFT_ONE, BB6 = blank("bb6"), BB7 = blank("bb7"),
-			BB8 = blank("bb8"), PAGE_RIGHT = ButtonBook.RIGHT_ONE;
+			RB6 = redBlank("rb6"), BB1 = greenBlank("bb1"), BB2 = greenBlank("bb2"), BB3 = greenBlank("bb3"),
+			BB4 = greenBlank("bb4"), BB5 = greenBlank("bb5"), PAGE_LEFT = ButtonBook.LEFT_ONE, BB6 = greenBlank("bb6"),
+			BB7 = greenBlank("bb7"), BB8 = greenBlank("bb8"), PAGE_RIGHT = ButtonBook.RIGHT_ONE;
 
 	public final static Button blank(String id) {
 		return Button.secondary(id, Utilities.ZERO_WIDTH_SPACE).asDisabled();
@@ -26,6 +26,10 @@ class WildernessGamepad extends ButtonGroup {
 
 	public static final Button redBlank(String id) {
 		return Button.danger(id, Utilities.ZERO_WIDTH_SPACE).asDisabled();
+	}
+
+	public static final Button greenBlank(String id) {
+		return Button.success(id, Utilities.ZERO_WIDTH_SPACE).asDisabled();
 	}
 
 	private final MutableButton d1 = create(D1), moveUp = create(DirectionSelector.UP_ENABLED), d2 = create(D2),
