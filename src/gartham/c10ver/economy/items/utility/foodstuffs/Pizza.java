@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 import org.alixia.javalibrary.json.JSONObject;
 
 public class Pizza extends Foodstuff {
-	public static final String ITEM_TYPE = "pizza", ITEM_NAME = "Pizza", ITEM_ICON = ":pizza:";
+	public static final String ITEM_TYPE = "pizza", ITEM_NAME = "Pizza", ITEM_ICON = "\uD83C\uDF55";
 	public static final long ITEM_TTL = min(10);
 	public static final BigDecimal ITEM_MULT = BigDecimal.valueOf(5, 2);
 

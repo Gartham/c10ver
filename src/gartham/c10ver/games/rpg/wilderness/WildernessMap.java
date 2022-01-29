@@ -4,7 +4,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class WildernessMap<W extends gartham.c10ver.games.rpg.wilderness.WildernessMap<W>.WildernessTile> {
+import gartham.c10ver.games.rpg.wilderness.LinkType.AdjacencyLink;
+
+public abstract class WildernessMap<W extends gartham.c10ver.games.rpg.wilderness.WildernessMap<W>.WildernessTile> {
 
 	private final Map<Location, W> tilemap = new HashMap<>();
 	private W origin;
@@ -38,11 +40,16 @@ public class WildernessMap<W extends gartham.c10ver.games.rpg.wilderness.Wildern
 
 		@SuppressWarnings("unchecked")
 		protected WildernessTile(int x, int y) {
-			if (origin != null && x == 0 && y == 0)
-				throw new IllegalStateException("Map already initialized with initial tile.");
+
+			if (origin == null)
+				if (x == 0 && y == 0)
+					origin = (W) this;
+				else
+					throw new IllegalStateException("Map already initialized with initial tile.");
 			else if (origin == null && (x != 0 || y != 0))
 				throw new IllegalStateException(
 						"Map must be initialized (by creating a tile at 0,0) before other tiles may be created.");
+
 			Location l = Location.of(x, y);
 			if (tilemap.containsKey(l))
 				throw new IllegalStateException("A tile already exists at that position.");
@@ -64,12 +71,32 @@ public class WildernessMap<W extends gartham.c10ver.games.rpg.wilderness.Wildern
 			}
 		}
 
-		public W go(LinkType link) {
-			return linkedTiles.containsKey(link) ? linkedTiles.get(link) : generateTile(link);
+		@SuppressWarnings("unchecked")
+		public W getLinkedTile(LinkType link) {
+			return linkedTiles.containsKey(link) ? linkedTiles.get(link) : generateTile((W) this, link);
 		}
 
-		// TODO Contains logic for generating a tile at the new linked location.
-		protected abstract W generateTile(LinkType link);
+		protected final WildernessMap<W> getMap() {
+			return WildernessMap.this;
+		}
+
+	}
+
+	/**
+	 * Generates a new {@link WildernessTile} that is linked to the
+	 * <code>from</code> tile by the specified <code>link</code>. The
+	 * {@link WildernessTile} class's constructor automatically links adjacent tiles
+	 * by {@link AdjacencyLink} when constructed, but other link types will need to
+	 * be
+	 * 
+	 * @param from The old tile that the new tile will be linked to.
+	 * @param link The link from the old tile to the new tile.
+	 * @return The new tile.
+	 */
+	protected abstract W generateTile(W from, LinkType link);
+
+	public W getLinkedTile(W from, LinkType link) {
+		return from.getLinkedTile(link);
 	}
 
 }

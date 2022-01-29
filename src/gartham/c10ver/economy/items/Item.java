@@ -9,7 +9,7 @@ import gartham.c10ver.data.PropertyObject;
 
 public abstract class Item extends PropertyObject implements Cloneable {
 	private static final String ITEM_TYPE_PK = "$type", ITEM_NAME_PK = "$name", CUSTOM_NAME_PK = "$custom-name",
-			ITEM_ICON_PK = "$icon";
+			ITEM_ICON_PK = "$icon", CATEGORY_PK = "$category";
 
 	public String userFriendlyName(String propertyKey) {
 		return propertyKey;
@@ -28,6 +28,7 @@ public abstract class Item extends PropertyObject implements Cloneable {
 		stringProperty(ITEM_NAME_PK).setAttribute(false).setTransient(true);
 		stringProperty(ITEM_ICON_PK).setAttribute(false).setTransient(true);
 		stringProperty(CUSTOM_NAME_PK).setAttribute(false).setTransient(true);
+		enumProperty(CATEGORY_PK, ItemCategory.class);
 	}
 
 	public String getEffectiveName() {
@@ -49,6 +50,18 @@ public abstract class Item extends PropertyObject implements Cloneable {
 
 	protected final Property<String> customNameProperty() {
 		return getProperty(CUSTOM_NAME_PK);
+	}
+
+	protected final Property<ItemCategory> categoryProperty() {
+		return getProperty(CATEGORY_PK);
+	}
+
+	public ItemCategory getCategory() {
+		return categoryProperty().get();
+	}
+
+	public void setCategory(ItemCategory name) {
+		categoryProperty().set(name);
 	}
 
 	public String getCustomName() {
@@ -122,18 +135,20 @@ public abstract class Item extends PropertyObject implements Cloneable {
 		return getProperty(ITEM_TYPE_PK);
 	}
 
-	public Item(String type) {
+	public Item(String type, ItemCategory category) {
 		itemTypeProperty().set(type);
+		categoryProperty().set(category);
 	}
 
-	public Item(String type, JSONObject properties) {
+	public Item(String type, ItemCategory category, JSONObject properties) {
 		load(itemTypeProperty(), properties);
+		setCategory(category);
 		if (!Objects.equals(type, getItemType()))
 			throw new IllegalArgumentException("Invalid item type: " + getItemType());
 	}
 
-	public Item(String type, String name, String icon) {
-		this(type);
+	public Item(String type, String name, String icon, ItemCategory category) {
+		this(type, category);
 		itemNameProperty().set(name);
 		iconProperty().set(icon);
 	}

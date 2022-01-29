@@ -1,7 +1,7 @@
 package gartham.c10ver.games.rpg.wilderness;
 
 public class CloverWildernessMap extends WildernessMap<CloverWildernessMap.CloverWildernessTile> {
-	public CloverWildernessMap() {
+	{
 		new CloverWildernessTile();
 	}
 
@@ -16,9 +16,15 @@ public class CloverWildernessMap extends WildernessMap<CloverWildernessMap.Clove
 		}
 
 		private CloverWildernessTile() {
-			super(CloverWildernessMap.this, 0, 0);
+			super(CloverWildernessMap.this, 0, 0, 23, 31);
 			getGraphix().add(new ExitGraphic());
 		}
 
+	}
+
+	@Override
+	protected CloverWildernessTile generateTile(CloverWildernessTile from, LinkType link) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
