@@ -217,6 +217,10 @@ public class MessageActionHandler {
 				this.actions.add(v);
 		}
 
+		public Group(Action... actions) {
+			add(actions);
+		}
+
 	}
 
 	/**
