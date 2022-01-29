@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.interactions.components.Component.Type;
 
 public class MessageActionHandler {
 
+	private static final String AUTOMATED_BUTTON_ID = "-$b";
 	private final List<Action> actions = new ArrayList<>();
 
 	public List<Action> getActions() {
@@ -86,6 +87,18 @@ public class MessageActionHandler {
 			if (in == -1)
 				throw new IllegalStateException("Can't swap an Action not in the handler.");
 			Collections.swap(actions, in, newPos);
+			return this;
+		}
+
+		public Action swap(Action other) {
+			int in = actions.indexOf(this);
+			if (in == -1)
+				throw new IllegalStateException("Can't swap an Action not in the handler.");
+			int oin = actions.indexOf(other);
+			if (oin == -1)
+				actions.set(in, other);
+			else
+				Collections.swap(actions, in, oin);
 			return this;
 		}
 
@@ -180,6 +193,17 @@ public class MessageActionHandler {
 			return this;
 		}
 
+	}
+
+	/**
+	 * Adds a new disabled, gray, graphically empty button to the
+	 * {@link MessageActionHandler}.
+	 * 
+	 * @return The newly added {@link Action}.
+	 */
+	public Action disabledButton() {
+		return new Action(Button.of(ButtonStyle.SECONDARY, String.valueOf(actions.size()) + AUTOMATED_BUTTON_ID,
+				Utilities.ZERO_WIDTH_SPACE).asDisabled());
 	}
 
 	public List<ActionRow> generate() {
