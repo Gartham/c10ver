@@ -14,7 +14,7 @@ public class MutableButton {
 	}
 
 	public MutableButton(String id) {
-		this(Button.secondary(id, Utilities.ZERO_WIDTH_SPACE));
+		this(Button.secondary(id, Utilities.ZERO_WIDTH_SPACE).asDisabled());
 	}
 
 	public MutableButton setID(String id) {
