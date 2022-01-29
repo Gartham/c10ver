@@ -4,16 +4,33 @@ import java.util.List;
 
 import gartham.c10ver.response.ButtonGroup;
 import gartham.c10ver.response.MutableButton;
+import gartham.c10ver.response.menus.ButtonBook;
 import gartham.c10ver.response.utils.DirectionSelector;
+import gartham.c10ver.utils.Utilities;
+import net.dv8tion.jda.api.interactions.components.Button;
 
 class WildernessButtonGroup extends ButtonGroup {
-	private final MutableButton d1 = create(), moveUp = create(DirectionSelector.UP_ENABLED), d2 = create(),
-			moveLeft = create(DirectionSelector.LEFT_ENABLED), d3 = create(),
-			moveRight = create(DirectionSelector.RIGHT_ENABLED), d4 = create(),
-			moveDown = create(DirectionSelector.DOWN_ENABLED), rb1 = create(), rb2 = create(), rb3 = create(),
-			rb4 = create(), rb5 = create(), rb6 = create(), bb1 = create(), bb2 = create(), bb3 = create(),
-			bb4 = create(), bb5 = create(), pageLeft = create(), bb6 = create(), bb7 = create(), bb8 = create(),
-			pageRight = create();
+
+	public static final Button D1 = blank("d1"), MOVE_UP = (DirectionSelector.UP_ENABLED), D2 = blank("d2"),
+			MOVE_LEFT = (DirectionSelector.LEFT_ENABLED), D3 = blank("d3"),
+			MOVE_RIGHT = (DirectionSelector.RIGHT_ENABLED), D4 = blank("d4"),
+			MOVE_DOWN = (DirectionSelector.DOWN_ENABLED), D5 = blank("d5"), RB1 = blank("rb1"), RB2 = blank("rb2"),
+			RB3 = blank("rb3"), RB4 = blank("rb4"), RB5 = blank("rb5"), RB6 = blank("rb6"), BB1 = blank("bb1"),
+			BB2 = blank("bb2"), BB3 = blank("bb3"), BB4 = blank("bb4"), BB5 = blank("bb5"),
+			PAGE_LEFT = ButtonBook.LEFT_ONE, BB6 = blank("bb6"), BB7 = blank("bb7"), BB8 = blank("bb8"),
+			PAGE_RIGHT = ButtonBook.RIGHT_ONE;
+
+	public final static Button blank(String id) {
+		return Button.secondary(id, Utilities.ZERO_WIDTH_SPACE);
+	}
+
+	private final MutableButton d1 = create(D1), moveUp = create(DirectionSelector.UP_ENABLED), d2 = create(D2),
+			moveLeft = create(DirectionSelector.LEFT_ENABLED), d3 = create(D3),
+			moveRight = create(DirectionSelector.RIGHT_ENABLED), d4 = create(D4),
+			moveDown = create(DirectionSelector.DOWN_ENABLED), d5 = create(D5), rb1 = create(RB1), rb2 = create(RB2),
+			rb3 = create(RB3), rb4 = create(RB4), rb5 = create(RB5), rb6 = create(RB6), bb1 = create(BB1),
+			bb2 = create(BB2), bb3 = create(BB3), bb4 = create(BB4), bb5 = create(BB5), pageLeft = create(PAGE_LEFT),
+			bb6 = create(BB6), bb7 = create(BB7), bb8 = create(BB8), pageRight = create(PAGE_RIGHT);
 
 	public static final long RIGHT_BUTTON_COUNT = 6, BOTTOM_BUTTON_COUNT = 8;
 
@@ -123,6 +140,47 @@ class WildernessButtonGroup extends ButtonGroup {
 
 	public MutableButton getPageRight() {
 		return pageRight;
+	}
+
+	public void applyDirectionSelector() {
+		d1.setButton(D1);
+		moveUp.setButton(MOVE_UP);
+		d2.setButton(D2);
+		moveLeft.setButton(MOVE_LEFT);
+		d3.setButton(D3);
+		moveRight.setButton(MOVE_RIGHT);
+		d4.setButton(D4);
+		moveDown.setButton(MOVE_DOWN);
+		d5.setButton(D5);
+	}
+
+	public void clearRightButtons() {
+		rb1.setButton(RB1);
+		rb2.setButton(RB2);
+		rb3.setButton(RB3);
+		rb4.setButton(RB4);
+		rb5.setButton(RB5);
+		rb6.setButton(RB6);
+	}
+
+	public void clearBottomButtons() {
+		bb1.setButton(BB1);
+		bb2.setButton(BB2);
+		bb3.setButton(BB3);
+		bb4.setButton(BB4);
+		bb5.setButton(BB5);
+		bb6.setButton(BB6);
+		bb7.setButton(BB7);
+		bb8.setButton(BB8);
+	}
+
+	public void applyPageNavigationButtons() {
+		pageLeft.setButton(PAGE_LEFT);
+		pageRight.setButton(PAGE_RIGHT);
+	}
+
+	public MutableButton getD5() {
+		return d5;
 	}
 
 }
