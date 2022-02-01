@@ -1,22 +1,12 @@
 package gartham.c10ver.games.rpg.wilderness;
 
-import static gartham.c10ver.response.utils.DirectionSelector.*;
-
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 
 import gartham.c10ver.Clover;
 import gartham.c10ver.games.rpg.wilderness.CloverWildernessMap.CloverWildernessTile;
-import gartham.c10ver.response.menus.ButtonBook;
-import gartham.c10ver.response.menus.ButtonPaginator;
-import gartham.c10ver.utils.MessageActionHandler;
-import gartham.c10ver.utils.MessageActionHandler.Action;
-import gartham.c10ver.utils.MessageActionHandler.Group;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.interactions.components.Button;
 
 public class WildernessGame {
 
@@ -29,6 +19,8 @@ public class WildernessGame {
 	private CloverWildernessTile tile = cwm.getOrigin();
 	private boolean active;
 
+	private final WildernessGamepad gamepad = new WildernessGamepad();
+
 	public boolean isActive() {
 		return active;
 	}
@@ -38,7 +30,7 @@ public class WildernessGame {
 		this.channel = channel;
 		this.clover = clover;
 		channel.sendMessageEmbeds(new EmbedBuilder().setDescription("```" + tile.tilemapString() + "```")
-				.setAuthor(target.getAsTag() + "'s Exploration").build()).setActionRows(buttonpad.generate())
+				.setAuthor(target.getAsTag() + "'s Exploration").build()).setActionRows(gamepad.actionRows())
 				.complete();
 	}
 
