@@ -89,6 +89,13 @@ public abstract class WildernessMap<W extends gartham.c10ver.games.rpg.wildernes
 				location = Location.of(x, y);
 		}
 
+		/**
+		 * {@link #get(LinkType)}s the linked tile, if it exists. Otherwise, generates
+		 * it.
+		 * 
+		 * @param link The link that the other tile should be at.
+		 * @return The retrieved or generated tile.
+		 */
 		@SuppressWarnings("unchecked")
 		public W traverse(LinkType link) {
 			return linkedTiles.containsKey(link) ? linkedTiles.get(link) : generateTile((W) this, link);
