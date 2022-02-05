@@ -90,7 +90,7 @@ public abstract class WildernessMap<W extends gartham.c10ver.games.rpg.wildernes
 		}
 
 		@SuppressWarnings("unchecked")
-		public W getLinkedTile(LinkType link) {
+		public W traverse(LinkType link) {
 			return linkedTiles.containsKey(link) ? linkedTiles.get(link) : generateTile((W) this, link);
 		}
 
@@ -114,7 +114,7 @@ public abstract class WildernessMap<W extends gartham.c10ver.games.rpg.wildernes
 	protected abstract W generateTile(W from, LinkType link);
 
 	public W getLinkedTile(W from, LinkType link) {
-		return from.getLinkedTile(link);
+		return from.traverse(link);
 	}
 
 }
