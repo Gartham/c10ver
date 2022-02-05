@@ -1,9 +1,18 @@
 package gartham.c10ver.games.rpg.wilderness;
 
+import java.security.SecureRandom;
+import java.util.Random;
+
+import org.alixia.javalibrary.JavaTools;
+
+import gartham.c10ver.games.rpg.wilderness.LinkType.AdjacencyLink;
+
 public class CloverWildernessMap extends WildernessMap<CloverWildernessMap.CloverWildernessTile> {
 	{
 		new CloverWildernessTile();
 	}
+
+	private final long seed = JavaTools.bytesToLong(SecureRandom.getSeed(8));
 
 	public final class CloverWildernessTile extends WildernessTileBase<CloverWildernessTile> {
 
@@ -15,8 +24,16 @@ public class CloverWildernessMap extends WildernessMap<CloverWildernessMap.Clove
 			super(CloverWildernessMap.this, x, y);
 		}
 
+		private CloverWildernessTile(Location loc, int width, int height) {
+			super(CloverWildernessMap.this, loc.getX(), loc.getY(), width, height);
+		}
+
+		private CloverWildernessTile(Location loc) {
+			super(CloverWildernessMap.this, loc.getX(), loc.getY());
+		}
+
 		private CloverWildernessTile() {
-			super(CloverWildernessMap.this, 0, 0, 23, 31);
+			super(CloverWildernessMap.this, 0, 0, 23, 23);
 			getGraphix().add(new ExitGraphic());
 		}
 
@@ -24,7 +41,12 @@ public class CloverWildernessMap extends WildernessMap<CloverWildernessMap.Clove
 
 	@Override
 	protected CloverWildernessTile generateTile(CloverWildernessTile from, LinkType link) {
-		// TODO Auto-generated method stub
-		return null;
+		Random rand = new Random(seed);
+
+		if (link instanceof AdjacencyLink) {
+			var cwt = new CloverWildernessTile(from.travel((AdjacencyLink) link));
+
+		} else
+			throw new UnsupportedOperationException();
 	}
 }
