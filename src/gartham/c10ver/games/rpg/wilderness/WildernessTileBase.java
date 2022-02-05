@@ -47,6 +47,14 @@ public abstract class WildernessTileBase<T extends WildernessMap<T>.WildernessTi
 		this.height = height;
 	}
 
+	public WildernessTileBase(WildernessMap<T> enclosingMapInstance, int x, int y, String backgroundPixel, int width,
+			int height, boolean includeInMap) {
+		enclosingMapInstance.super(x, y, includeInMap);
+		this.backgroundPixel = backgroundPixel;
+		this.width = width;
+		this.height = height;
+	}
+
 	public WildernessTileBase(WildernessMap<T> enclosingMapInstance, int x, int y, int width, int height) {
 		this(enclosingMapInstance, x, y, DEFAULT_BACKGROUND_STR, width, height);
 	}
