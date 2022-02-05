@@ -68,8 +68,9 @@ public class WildernessGame {
 	}
 
 	private MessageEmbed genEmbed() {
-		return new EmbedBuilder().setDescription("```" + tile.tilemapString() + "```")
-				.setAuthor(target.getAsTag() + "'s Exploration").build();
+		return new EmbedBuilder().setDescription("\n\n```" + tile.tilemapString() + "```")
+				.setAuthor(target.getAsTag() + "'s Exploration").setFooter("Chunk: " + tile.getX() + ", " + tile.getY())
+				.build();
 	}
 
 	public void destroy() {
