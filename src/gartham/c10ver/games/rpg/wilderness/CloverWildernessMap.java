@@ -38,7 +38,7 @@ public class CloverWildernessMap extends WildernessMap<CloverWildernessMap.Clove
 		private CloverWildernessTile() {
 			super(CloverWildernessMap.this, 0, 0, DEFAULT_TILE_SIZE, DEFAULT_TILE_SIZE);
 			getGraphix().add(new ExitGraphic());
-			getGraphix().add(centerCircleGraphic(this));
+			getGraphix().add(centerCircleGraphic());
 		}
 
 		private long getTileXShift() {
@@ -49,34 +49,32 @@ public class CloverWildernessMap extends WildernessMap<CloverWildernessMap.Clove
 			return getY() * DEFAULT_TILE_SIZE;
 		}
 
-	}
+		private final XYLambdaRoomGraphic centerCircleGraphic() {
 
-	private static final XYLambdaRoomGraphic centerCircleGraphic(CloverWildernessTile cwt) {
-		return (x, y) -> {
+			var rand = new Random(seed + getLocation().hashCode());
+			return (x, y) -> {
+				// Shift to "center" by adding half of DEFAULT_TILE_SIZE, since we want the
+				// circle to be centered on the starting tile.
+				double x0 = x + getTileXShift() - DEFAULT_TILE_SIZE / 2,
+						y0 = y + getTileYShift() - DEFAULT_TILE_SIZE / 2;
 
-			// Shift to "center" by adding half of DEFAULT_TILE_SIZE, since we want the
-			// circle to be centered on the starting tile.
-			double x0 = x + cwt.getTileXShift() - DEFAULT_TILE_SIZE / 2,
-					y0 = y + cwt.getTileYShift() - DEFAULT_TILE_SIZE / 2;
+				double rad = Math.sqrt(x0 * x0 + y0 * y0);
+				if (x0 == 0 && y0 == 0 || rand.nextDouble() < 1 - rad / 28)
+					return null;
 
-			double rad = Math.sqrt(x0 * x0 + y0 * y0);
+				return rad < 28 ? "\uD83D\uDFEA" : null;
+			};
+		}
 
-			if (x0 == 0 && y0 == 0 || Math.random() <= 1 - (1 / rad) * 0.7)
-				return null;
-
-			return rad < 28 ? "\uD83D\uDFEA" : null;
-
-		};
 	}
 
 	@Override
 	protected CloverWildernessTile generateTile(CloverWildernessTile from, LinkType link) {
-		Random rand = new Random(seed);
 
 		if (link instanceof AdjacencyLink) {
 			var cwt = new CloverWildernessTile(from.travel((AdjacencyLink) link));
 			if (cwt.getX() < 2 && cwt.getX() > -2 && cwt.getY() < 2 && cwt.getY() > -2)
-				cwt.getGraphix().add(centerCircleGraphic(cwt));
+				cwt.getGraphix().add(cwt.centerCircleGraphic());
 			else
 				cwt.getGraphix()
 						.add((XYLambdaRoomGraphic) (x,
