@@ -6,7 +6,6 @@ import java.util.Random;
 import org.alixia.javalibrary.JavaTools;
 
 import gartham.c10ver.games.rpg.rooms.RandomXYLambdaRoomGraphic;
-import gartham.c10ver.games.rpg.rooms.XYLambdaRoomGraphic;
 import gartham.c10ver.games.rpg.wilderness.LinkType.AdjacencyLink;
 
 public class CloverWildernessMap extends WildernessMap<CloverWildernessMap.CloverWildernessTile> {
@@ -77,12 +76,9 @@ public class CloverWildernessMap extends WildernessMap<CloverWildernessMap.Clove
 			var cwt = new CloverWildernessTile(from.travel((AdjacencyLink) link));
 			if (cwt.getX() < 2 && cwt.getX() > -2 && cwt.getY() < 2 && cwt.getY() > -2)
 				cwt.getGraphix().add(cwt.centerCircleGraphic());
-			else
-				cwt.getGraphix()
-						.add((XYLambdaRoomGraphic) (x,
-								y) -> x + cwt.getTileXShift() - 36 >= Math.sin((y + cwt.getTileYShift()) / 3d) * 3
-										? "\uD83D\uDFE5"
-										: null);
+			else {
+
+			}
 			return cwt;
 		} else
 			throw new UnsupportedOperationException();
