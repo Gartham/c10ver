@@ -26,6 +26,18 @@ public abstract class WildernessMap<W extends gartham.c10ver.games.rpg.wildernes
 		private final Map<LinkType, W> linkedTiles = new HashMap<>(2);
 		private final Location location;
 
+		public int getX() {
+			return location.getX();
+		}
+
+		public int getY() {
+			return location.getY();
+		}
+
+		public Location travel(AdjacencyLink link) {
+			return link.travelLink(getLocation());
+		}
+
 		public Location getLocation() {
 			return location;
 		}
@@ -38,37 +50,43 @@ public abstract class WildernessMap<W extends gartham.c10ver.games.rpg.wildernes
 			return linkedTiles.get(link);
 		}
 
-		@SuppressWarnings("unchecked")
 		protected WildernessTile(int x, int y) {
+			this(x, y, true);
+		}
 
-			if (origin == null)
-				if (x == 0 && y == 0)
-					origin = (W) this;
-				else
-					throw new IllegalStateException("Map already initialized with initial tile.");
-			else if (origin == null && (x != 0 || y != 0))
-				throw new IllegalStateException(
-						"Map must be initialized (by creating a tile at 0,0) before other tiles may be created.");
+		@SuppressWarnings("unchecked")
+		protected WildernessTile(int x, int y, boolean includeInMap) {
+			if (includeInMap) {
+				if (origin == null)
+					if (x == 0 && y == 0)
+						origin = (W) this;
+					else
+						throw new IllegalStateException("Map already initialized with initial tile.");
+				else if (origin == null && (x != 0 || y != 0))
+					throw new IllegalStateException(
+							"Map must be initialized (by creating a tile at 0,0) before other tiles may be created.");
 
-			Location l = Location.of(x, y);
-			if (tilemap.containsKey(l))
-				throw new IllegalStateException("A tile already exists at that position.");
+				Location l = Location.of(x, y);
+				if (tilemap.containsKey(l))
+					throw new IllegalStateException("A tile already exists at that position.");
 
-			// TODO (Document that) subclasses of WildernessMap should only create their
-			// chosen type of WildernessTile on that map.
+				// TODO (Document that) subclasses of WildernessMap should only create their
+				// chosen type of WildernessTile on that map.
 
-			// This problem could be pushed around by grabbing the class type of the origin
-			// tile and using that to sanitize tile constructions on the map, however, the
-			// provided tile may not always be exactly of the type W (it may be a subtype).
-			tilemap.put(location = l, (W) this);
+				// This problem could be pushed around by grabbing the class type of the origin
+				// tile and using that to sanitize tile constructions on the map, however, the
+				// provided tile may not always be exactly of the type W (it may be a subtype).
+				tilemap.put(location = l, (W) this);
 
-			for (var v : LinkType.AdjacencyLink.list()) {
-				var other = tilemap.get(v.travelLink(l));
-				if (other != null) {
-					linkedTiles.put(v, other);
-					((WildernessTile) other).linkedTiles.put(v.opposite(), (W) this);
+				for (var v : LinkType.AdjacencyLink.list()) {
+					var other = tilemap.get(v.travelLink(l));
+					if (other != null) {
+						linkedTiles.put(v, other);
+						((WildernessTile) other).linkedTiles.put(v.opposite(), (W) this);
+					}
 				}
-			}
+			} else
+				location = Location.of(x, y);
 		}
 
 		@SuppressWarnings("unchecked")
