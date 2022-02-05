@@ -13,6 +13,8 @@ public class CloverWildernessMap extends WildernessMap<CloverWildernessMap.Clove
 		new CloverWildernessTile();
 	}
 
+	public static final byte DEFAULT_TILE_SIZE = 23;
+
 	private final long seed = JavaTools.bytesToLong(SecureRandom.getSeed(8));
 
 	public final class CloverWildernessTile extends WildernessTileBase<CloverWildernessTile> {
@@ -22,7 +24,7 @@ public class CloverWildernessMap extends WildernessMap<CloverWildernessMap.Clove
 		}
 
 		private CloverWildernessTile(int x, int y) {
-			super(CloverWildernessMap.this, x, y);
+			super(CloverWildernessMap.this, x, y, DEFAULT_TILE_SIZE, DEFAULT_TILE_SIZE);
 		}
 
 		private CloverWildernessTile(Location loc, int width, int height) {
@@ -30,11 +32,11 @@ public class CloverWildernessMap extends WildernessMap<CloverWildernessMap.Clove
 		}
 
 		private CloverWildernessTile(Location loc) {
-			super(CloverWildernessMap.this, loc.getX(), loc.getY());
+			super(CloverWildernessMap.this, loc.getX(), loc.getY(), DEFAULT_TILE_SIZE, DEFAULT_TILE_SIZE);
 		}
 
 		private CloverWildernessTile() {
-			super(CloverWildernessMap.this, 0, 0, 23, 23);
+			super(CloverWildernessMap.this, 0, 0, DEFAULT_TILE_SIZE, DEFAULT_TILE_SIZE);
 			getGraphix().add(new ExitGraphic());
 		}
 
@@ -46,9 +48,7 @@ public class CloverWildernessMap extends WildernessMap<CloverWildernessMap.Clove
 
 		if (link instanceof AdjacencyLink) {
 			var cwt = new CloverWildernessTile(from.travel((AdjacencyLink) link));
-			if (rand.nextBoolean())
-				cwt.getGraphix().add((XYLambdaRoomGraphic) (x, y) -> y <= x * x ? "\uD83C\uDF32" : null);
-
+			cwt.getGraphix().add((XYLambdaRoomGraphic) (x, y) -> x - 12 >= Math.sin(y) * 3 ? "\uD83D\uDFE5" : null);
 			return cwt;
 		} else
 			throw new UnsupportedOperationException();
