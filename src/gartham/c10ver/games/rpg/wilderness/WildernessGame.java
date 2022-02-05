@@ -44,16 +44,16 @@ public class WildernessGame {
 					return false;
 				switch (event.getComponentId()) {
 				case "left":
-					tile = tile.get(AdjacencyLink.LEFT);
+					tile = tile.traverse(AdjacencyLink.LEFT);
 					break;
 				case "right":
-					tile = tile.get(AdjacencyLink.LEFT);
+					tile = tile.traverse(AdjacencyLink.RIGHT);
 					break;
 				case "up":
-					tile = tile.get(AdjacencyLink.TOP);
+					tile = tile.traverse(AdjacencyLink.TOP);
 					break;
 				case "down":
-					tile = tile.get(AdjacencyLink.BOTTOM);
+					tile = tile.traverse(AdjacencyLink.BOTTOM);
 				default:
 					break;
 				}
