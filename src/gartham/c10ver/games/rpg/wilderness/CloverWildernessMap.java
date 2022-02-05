@@ -40,6 +40,14 @@ public class CloverWildernessMap extends WildernessMap<CloverWildernessMap.Clove
 			getGraphix().add(new ExitGraphic());
 		}
 
+		private long getTileXShift() {
+			return getX() * DEFAULT_TILE_SIZE;
+		}
+
+		private long getTileYShift() {
+			return getY() * DEFAULT_TILE_SIZE;
+		}
+
 	}
 
 	@Override
@@ -48,7 +56,8 @@ public class CloverWildernessMap extends WildernessMap<CloverWildernessMap.Clove
 
 		if (link instanceof AdjacencyLink) {
 			var cwt = new CloverWildernessTile(from.travel((AdjacencyLink) link));
-			cwt.getGraphix().add((XYLambdaRoomGraphic) (x, y) -> x - 12 >= Math.sin(y) * 3 ? "\uD83D\uDFE5" : null);
+			cwt.getGraphix().add((XYLambdaRoomGraphic) (x,
+					y) -> x - 12 >= Math.sin(y / 3 + rand.nextDouble() * Math.PI * 2) * 3 ? "\uD83D\uDFE5" : null);
 			return cwt;
 		} else
 			throw new UnsupportedOperationException();
