@@ -5,6 +5,7 @@ import java.util.Random;
 
 import org.alixia.javalibrary.JavaTools;
 
+import gartham.c10ver.games.rpg.rooms.XYLambdaRoomGraphic;
 import gartham.c10ver.games.rpg.wilderness.LinkType.AdjacencyLink;
 
 public class CloverWildernessMap extends WildernessMap<CloverWildernessMap.CloverWildernessTile> {
@@ -45,7 +46,10 @@ public class CloverWildernessMap extends WildernessMap<CloverWildernessMap.Clove
 
 		if (link instanceof AdjacencyLink) {
 			var cwt = new CloverWildernessTile(from.travel((AdjacencyLink) link));
+			if (rand.nextBoolean())
+				cwt.getGraphix().add((XYLambdaRoomGraphic) (x, y) -> y <= x * x ? "\uD83C\uDF32" : null);
 
+			return cwt;
 		} else
 			throw new UnsupportedOperationException();
 	}
