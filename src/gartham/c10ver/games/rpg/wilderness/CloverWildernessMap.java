@@ -5,6 +5,7 @@ import java.util.Random;
 
 import org.alixia.javalibrary.JavaTools;
 
+import gartham.c10ver.games.rpg.rooms.RandomXYLambdaRoomGraphic;
 import gartham.c10ver.games.rpg.rooms.XYLambdaRoomGraphic;
 import gartham.c10ver.games.rpg.wilderness.LinkType.AdjacencyLink;
 
@@ -49,20 +50,21 @@ public class CloverWildernessMap extends WildernessMap<CloverWildernessMap.Clove
 			return getY() * DEFAULT_TILE_SIZE;
 		}
 
-		private final XYLambdaRoomGraphic centerCircleGraphic() {
+		private final RandomXYLambdaRoomGraphic centerCircleGraphic() {
+			return new RandomXYLambdaRoomGraphic(seed + getLocation().hashCode()) {
+				@Override
+				public String render(int x, int y, Random rand) {
+					// Shift to "center" by adding half of DEFAULT_TILE_SIZE, since we want the
+					// circle to be centered on the starting tile.
+					double x0 = x + getTileXShift() - DEFAULT_TILE_SIZE / 2,
+							y0 = y + getTileYShift() - DEFAULT_TILE_SIZE / 2;
 
-			var rand = new Random(seed + getLocation().hashCode());
-			return (x, y) -> {
-				// Shift to "center" by adding half of DEFAULT_TILE_SIZE, since we want the
-				// circle to be centered on the starting tile.
-				double x0 = x + getTileXShift() - DEFAULT_TILE_SIZE / 2,
-						y0 = y + getTileYShift() - DEFAULT_TILE_SIZE / 2;
+					double rad = Math.sqrt(x0 * x0 + y0 * y0);
+					if (x0 == 0 && y0 == 0 || rand.nextDouble() < 1 - rad / 28)
+						return null;
 
-				double rad = Math.sqrt(x0 * x0 + y0 * y0);
-				if (x0 == 0 && y0 == 0 || rand.nextDouble() < 1 - rad / 28)
-					return null;
-
-				return rad < 28 ? "\uD83D\uDFEA" : null;
+					return rad < 28 ? "\uD83D\uDFEA" : null;
+				}
 			};
 		}
 
