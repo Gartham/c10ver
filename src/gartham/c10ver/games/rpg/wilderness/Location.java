@@ -2,7 +2,7 @@ package gartham.c10ver.games.rpg.wilderness;
 
 import org.alixia.javalibrary.JavaTools;
 
-final class Location {
+public final class Location {
 	private final int x, y;
 
 	public Location(int x, int y) {
