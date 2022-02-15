@@ -14,6 +14,8 @@ public class CloverWildernessMap extends WildernessMap<CloverWildernessMap.Clove
 	}
 
 	public static final byte DEFAULT_TILE_SIZE = 23;
+	private static final String BROWN = "\uD83D\uDFEB", YELLOW = "\uD83D\uDFE8", ORANGE = "\uD83D\uDFE7",
+			RED = "\uD83D\uDFE5";
 
 	private final long seed = JavaTools.bytesToLong(SecureRandom.getSeed(8));
 
@@ -59,10 +61,19 @@ public class CloverWildernessMap extends WildernessMap<CloverWildernessMap.Clove
 							y0 = y + getTileYShift() - DEFAULT_TILE_SIZE / 2;
 
 					double rad = Math.sqrt(x0 * x0 + y0 * y0);
-					if (x0 == 0 && y0 == 0 || rand.nextDouble() < 1 - rad / 28)
+					if (x0 == 0 && y0 == 0)
 						return null;
-
-					return rad < 28 ? "\uD83D\uDFEA" : null;
+					else {
+						if (rad < 28 && rand.nextDouble() < (rad - 0.07) / 35) {
+							if (rand.nextDouble() < rad / 50)
+								return BROWN;
+							else {
+								var sel = rand.nextInt(3);
+								return (sel == 0 ? RED : sel == 1 ? ORANGE : YELLOW);
+							}
+						} else
+							return null;
+					}
 				}
 			};
 		}
@@ -74,7 +85,7 @@ public class CloverWildernessMap extends WildernessMap<CloverWildernessMap.Clove
 
 		if (link instanceof AdjacencyLink) {
 			var cwt = new CloverWildernessTile(from.travel((AdjacencyLink) link));
-			if (cwt.getX() < 2 && cwt.getX() > -2 && cwt.getY() < 2 && cwt.getY() > -2)
+			if (cwt.getX() < 3 && cwt.getX() > -3 && cwt.getY() < 3 && cwt.getY() > -3)
 				cwt.getGraphix().add(cwt.centerCircleGraphic());
 			else {
 
