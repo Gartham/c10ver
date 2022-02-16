@@ -59,24 +59,14 @@ public class CloverWildernessMap extends WildernessMap<CloverWildernessMap.Clove
 					// circle to be centered on the starting tile.
 					double x0 = x + getTileXShift() - DEFAULT_TILE_SIZE / 2,
 							y0 = y + getTileYShift() - DEFAULT_TILE_SIZE / 2;
-
 					double rad = Math.sqrt(x0 * x0 + y0 * y0);
-					if (x0 == 0 && y0 == 0)
-						return null;
-					else if (rad < 28)
-						if (rad > 20 || rad * rand.nextDouble() > 4)
-							return BROWN;
-						else
-							return switch (rand.nextInt(3)) {
-							case 0 -> RED;
-							case 1 -> YELLOW;
-							case 2 -> ORANGE;
-							default -> throw new IllegalArgumentException("Unexpected value: " + rand.nextInt(3));
-							};
-					else if (rad < 32 && rand.nextInt((int) (rad - 27)) == 0)
-						return BROWN;
-					else
-						return null;
+					return x0 == 0 && y0 == 0 ? null
+							: rad < 28 ? rad > 20 || rad * rand.nextDouble() > 4 ? BROWN : switch (rand.nextInt(3)) {
+					case 0 -> RED;
+					case 1 -> YELLOW;
+					case 2 -> ORANGE;
+					default -> throw new IllegalArgumentException("Unexpected value: " + rand.nextInt(3));
+					} : rad < 32 && rand.nextInt((int) (rad - 27)) == 0 ? BROWN : null;
 				}
 			};
 		}
