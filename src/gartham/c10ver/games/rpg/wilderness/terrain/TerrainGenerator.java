@@ -1,4 +1,4 @@
-package gartham.c10ver.games.rpg.wilderness.terraingeneration;
+package gartham.c10ver.games.rpg.wilderness.terrain;
 
 import java.util.ArrayList;
 import java.util.List;

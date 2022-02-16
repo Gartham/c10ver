@@ -1,4 +1,4 @@
-package gartham.c10ver.games.rpg.wilderness.terraingeneration;
+package gartham.c10ver.games.rpg.wilderness.terrain;
 
 import javafx.application.Application;
 import javafx.scene.image.WritableImage;
