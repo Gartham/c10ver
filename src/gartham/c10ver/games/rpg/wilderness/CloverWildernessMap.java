@@ -63,17 +63,20 @@ public class CloverWildernessMap extends WildernessMap<CloverWildernessMap.Clove
 					double rad = Math.sqrt(x0 * x0 + y0 * y0);
 					if (x0 == 0 && y0 == 0)
 						return null;
-					else {
-						if (rad < 28 && rand.nextDouble() < (rad - 0.07) / 35) {
-							if (rand.nextDouble() < rad / 50)
-								return BROWN;
-							else {
-								var sel = rand.nextInt(3);
-								return (sel == 0 ? RED : sel == 1 ? ORANGE : YELLOW);
-							}
-						} else
-							return null;
-					}
+					else if (rad < 28)
+						if (rad > 20 || rad * rand.nextDouble() > 4)
+							return BROWN;
+						else
+							return switch (rand.nextInt(3)) {
+							case 0 -> RED;
+							case 1 -> YELLOW;
+							case 2 -> ORANGE;
+							default -> throw new IllegalArgumentException("Unexpected value: " + rand.nextInt(3));
+							};
+					else if (rad < 32 && rand.nextInt((int) (rad - 27)) == 0)
+						return BROWN;
+					else
+						return null;
 				}
 			};
 		}
