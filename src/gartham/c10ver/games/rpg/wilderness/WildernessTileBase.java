@@ -1,6 +1,7 @@
 package gartham.c10ver.games.rpg.wilderness;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.alixia.javalibrary.JavaTools;
@@ -17,7 +18,7 @@ public abstract class WildernessTileBase<T extends WildernessMap<T>.WildernessTi
 	private String backgroundPixel;
 	private final int width, height;
 
-	private final Set<RoomGraphic> graphix = new HashSet<>();
+	private final List<RoomGraphic> graphix = new ArrayList<>();
 
 	public String getBackgroundPixel() {
 		return backgroundPixel;
@@ -63,7 +64,7 @@ public abstract class WildernessTileBase<T extends WildernessMap<T>.WildernessTi
 		this(enclosingMapInstance, x, y, DEFAULT_BACKGROUND_STR);
 	}
 
-	public Set<RoomGraphic> getGraphix() {
+	public List<RoomGraphic> getGraphix() {
 		return graphix;
 	}
 
