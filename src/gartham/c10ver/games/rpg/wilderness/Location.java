@@ -31,4 +31,8 @@ public final class Location {
 	public final static Location of(int x, int y) {
 		return new Location(x, y);
 	}
+
+	public Location plus(int x, int y) {
+		return of(getX() + x, getY() + y);
+	}
 }
