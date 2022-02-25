@@ -35,4 +35,9 @@ public final class Location {
 	public Location plus(int x, int y) {
 		return of(getX() + x, getY() + y);
 	}
+
+	@Override
+	public String toString() {
+		return "(" + x + ", " + y + ')';
+	}
 }
