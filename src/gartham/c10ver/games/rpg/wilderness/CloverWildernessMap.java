@@ -7,6 +7,8 @@ import org.alixia.javalibrary.JavaTools;
 
 import gartham.c10ver.games.rpg.rooms.RandomXYLambdaRoomGraphic;
 import gartham.c10ver.games.rpg.wilderness.LinkType.AdjacencyLink;
+import gartham.c10ver.games.rpg.wilderness.terrain.Seed;
+import gartham.c10ver.games.rpg.wilderness.terrain.SmoothBiomeShader;
 
 public class CloverWildernessMap extends WildernessMap<CloverWildernessMap.CloverWildernessTile> {
 	{
@@ -18,6 +20,7 @@ public class CloverWildernessMap extends WildernessMap<CloverWildernessMap.Clove
 			RED = "\uD83D\uDFE5";
 
 	private final long seed = JavaTools.bytesToLong(SecureRandom.getSeed(8));
+	private final SmoothBiomeShader biomeShader = new SmoothBiomeShader();
 
 	public final class CloverWildernessTile extends WildernessTileBase<CloverWildernessTile> {
 
@@ -78,13 +81,11 @@ public class CloverWildernessMap extends WildernessMap<CloverWildernessMap.Clove
 
 		if (link instanceof AdjacencyLink) {
 			var cwt = new CloverWildernessTile(from.travel((AdjacencyLink) link));
+			cwt.getGraphix().add(map -> biomeShader.shade(map, new Seed(seed), cwt.getLocation()));
 			if (cwt.getX() < 3 && cwt.getX() > -3 && cwt.getY() < 3 && cwt.getY() > -3)
 				cwt.getGraphix().add(cwt.centerCircleGraphic());
-			else {
-
-			}
 			return cwt;
-		} else
+		} else// Implement other link types.
 			throw new UnsupportedOperationException();
 	}
 }
