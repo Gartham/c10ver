@@ -71,31 +71,61 @@ public class TerrainVisualizer extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 
-		Vec[][] grads = new Vec[WIDTH_IN_CHUNKS + 1][HEIGHT_IN_CHUNKS + 1];
-
 		long seed = 9;
 
 		GradGenerator gg = GradGenerator.continuous(seed);
 
+		for (int x = 0; x < WIDTH_IN_CHUNKS; x++)
+			for (int y = 0; y < HEIGHT_IN_CHUNKS; y++) {
+				double[][] r = generateTile(CHUNKSIZE, gg, seed)
+//						, g = generateTile(CHUNKSIZE, gg, 257987198)
+//						, b = generateTile(CHUNKSIZE, gg, -2851)
+				;
+
+				for (int i = 0; i < r.length; i++) {
+					for (int j = 0; j < r[i].length; j++)
+						IMAGE.getPixelWriter().setColor(x * CHUNKSIZE + i, y * CHUNKSIZE + j,
+								Color.gray(clampForColor(r[i][j])));
+				}
+			}
+
+		primaryStage.show();
+
+		primaryStage.setScene(new Scene(new ScrollPane(new ImageView(IMAGE))));
+
+	}
+
+	private static double clampForColor(double noise) {
+		// Noise ranges from -1 to 1.
+		return (noise + 1) / 2;
+	}
+
+	public static double[][] generateTile(int chunksize, GradGenerator gg, double gradMultiplier) {
+		Vec[][] grads = new Vec[WIDTH_IN_CHUNKS + 1][HEIGHT_IN_CHUNKS + 1];
+
 		for (int i = 0; i <= WIDTH_IN_CHUNKS; i++) {
 			for (int j = 0; j <= HEIGHT_IN_CHUNKS; j++) {
 				grads[i][j] = gg.generate(i, j);
-				grads[i][j].x *= MULTIPLIER;
-				grads[i][j].y *= MULTIPLIER;
+				grads[i][j].x *= gradMultiplier;
+				grads[i][j].y *= gradMultiplier;
 			}
 		}
 
-		for (int i = 0; i < CHUNKSIZE * WIDTH_IN_CHUNKS; i++) {
-			for (int j = 0; j < CHUNKSIZE * HEIGHT_IN_CHUNKS; j++) {
+		double[][] result = new double[chunksize][chunksize];
+
+		for (int i = 0; i < chunksize; i++) {
+			for (int j = 0; j < chunksize; j++) {
 				// Pixel gets 4 vecs.
-				Vec tl = grads[i / CHUNKSIZE][j / CHUNKSIZE];
-				Vec tr = grads[i / CHUNKSIZE + 1][j / CHUNKSIZE];
-				Vec bl = grads[i / CHUNKSIZE][j / CHUNKSIZE + 1];
-				Vec br = grads[i / CHUNKSIZE + 1][j / CHUNKSIZE + 1];
+				Vec tl = grads[i / chunksize][j / chunksize];
+				Vec tr = grads[i / chunksize + 1][j / chunksize];
+				Vec bl = grads[i / chunksize][j / chunksize + 1];
+				Vec br = grads[i / chunksize + 1][j / chunksize + 1];
 
 				// Get point vector from each anchor.
-				double ip = i % CHUNKSIZE / (double) CHUNKSIZE + (1 / 2d / CHUNKSIZE);
-				double jp = j % CHUNKSIZE / (double) CHUNKSIZE + (1 / 2d / CHUNKSIZE);
+				double ix = fade(i % chunksize / (double) chunksize);
+				double ip = ix + (1 / 2d / chunksize);
+				double jx = fade(j % chunksize / (double) chunksize);
+				double jp = jx + (1 / 2d / chunksize);
 				Vec dtl = new Vec(ip, jp);
 				Vec dtr = new Vec(1 - ip, jp);
 				Vec dbl = new Vec(ip, 1 - jp);
@@ -108,22 +138,29 @@ public class TerrainVisualizer extends Application {
 
 				double x =
 //						(atl + atr + abl + abr) / 4;
-						bilinearlyInterpolate(abl, abr, atl, atr, CHUNKSIZE, 0, CHUNKSIZE, 0, (i % CHUNKSIZE),
-								(j % CHUNKSIZE));
+						bilinearlyInterpolate(abl, abr, atl, atr, 1, 0, 1, 0, ix, jx);
+
+//				x = fade(x);
+
+//				if (x < -1 || x > 1)
+//					System.out.println(x);
+
+				result[i][j] = Math.min(1, Math.max(-1, x));
 
 				// Scale for color.
-				x += 1;
-				x /= 2;
-				Color color = Color.gray(Math.max(Math.min(1, x), 0));
-
-				IMAGE.getPixelWriter().setColor(i, j, color);
+//				x += 1;
+//				x /= 2;
+//				Color color = Color.gray(Math.max(Math.min(1, x), 0));
+//
+//				IMAGE.getPixelWriter().setColor(i, j, color);
 			}
 		}
 
-		primaryStage.show();
+		return result;
+	}
 
-		primaryStage.setScene(new Scene(new ScrollPane(new ImageView(IMAGE))));
-
+	private static double fade(double x) {
+		return x * x * x * (10 + x * (-15 + 6 * x));
 	}
 
 	private static double bilinearlyInterpolate(double bottomLeft, double bottomRight, double topLeft, double topRight,
@@ -133,8 +170,11 @@ public class TerrainVisualizer extends Application {
 		double interpXY2 = (rightXPos - x) / (rightXPos - leftXPos) * topLeft
 				+ (x - leftXPos) / (rightXPos - leftXPos) * topRight;
 
+//		interpXY1 = (interpXY1);
+//		interpXY2 = (interpXY2);
+
 		double result = (topYPos - y) / (topYPos - bottomYPos) * interpXY1
 				+ (y - bottomYPos) / (topYPos - bottomYPos) * interpXY2;
-		return result;
+		return (result);
 	}
 }
