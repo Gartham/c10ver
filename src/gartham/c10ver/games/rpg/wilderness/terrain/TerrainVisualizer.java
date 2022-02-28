@@ -84,8 +84,9 @@ public class TerrainVisualizer extends Application {
 				double abl = bl.dot(dbl);
 				double abr = br.dot(dbr);
 
-				double x = bilinearlyInterpolate(abl, abr, atl, atr, CHUNKSIZE, 0, CHUNKSIZE, 0, (i % CHUNKSIZE),
-						(j % CHUNKSIZE));
+				double x = 
+//						(atl + atr + abl + abr) / 4;
+						 bilinearlyInterpolate(abl, abr, atl, atr, CHUNKSIZE, 0, CHUNKSIZE, 0, (i % CHUNKSIZE), (j % CHUNKSIZE));
 
 				Color color = Color.gray(Math.max(Math.min(1, x), 0));
 
