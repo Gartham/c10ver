@@ -18,11 +18,34 @@ public class TerrainVisualizer extends Application {
 			CHUNKSIZE * HEIGHT_IN_CHUNKS);
 	private static final double MULTIPLIER = 1;
 
+	interface GradGenerator {
+		Vec generate(int x, int y);
+
+		static GradGenerator continuous(long seed) {
+			Random r = new Random(seed);
+			return (x, y) -> {
+				double sqr = r.nextDouble() * 2;
+				return new Vec((r.nextBoolean() ? -1 : 1) * Math.sqrt(sqr),
+						(r.nextBoolean() ? -1 : 1) * Math.sqrt(2 - sqr));
+			};
+		}
+
+		Vec TL = new Vec(-1, 1), TR = new Vec(1, 1), BR = new Vec(1, -1), BL = new Vec(-1, -1);
+
+		static GradGenerator discrete(long seed) {
+			Random r = new Random(seed);
+			return (x, y) -> {
+				return r.nextBoolean() ? r.nextBoolean() ? TL : TR : r.nextBoolean() ? BR : BL;
+			};
+		}
+
+	}
+
 	public static void main(String[] args) {
 		launch(args);
 	}
 
-	private final class Vec {
+	private static final class Vec {
 		public double x, y;
 
 		public Vec(double x, double y) {
@@ -50,14 +73,13 @@ public class TerrainVisualizer extends Application {
 
 		Vec[][] grads = new Vec[WIDTH_IN_CHUNKS + 1][HEIGHT_IN_CHUNKS + 1];
 
-		long seed = 8;
-		Random r = new Random(seed);
+		long seed = 9;
+
+		GradGenerator gg = GradGenerator.continuous(seed);
 
 		for (int i = 0; i <= WIDTH_IN_CHUNKS; i++) {
 			for (int j = 0; j <= HEIGHT_IN_CHUNKS; j++) {
-				double sqr = r.nextDouble() * 2;
-				grads[i][j] = new Vec((r.nextBoolean() ? -1 : 1) * Math.sqrt(sqr),
-						(r.nextBoolean() ? -1 : 1) * Math.sqrt(2 - sqr));
+				grads[i][j] = gg.generate(i, j);
 				grads[i][j].x *= MULTIPLIER;
 				grads[i][j].y *= MULTIPLIER;
 			}
@@ -84,10 +106,14 @@ public class TerrainVisualizer extends Application {
 				double abl = bl.dot(dbl);
 				double abr = br.dot(dbr);
 
-				double x = 
+				double x =
 //						(atl + atr + abl + abr) / 4;
-						 bilinearlyInterpolate(abl, abr, atl, atr, CHUNKSIZE, 0, CHUNKSIZE, 0, (i % CHUNKSIZE), (j % CHUNKSIZE));
+						bilinearlyInterpolate(abl, abr, atl, atr, CHUNKSIZE, 0, CHUNKSIZE, 0, (i % CHUNKSIZE),
+								(j % CHUNKSIZE));
 
+				// Scale for color.
+				x += 1;
+				x /= 2;
 				Color color = Color.gray(Math.max(Math.min(1, x), 0));
 
 				IMAGE.getPixelWriter().setColor(i, j, color);
