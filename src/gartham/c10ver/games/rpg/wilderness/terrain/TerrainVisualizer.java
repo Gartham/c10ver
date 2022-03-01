@@ -80,7 +80,7 @@ public class TerrainVisualizer extends Application {
 
 		for (int x = 0; x < WIDTH_IN_CHUNKS; x++)
 			for (int y = 0; y < HEIGHT_IN_CHUNKS; y++) {
-				double[][] r = generateTile(CHUNKSIZE, gg, seed, x, y)
+				double[][] r = generateTile(CHUNKSIZE, gg, x, y)
 //						, g = generateTile(CHUNKSIZE, gg, 257987198)
 //						, b = generateTile(CHUNKSIZE, gg, -2851)
 				;
@@ -109,7 +109,7 @@ public class TerrainVisualizer extends Application {
 		return GRADS[vertX][vertY];
 	}
 
-	public static double[][] generateTile(int chunksize, GradGenerator gg, double gradMultiplier, int tileX,
+	public static double[][] generateTile(int chunksize, GradGenerator gg, int tileX,
 			int tileY) {
 
 		Vec tl = getVector(tileX, tileY, gg);
