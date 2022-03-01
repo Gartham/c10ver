@@ -16,6 +16,9 @@ public class TerrainVisualizer extends Application {
 	private static final int CHUNKSIZE = 30, WIDTH_IN_CHUNKS = 30, HEIGHT_IN_CHUNKS = 30;
 	private static final WritableImage IMAGE = new WritableImage(CHUNKSIZE * WIDTH_IN_CHUNKS,
 			CHUNKSIZE * HEIGHT_IN_CHUNKS);
+
+	private static Vec[][] GRADS = new Vec[WIDTH_IN_CHUNKS + 1][HEIGHT_IN_CHUNKS + 1];
+
 	private static final double MULTIPLIER = 1;
 
 	interface GradGenerator {
@@ -77,7 +80,7 @@ public class TerrainVisualizer extends Application {
 
 		for (int x = 0; x < WIDTH_IN_CHUNKS; x++)
 			for (int y = 0; y < HEIGHT_IN_CHUNKS; y++) {
-				double[][] r = generateTile(CHUNKSIZE, gg, seed)
+				double[][] r = generateTile(CHUNKSIZE, gg, seed, x, y)
 //						, g = generateTile(CHUNKSIZE, gg, 257987198)
 //						, b = generateTile(CHUNKSIZE, gg, -2851)
 				;
@@ -100,36 +103,35 @@ public class TerrainVisualizer extends Application {
 		return (noise + 1) / 2;
 	}
 
-	public static double[][] generateTile(int chunksize, GradGenerator gg, double gradMultiplier) {
-		Vec[][] grads = new Vec[WIDTH_IN_CHUNKS + 1][HEIGHT_IN_CHUNKS + 1];
+	public static Vec getVector(int vertX, int vertY, GradGenerator generator) {
+		if (GRADS[vertX][vertY] == null)
+			return GRADS[vertX][vertY] = generator.generate(vertX, vertY);
+		return GRADS[vertX][vertY];
+	}
 
-		for (int i = 0; i <= WIDTH_IN_CHUNKS; i++) {
-			for (int j = 0; j <= HEIGHT_IN_CHUNKS; j++) {
-				grads[i][j] = gg.generate(i, j);
-				grads[i][j].x *= gradMultiplier;
-				grads[i][j].y *= gradMultiplier;
-			}
-		}
+	public static double[][] generateTile(int chunksize, GradGenerator gg, double gradMultiplier, int tileX,
+			int tileY) {
+
+		Vec tl = getVector(tileX, tileY, gg);
+		Vec tr = getVector(tileX + 1, tileY, gg);
+		Vec bl = getVector(tileX, tileY + 1, gg);
+		Vec br = getVector(tileX + 1, tileY + 1, gg);
 
 		double[][] result = new double[chunksize][chunksize];
 
-		for (int i = 0; i < chunksize; i++) {
-			for (int j = 0; j < chunksize; j++) {
+		for (int pixX = 0; pixX < chunksize; pixX++) {
+			for (int pixY = 0; pixY < chunksize; pixY++) {
 				// Pixel gets 4 vecs.
-				Vec tl = grads[i / chunksize][j / chunksize];
-				Vec tr = grads[i / chunksize + 1][j / chunksize];
-				Vec bl = grads[i / chunksize][j / chunksize + 1];
-				Vec br = grads[i / chunksize + 1][j / chunksize + 1];
 
 				// Get point vector from each anchor.
-				double ix = fade(i % chunksize / (double) chunksize);
-				double ip = ix + (1 / 2d / chunksize);
-				double jx = fade(j % chunksize / (double) chunksize);
-				double jp = jx + (1 / 2d / chunksize);
+				double ix = (pixX % chunksize / (double) chunksize);
+				double ip = (ix);// + (1 / 2d / chunksize);
+				double jx = (pixY % chunksize / (double) chunksize);
+				double jp = (jx);// + (1 / 2d / chunksize);
 				Vec dtl = new Vec(ip, jp);
-				Vec dtr = new Vec(1 - ip, jp);
-				Vec dbl = new Vec(ip, 1 - jp);
-				Vec dbr = new Vec(1 - ip, 1 - jp);
+				Vec dtr = new Vec(ip - 1, jp);
+				Vec dbl = new Vec(ip, jp - 1);
+				Vec dbr = new Vec(ip - 1, jp - 1);
 
 				double atl = tl.dot(dtl);
 				double atr = tr.dot(dtr);
@@ -138,14 +140,15 @@ public class TerrainVisualizer extends Application {
 
 				double x =
 //						(atl + atr + abl + abr) / 4;
-						bilinearlyInterpolate(abl, abr, atl, atr, 1, 0, 1, 0, ix, jx);
+						bilinearlyInterpolate(abl, abr, atl, atr, 1, 0, 1, 0, fade(ix), fade(jx));
+//						interp(jx, interp(ix, atl, atr), interp(ix, abl, abr));
 
 //				x = fade(x);
 
 //				if (x < -1 || x > 1)
 //					System.out.println(x);
 
-				result[i][j] = Math.min(1, Math.max(-1, x));
+				result[pixX][pixY] = Math.min(1, Math.max(-1, x));
 
 				// Scale for color.
 //				x += 1;
@@ -161,6 +164,10 @@ public class TerrainVisualizer extends Application {
 
 	private static double fade(double x) {
 		return x * x * x * (10 + x * (-15 + 6 * x));
+	}
+
+	private static double interp(double frac, double left, double right) {
+		return frac * left + (1 - frac) * right;
 	}
 
 	private static double bilinearlyInterpolate(double bottomLeft, double bottomRight, double topLeft, double topRight,
