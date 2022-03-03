@@ -1,5 +1,7 @@
 package gartham.c10ver.games.rpg.wilderness.terrain;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
 import org.alixia.javalibrary.JavaTools;
@@ -8,6 +10,20 @@ import gartham.c10ver.games.rpg.wilderness.Emoji;
 import gartham.c10ver.games.rpg.wilderness.Location;
 
 public class SmoothBiomeShader implements BiomeShader {
+
+	private static final MessageDigest md;
+
+	static {
+		MessageDigest md2;
+		try {
+			md2 = MessageDigest.getInstance("MD5");
+		} catch (NoSuchAlgorithmException e) {
+			md2 = null;
+			System.err.println("No available MD5 hashing algorithm for Smooth Biome Shader!");
+		}
+
+		md = md2;
+	}
 
 	private final Emoji[] emojis = Emoji.values();
 
@@ -21,15 +37,37 @@ public class SmoothBiomeShader implements BiomeShader {
 
 	}
 
+	private static long calculateLocalSeed(Seed seed, Location location, int index) {
+
+		int x = location.getX() / 2, y = location.getY() / 2;
+
+		byte[] msg = new byte[20];
+		long s = seed.getSeed();
+		for (byte i = 0; i < 8; i++, s >>= 8)
+			msg[i] = (byte) (s & 0xff);
+
+		s = (long) x << 32 | y;
+		for (byte i = 0; i < 8; i++, s >>= 8)
+			msg[i + 8] = (byte) (s & 0xff);
+
+		for (byte i = 0; i < 4; i++, index >>= 8)
+			msg[i + 4] = (byte) (index & 0xff);
+
+		return JavaTools.bytesToLong(md.digest(msg));
+	}
+
 	@Override
 	public void shade(String[][] tile, Seed seed, Location tileLocation) {
-//		Vec[][] grads = new Vec[tile.length + 1][tile[0].length + 1];
-//
-//		for (int i = 0; i < grads.length; i++)
-//			for (int j = 0; j < grads.length; j++) {
-//				double sqr = r.nextDouble();
-//				grads[i][j] = new Vec(Math.sqrt(sqr), Math.sqrt(1 - sqr));
-//			}
+		Vec[][] grads = new Vec[tile.length + 1][tile[0].length + 1];
+
+		// 0th rand is for grads.
+		var r = new Random(calculateLocalSeed(seed, tileLocation, 0));
+
+		for (int i = 0; i < grads.length; i++)
+			for (int j = 0; j < grads.length; j++) {
+				double sqr = r.nextDouble();
+				grads[i][j] = new Vec(Math.sqrt(sqr), Math.sqrt(1 - sqr));
+			}
 
 		// Instead of correlating variables, we'll have each corner be completely
 		// random.
@@ -46,35 +84,11 @@ public class SmoothBiomeShader implements BiomeShader {
 				br = new Random(seed.getSeed() + JavaTools.hash(tileLocation.getX() + 1, tileLocation.getY() - 1))
 						.nextDouble();
 
-		{
-			Random r = new Random(seed.getSeed());
-			long s = seed.getSeed();
-
-			Random cornerGen = new Random(
-					s ^ Long.rotateLeft(((long) tileLocation.getX()) << 32 | tileLocation.getY(), r.nextInt(64)));
-			tl = cornerGen.nextDouble();// Every tile generates its own top left coordinate. For this tile's other
-										// corners, we have to invoke other tiles.
-			cornerGen.setSeed(
-					s ^ Long.rotateLeft(((long) tileLocation.getX() + 1) << 32 | tileLocation.getY(), r.nextInt(64)));
-			tr = cornerGen.nextDouble();
-
-			cornerGen.setSeed(
-					Long.rotateLeft(((long) tileLocation.getX()) << 32 | tileLocation.getY() - 1, r.nextInt(64)));
-			bl = cornerGen.nextDouble();
-
-			cornerGen.setSeed(
-					Long.rotateLeft(((long) tileLocation.getX() + 1) << 32 | tileLocation.getY() - 1, r.nextInt(64)));
-			br = cornerGen.nextDouble();
-
-			System.out.println(tileLocation + "[" + tl + ", " + tr + ", " + br + ", " + bl + "]");
-		}
-
-		// Bilinearly interpolate between randomly generated points.
-
 		for (int i = 0; i < tile.length; i++) {
 			for (int j = 0; j < tile[i].length; j++) {
 				double res = bilinearlyInterpolate(bl, br, tl, tr, tile[0].length, 0, 0, tile.length, j, i);
-				tile[i][j] = emojis[(int) (res * emojis.length)].getValue();
+				res *= res * res * (res * (res * 6 - 15) + 10);
+				tile[i][j] = emojis[(int) (res * emojis.length) % emojis.length].getValue();
 			}
 		}
 	}
