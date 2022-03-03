@@ -2,7 +2,6 @@ package gartham.c10ver.games.rpg.wilderness;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.alixia.javalibrary.JavaTools;
 
@@ -12,7 +11,7 @@ import gartham.c10ver.games.rpg.rooms.StringRoom;
 public abstract class WildernessTileBase<T extends WildernessMap<T>.WildernessTile>
 		extends WildernessMap<T>.WildernessTile implements StringRoom {
 
-	public static final String DEFAULT_BACKGROUND_STR = "\uD83D\uDFE9";
+	public static final String DEFAULT_BACKGROUND_STR = Emoji.GREEN.getValue();
 	public static final int DEFAULT_BACKGROUND_WIDTH = 24, DEFAULT_BACKGROUND_HEIGHT = 31;
 
 	private String backgroundPixel;
