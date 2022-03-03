@@ -1,4 +1,4 @@
-package gartham.c10ver.games.rpg.wilderness.terrain;
+package gartham.c10ver.games.rpg.wilderness.terrain.noise;
 
 import java.util.HashMap;
 import java.util.Map;
