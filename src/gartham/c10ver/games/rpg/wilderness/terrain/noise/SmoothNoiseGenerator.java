@@ -50,7 +50,7 @@ public class SmoothNoiseGenerator implements NoiseGenerator {
 		Vec bl = gg.generate(tileX, tileY + 1);
 		Vec br = gg.generate(tileX + 1, tileY + 1);
 
-		double[][] result = new double[tileHeight][tileWidth];
+		double[][] result = new double[xPixEnd - xPixStart][yPixEnd - yPixStart];
 
 		for (int pixX = xPixStart; pixX < xPixEnd; pixX++) {
 			for (int pixY = yPixStart; pixY < yPixEnd; pixY++) {
