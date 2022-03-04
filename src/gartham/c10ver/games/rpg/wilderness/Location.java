@@ -40,4 +40,8 @@ public final class Location {
 	public String toString() {
 		return "(" + x + ", " + y + ')';
 	}
+
+	public Location transpose() {
+		return Location.of(y, x);
+	}
 }
