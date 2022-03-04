@@ -14,7 +14,6 @@ public class SmoothNoiseGenerator implements NoiseGenerator {
 		this(GradGenerator.continuous(seed));
 	}
 
-	// Generates a noisemap [height][width] (i.e., [y][x] indexing).
 	@Override
 	public double[][] noisemap(Location tileLocation, int xStart, int yStart, int xEnd, int yEnd, int xSize,
 			int ySize) {
