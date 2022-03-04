@@ -1,7 +1,4 @@
-package gartham.c10ver.games.rpg.wilderness.terrain;
-
-import java.util.Arrays;
-import java.util.Random;
+package gartham.c10ver.games.rpg.wilderness.terrain.noise;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -13,82 +10,34 @@ import javafx.stage.Stage;
 
 public class TerrainVisualizer extends Application {
 
-	private static final int CHUNKSIZE = 30, WIDTH_IN_CHUNKS = 30, HEIGHT_IN_CHUNKS = 30;
+	private static final int CHUNKSIZE = 70, WIDTH_IN_CHUNKS = 10, HEIGHT_IN_CHUNKS = 10;
 	private static final WritableImage IMAGE = new WritableImage(CHUNKSIZE * WIDTH_IN_CHUNKS,
 			CHUNKSIZE * HEIGHT_IN_CHUNKS);
 
-	private static Vec[][] GRADS = new Vec[WIDTH_IN_CHUNKS + 1][HEIGHT_IN_CHUNKS + 1];
-
-	private static final double MULTIPLIER = 1;
-
-	interface GradGenerator {
-		Vec generate(int x, int y);
-
-		static GradGenerator continuous(long seed) {
-			Random r = new Random(seed);
-			return (x, y) -> {
-				double sqr = r.nextDouble() * 2;
-				return new Vec((r.nextBoolean() ? -1 : 1) * Math.sqrt(sqr),
-						(r.nextBoolean() ? -1 : 1) * Math.sqrt(2 - sqr));
-			};
-		}
-
-		Vec TL = new Vec(-1, 1), TR = new Vec(1, 1), BR = new Vec(1, -1), BL = new Vec(-1, -1);
-
-		static GradGenerator discrete(long seed) {
-			Random r = new Random(seed);
-			return (x, y) -> {
-				return r.nextBoolean() ? r.nextBoolean() ? TL : TR : r.nextBoolean() ? BR : BL;
-			};
-		}
-
-	}
-
 	public static void main(String[] args) {
 		launch(args);
-	}
-
-	private static final class Vec {
-		public double x, y;
-
-		public Vec(double x, double y) {
-			this.x = x;
-			this.y = y;
-		}
-
-		public double dot(Vec other) {
-			return x * other.x + y * other.y;
-		}
-
-		@Override
-		public String toString() {
-			return "[" + x + ", " + y + ']';
-		}
-
-		public double mag() {
-			return Math.sqrt(x * x + y * y);
-		}
-
 	}
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 
 		long seed = 9;
-
-		GradGenerator gg = GradGenerator.continuous(seed);
+		GradGenerator gg = GradGenerator.continuous(seed)
+//				, gg2 = GradGenerator.continuous(257987198),
+//				gg3 = GradGenerator.continuous(-2851)
+		;
 
 		for (int x = 0; x < WIDTH_IN_CHUNKS; x++)
 			for (int y = 0; y < HEIGHT_IN_CHUNKS; y++) {
 				double[][] r = generateTile(CHUNKSIZE, gg, x, y)
-//						, g = generateTile(CHUNKSIZE, gg, 257987198)
-//						, b = generateTile(CHUNKSIZE, gg, -2851)
+//						, g = generateTile(CHUNKSIZE, gg2, x, y),
+//						b = generateTile(CHUNKSIZE, gg3, x, y)
 				;
 
 				for (int i = 0; i < r.length; i++) {
 					for (int j = 0; j < r[i].length; j++)
 						IMAGE.getPixelWriter().setColor(x * CHUNKSIZE + i, y * CHUNKSIZE + j,
-								Color.gray(clampForColor(r[i][j])));
+								Color.hsb(r[i][j] * 180, 1, Math.min(1, Math.max(0, clampForColor(r[i][j])))));
 				}
 			}
 
@@ -103,19 +52,18 @@ public class TerrainVisualizer extends Application {
 		return (noise + 1) / 2;
 	}
 
-	public static Vec getVector(int vertX, int vertY, GradGenerator generator) {
-		if (GRADS[vertX][vertY] == null)
-			return GRADS[vertX][vertY] = generator.generate(vertX, vertY);
-		return GRADS[vertX][vertY];
-	}
+//	public static Vec getVector(int vertX, int vertY, GradGenerator generator) {
+//		if (GRADS[vertX][vertY] == null)
+//			return GRADS[vertX][vertY] = generator.generate(vertX, vertY);
+//		return GRADS[vertX][vertY];
+//	}
 
-	public static double[][] generateTile(int chunksize, GradGenerator gg, int tileX,
-			int tileY) {
+	public static double[][] generateTile(int chunksize, GradGenerator gg, int tileX, int tileY) {
 
-		Vec tl = getVector(tileX, tileY, gg);
-		Vec tr = getVector(tileX + 1, tileY, gg);
-		Vec bl = getVector(tileX, tileY + 1, gg);
-		Vec br = getVector(tileX + 1, tileY + 1, gg);
+		Vec tl = gg.generate(tileX, tileY);
+		Vec tr = gg.generate(tileX + 1, tileY);
+		Vec bl = gg.generate(tileX, tileY + 1);
+		Vec br = gg.generate(tileX + 1, tileY + 1);
 
 		double[][] result = new double[chunksize][chunksize];
 
