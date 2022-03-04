@@ -1,5 +1,6 @@
 package gartham.c10ver.games.rpg.wilderness.terrain.noise;
 
+import gartham.c10ver.games.rpg.wilderness.Location;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
@@ -27,23 +28,28 @@ public class TerrainVisualizer extends Application {
 //				gg3 = GradGenerator.continuous(-2851)
 		;
 
-		for (int x = 0; x < WIDTH_IN_CHUNKS; x++)
-			for (int y = 0; y < HEIGHT_IN_CHUNKS; y++) {
-				double[][] r = generateTile(CHUNKSIZE, gg, x, y)
-//						, g = generateTile(CHUNKSIZE, gg2, x, y),
-//						b = generateTile(CHUNKSIZE, gg3, x, y)
-				;
+		NoiseGenerator ng = new SmoothNoiseGenerator(4722);
 
-				for (int i = 0; i < r.length; i++) {
-					for (int j = 0; j < r[i].length; j++)
-						IMAGE.getPixelWriter().setColor(x * CHUNKSIZE + i, y * CHUNKSIZE + j,
-								Color.hsb(r[i][j] * 180, 1, Math.min(1, Math.max(0, clampForColor(r[i][j])))));
-				}
-			}
+		var nm = ng.noisemap(Location.of(0, 0), 0, 0, 100, 200, 200, 200);
+
+//		for (int x = 0; x < WIDTH_IN_CHUNKS; x++)
+//			for (int y = 0; y < HEIGHT_IN_CHUNKS; y++) {
+//				double[][] r = generateTile(CHUNKSIZE, gg, x, y)
+////						, g = generateTile(CHUNKSIZE, gg2, x, y),
+////						b = generateTile(CHUNKSIZE, gg3, x, y)
+//				;
+//
+		for (int i = 0; i < nm.length; i++) {
+			for (int j = 0; j < nm[i].length; j++)
+				IMAGE.getPixelWriter().setColor(i, j,
+						Color.hsb(nm[i][j] * 180, 1, Math.min(1, Math.max(0, clampForColor(nm[i][j])))));
+		}
+//			}
 
 		primaryStage.show();
 
-		primaryStage.setScene(new Scene(new ScrollPane(new ImageView(IMAGE))));
+		ImageView view = new ImageView(IMAGE);
+		primaryStage.setScene(new Scene(new ScrollPane(view)));
 
 	}
 
