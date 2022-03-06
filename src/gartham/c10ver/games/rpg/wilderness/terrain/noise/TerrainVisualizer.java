@@ -25,11 +25,13 @@ public class TerrainVisualizer extends Application {
 		NoiseGenerator ng = new SmoothNoiseGenerator(4722);
 
 		for (int x = 0; x < 3; x++) {
-			var nm = ng.noisemap(Location.of(x, 0), 0, 0, 200, 200, 200, 200);
-			for (int i = 0; i < nm.length; i++) {
-				for (int j = 0; j < nm[i].length; j++)
-					IMAGE.getPixelWriter().setColor(x * 200 + i, j,
-							Color.hsb(nm[i][j] * 180, 1, Math.min(1, Math.max(0, clampForColor(nm[i][j])))));
+			for (int y = 0; y < 3; y++) {
+				var nm = ng.noisemap(Location.of(x, y), 0, 0, 200, 200, 200, 200);
+				for (int i = 0; i < nm.length; i++) {
+					for (int j = 0; j < nm[i].length; j++)
+						IMAGE.getPixelWriter().setColor(y * 200 + i, x * 200 + j,
+								Color.hsb(nm[i][j] * 180, 1, Math.min(1, Math.max(0, clampForColor(nm[i][j])))));
+				}
 			}
 		}
 
