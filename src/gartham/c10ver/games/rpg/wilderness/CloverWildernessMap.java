@@ -81,7 +81,7 @@ public class CloverWildernessMap extends WildernessMap<CloverWildernessMap.Clove
 
 		if (link instanceof AdjacencyLink) {
 			var cwt = new CloverWildernessTile(from.travel((AdjacencyLink) link));
-//			cwt.getGraphix().add(map -> biomeShader.shade(map, new Seed(seed), cwt.getLocation()));
+			cwt.getGraphix().add(map -> biomeShader.shade(map, new Seed(seed), cwt.getLocation()));
 			if (cwt.getX() < 3 && cwt.getX() > -3 && cwt.getY() < 3 && cwt.getY() > -3)
 				cwt.getGraphix().add(cwt.centerCircleGraphic());
 			return cwt;
