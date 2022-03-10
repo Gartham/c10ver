@@ -1,5 +1,6 @@
 package gartham.c10ver.games.rpg.wilderness.terrain.noise;
 
+import gartham.c10ver.games.rpg.random.Seed;
 import gartham.c10ver.games.rpg.wilderness.Location;
 
 public interface NoiseGenerator {
@@ -24,5 +25,5 @@ public interface NoiseGenerator {
 	 * @param ySize        The height of a tile.
 	 * @return The generated noisemap.
 	 */
-	double[][] noisemap(Location tileLocation, int xStart, int yStart, int xEnd, int yEnd, int xSize, int ySize);
+	double[][] noisemap(Seed seed, Location tileLocation, int xStart, int yStart, int xEnd, int yEnd, int xSize, int ySize);
 }
