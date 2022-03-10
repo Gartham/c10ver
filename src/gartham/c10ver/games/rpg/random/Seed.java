@@ -32,6 +32,10 @@ public class Seed {
 		return next(this);
 	}
 
+	public Random rand() {
+		return new Random(hash(seed));
+	}
+
 	/**
 	 * Deterministically picks a new {@link Seed} given the provided
 	 * <code>value</code>. The resulting {@link Seed} can be reobtained from this
@@ -50,7 +54,7 @@ public class Seed {
 
 	private static final byte[] HASHBYTES = { 8, -61, -13, -44, -126, 100, -39, -35 };
 
-	// Not proven to be good.
+	// Not proven to be good. Likely not good.
 	public static long hash(byte... bytes) {
 		long res = 0;
 
