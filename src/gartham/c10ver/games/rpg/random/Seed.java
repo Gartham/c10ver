@@ -32,6 +32,20 @@ public class Seed {
 		return next(this);
 	}
 
+	public long khash(byte... bytes) {
+		return hash(JavaTools.combineArrays(HASH(seed), bytes));
+	}
+
+	private static byte[] HASH(byte[] in) {
+		for (int i = 0; i < in.length; i++)
+			in[i] = HASH_BYTES[in[i] + 128];
+		return in;
+	}
+
+	public long khash(long value) {
+		return khash(JavaTools.longToBytes(value));
+	}
+
 	public Random rand() {
 		return new Random(hash(seed));
 	}
@@ -52,26 +66,40 @@ public class Seed {
 		return new Seed(JavaTools.combineArrays(seed, JavaTools.longToBytes(value)));
 	}
 
+	public Seed pickReduced(long value) {
+		return new Seed(hash(JavaTools.combineArrays(seed, JavaTools.longToBytes(value))));
+	}
+
+	public Seed pick(long... values) {
+		byte[] bytes = new byte[values.length * 8];
+		for (int i = 0; i < values.length; i++)
+			System.arraycopy(JavaTools.longToBytes(values[i]), 0, bytes, i * 8, 8);
+		return new Seed(JavaTools.combineArrays(seed, JavaTools.combineArrays(bytes)));
+	}
+
+	public Seed pickReduced(long... values) {
+		byte[] bytes = new byte[values.length * 8];
+		for (int i = 0; i < values.length; i++)
+			System.arraycopy(JavaTools.longToBytes(values[i]), 0, bytes, i * 8, 8);
+		return new Seed(hash(JavaTools.combineArrays(seed, JavaTools.combineArrays(bytes))));
+	}
+
 	private static final byte[] HASHBYTES = { 8, -61, -13, -44, -126, 100, -39, -35 };
 
-	// Not proven to be good. Likely not good.
+	// Not proven to be good. Likely not secure, but "random enough."
 	public static long hash(byte... bytes) {
 		long res = 0;
 
 		boolean a = false, b = false;
 		for (int i = 0; i < bytes.length; i++, a ^= true, b ^= a)
-			res = Long.rotateLeft(
-					res ^ (HASH_BYTES[(int) (HASH_BYTES[(int) (res & 256)] ^ HASH_BYTES[(int) bytes[i] + 128]
-							^ HASH_BYTES[(int) i % 256 + (a ? 0 : 512) + (b ? 0 : 256)]) % 256 + 128 + (a ? 256 : 0)
-							+ (b ? 512 : 0)]),
-					8);
+			res = Long.rotateLeft(res ^ (HASH_BYTES[(int) (HASH_BYTES[(int) (res & 257)] ^ HASH_BYTES[bytes[i] + 128]
+					^ HASH_BYTES[i % 256 + (a ? 0 : 512) + (b ? 0 : 256)]) % 256 + 128 + (a ? 256 : 0)
+					+ (b ? 512 : 0)]), 8);
 
 		for (int i = 0; i < 8; i++, a ^= true, b ^= a)
-			res = Long.rotateLeft(
-					res ^ (HASH_BYTES[(int) (HASH_BYTES[(int) (res & 256)] ^ HASH_BYTES[(int) HASHBYTES[i] + 128]
-							^ HASH_BYTES[(int) i % 256 + (a ? 0 : 512) + (b ? 0 : 256)]) % 256 + 128 + (a ? 256 : 0)
-							+ (b ? 512 : 0)]),
-					8);
+			res = Long.rotateLeft(res ^ (HASH_BYTES[(HASH_BYTES[(int) (res & 256)] ^ HASH_BYTES[HASHBYTES[i] + 128]
+					^ HASH_BYTES[i % 256 + (a ? 0 : 512) + (b ? 0 : 256)]) % 256 + 128 + (a ? 256 : 0)
+					+ (b ? 512 : 0)]), 8);
 
 		return res;
 	}
