@@ -1,5 +1,6 @@
 package gartham.c10ver.games.rpg.random;
 
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Random;
@@ -8,6 +9,10 @@ import org.alixia.javalibrary.JavaTools;
 
 public class Seed {
 	private final byte[] seed;
+
+	public Seed pick(String index) {
+		return pick(index.getBytes(StandardCharsets.UTF_8));
+	}
 
 	public Seed(long seed) {
 		this.seed = JavaTools.longToBytes(seed);
@@ -77,11 +82,15 @@ public class Seed {
 		return new Seed(JavaTools.combineArrays(seed, JavaTools.combineArrays(bytes)));
 	}
 
+	public Seed pick(byte... bytes) {
+		return new Seed(JavaTools.combineArrays(seed, JavaTools.combineArrays(bytes)));
+	}
+
 	public Seed pickReduced(long... values) {
 		byte[] bytes = new byte[values.length * 8];
 		for (int i = 0; i < values.length; i++)
 			System.arraycopy(JavaTools.longToBytes(values[i]), 0, bytes, i * 8, 8);
-		return new Seed(hash(JavaTools.combineArrays(seed, JavaTools.combineArrays(bytes))));
+		return new Seed(hash(JavaTools.combineArrays(seed, bytes)));
 	}
 
 	private static final byte[] HASHBYTES = { 8, -61, -13, -44, -126, 100, -39, -35 };
@@ -164,5 +173,10 @@ public class Seed {
 			98, 122, 95, -82, 113, -16, 26, -119, 45, 120, -89, -41, 77, -36, 43, -1, -102, -76, 16, -94, 51, 116, -110,
 			68, 104, -18, 63, -109, -40, -84, 89, 56, 57, -124, 107, 76, 106, 87, -68, 6, 60, -95, -121, -41, -92, 18,
 			-60, 108, 126, -100, -73, 82, -23, -45, -9, -63, 127, -81, 1, 0, 69, 90, 106, 46, 116 };
+
+	public long getHash() {
+		var seed = this.seed.clone();
+		return hash(HASH(seed));
+	}
 
 }
