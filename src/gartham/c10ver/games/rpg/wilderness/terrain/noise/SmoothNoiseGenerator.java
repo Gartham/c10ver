@@ -1,5 +1,6 @@
 package gartham.c10ver.games.rpg.wilderness.terrain.noise;
 
+import gartham.c10ver.games.rpg.random.Seed;
 import gartham.c10ver.games.rpg.wilderness.Location;
 
 public class SmoothNoiseGenerator implements NoiseGenerator {
@@ -11,14 +12,14 @@ public class SmoothNoiseGenerator implements NoiseGenerator {
 	}
 
 	public SmoothNoiseGenerator(long seed) {
-		this(GradGenerator.continuous(seed));
+		this(GradGenerator.continuous());
 	}
 
 	@Override
-	public double[][] noisemap(Location tileLocation, int xStart, int yStart, int xEnd, int yEnd, int xSize,
+	public double[][] noisemap(Seed seed, Location tileLocation, int xStart, int yStart, int xEnd, int yEnd, int xSize,
 			int ySize) {
 
-		return generateTile(xSize, ySize, gg, tileLocation.getX(), tileLocation.getY(), xStart, yStart, xEnd, yEnd);
+		return generateTile(seed, xSize, ySize, gg, tileLocation.getX(), tileLocation.getY(), xStart, yStart, xEnd, yEnd);
 
 	}
 
@@ -41,13 +42,13 @@ public class SmoothNoiseGenerator implements NoiseGenerator {
 		return (result);
 	}
 
-	private static double[][] generateTile(int tileWidth, int tileHeight, GradGenerator gg, int tileX, int tileY,
-			int xPixStart, int yPixStart, int xPixEnd, int yPixEnd) {
+	private static double[][] generateTile(Seed seed, int tileWidth, int tileHeight, GradGenerator gg, int tileX,
+			int tileY, int xPixStart, int yPixStart, int xPixEnd, int yPixEnd) {
 
-		Vec tl = gg.generate(tileX, tileY);
-		Vec tr = gg.generate(tileX + 1, tileY);
-		Vec bl = gg.generate(tileX, tileY + 1);
-		Vec br = gg.generate(tileX + 1, tileY + 1);
+		Vec tl = gg.generate(Location.of(tileX, tileY), seed);
+		Vec tr = gg.generate(Location.of(tileX + 1, tileY), seed);
+		Vec bl = gg.generate(Location.of(tileX, tileY + 1), seed);
+		Vec br = gg.generate(Location.of(tileX + 1, tileY + 1), seed);
 
 		double[][] result = new double[xPixEnd - xPixStart][yPixEnd - yPixStart];
 
