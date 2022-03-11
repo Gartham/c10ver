@@ -1,5 +1,6 @@
 package gartham.c10ver.games.rpg.wilderness.terrain;
 
+import gartham.c10ver.games.rpg.random.Seed;
 import gartham.c10ver.games.rpg.wilderness.Location;
 
 public interface BiomeShader {
