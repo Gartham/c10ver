@@ -5,9 +5,9 @@ import java.util.Random;
 
 import org.alixia.javalibrary.JavaTools;
 
+import gartham.c10ver.games.rpg.random.Seed;
 import gartham.c10ver.games.rpg.rooms.RandomXYLambdaRoomGraphic;
 import gartham.c10ver.games.rpg.wilderness.LinkType.AdjacencyLink;
-import gartham.c10ver.games.rpg.wilderness.terrain.Seed;
 import gartham.c10ver.games.rpg.wilderness.terrain.SmoothBiomeShader;
 
 public class CloverWildernessMap extends WildernessMap<CloverWildernessMap.CloverWildernessTile> {
