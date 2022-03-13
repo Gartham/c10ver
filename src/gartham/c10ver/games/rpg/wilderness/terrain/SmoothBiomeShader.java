@@ -11,6 +11,8 @@ import gartham.c10ver.games.rpg.wilderness.terrain.noise.SmoothNoiseGenerator;
 
 public class SmoothBiomeShader implements BiomeShader {
 
+	private static final int GRANULARITY = 5;
+
 	private final NoiseGenerator ng = new SmoothNoiseGenerator(new Random().nextLong());
 
 	private final Emoji[] emojis = Emoji.values();
@@ -18,19 +20,27 @@ public class SmoothBiomeShader implements BiomeShader {
 	@Override
 	public void shade(String[][] tile, Seed seed, Location tileLocation) {
 
-//		int rootTileX = Math.abs(tileLocation.getX() / GRANULARITY), rootTileY = Math.abs(tileLocation.getY() / GRANULARITY);
-//		int tileXIndex = Math.abs(tileLocation.getX()) % GRANULARITY, tileYIndex = Math.abs(tileLocation.getY()) % GRANULARITY;
-//
-//		var nm = ng.noisemap(Location.of(rootTileX, rootTileY), tileXIndex * tile.length, tileYIndex * tile[0].length,
-//				(tileXIndex + 1) * tile.length, (tileYIndex + 1) * tile[0].length, tile.length * GRANULARITY,
-//				tile[0].length * GRANULARITY);
+		int rootTileX = Math.abs(tileLocation.getX() / GRANULARITY),
+				rootTileY = Math.abs(tileLocation.getY() / GRANULARITY);
+		int tileXIndex = Math.abs(tileLocation.getX()) % GRANULARITY,
+				tileYIndex = Math.abs(tileLocation.getY()) % GRANULARITY;
 
 		var sm = ng.noisemap(seed.pick(RPGUtils.CLOVER_WILDERNESS_RANDOM_SEED_TERRAIN_SOFTMAP),
-				Location.of(tileLocation.getX(), -tileLocation.getY()), 0, 0, tile.length, tile.length, tile.length,
-				tile.length);
+				Location.of(rootTileX, rootTileY), tileXIndex * tile.length, tileYIndex * tile[0].length,
+				(tileXIndex + 1) * tile.length, (tileYIndex + 1) * tile[0].length, tile.length * GRANULARITY,
+				tile[0].length * GRANULARITY);
 		var hm = ng.noisemap(seed.pick(RPGUtils.CLOVER_WILDERNESS_RANDOM_SEED_TERRAIN_HARDMAP),
-				Location.of(tileLocation.getX(), -tileLocation.getY()), 0, 0, tile.length, tile.length, tile.length,
-				tile.length);
+				Location.of(rootTileX, rootTileY), tileXIndex * tile.length, tileYIndex * tile[0].length,
+				(tileXIndex + 1) * tile.length, (tileYIndex + 1) * tile[0].length, tile.length * GRANULARITY,
+				tile[0].length * GRANULARITY);
+		
+
+//		var sm = ng.noisemap(seed.pick(RPGUtils.CLOVER_WILDERNESS_RANDOM_SEED_TERRAIN_SOFTMAP),
+//				Location.of(tileLocation.getX(), -tileLocation.getY()), 0, 0, tile.length, tile.length, tile.length,
+//				tile.length);
+//		var hm = ng.noisemap(seed.pick(RPGUtils.CLOVER_WILDERNESS_RANDOM_SEED_TERRAIN_HARDMAP),
+//				Location.of(tileLocation.getX(), -tileLocation.getY()), 0, 0, tile.length, tile.length, tile.length,
+//				tile.length);
 
 		for (int i = 0; i < sm.length; i++)
 			for (int j = 0; j < sm[0].length; j++)

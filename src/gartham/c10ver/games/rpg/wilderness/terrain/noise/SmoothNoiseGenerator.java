@@ -19,7 +19,8 @@ public class SmoothNoiseGenerator implements NoiseGenerator {
 	public double[][] noisemap(Seed seed, Location tileLocation, int xStart, int yStart, int xEnd, int yEnd, int xSize,
 			int ySize) {
 
-		return generateTile(seed, xSize, ySize, gg, tileLocation.getX(), tileLocation.getY(), xStart, yStart, xEnd, yEnd);
+		return generateTile(seed, xSize, ySize, gg, tileLocation.getX(), tileLocation.getY(), xStart, yStart, xEnd,
+				yEnd);
 
 	}
 
@@ -37,9 +38,8 @@ public class SmoothNoiseGenerator implements NoiseGenerator {
 		// interpXY1 = (interpXY1);
 		// interpXY2 = (interpXY2);
 
-		double result = (topYPos - y) / (topYPos - bottomYPos) * interpXY1
-				+ (y - bottomYPos) / (topYPos - bottomYPos) * interpXY2;
-		return (result);
+		return ((topYPos - y) / (topYPos - bottomYPos) * interpXY1
+				+ (y - bottomYPos) / (topYPos - bottomYPos) * interpXY2);
 	}
 
 	private static double[][] generateTile(Seed seed, int tileWidth, int tileHeight, GradGenerator gg, int tileX,
@@ -57,38 +57,16 @@ public class SmoothNoiseGenerator implements NoiseGenerator {
 				// Pixel gets 4 vecs.
 
 				// Get point vector from each anchor.
-				double ix = (pixX % tileWidth / (double) tileWidth);
-				double ip = (ix);// + (1 / 2d / chunksize);
-				double jx = (pixY % tileHeight / (double) tileHeight);
-				double jp = (jx);// + (1 / 2d / chunksize);
-				Vec dtl = new Vec(ip, jp);
-				Vec dtr = new Vec(ip - 1, jp);
-				Vec dbl = new Vec(ip, jp - 1);
-				Vec dbr = new Vec(ip - 1, jp - 1);
+				double ix = pixX % tileWidth / (double) tileWidth, jx = pixY % tileHeight / (double) tileHeight;
+				double atl = tl.dot(new Vec(ix, jx));
+				double atr = tr.dot(new Vec(ix - 1, jx));
+				double abl = bl.dot(new Vec(ix, jx - 1));
+				double abr = br.dot(new Vec(ix - 1, jx - 1));
 
-				double atl = tl.dot(dtl);
-				double atr = tr.dot(dtr);
-				double abl = bl.dot(dbl);
-				double abr = br.dot(dbr);
+				double x = bilinearlyInterpolate(abl, abr, atl, atr, 1, 0, 1, 0, fade(ix), fade(jx));
 
-				double x =
-//						(atl + atr + abl + abr) / 4;
-						bilinearlyInterpolate(abl, abr, atl, atr, 1, 0, 1, 0, fade(ix), fade(jx));
-//						interp(jx, interp(ix, atl, atr), interp(ix, abl, abr));
+				result[pixX - xPixStart][pixY - yPixStart] = Math.min(1, Math.max(-1, x));
 
-//				x = fade(x);
-
-//				if (x < -1 || x > 1)
-//					System.out.println(x);
-
-				result[pixX][pixY] = Math.min(1, Math.max(-1, x));
-
-				// Scale for color.
-//				x += 1;
-//				x /= 2;
-//				Color color = Color.gray(Math.max(Math.min(1, x), 0));
-//
-//				IMAGE.getPixelWriter().setColor(i, j, color);
 			}
 		}
 
