@@ -217,7 +217,7 @@ public class Clover {
 	}
 
 	public Clover(JDA jda, CloverConfiguration configuration) {
-		this(jda, false, configuration);
+		this(jda, configuration.devmode, configuration);
 	}
 
 	public Clover(String token, boolean devmode, CloverConfiguration configuration) throws LoginException {
@@ -236,21 +236,21 @@ public class Clover {
 		eventHandler.getProcessor(MessageReceivedEvent.class).registerInputConsumer(new CloverMenuHandler(this));
 		eventHandler.initialize();
 
-		if (!configuration.isDisableTransactionHandler())
+		if (!configuration.disableTransactionHandler)
 			transactionHandler.enable();
 		else
 			System.out.println("Transaction handler disabled!");
 	}
 
 	public static void main(String[] args) throws LoginException {
-		boolean devmode = false;
-		for (var s : args)
-			if (s.equalsIgnoreCase("dev"))
-				devmode = true;
-		String line;
-		try (var s = new Scanner(Clover.class.getResourceAsStream(devmode ? "dev-token.txt" : "token.txt"))) {
-			line = s.nextLine();
-		}
-		new Clover(line, devmode, new CloverConfiguration(args));
+		var ccfg = new CloverConfiguration(args);
+		if (ccfg.commandLineToken == null) {
+			String line;
+			try (var s = new Scanner(Clover.class.getResourceAsStream(ccfg.devmode ? "dev-token.txt" : "token.txt"))) {
+				line = s.nextLine();
+			}
+			new Clover(line, ccfg);
+		} else
+			new Clover(ccfg.commandLineToken, ccfg);
 	}
 }
