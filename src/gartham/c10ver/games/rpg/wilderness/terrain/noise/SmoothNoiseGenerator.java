@@ -45,10 +45,10 @@ public class SmoothNoiseGenerator implements NoiseGenerator {
 	private static double[][] generateTile(Seed seed, int tileWidth, int tileHeight, GradGenerator gg, int tileX,
 			int tileY, int xPixStart, int yPixStart, int xPixEnd, int yPixEnd) {
 
-		Vec tl = gg.generate(Location.of(tileX, tileY), seed);
-		Vec tr = gg.generate(Location.of(tileX + 1, tileY), seed);
-		Vec bl = gg.generate(Location.of(tileX, tileY + 1), seed);
-		Vec br = gg.generate(Location.of(tileX + 1, tileY + 1), seed);
+		Vec bl = gg.generate(Location.of(tileX, tileY), seed);
+		Vec br = gg.generate(Location.of(tileX + 1, tileY), seed);
+		Vec tl = gg.generate(Location.of(tileX, tileY + 1), seed);
+		Vec tr = gg.generate(Location.of(tileX + 1, tileY + 1), seed);
 
 		double[][] result = new double[xPixEnd - xPixStart][yPixEnd - yPixStart];
 
