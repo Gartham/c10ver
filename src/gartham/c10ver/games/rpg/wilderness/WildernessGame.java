@@ -40,12 +40,13 @@ public class WildernessGame {
 			@Override
 			public boolean consume(ButtonClickEvent event, InputProcessor<? extends ButtonClickEvent> processor,
 					InputConsumer<ButtonClickEvent> consumer) {
-				if (event.getUser().getIdLong() != target.getIdLong()) {
+				if (event.getMessageIdLong() != msg.getIdLong())
+					return false;
+				else if (event.getUser().getIdLong() != target.getIdLong()) {
 					event.reply("That's not for you, that's for " + target.getAsMention() + ".").setEphemeral(true)
 							.queue();
 					return true;
-				} else if (event.getMessageIdLong() != msg.getIdLong())
-					return false;
+				}
 				switch (event.getComponentId()) {
 				case "left":
 					tile = tile.traverse(AdjacencyLink.LEFT);
