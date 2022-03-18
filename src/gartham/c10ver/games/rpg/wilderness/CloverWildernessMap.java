@@ -43,7 +43,8 @@ public class CloverWildernessMap extends WildernessMap<CloverWildernessMap.Clove
 		private CloverWildernessTile() {
 			super(CloverWildernessMap.this, 0, 0, DEFAULT_TILE_SIZE, DEFAULT_TILE_SIZE);
 			getGraphix().add(new ExitGraphic());
-			getGraphix().add(centerCircleGraphic());
+//			getGraphix().add(centerCircleGraphic());
+			getGraphix().add(map -> biomeShader.shade(map, new Seed(seed), getLocation()));
 		}
 
 		private long getTileXShift() {
@@ -82,8 +83,8 @@ public class CloverWildernessMap extends WildernessMap<CloverWildernessMap.Clove
 		if (link instanceof AdjacencyLink) {
 			var cwt = new CloverWildernessTile(from.travel((AdjacencyLink) link));
 			cwt.getGraphix().add(map -> biomeShader.shade(map, new Seed(seed), cwt.getLocation()));
-			if (cwt.getX() < 3 && cwt.getX() > -3 && cwt.getY() < 3 && cwt.getY() > -3)
-				cwt.getGraphix().add(cwt.centerCircleGraphic());
+//			if (cwt.getX() < 3 && cwt.getX() > -3 && cwt.getY() < 3 && cwt.getY() > -3)
+//				cwt.getGraphix().add(cwt.centerCircleGraphic());
 			return cwt;
 		} else// Implement other link types.
 			throw new UnsupportedOperationException();

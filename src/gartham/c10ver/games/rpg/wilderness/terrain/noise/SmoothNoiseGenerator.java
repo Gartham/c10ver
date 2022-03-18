@@ -45,25 +45,40 @@ public class SmoothNoiseGenerator implements NoiseGenerator {
 	private static double[][] generateTile(Seed seed, int tileWidth, int tileHeight, GradGenerator gg, int tileX,
 			int tileY, int xPixStart, int yPixStart, int xPixEnd, int yPixEnd) {
 
-		Vec bl = gg.generate(Location.of(tileX, tileY), seed);
-		Vec br = gg.generate(Location.of(tileX + 1, tileY), seed);
-		Vec tl = gg.generate(Location.of(tileX, tileY + 1), seed);
-		Vec tr = gg.generate(Location.of(tileX + 1, tileY + 1), seed);
+//		System.out.println("[(" + tileX + ", " + xPixStart / (tileWidth / (xPixEnd - xPixStart)) + "), (" + tileY + ", "
+//				+ yPixStart / (tileHeight / (yPixEnd - yPixStart)) + ")]\n\n");
+
+		// +X is to the right, -X is to the left.
+		// +Y is up, -Y is down.
+		Vec bl = gg.generate(Location.of(tileX, tileY), seed);// Bottom left is the origin.
+		Vec br = gg.generate(Location.of(tileX + 1, tileY), seed);// Bottom right is 1, 0 from origin.
+		Vec tl = gg.generate(Location.of(tileX, tileY + 1), seed);// Top left is 0, 1 from origin.
+		Vec tr = gg.generate(Location.of(tileX + 1, tileY + 1), seed); // Top right is 1,1 from origin.
 
 		double[][] result = new double[xPixEnd - xPixStart][yPixEnd - yPixStart];
 
-		for (int pixX = xPixStart; pixX < xPixEnd; pixX++) {
-			for (int pixY = yPixStart; pixY < yPixEnd; pixY++) {
-				// Pixel gets 4 vecs.
+//		{
+//			double ix = xPixStart / (double) tileWidth, jx = yPixStart / (double) tileHeight;
+//			double atl = tl.dot(new Vec(ix, jx - 1));
+//			double atr = tr.dot(new Vec(ix - 1, jx - 1));
+//			double abl = bl.dot(new Vec(ix, jx));
+//			double abr = br.dot(new Vec(ix - 1, jx));
+//		}
 
-				// Get point vector from each anchor.
-				double ix = pixX % tileWidth / (double) tileWidth, jx = pixY % tileHeight / (double) tileHeight;
-				double atl = tl.dot(new Vec(ix, jx));
-				double atr = tr.dot(new Vec(ix - 1, jx));
-				double abl = bl.dot(new Vec(ix, jx - 1));
-				double abr = br.dot(new Vec(ix - 1, jx - 1));
+		// We fill the 2D array from left to right (one 1D array at a time, increasing
+		// in the X direction) then from top to bottom (decreasing in the Y direction).
+		for (int pixX = xPixStart; pixX < xPixEnd; pixX++) {
+			for (int pixY = yPixEnd - 1; pixY >= yPixStart; pixY--) {
+
+				double ix = pixX / (double) tileWidth, jx = pixY / (double) tileHeight;
+//				We dot each corner vector with the vector of this point from that corner.
+				double atl = tl.dot(new Vec(ix, jx - 1));
+				double atr = tr.dot(new Vec(ix - 1, jx - 1));
+				double abl = bl.dot(new Vec(ix, jx));
+				double abr = br.dot(new Vec(ix - 1, jx));
 
 				double x = bilinearlyInterpolate(abl, abr, atl, atr, 1, 0, 1, 0, fade(ix), fade(jx));
+
 
 				result[pixX - xPixStart][pixY - yPixStart] = Math.min(1, Math.max(-1, x));
 
