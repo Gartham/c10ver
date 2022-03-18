@@ -45,10 +45,10 @@ public class SmoothBiomeShader implements BiomeShader {
 		}
 
 		if (tileLocation.getY() >= 0) {
-			rootTileY = -tileLocation.getY() / SCALE_FACTOR;
+			rootTileY = tileLocation.getY() / SCALE_FACTOR;
 			tileYIndex = SCALE_FACTOR - 1 - tileLocation.getY() % SCALE_FACTOR;
 		} else {
-			rootTileY = -(tileLocation.getY() - SCALE_FACTOR + 1) / SCALE_FACTOR;
+			rootTileY = (tileLocation.getY() - SCALE_FACTOR + 1) / SCALE_FACTOR;
 			tileYIndex = Math.abs(tileLocation.getY() + 1) % SCALE_FACTOR;
 		}
 

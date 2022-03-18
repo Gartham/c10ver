@@ -68,17 +68,16 @@ public class SmoothNoiseGenerator implements NoiseGenerator {
 		// We fill the 2D array from left to right (one 1D array at a time, increasing
 		// in the X direction) then from top to bottom (decreasing in the Y direction).
 		for (int pixX = xPixStart; pixX < xPixEnd; pixX++) {
-			for (int pixY = yPixEnd - 1; pixY >= yPixStart; pixY--) {
+			for (int pixY = yPixStart; pixY < yPixEnd; pixY++) {
 
 				double ix = pixX / (double) tileWidth, jx = pixY / (double) tileHeight;
 //				We dot each corner vector with the vector of this point from that corner.
-				double atl = tl.dot(new Vec(ix, jx - 1));
-				double atr = tr.dot(new Vec(ix - 1, jx - 1));
-				double abl = bl.dot(new Vec(ix, jx));
-				double abr = br.dot(new Vec(ix - 1, jx));
+				double atl = tl.dot(new Vec(ix, jx));
+				double atr = tr.dot(new Vec(ix - 1, jx));
+				double abl = bl.dot(new Vec(ix, jx - 1));
+				double abr = br.dot(new Vec(ix - 1, jx - 1));
 
 				double x = bilinearlyInterpolate(abl, abr, atl, atr, 1, 0, 1, 0, fade(ix), fade(jx));
-
 
 				result[pixX - xPixStart][pixY - yPixStart] = Math.min(1, Math.max(-1, x));
 
