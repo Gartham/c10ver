@@ -41,4 +41,22 @@ public class EventHandler implements EventListener {
 				((InputProcessor<GenericEvent>) inputProcessors.get(c)).runInputHandlers(event);
 	}
 
+	/**
+	 * Runs all applicable {@link InputProcessor}s on the specified event. If any
+	 * returns <code>true</code>, this method returns <code>true</code>.
+	 * 
+	 * @param event The event to run the processors on.
+	 * @return <code>true</code> if any {@link InputProcessor} returned
+	 *         <code>true</code>.
+	 */
+	@SuppressWarnings("unchecked")
+	public boolean processEvent(GenericEvent event) {
+		boolean res = false;
+		for (Class<?> c = event.getClass(); GenericEvent.class.isAssignableFrom(c); c = c.getSuperclass())
+			if (inputProcessors.containsKey(c))
+				if (((InputProcessor<GenericEvent>) inputProcessors.get(c)).runInputHandlers(event))
+					res = true;
+		return res;
+	}
+
 }
