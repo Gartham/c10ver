@@ -18,11 +18,16 @@ import javax.security.auth.login.LoginException;
 import org.alixia.javalibrary.strings.matching.Matching;
 
 import gartham.c10ver.changelog.Changelog;
+import gartham.c10ver.commands.CommandInvocation;
 import gartham.c10ver.commands.CommandParser;
 import gartham.c10ver.commands.CommandProcessor;
 import gartham.c10ver.economy.Economy;
+import gartham.c10ver.events.CloverGuildMemberJoinConsumer;
+import gartham.c10ver.events.CloverMessageConsumer;
 import gartham.c10ver.events.EventHandler;
 import gartham.c10ver.events.InfoPopup;
+import gartham.c10ver.events.InviteTracker;
+import gartham.c10ver.events.VoteManager;
 import gartham.c10ver.transactions.Transaction;
 import gartham.c10ver.transactions.Transaction.Entry;
 import gartham.c10ver.transactions.TransactionHandler;
@@ -32,7 +37,12 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.events.guild.invite.GuildInviteCreateEvent;
+import net.dv8tion.jda.api.events.guild.invite.GuildInviteDeleteEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 public class Clover {
@@ -85,12 +95,22 @@ public class Clover {
 	private final JDA bot;
 	private final CommandParser commandParser;
 	private final CommandProcessor commandProcessor = new CloverCommandProcessor(this);
-	private final EventHandler eventHandler = new EventHandler(this);
+	private final EventHandler eventHandler = new EventHandler();
 	private final Economy economy = new Economy(new File(root, "economy"), this);
+	private final InviteTracker inviteTracker = new InviteTracker(this);
 	private final Changelog changelog;
 	private final Set<String> devlist;
 	private final List<String> wordlist;
 	private final List<InfoPopup> tiplist;
+	private final VoteManager voteManager = new VoteManager(this);
+
+	public InviteTracker getInviteTracker() {
+		return inviteTracker;
+	}
+
+	public VoteManager getVoteManager() {
+		return voteManager;
+	}
 
 	public CloverConfiguration getConfig() {
 		return config;
@@ -232,9 +252,39 @@ public class Clover {
 		commandParser = new CommandParser(Matching.build(devmode ? "$" : "~").or(
 				Matching.build("<@").possibly("!").then(bot.getSelfUser().getId() + ">").then(Matching.whitespace())));
 		jda.getPresence().setPresence(OnlineStatus.ONLINE, Activity.playing("Ping me for help!"));
-		bot.addEventListener(eventHandler);
+		bot.addEventListener(new EventListener() {
+
+			@Override
+			public void onEvent(GenericEvent event) {
+				if (event instanceof MessageReceivedEvent) {
+					var mre = (MessageReceivedEvent) event;
+
+					if (mre.isWebhookMessage() || mre.getAuthor().isBot() || mre.getAuthor().isSystem())
+						return;
+
+					var ranCmd = false;
+					CommandInvocation commandInvoc = null;
+
+					if (eventHandler.getMessageProcessor().runInputHandlers(mre))
+						if ((commandInvoc = getCommandParser().parse(mre.getMessage().getContentRaw(), mre)) != null)
+							if (getCommandProcessor().run(commandInvoc))
+								ranCmd = true;
+				}
+			}
+		});
+		eventHandler.getProcessor(MessageReceivedEvent.class).registerInputConsumer(new CloverMessageConsumer(this));
 		eventHandler.getProcessor(MessageReceivedEvent.class).registerInputConsumer(new CloverMenuHandler(this));
-		eventHandler.initialize();
+		eventHandler.getProcessor(GuildMemberJoinEvent.class)
+				.registerInputConsumer(new CloverGuildMemberJoinConsumer(this));
+		eventHandler.getProcessor(GuildInviteCreateEvent.class).registerInputConsumer((event, processor, consumer) -> {
+			inviteTracker.inviteCreated(event);
+			return false;
+		});
+		eventHandler.getProcessor(GuildInviteDeleteEvent.class).registerInputConsumer((a, b, c) -> {
+			inviteTracker.inviteDeleted(a);
+			return false;
+		});
+		inviteTracker.initialize();
 
 		if (!configuration.disableTransactionHandler)
 			transactionHandler.enable();
