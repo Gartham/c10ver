@@ -180,19 +180,19 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 				inv.event.getChannel().sendMessageEmbeds(eb.build()).queue();
 			}
 		});
-		register(new MatchBasedCommand("tip") {
-
-			@Override
-			public void exec(CommandInvocation inv) {
-				if (inv.args.length != 0)
-					inv.event.getChannel()
-							.sendMessage(
-									inv.event.getAuthor().getAsMention() + " that command doesn't take any arguments.")
-							.queue();
-				else
-					clover.getEventHandler().getTipGenerator().next().show(inv.event);
-			}
-		});
+//		register(new MatchBasedCommand("tip") {
+//
+//			@Override
+//			public void exec(CommandInvocation inv) {
+//				if (inv.args.length != 0)
+//					inv.event.getChannel()
+//							.sendMessage(
+//									inv.event.getAuthor().getAsMention() + " that command doesn't take any arguments.")
+//							.queue();
+//				else
+//					clover.getEventHandler().getTipGenerator().next().show(inv.event);
+//			}
+//		});
 		register(new MatchBasedCommand("accolades") {
 
 			@Override
@@ -2504,7 +2504,7 @@ public class CloverCommandProcessor extends SimpleCommandProcessor {
 									.queue();
 						else {
 							boolean b = Boolean.valueOf(inv.args[0]);
-							clover.getEventHandler().getVoteManager().setVotingRemindersEnabled(
+							clover.getVoteManager().setVotingRemindersEnabled(
 									clover.getEconomy().getUser(inv.event.getAuthor().getId()),
 									inv.event.getGuild().getId(), b);
 							inv.event.getChannel()

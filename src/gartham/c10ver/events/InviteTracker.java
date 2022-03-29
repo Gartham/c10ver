@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import gartham.c10ver.Clover;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Invite;
@@ -17,18 +18,18 @@ import net.dv8tion.jda.api.events.guild.update.GuildUpdateVanityCodeEvent;
 
 public class InviteTracker {
 	private final Map<String, Map<String, Integer>> invites = new HashMap<>();
-	private final EventHandler eventHandler;
+	private final Clover clover;
 
-	public InviteTracker(EventHandler eventHandler) {
-		this.eventHandler = eventHandler;
+	public InviteTracker(Clover clover) {
+		this.clover = clover;
 	}
 
 	public void initialize() {
 		try {
-			eventHandler.getClover().getBot().awaitReady();
+			clover.getBot().awaitReady();
 		} catch (InterruptedException e) {
 		}
-		for (Guild g : eventHandler.getClover().getBot().getGuilds()) {
+		for (Guild g : clover.getBot().getGuilds()) {
 			Map<String, Integer> invmap = new HashMap<>();
 			invites.put(g.getId(), invmap);
 			if (g.getSelfMember().hasPermission(Permission.MANAGE_SERVER)) {
