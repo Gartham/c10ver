@@ -41,9 +41,9 @@ public class Dungeon {
 
 	public static DungeonRoom generateRandomRoom() {
 		var rand = Math.random();
-		if (rand < .7) {
+		if (rand < .7)
 			return new EmptyRoom();
-		} else if (rand < 0.8) {
+		else if (rand < 0.8) {
 			List<Creature> creechurrs = new ArrayList<>();
 			var enemy = new Nymph();
 			if (Math.random() < 0.3)

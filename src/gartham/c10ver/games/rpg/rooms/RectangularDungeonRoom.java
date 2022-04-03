@@ -6,7 +6,7 @@ import java.util.Set;
 
 import gartham.c10ver.utils.Direction;
 
-public class RectangularRoom implements StringRoom {
+public class RectangularDungeonRoom implements StringRoom {
 
 	// Vertical (Single, Double), Horizontal
 	private static final String[] SIDE = { "\u2502", "\u2551", "\u2500", "\u2550" },
@@ -20,7 +20,7 @@ public class RectangularRoom implements StringRoom {
 	// vertical, horizontal - [3][0] is the fourth row and the first column.
 	private final int width, height;
 
-	public RectangularRoom(int width, int height) {
+	public RectangularDungeonRoom(int width, int height) {
 		if (width < 3 || height < 3)
 			throw new IllegalArgumentException("Room can't be smaller than 3 units!");
 		this.height = height;
@@ -37,18 +37,9 @@ public class RectangularRoom implements StringRoom {
 	}
 
 	private final Set<Opening> openings = new HashSet<>();
-	private final Set<Graphic> graphics = new HashSet<>();
+	private final Set<RoomGraphic> graphics = new HashSet<>();
 
-	public interface Graphic {
-		/**
-		 * Renders this {@link Graphic} onto the provided map.
-		 * 
-		 * @param map The map to render onto.
-		 */
-		void render(String[][] map);
-	}
-
-	public static class Image implements Graphic {
+	public static class Image implements RoomGraphic {
 
 		private String[][] image;
 		private int breadth, depth;// "Width" coordinate, "height" coordinate
@@ -142,7 +133,7 @@ public class RectangularRoom implements StringRoom {
 	 * that there is a gap in a wall, the position does. Furthermore, the position
 	 * begins in the first non-corner tile, so a position of 0 will indicate that
 	 * the splitter tile used to indicate that there is an opening for this opening
-	 * will come immediately after the corner tile in the {@link RectangularRoom}.
+	 * will come immediately after the corner tile in the {@link RectangularDungeonRoom}.
 	 * </p>
 	 * 
 	 * @param side     The {@link Direction} of the room to put an opening in the
@@ -159,8 +150,8 @@ public class RectangularRoom implements StringRoom {
 		return opening;
 	}
 
-	public Graphic createIcon(int depth, int breadth, String icon) {
-		Graphic gr = map -> map[depth][breadth] = icon;
+	public RoomGraphic createIcon(int depth, int breadth, String icon) {
+		RoomGraphic gr = map -> map[depth][breadth] = icon;
 		graphics.add(gr);
 		return gr;
 	}
@@ -170,9 +161,9 @@ public class RectangularRoom implements StringRoom {
 	 * is rendered.
 	 * 
 	 * @param icon The icon to put.
-	 * @return The {@link Graphic} created.
+	 * @return The {@link RoomGraphic} created.
 	 */
-	public Graphic createRandIcon(String icon) {
+	public RoomGraphic createRandIcon(String icon) {
 		return createIcon(((int) Math.random() * (height - 2)) + 1, (int) (Math.random() * (width - 2)) + 1, icon);
 	}
 
@@ -193,7 +184,7 @@ public class RectangularRoom implements StringRoom {
 	}
 
 	/**
-	 * Used for ASCII "images" being rendered onto the {@link RectangularRoom} that
+	 * Used for ASCII "images" being rendered onto the {@link RectangularDungeonRoom} that
 	 * are rectangular, i.e. the provided <code>icon</code> parameter is a
 	 * rectangular matrix (i.e. it is <em>not</em> jagged). This method is extremely
 	 * similar to {@link #createRandIamge(String[][])}, but it can be used with
@@ -212,7 +203,7 @@ public class RectangularRoom implements StringRoom {
 				image);
 	}
 
-	public Set<Graphic> getGraphics() {
+	public Set<RoomGraphic> getGraphics() {
 		return graphics;
 	}
 
@@ -285,16 +276,16 @@ public class RectangularRoom implements StringRoom {
 	}
 
 	/**
-	 * Returns a {@link RectangularRoom} which renders as a square on Discord in a
+	 * Returns a {@link RectangularDungeonRoom} which renders as a square on Discord in a
 	 * code block. (The width is a factor of <code>2.2</code> of the height, since
 	 * the width of a character on Discord is less than the height in code blocks.)
 	 * <code>width*2.2 = height</code>
 	 * 
 	 * @param size The height of the square.
-	 * @return The new {@link RectangularRoom}.
+	 * @return The new {@link RectangularDungeonRoom}.
 	 */
-	public static RectangularRoom discordSquare(int size) {
-		return new RectangularRoom((int) (2.2 * size), size);
+	public static RectangularDungeonRoom discordSquare(int size) {
+		return new RectangularDungeonRoom((int) (2.2 * size), size);
 	}
 
 }

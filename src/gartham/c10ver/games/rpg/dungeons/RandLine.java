@@ -8,9 +8,9 @@ import java.util.Random;
 
 import org.alixia.javalibrary.JavaTools;
 
-import gartham.c10ver.games.rpg.rooms.RectangularRoom.Graphic;
+import gartham.c10ver.games.rpg.rooms.RoomGraphic;
 
-class RandLine implements Graphic {
+class RandLine implements RoomGraphic {
 
 	private final String[] elements;
 
@@ -39,7 +39,7 @@ class RandLine implements Graphic {
 
 }
 
-class RandLines implements Graphic {
+class RandLines implements RoomGraphic {
 	private final static Random RANDOM = new Random();
 	private final List<String[]> elements;
 	private final long seed;

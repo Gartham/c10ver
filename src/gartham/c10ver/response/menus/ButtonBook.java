@@ -21,9 +21,15 @@ import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import static org.alixia.javalibrary.JavaTools.*;
 
 public class ButtonBook {
+	public static final Button LEFT_ONE = Button.primary("left-one", Emoji.fromMarkdown(ResponseUtils.LEFT_ONE)),
+			RIGHT_ONE = Button.primary("right-one", Emoji.fromMarkdown(ResponseUtils.RIGHT_ONE)),
+			LEFT_ALL = Button.primary("left-all", Emoji.fromMarkdown(ResponseUtils.LEFT_ALL)),
+			RIGHT_ALL = Button.primary("right-all", Emoji.fromMarkdown(ResponseUtils.RIGHT_ALL));
+
 	// TODO This class (and the surrounding class) are in desparate need of
 	// documentation.
 	public static final class ActiveButtonBook {
+
 		private Consumer<ButtonClickEvent> handler;
 		private final InputConsumer<ButtonClickEvent> inc;
 		private int maxPage;
@@ -59,17 +65,27 @@ public class ButtonBook {
 			return page == maxPage ? button.asDisabled() : button;
 		}
 
-		private List<ActionRow> genRows() {
-			var itr = concat(
-					iterator(disableLeft(Button.primary("left-one", Emoji.fromMarkdown(ResponseUtils.LEFT_ONE)))),
-					buttons.iterator(),
-					iterator(disableRight(Button.primary("right-one", Emoji.fromMarkdown(ResponseUtils.RIGHT_ONE)))));
+		/**
+		 * Disables all the buttons of this {@link ButtonBook} so that it can no longer
+		 * be used.
+		 */
+		public void complete() {
+			var itr = concat(iterator(LEFT_ONE.asDisabled()), mask(buttons.iterator(), Button::asDisabled),
+					iterator(RIGHT_ONE.asDisabled()));
 			if (edgeButtons)
-				itr = concat(
-						iterator(disableLeft(Button.primary("left-all", Emoji.fromMarkdown(ResponseUtils.LEFT_ALL)))),
-						itr, iterator(disableRight(
-								Button.primary("right-all", Emoji.fromMarkdown(ResponseUtils.RIGHT_ALL)))));
-			return genRows(itr);
+				itr = concat(iterator(LEFT_ALL.asDisabled()), itr, iterator(RIGHT_ALL.asDisabled()));
+			message.editMessageComponents(genRows(itr)).queue();
+		}
+
+		private List<ActionRow> genRows() {
+			return genRows(buttons());
+		}
+
+		private Iterator<Button> buttons() {
+			var itr = concat(iterator(disableLeft(LEFT_ONE)), buttons.iterator(), iterator(disableRight(RIGHT_ONE)));
+			if (edgeButtons)
+				itr = concat(iterator(disableLeft(LEFT_ALL)), itr, iterator(disableRight(RIGHT_ALL)));
+			return itr;
 		}
 
 		private ActiveButtonBook(MessageAction msg, Consumer<ButtonClickEvent> handler,
@@ -96,7 +112,7 @@ public class ButtonBook {
 
 				String e = event.getComponentId();
 
-				switch (e) { // If it is a page button, handle, but do not unregister the consumer.
+				switch (e) {
 				case "left-all":
 					if (this.page > 0) {
 						page = 0;
@@ -107,7 +123,7 @@ public class ButtonBook {
 					return true;
 				case "left-one":
 					if (this.page > 0) {
-						if (--page == 0)
+						if (page == maxPage | --page == 0)
 							event.editComponents(genRows()).queue();
 						else
 							event.deferEdit().queue();
@@ -117,7 +133,7 @@ public class ButtonBook {
 					return true;
 				case "right-one":
 					if (this.page < this.maxPage) {
-						if (++page == maxPage)
+						if (++page == maxPage || page == 1)
 							event.editComponents(genRows()).queue();
 						else
 							event.deferEdit().queue();
@@ -248,6 +264,7 @@ public class ButtonBook {
 
 		public void unregister() {
 			processor.removeInputConsumer(inc);
+			complete();
 		}
 
 		/**

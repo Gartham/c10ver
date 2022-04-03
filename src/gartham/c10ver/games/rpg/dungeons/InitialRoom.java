@@ -1,11 +1,11 @@
 package gartham.c10ver.games.rpg.dungeons;
 
-import gartham.c10ver.games.rpg.rooms.RectangularRoom;
+import gartham.c10ver.games.rpg.rooms.RectangularDungeonRoom;
 
 public class InitialRoom extends DungeonRoom {
 
 	public InitialRoom() {
-		super(RectangularRoom.discordSquare(8));
+		super(RectangularDungeonRoom.discordSquare(8));
 	}
 
 }
