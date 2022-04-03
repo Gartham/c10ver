@@ -8,6 +8,11 @@ import net.dv8tion.jda.api.interactions.components.Button;
 
 public class ButtonBox {
 	private final ButtonBoxButton[][] buttons = new ButtonBoxButton[5][5];
+	{
+		for (int i = 0; i < buttons.length; i++)
+			for (int j = 0; j < buttons[i].length; j++)
+				buttons[i][j] = new ButtonBoxButton(String.valueOf(i * 5 + j));
+	}
 
 	public ButtonBoxButton get(int x, int y) {
 		return buttons[x][y];
