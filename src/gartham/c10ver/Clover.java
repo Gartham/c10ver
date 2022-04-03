@@ -262,14 +262,14 @@ public class Clover {
 					if (mre.isWebhookMessage() || mre.getAuthor().isBot() || mre.getAuthor().isSystem())
 						return;
 
-					var ranCmd = false;
 					CommandInvocation commandInvoc = null;
 
-					if (eventHandler.getMessageProcessor().runInputHandlers(mre))
+					if (eventHandler.processEvent(event))
 						if ((commandInvoc = getCommandParser().parse(mre.getMessage().getContentRaw(), mre)) != null)
-							if (getCommandProcessor().run(commandInvoc))
-								ranCmd = true;
-				}
+							if (getCommandProcessor().run(commandInvoc)) {
+							}
+				} else
+					eventHandler.onEvent(event);
 			}
 		});
 		eventHandler.getProcessor(MessageReceivedEvent.class).registerInputConsumer(new CloverMessageConsumer(this));
