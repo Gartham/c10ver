@@ -62,7 +62,7 @@ public class Menu extends Paginator {
 
 	@Override
 	protected void update(ButtonClickEvent event) {
-		event.editComponents(getBox().rows()).queue();
+		
 	}
 
 }
