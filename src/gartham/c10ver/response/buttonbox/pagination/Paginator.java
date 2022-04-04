@@ -132,6 +132,10 @@ public abstract class Paginator implements InputConsumer<ButtonClickEvent> {
 		return event;
 	}
 
+	protected ButtonBox getBox() {
+		return box;
+	}
+
 	@Override
 	public boolean consume(ButtonClickEvent event, InputProcessor<? extends ButtonClickEvent> processor,
 			InputConsumer<ButtonClickEvent> consumer) {
