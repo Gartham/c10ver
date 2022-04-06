@@ -4,6 +4,8 @@ import gartham.c10ver.commands.InputProcessor;
 import gartham.c10ver.commands.consumers.InputConsumer;
 import gartham.c10ver.commands.consumers.MessageInputConsumer;
 import gartham.c10ver.response.buttonbox.menu.Menu;
+import gartham.c10ver.response.buttonbox.menu.Page;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class CloverMenuHandler implements MessageInputConsumer {
@@ -53,12 +55,14 @@ public class CloverMenuHandler implements MessageInputConsumer {
 //		});
 //		menu.getPaginator().setOneTime(true);
 //		menu.send(event.getChannel());
-		
+
 		Menu menu = new Menu(event.getAuthor());
-		
-		
-		
-		
+		menu.addPage(Page.page("I like cars."));
+		menu.addPage(
+				Page.page(new EmbedBuilder().setAuthor("An embed about cars.").setDescription("I still like cars.")));
+		menu.send(event.getChannel().sendMessage("This is a message about me liking cars."),
+				clover.getEventHandler().getButtonClickProcessor());
+
 		return true;
 	}
 
