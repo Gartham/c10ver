@@ -7,6 +7,7 @@ import gartham.c10ver.response.utils.ResponseUtils;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 public abstract class Paginator implements InputConsumer<ButtonClickEvent> {
 	private final ButtonBox box;
@@ -48,15 +49,19 @@ public abstract class Paginator implements InputConsumer<ButtonClickEvent> {
 	public Paginator(ButtonBox box) {
 		this.box = box;
 
-		leftAll = box.get(4, 0);
-		left = box.get(4, 1);
-		rightAll = box.get(4, 4);
-		right = box.get(4, 3);
+		leftAll = box.get(4, 0).setPresent(true);
+		left = box.get(4, 1).setPresent(true);
+		rightAll = box.get(4, 4).setPresent(true);
+		right = box.get(4, 3).setPresent(true);
 
-		leftAll.setID("left-all").setDisabled(true).setEmoji(Emoji.fromMarkdown(ResponseUtils.LEFT_ALL));
-		left.setID("left").setDisabled(true).setEmoji(Emoji.fromMarkdown(ResponseUtils.LEFT_ONE));
-		rightAll.setID("right-all").setDisabled(true).setEmoji(Emoji.fromMarkdown(ResponseUtils.RIGHT_ALL));
-		right.setID("right").setDisabled(true).setEmoji(Emoji.fromMarkdown(ResponseUtils.RIGHT_ONE));
+		leftAll.setID("left-all").setDisabled(true).setEmoji(Emoji.fromMarkdown(ResponseUtils.LEFT_ALL))
+				.setStyle(ButtonStyle.PRIMARY);
+		left.setID("left").setDisabled(true).setEmoji(Emoji.fromMarkdown(ResponseUtils.LEFT_ONE))
+				.setStyle(ButtonStyle.PRIMARY);
+		rightAll.setID("right-all").setDisabled(true).setEmoji(Emoji.fromMarkdown(ResponseUtils.RIGHT_ALL))
+				.setStyle(ButtonStyle.PRIMARY);
+		right.setID("right").setDisabled(true).setEmoji(Emoji.fromMarkdown(ResponseUtils.RIGHT_ONE))
+				.setStyle(ButtonStyle.PRIMARY);
 	}
 
 	/**
