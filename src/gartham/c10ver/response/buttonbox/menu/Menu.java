@@ -91,9 +91,10 @@ public class Menu extends Paginator {
 	public void attach(Message message, InputProcessor<ButtonClickEvent> processor) {
 		if (getMessage() != null)
 			throw new RuntimeException("This Menu is already registered to a Message.");
-		if (processor == null)
+		if (processor == null || message == null)
 			throw null;
 		setMessage(message);
+		recalculateButtons();
 		processor.registerInputConsumer(this);
 		message.editMessageComponents(getBox().rows()).queue();
 	}
@@ -101,8 +102,9 @@ public class Menu extends Paginator {
 	public void send(MessageAction message, InputProcessor<ButtonClickEvent> processor) {
 		if (getMessage() != null)
 			throw new RuntimeException("This Menu is already registered to a Message.");
-		if (processor == null)
+		if (processor == null || message == null)
 			throw null;
+		recalculateButtons();
 		processor.registerInputConsumer(this);
 		message.setActionRows(getBox().rows()).queue(a -> setMessage(a));
 	}
