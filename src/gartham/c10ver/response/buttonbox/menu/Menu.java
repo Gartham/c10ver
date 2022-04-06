@@ -32,10 +32,10 @@ public class Menu extends Paginator {
 	public void clear() {
 		pages.clear();
 	}
-	
+
 	@Override
 	protected int getMaxPage() {
-		return Math.max(0, getMaxPage());
+		return Math.max(0, getMaxPage() - 1);
 	}
 
 	private final User target;
