@@ -30,7 +30,7 @@ public class ButtonBox {
 		}
 		return ar;
 	}
-	
+
 	public class Button extends MutableButton {
 
 		private boolean present;
@@ -39,8 +39,9 @@ public class ButtonBox {
 			return present;
 		}
 
-		public void setPresent(boolean present) {
+		public Button setPresent(boolean present) {
 			this.present = present;
+			return this;
 		}
 
 		public Button(net.dv8tion.jda.api.interactions.components.Button button) {
