@@ -11,8 +11,15 @@ import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 public abstract class Paginator implements InputConsumer<ButtonClickEvent> {
 	private final ButtonBox box;
 	private Message message;
-	private InputProcessor<ButtonClickEvent> buttonProcessor;
 	private final ButtonBox.Button leftAll, left, rightAll, right;
+
+	public Message getMessage() {
+		return message;
+	}
+
+	protected void setMessage(Message message) {
+		this.message = message;
+	}
 
 	private int page;
 
@@ -52,21 +59,11 @@ public abstract class Paginator implements InputConsumer<ButtonClickEvent> {
 		right.setID("right").setDisabled(true).setEmoji(Emoji.fromMarkdown(ResponseUtils.RIGHT_ONE));
 	}
 
-	public void attach(Message message, InputProcessor<ButtonClickEvent> buttonProcessor) {
-		(this.buttonProcessor = buttonProcessor).registerInputConsumer(this);
-		this.message = message;
-	}
-
-	public void detach() {
-		buttonProcessor.removeInputConsumer(this);
-		message = null;
-	}
-
 	/**
 	 * <p>
 	 * Handles a {@link PaginationEvent} by optionally consuming it, and possibly
-	 * altering this {@link Paginator}'s {@link Paginator#getMaxPage maximum page}. Any
-	 * other processing tasks may be performed in this period.
+	 * altering this {@link Paginator}'s {@link Paginator#getMaxPage maximum page}.
+	 * Any other processing tasks may be performed in this period.
 	 * </p>
 	 * <p>
 	 * If the {@link PaginationEvent} is consumed, the {@link #page} is not updated,
@@ -133,12 +130,11 @@ public abstract class Paginator implements InputConsumer<ButtonClickEvent> {
 	@Override
 	public boolean consume(ButtonClickEvent event, InputProcessor<? extends ButtonClickEvent> processor,
 			InputConsumer<ButtonClickEvent> consumer) {
-		if (!event.getMessageId().equals(message.getId()))
+		if (message == null || !event.getMessageId().equals(message.getId()))
 			return false;
 		if (!(event.getComponentId().equals(left.getId()) || event.getComponentId().equals(right.getId())
-				|| event.getComponentId().equals(leftAll.getId()) || event.getComponentId().equals(rightAll.getId()))) {
+				|| event.getComponentId().equals(leftAll.getId()) || event.getComponentId().equals(rightAll.getId())))
 			return false;
-		}
 
 		var e = fireEvent(event);
 		if (e.isConsumed())
