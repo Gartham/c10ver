@@ -55,7 +55,6 @@ public class CloverMenuHandler implements MessageInputConsumer {
 //		menu.send(event.getChannel());
 		
 		Menu menu = new Menu(event.getAuthor());
-		menu.setMaxPage(5);
 		
 		
 		

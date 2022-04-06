@@ -14,15 +14,13 @@ public abstract class Paginator implements InputConsumer<ButtonClickEvent> {
 	private InputProcessor<ButtonClickEvent> buttonProcessor;
 	private final ButtonBox.Button leftAll, left, rightAll, right;
 
-	private int maxPage, page;
+	private int page;
 
 	public int getPage() {
 		return page;
 	}
 
-	public int getMaxPage() {
-		return maxPage;
-	}
+	protected abstract int getMaxPage();
 
 	public ButtonBox.Button getLeftAll() {
 		return leftAll;
@@ -38,10 +36,6 @@ public abstract class Paginator implements InputConsumer<ButtonClickEvent> {
 
 	public ButtonBox.Button getRight() {
 		return right;
-	}
-
-	public void setMaxPage(int maxPage) {
-		this.maxPage = maxPage;
 	}
 
 	public Paginator(ButtonBox box) {
@@ -71,7 +65,7 @@ public abstract class Paginator implements InputConsumer<ButtonClickEvent> {
 	/**
 	 * <p>
 	 * Handles a {@link PaginationEvent} by optionally consuming it, and possibly
-	 * altering this {@link Paginator}'s {@link Paginator#maxPage maxPage}. Any
+	 * altering this {@link Paginator}'s {@link Paginator#getMaxPage maximum page}. Any
 	 * other processing tasks may be performed in this period.
 	 * </p>
 	 * <p>
@@ -123,7 +117,7 @@ public abstract class Paginator implements InputConsumer<ButtonClickEvent> {
 		else if (source.getComponentId().equals(right.getId()))
 			requestedPage = page + 1;
 		else if (source.getComponentId().equals(rightAll.getId()))
-			requestedPage = maxPage;
+			requestedPage = getMaxPage();
 		else
 			throw new RuntimeException("This should never happen.");
 
@@ -162,8 +156,7 @@ public abstract class Paginator implements InputConsumer<ButtonClickEvent> {
 			leftAll.enable();
 		}
 
-		if (maxPage < 0)
-			maxPage = 0;
+		int maxPage = getMaxPage();
 		if (e.getNewPage() > maxPage) {
 			page = maxPage;
 			right.disable();

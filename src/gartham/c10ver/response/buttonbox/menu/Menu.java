@@ -15,17 +15,14 @@ public class Menu extends Paginator {
 
 	public void addPage(Page page, int position) {
 		pages.add(position, page);
-		setMaxPage(pages.size());
 	}
 
 	public void addPage(Page page) {
 		pages.add(page);
-		setMaxPage(pages.size());
 	}
 
 	public void removePage(int position) {
 		pages.remove(position);
-		setMaxPage(pages.size());
 	}
 
 	public Page getPage(int position) {
@@ -34,7 +31,11 @@ public class Menu extends Paginator {
 
 	public void clear() {
 		pages.clear();
-		setMaxPage(0);
+	}
+	
+	@Override
+	protected int getMaxPage() {
+		return Math.max(0, getMaxPage());
 	}
 
 	private final User target;
@@ -62,7 +63,7 @@ public class Menu extends Paginator {
 
 	@Override
 	protected void update(ButtonClickEvent event) {
-		pages.get(page).update(event, box, this);
+		pages.get(getPage()).update(event, getBox(), this);
 	}
 
 }
