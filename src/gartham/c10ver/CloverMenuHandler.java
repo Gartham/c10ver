@@ -57,10 +57,12 @@ public class CloverMenuHandler implements MessageInputConsumer {
 //		menu.send(event.getChannel());
 
 		Menu menu = new Menu(event.getAuthor());
-		menu.addPage(Page.page("I like cars."));
-		menu.addPage(
-				Page.page(new EmbedBuilder().setAuthor("An embed about cars.").setDescription("I still like cars.")));
-		menu.send(event.getChannel().sendMessage("This is a message about me liking cars."),
+		menu.addPage(Page.page("This is the 1st page."));
+		menu.addPage(Page.page("This is the second page."));
+		menu.addPage(Page.page("This is the third page on this menu."));
+		menu.send(
+				event.getChannel()
+						.sendMessage("**Initial Message** - This can be (and usually is) the same as the first page."),
 				clover.getEventHandler().getButtonClickProcessor());
 
 		return true;
