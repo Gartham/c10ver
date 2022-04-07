@@ -1,12 +1,15 @@
 package gartham.c10ver.response.buttonbox;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+
+import org.alixia.javalibrary.JavaTools;
 
 import gartham.c10ver.response.MutableButton;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 
-public class ButtonBox {
+public class ButtonBox implements Iterable<ButtonBox.Button> {
 	private final Button[][] buttons = new Button[5][5];
 	{
 		for (int i = 0; i < buttons.length; i++)
@@ -52,6 +55,11 @@ public class ButtonBox {
 			super(id);
 		}
 
+	}
+
+	@Override
+	public Iterator<Button> iterator() {
+		return JavaTools.iterator(buttons);
 	}
 
 }
