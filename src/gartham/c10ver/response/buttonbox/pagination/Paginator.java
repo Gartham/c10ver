@@ -108,9 +108,12 @@ public abstract class Paginator implements InputConsumer<ButtonClickEvent> {
 	 * @param event The {@link ButtonClickEvent} to process.
 	 */
 	protected abstract void update(ButtonClickEvent event);
-	
+
 	/**
-	 * This method prepares the buttons to be sent on the next rendering of the current page based on the current and max page of this Paginator. (Page changing buttons will need to be updated if the last or first page is being shown.)
+	 * This method prepares the buttons to be sent on the next rendering of the
+	 * current page based on the current and max page of this Paginator. (Page
+	 * changing buttons will need to be updated if the last or first page is being
+	 * shown.)
 	 *
 	 */
 	protected final void recalculateButtons() {
@@ -121,7 +124,7 @@ public abstract class Paginator implements InputConsumer<ButtonClickEvent> {
 			left.enable();
 			leftAll.enable();
 		}
-		if(page == getMaxPage()) {
+		if (page == getMaxPage()) {
 			right.disable();
 			rightAll.disable();
 		} else {
@@ -169,7 +172,10 @@ public abstract class Paginator implements InputConsumer<ButtonClickEvent> {
 		// be (and update buttons accordingly).
 		// Note that the maxPage button may have been updated during the event's firing.
 
-		if (e.getNewPage() < 0) {
+		page = e.getNewPage();
+		System.out.println("Page: " + page);
+
+		if (page <= 0) {
 			page = 0;
 			left.disable();
 			leftAll.disable();
@@ -179,7 +185,8 @@ public abstract class Paginator implements InputConsumer<ButtonClickEvent> {
 		}
 
 		int maxPage = getMaxPage();
-		if (e.getNewPage() > maxPage) {
+		System.out.println(maxPage);
+		if (page >= maxPage) {
 			page = maxPage;
 			right.disable();
 			rightAll.disable();
@@ -187,7 +194,7 @@ public abstract class Paginator implements InputConsumer<ButtonClickEvent> {
 			right.enable();
 			rightAll.enable();
 		}
-
+		update(event);
 		return true;
 	}
 
