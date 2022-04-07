@@ -173,7 +173,6 @@ public abstract class Paginator implements InputConsumer<ButtonClickEvent> {
 		// Note that the maxPage button may have been updated during the event's firing.
 
 		page = e.getNewPage();
-		System.out.println("Page: " + page);
 
 		if (page <= 0) {
 			page = 0;
@@ -185,7 +184,6 @@ public abstract class Paginator implements InputConsumer<ButtonClickEvent> {
 		}
 
 		int maxPage = getMaxPage();
-		System.out.println(maxPage);
 		if (page >= maxPage) {
 			page = maxPage;
 			right.disable();
