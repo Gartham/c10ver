@@ -56,7 +56,7 @@ public class CloverMenuHandler implements MessageInputConsumer {
 //		menu.getPaginator().setOneTime(true);
 //		menu.send(event.getChannel());
 
-		Menu menu = new Menu(event.getAuthor());
+		Menu<Page> menu = new Menu<>(event.getAuthor());
 		menu.addPage(Page.page("This is the 1st page."));
 		menu.addPage(Page.page("This is the second page."));
 		menu.addPage(Page.page("This is the third page on this menu."));

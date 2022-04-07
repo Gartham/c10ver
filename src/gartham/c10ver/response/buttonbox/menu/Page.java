@@ -32,7 +32,7 @@ public interface Page {
 	 *                  that the {@link Menu} is now on this page.
 	 * @param menu      The {@link Menu} that this {@link Page} belongs to.
 	 */
-	void update(ButtonClickEvent event, ButtonBox buttonbox, Menu menu);
+	void update(ButtonClickEvent event, ButtonBox buttonbox, Menu<?> menu);
 
 	static Page page(String pageContents) {
 		return (event, buttonbox, menu) -> event.editComponents(buttonbox.rows()).setContent(pageContents).queue();

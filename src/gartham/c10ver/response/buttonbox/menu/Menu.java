@@ -13,15 +13,23 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
-public class Menu extends Paginator {
+public class Menu<P extends Page> extends Paginator {
 
-	private final List<Page> pages = new ArrayList<>();
+	private final List<P> pages = new ArrayList<>();
 
-	public void addPage(Page page, int position) {
+	protected final List<P> getPages() {
+		return pages;
+	}
+
+	public P getCurrentPage() {
+		return getPages().get(getPage());
+	}
+
+	public void addPage(P page, int position) {
 		pages.add(position, page);
 	}
 
-	public void addPage(Page page) {
+	public void addPage(P page) {
 		pages.add(page);
 	}
 
@@ -29,7 +37,7 @@ public class Menu extends Paginator {
 		pages.remove(position);
 	}
 
-	public Page getPage(int position) {
+	public P getPage(int position) {
 		return pages.get(position);
 	}
 
