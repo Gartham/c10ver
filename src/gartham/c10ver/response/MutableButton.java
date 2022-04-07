@@ -85,4 +85,11 @@ public class MutableButton {
 		return button;
 	}
 
+	public MutableButton mimic(MutableButton other) {
+		button = button.withDisabled(other.button.isDisabled()).withEmoji(other.button.getEmoji())
+				.withId(other.button.getId()).withLabel(other.button.getLabel()).withStyle(other.button.getStyle())
+				.withUrl(other.button.getUrl());
+		return this;
+	}
+
 }
