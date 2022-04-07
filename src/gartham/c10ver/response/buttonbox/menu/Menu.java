@@ -39,7 +39,7 @@ public class Menu extends Paginator {
 
 	@Override
 	protected int getMaxPage() {
-		return getMaxPage() - 1;
+		return pages.size() - 1;
 	}
 
 	private final User target;
