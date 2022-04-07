@@ -17,6 +17,14 @@ public class ButtonBox implements Iterable<ButtonBox.Button> {
 				buttons[i][j] = new Button(String.valueOf(i * 5 + j));
 	}
 
+	public void update(Button[][] grid) {
+
+	}
+
+	public void update(ButtonBox other) {
+
+	}
+
 	public Button get(int x, int y) {
 		return buttons[x][y];
 	}
@@ -53,6 +61,12 @@ public class ButtonBox implements Iterable<ButtonBox.Button> {
 
 		public Button(String id) {
 			super(id);
+		}
+
+		public Button mimic(Button other) {
+			present = other.present;
+			super.mimic(other);
+			return this;
 		}
 
 	}
