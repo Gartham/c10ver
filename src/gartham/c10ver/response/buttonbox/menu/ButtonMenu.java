@@ -23,11 +23,12 @@ public class ButtonMenu extends Menu<ButtonPage> {
 				&& event.getMessageIdLong() == getMessage().getIdLong()) {
 			String compid = event.getComponentId();
 			var bl = getCurrentPage();
-			if (bl.containsComponent(compid))
+			if (bl.containsComponent(compid)) {
 				bl.handle(event);
-			return true;
-		} else
-			return super.consume(event, processor, consumer);
+				return true;
+			}
+		}
+		return super.consume(event, processor, consumer);
 	}
 
 }

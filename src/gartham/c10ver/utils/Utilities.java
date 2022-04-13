@@ -36,6 +36,7 @@ import gartham.c10ver.economy.AbstractMultiplier;
 import gartham.c10ver.economy.items.Inventory;
 import gartham.c10ver.economy.items.ItemBunch;
 import gartham.c10ver.economy.users.EconomyUser.Receipt;
+import net.dv8tion.jda.api.interactions.components.Button;
 
 public final class Utilities {
 
@@ -480,6 +481,21 @@ public final class Utilities {
 
 	public static String stripHerePings(String msg) {
 		return msg.replace("@here", "@\u200Bhere");
+	}
+
+	public static Button copy(Button from, Button to) {
+		to = from.isDisabled() ? to.asDisabled() : to.asEnabled();
+		if (from.getEmoji() != null)
+			to = to.withEmoji(from.getEmoji());
+		if (from.getId() != null)
+			to = to.withId(from.getId());
+		if (from.getLabel() != null)
+			to = to.withLabel(from.getLabel());
+		if (from.getStyle() != null)
+			to = to.withStyle(from.getStyle());
+		if (from.getUrl() != null)
+			to = to.withUrl(from.getUrl());
+		return to;
 	}
 
 }

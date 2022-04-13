@@ -17,12 +17,27 @@ public class ButtonBox implements Iterable<ButtonBox.Button> {
 				buttons[i][j] = new Button(String.valueOf(i * 5 + j));
 	}
 
-	public void update(Button[][] grid) {
-
+	public ButtonBox copy(Button[][] grid) {
+		for (int i = 0; i < grid.length; i++)
+			for (int j = 0; j < grid[i].length; j++)
+				buttons[i][j].mimic(grid[i][j]);
+		return this;
 	}
 
-	public void update(ButtonBox other) {
+	public ButtonBox copy(ButtonBox other) {
+		return copy(other.buttons);
+	}
 
+	public ButtonBox update(Button[][] grid) {
+		for (int i = 0; i < grid.length; i++)
+			for (int j = 0; j < grid[i].length; j++)
+				if (grid[i][j].present)
+					buttons[i][j].mimic(grid[i][j]);
+		return this;
+	}
+
+	public ButtonBox update(ButtonBox other) {
+		return update(other.buttons);
 	}
 
 	public Button get(int x, int y) {
@@ -45,6 +60,9 @@ public class ButtonBox implements Iterable<ButtonBox.Button> {
 	public class Button extends MutableButton {
 
 		private boolean present;
+		{
+			enable();
+		}
 
 		public boolean isPresent() {
 			return present;

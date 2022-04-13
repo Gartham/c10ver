@@ -68,7 +68,7 @@ public class Menu<P extends Page> extends Paginator {
 	@Override
 	protected void handle(PaginationEvent event) {
 		if (event.getSource().getUser().getIdLong() != target.getIdLong()) {
-			event.getSource().reply("That's not for you.").queue();
+			event.getSource().reply("That's not for you.").setEphemeral(true).queue();
 			event.consume();
 		}
 	}
