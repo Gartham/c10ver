@@ -13,16 +13,13 @@ import org.alixia.javalibrary.util.StringGateway;
 
 import gartham.c10ver.data.autosave.SavablePropertyObject;
 import gartham.c10ver.economy.Economy;
-import gartham.c10ver.economy.GARPGState;
 import gartham.c10ver.economy.Mailbox;
 import gartham.c10ver.economy.Multiplier;
 import gartham.c10ver.economy.MultiplierManager;
 import gartham.c10ver.economy.RewardsOperation;
 import gartham.c10ver.economy.Server;
-import gartham.c10ver.economy.accolades.AccoladeList;
 import gartham.c10ver.economy.items.UserInventory;
 import gartham.c10ver.economy.questions.Question;
-import gartham.c10ver.games.rpg.creatures.CreatureBox;
 import net.dv8tion.jda.api.entities.Guild;
 
 public class EconomyUser extends SavablePropertyObject {
@@ -37,6 +34,7 @@ public class EconomyUser extends SavablePropertyObject {
 			toObjectGateway(Multiplier::new));
 	private final Property<ArrayList<String>> joinedGuilds = listProperty("joined-guilds",
 			toStringGateway(StringGateway.string()));
+
 	public ArrayList<String> getJoinedGuilds() {
 		return joinedGuilds.get();
 	}
@@ -102,13 +100,9 @@ public class EconomyUser extends SavablePropertyObject {
 	private final UserAccount account;
 	private final UserInventory inventory;
 	private final Economy economy;
-	private final AccoladeList accolades;
 	private final UserSettings settings;
-	private final CreatureBox creatures;
 	private final String userID;
 	private final Mailbox mailbox;
-	private final GARPGState garpgData;
-
 	public net.dv8tion.jda.api.entities.User getUser() {
 		try {
 			return economy.getClover().getBot().retrieveUserById(userID).complete();
@@ -130,10 +124,6 @@ public class EconomyUser extends SavablePropertyObject {
 		return inventory;
 	}
 
-	public AccoladeList getAccolades() {
-		return accolades;
-	}
-
 	public UserAccount getAccount() {
 		return account;
 	}
@@ -144,10 +134,6 @@ public class EconomyUser extends SavablePropertyObject {
 
 	public Mailbox getMailbox() {
 		return mailbox;
-	}
-
-	public GARPGState getGarpgState() {
-		return garpgData;
 	}
 
 	/**
@@ -255,11 +241,8 @@ public class EconomyUser extends SavablePropertyObject {
 		userID = userDirectory.getName();
 		account = new UserAccount(userDirectory, this);
 		inventory = new UserInventory(userDirectory);
-		accolades = new AccoladeList(new File(userDirectory, "accolades.txt"));
-		creatures = new CreatureBox(new File(userDirectory, "creatures.txt"));
 		settings = new UserSettings(userDirectory, this);
 		mailbox = new Mailbox(new File(userDirectory, "mailbox"), this);
-		garpgData = new GARPGState(new File(userDirectory, "garpg/data"), this);
 		if (load)
 			load();
 		if (getMessageCount() == null)
