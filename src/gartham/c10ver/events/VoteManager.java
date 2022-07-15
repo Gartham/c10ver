@@ -34,6 +34,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
 public class VoteManager {
@@ -69,7 +70,6 @@ public class VoteManager {
 		if (Math.random() > 0.5)
 			multipliers.put(AbstractMultiplier.ofHr(12, BigDecimal.valueOf(5, 1)), 1);
 
-
 		EconomyUser u = clover.getEconomy().getUser(member.getId());
 		u.incrementVoteCount();
 		var rec = u.reward(RewardsOperation.build(u, member.getGuild(),
@@ -95,11 +95,11 @@ public class VoteManager {
 			channel.sendMessageEmbeds(embed.setFooter(
 					"You can automatically be reminded when it's time to vote by reacting to this message! (Click the alarm clock.)")
 					.build()).queue((Consumer<? super Message>) t -> {
-						t.addReaction("\u23F0").queue();
+						t.addReaction(Emoji.fromUnicode("\u23F0")).queue();
 						clover.getEventHandler().getReactionAdditionProcessor().registerInputConsumer(
 								((MessageReactionInputConsumer<MessageReactionAddEvent>) (event, b, consumer) -> {
-									if (event.getReactionEmote().isEmoji()
-											&& event.getReactionEmote().getEmoji().equals("\u23F0")) {
+									if (event.getReaction().getEmoji().getType() == Emoji.Type.UNICODE
+											&& event.getReaction().getEmoji().getName().equals("\u23F0")) {
 										clover.getEventHandler().getReactionAdditionProcessor()
 												.removeInputConsumer(consumer);
 										channel.sendMessage(member.getAsMention()

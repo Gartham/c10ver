@@ -36,7 +36,7 @@ import gartham.c10ver.economy.AbstractMultiplier;
 import gartham.c10ver.economy.items.Inventory;
 import gartham.c10ver.economy.items.ItemBunch;
 import gartham.c10ver.economy.users.EconomyUser.Receipt;
-import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 public final class Utilities {
 
@@ -483,7 +483,9 @@ public final class Utilities {
 		return msg.replace("@here", "@\u200Bhere");
 	}
 
-	public static Button copy(Button from, Button to) {
+	public static Button copy(
+			Button from,
+			Button to) {
 		to = from.isDisabled() ? to.asDisabled() : to.asEnabled();
 		if (from.getEmoji() != null)
 			to = to.withEmoji(from.getEmoji());

@@ -100,7 +100,7 @@ public interface MessageReactionInputConsumer<E extends GenericMessageReactionEv
 	default MessageReactionInputConsumer<E> anyOf(String... emojis) {
 		return (event, processor, consumer) -> {
 			for (var s : emojis)
-				if (event.getReactionEmote().getEmoji().equals(s))
+				if (event.getReaction().getEmoji().equals(s))
 					return consume(event, processor, consumer);
 			return false;
 		};

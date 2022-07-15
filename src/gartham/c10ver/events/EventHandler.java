@@ -5,7 +5,7 @@ import java.util.Map;
 
 import gartham.c10ver.commands.InputProcessor;
 import net.dv8tion.jda.api.events.GenericEvent;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
@@ -29,8 +29,8 @@ public class EventHandler implements EventListener {
 		return getProcessor(MessageReactionAddEvent.class);
 	}
 
-	public InputProcessor<ButtonClickEvent> getButtonClickProcessor() {
-		return getProcessor(ButtonClickEvent.class);
+	public InputProcessor<ButtonInteractionEvent> getButtonClickProcessor() {
+		return getProcessor(ButtonInteractionEvent.class);
 	}
 
 	@SuppressWarnings("unchecked")

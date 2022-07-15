@@ -268,9 +268,9 @@ public class PrivateChannelCommand extends ParentCommand {
 										if (acc.withdraw(2500)) {
 											pc.getUsers().add(u.getId());
 											pc.getDiscordChannel()
-													.createPermissionOverride(
+													.upsertPermissionOverride(
 															pc.getDiscordChannel().getGuild().getMember(u))
-													.setAllow(Permission.CREATE_INSTANT_INVITE,
+													.setAllowed(Permission.CREATE_INSTANT_INVITE,
 															Permission.MESSAGE_ADD_REACTION,
 															Permission.MESSAGE_ATTACH_FILES,
 															Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_HISTORY,
@@ -355,8 +355,8 @@ public class PrivateChannelCommand extends ParentCommand {
 						if (acc.withdraw(25000)) {
 							var cat = g.getCategoryById(cg);
 							var tc = cat.createTextChannel(inv.args[0]).complete();
-							tc.createPermissionOverride(g.getMember(inv.event.getAuthor()))
-									.setAllow(Permission.CREATE_INSTANT_INVITE, Permission.MESSAGE_ADD_REACTION,
+							tc.upsertPermissionOverride(g.getMember(inv.event.getAuthor()))
+									.setAllowed(Permission.CREATE_INSTANT_INVITE, Permission.MESSAGE_ADD_REACTION,
 											Permission.MESSAGE_ATTACH_FILES, Permission.MESSAGE_EMBED_LINKS,
 //											Permission.MANAGE_WEBHOOKS,
 											// Webhook permissions (currently) have too many security exploits,
