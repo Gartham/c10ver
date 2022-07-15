@@ -17,20 +17,13 @@ import gartham.c10ver.economy.items.utility.foodstuffs.Sandwich;
 import gartham.c10ver.economy.users.EconomyUser;
 import gartham.c10ver.utils.Utilities;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import zeale.applicationss.notesss.utilities.generators.Generator;
 
 public class CloverMessageConsumer implements InputConsumer<MessageReceivedEvent> {
 
-	private final Generator<InfoPopup> infoPopupGenerator;
 	private final Clover clover;
-
-	public Generator<InfoPopup> getTipGenerator() {
-		return infoPopupGenerator;
-	}
 
 	public CloverMessageConsumer(Clover clover) {
 		this.clover = clover;
-		infoPopupGenerator = Generator.loop(clover.getTiplist());
 	}
 
 	@Override
