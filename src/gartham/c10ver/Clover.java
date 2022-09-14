@@ -46,49 +46,6 @@ import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 public class Clover {
-	{
-
-		COMP_BLOCK: {
-			InputStream stream = Clover.class.getResourceAsStream("tips.txt");
-			LOAD_BLOCK: if (stream != null) {
-				List<InfoPopup> tl = new ArrayList<>(5);
-				try (var s = new Scanner(stream)) {
-					while (s.hasNextLine())
-						tl.add(tip(s.nextLine()));
-				} catch (Exception e) {
-					e.printStackTrace();
-					break LOAD_BLOCK;
-				}
-				tiplist = tl;
-				tl.add(1, event -> event.getChannel().sendMessage(
-						"You can support this server by voting, and get **tons of rewards**! Check out the `~vote` command and vote here: https://top.gg/servers/"
-								+ event.getGuild().getId() + "/vote")
-						.queue());
-				tl.add(9,
-						e -> e.getChannel().sendMessage(
-								"Vote vote vote vote... ^c^ https://top.gg/servers/" + e.getGuild().getId() + "/vote")
-								.queue());
-				break COMP_BLOCK;
-			}
-			tiplist = List.of(tip(
-					"You can get daily, weekly, and monthly rewards with the commands: `~daily`, `~weekly`, and `~monthly` respectively!"),
-					event -> event.getChannel().sendMessage(
-							"You can support this server by voting, and get **tons of rewards**! Check out the `~vote` command and vote here: https://top.gg/servers/"
-									+ event.getGuild().getId() + "/vote")
-							.queue(),
-					tip("Every time you send a message in #general, there's a small chance you'll stumble upon some loot."),
-					tip("You can open crates using the `open crate` command! Just type `~open crate crate-type`."),
-					tip("You can pay other users using the `pay` command!"),
-					tip("Eating food will give you a temporary multiplier. You can eat food with `~use food-name`."),
-					tip("Wanna support us? Check out the official store (http://clover.gartham.com/store )!"),
-					tip("You can buy color roles using the `~color` command!"),
-					tip("Low on funds? Start a Math lobby with `~math` and get cloves for doing math!"),
-					e -> e.getChannel().sendMessage(
-							"Vote vote vote vote... ^c^ https://top.gg/servers/" + e.getGuild().getId() + "/vote")
-							.queue());
-		}
-
-	}
 
 	private final CloverConfiguration config;
 	private final File root = new File("data");
@@ -97,20 +54,9 @@ public class Clover {
 	private final CommandProcessor commandProcessor = new CloverCommandProcessor(this);
 	private final EventHandler eventHandler = new EventHandler();
 	private final Economy economy = new Economy(new File(root, "economy"), this);
-	private final InviteTracker inviteTracker = new InviteTracker(this);
 	private final Changelog changelog;
 	private final Set<String> devlist;
-	private final List<String> wordlist;
-	private final List<InfoPopup> tiplist;
-	private final VoteManager voteManager = new VoteManager(this);
 
-	public InviteTracker getInviteTracker() {
-		return inviteTracker;
-	}
-
-	public VoteManager getVoteManager() {
-		return voteManager;
-	}
 
 	public CloverConfiguration getConfig() {
 		return config;
@@ -129,10 +75,6 @@ public class Clover {
 	 */
 	public File getRandStorage(String ns) {
 		return new File(new File(root, "random-storage"), ns);
-	}
-
-	public List<InfoPopup> getTiplist() {
-		return tiplist;
 	}
 
 	private final TransactionHandler transactionHandler = new SocketTransactionHandler(42000);
@@ -274,17 +216,6 @@ public class Clover {
 		});
 		eventHandler.getProcessor(MessageReceivedEvent.class).registerInputConsumer(new CloverMessageConsumer(this));
 		eventHandler.getProcessor(MessageReceivedEvent.class).registerInputConsumer(new CloverMenuHandler(this));
-		eventHandler.getProcessor(GuildMemberJoinEvent.class)
-				.registerInputConsumer(new CloverGuildMemberJoinConsumer(this));
-		eventHandler.getProcessor(GuildInviteCreateEvent.class).registerInputConsumer((event, processor, consumer) -> {
-			inviteTracker.inviteCreated(event);
-			return false;
-		});
-		eventHandler.getProcessor(GuildInviteDeleteEvent.class).registerInputConsumer((a, b, c) -> {
-			inviteTracker.inviteDeleted(a);
-			return false;
-		});
-		inviteTracker.initialize();
 
 		if (!configuration.disableTransactionHandler)
 			transactionHandler.enable();
