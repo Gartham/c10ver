@@ -431,6 +431,10 @@ public final class Utilities {
 		return CURRENCY_SYMBOL + ' ' + formatNumber(money);
 	}
 
+	public static String format(long money) {
+		return format(BigInteger.valueOf(money));
+	}
+
 	public static double rand(double lower, double upper) {
 		return lower + Math.random() * (upper - lower);
 	}
